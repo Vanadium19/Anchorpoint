@@ -1,14 +1,16 @@
 using UnityEngine;
-
-public sealed class Tile
+namespace CampBuild
 {
-    public Vector3 WorldPosition { get; }
-    public bool IsOccupied { get; private set; }
-
-    public Tile(Vector3 worldPosition)
+    public sealed class Tile
     {
-        WorldPosition = worldPosition;
-    }
+        public Vector3 WorldPosition { get; }
+        public bool IsOccupied { get; private set; }
 
-    public void Occupy() => IsOccupied = true;
+        public Tile(Vector3 worldPosition)
+        {
+            WorldPosition = worldPosition;
+        }
+
+        public void Occupy() => IsOccupied = true;
+    }
 }

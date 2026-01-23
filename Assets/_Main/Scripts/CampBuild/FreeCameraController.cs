@@ -1,86 +1,80 @@
 using UnityEngine;
-
-public class FreeCameraController : MonoBehaviour
+namespace CampBuild
 {
-    [SerializeField] private float moveSpeed = 5f; // Скорость движения
-    [SerializeField] private float lookSpeed = 2f; // Скорость поворота
-    [SerializeField] private float minHeight = 1f; // Минимальная высота камеры
-    [SerializeField] private float maxHeight = 10f; // Максимальная высота камеры (по желанию)
-
-    private bool _isActive = false; // Камера активна или нет
-    private bool _isRotating = false; // Флаг для вращения
-    private Vector3 _initialPosition; // Исходная позиция камеры
-    private Quaternion _initialRotation; // Исходное вращение камеры
-    private float _rotationX = 0f; // Переменная для отслеживания угла вращения по оси X (вверх/вниз)
-
-    private void Start()
+    public class FreeCameraController : MonoBehaviour
     {
-        // Сохраняем начальную позицию и вращение камеры
-        _initialPosition = transform.position;
-        _initialRotation = transform.rotation;
-    }
+        [SerializeField] private float moveSpeed = 5f; 
+        [SerializeField] private float lookSpeed = 2f; 
+        [SerializeField] private float minHeight = 1f; 
+        [SerializeField] private float maxHeight = 10f; 
 
-    private void Update()
-    {
-        if (!_isActive) return; // Если камера не активна, не выполняем действия
+        private bool _isActive = false; 
+        private bool _isRotating = false; 
+        private Vector3 _initialPosition; 
+        private Quaternion _initialRotation; 
+        private float _rotationX = 0f; 
 
-        MoveCamera(); // Двигаем камеру
-        RotateCamera(); // Поворачиваем камеру
-
-        // Ограничиваем высоту камеры
-        Vector3 position = transform.position;
-        position.y = Mathf.Clamp(position.y, minHeight, maxHeight); // Ограничиваем ось Y
-        transform.position = position;
-    }
-
-    private void MoveCamera()
-    {
-        // Движение камеры по осям X и Z
-        float horizontal = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-        float vertical = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-
-        // Перемещаем по осям X и Z (не учитываем ось Y)
-        transform.Translate(horizontal, 0f, vertical);
-    }
-
-    private void RotateCamera()
-    {
-        // Вращение камеры с помощью колесика мыши
-        if (Input.GetMouseButtonDown(2)) // Если нажали на колесико мыши
+        private void Start()
         {
-            _isRotating = true;
+            _initialPosition = transform.position;
+            _initialRotation = transform.rotation;
         }
 
-        if (Input.GetMouseButtonUp(2)) // Если отпустили колесико мыши
+        private void Update()
         {
-            _isRotating = false;
+            if (!_isActive) return; 
+
+            MoveCamera(); 
+            RotateCamera(); 
+
+
+            Vector3 position = transform.position;
+            position.y = Mathf.Clamp(position.y, minHeight, maxHeight); 
+            transform.position = position;
         }
 
-        // Вращение камеры только если колесико мыши нажато
-        if (_isRotating)
+        private void MoveCamera()
         {
+            float horizontal = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+            float vertical = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
+
+            transform.Translate(horizontal, 0f, vertical);
+        }
+
+        private float _rotationY;
+
+        private void RotateCamera()
+        {
+            if (Input.GetMouseButtonDown(2))
+                _isRotating = true;
+
+            if (Input.GetMouseButtonUp(2))
+                _isRotating = false;
+
+            if (!_isRotating)
+                return;
+
             float mouseX = Input.GetAxis("Mouse X") * lookSpeed;
-            float mouseY = Input.GetAxis("Mouse Y") * lookSpeed;
 
-            // Ограничиваем вращение по оси X (вверх/вниз), чтобы камера не переворачивалась
-            _rotationX -= mouseY;
-            _rotationX = Mathf.Clamp(_rotationX, -80f, 80f); // Ограничиваем угол вращения по оси X
+            _rotationY += mouseX;
 
-            // Окружность камеры по оси Y и ограничение по оси X для вращения по вертикали
-            transform.localRotation = Quaternion.Euler(_rotationX, transform.localEulerAngles.y + mouseX, 0f);
+            transform.localRotation = Quaternion.Euler(
+                _initialRotation.eulerAngles.x, 
+                _rotationY,                     
+                0f                            
+            );
         }
-    }
 
-    // Метод для включения / выключения камеры
-    public void SetActive(bool isActive)
-    {
-        _isActive = isActive;
 
-        // Если камера деактивирована, возвращаем её в исходное положение
-        if (!_isActive)
+        public void SetActive(bool isActive)
         {
-            transform.position = _initialPosition;
-            transform.rotation = _initialRotation;
+            _isActive = isActive;
+
+            if (!_isActive)
+            {
+                transform.position = _initialPosition;
+                transform.rotation = _initialRotation;
+            }
         }
     }
 }

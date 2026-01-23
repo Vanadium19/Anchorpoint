@@ -1,15 +1,17 @@
 using UnityEngine;
-
-public sealed class BuildMenuView : MonoBehaviour
+namespace CampBuild
 {
-    private void Update()
+    public sealed class BuildMenuView : MonoBehaviour
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
-            Toggle();
-    }
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+                Toggle();
+        }
 
-    private void Toggle()
-    {
-        gameObject.SetActive(!gameObject.activeSelf);
+        private void Toggle()
+        {
+            gameObject.SetActive(!gameObject.activeSelf);
+        }
     }
 }
