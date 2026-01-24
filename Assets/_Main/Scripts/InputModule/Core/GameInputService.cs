@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using InputModule.Configs;
 
@@ -59,5 +60,10 @@ namespace InputModule.Core
         // --- Управление сервисом ---
         public void Enable() => _actions.Enable();
         public void Disable() => _actions.Disable();
+        public void Dispose()
+        {
+            _actions.Disable();
+            _actions.Dispose();
+        }
     }
 }

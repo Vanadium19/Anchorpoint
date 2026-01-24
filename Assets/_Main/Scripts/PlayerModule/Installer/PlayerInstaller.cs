@@ -3,6 +3,8 @@ using Zenject;
 using PlayerModule.Configs;
 using PlayerModule.Controllers;
 using PlayerModule.View;
+using EntityModule;
+using PlayerModule.Presenters;
 
 namespace PlayerModule.Installers
 {
@@ -11,18 +13,20 @@ namespace PlayerModule.Installers
         [SerializeField] private PlayerConfig playerConfig;
         [SerializeField] private PlayerView playerView;
 
+        [SerializeField] private PlayerHUDView hudView;
+        [SerializeField] private GameOverView gameOverView;
         public override void InstallBindings()
         {
-            // 1. Биндим конфиг
             Container.Bind<PlayerConfig>().FromInstance(playerConfig).AsSingle();
-
-            // 2. Биндим View
             Container.Bind<PlayerView>().FromInstance(playerView).AsSingle();
-
-            // 3. Биндим Контроллер
-            // InterfacesToAndSelfTo означает, что он биндится и как PlayerController, 
-            // и как IInitializable (Start), и как ITickable (Update)
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
+
+            Container.Bind<HealthComponent>().FromComponentOnRoot().AsSingle();
+            Container.Bind<PlayerHUDView>().FromInstance(hudView).AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerHealthPresenter>().AsSingle();
+
+            Container.Bind<GameOverView>().FromInstance(gameOverView).AsSingle();
+            Container.BindInterfacesAndSelfTo<GameOverPresenter>().AsSingle();
         }
     }
 }

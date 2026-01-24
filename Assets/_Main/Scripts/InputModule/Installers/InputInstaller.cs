@@ -7,7 +7,7 @@ namespace InputModule.Installers
     {
         public override void InstallBindings()
         {
-            Container.Bind<IGameInput>().To<GameInputService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<GameInputService>().AsSingle();
         }
     }
 }

@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20ae7b1973634924c9617d38a0222010, type: 3}
   m_Name: PlayerConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModule.Configs.PlayerConfig
-  walkSpeed: 1.5
+  walkSpeed: 3
   crouchSpeed: 2.5
   gravity: -15
   jumpHeight: 1.2
   mouseSensitivity: 0.1
   lookXLimit: 85
-  standHeight: 2
-  crouchHeight: 1
+  standHeight: 1.5
+  crouchHeight: 1.1
   crouchTransitionSpeed: 10
   leanAngle: 15
   leanOffset: 0.5
   leanSpeed: 10
-  eyeHeightStanding: 1.6
-  eyeHeightCrouching: 0.9
+  eyeHeightStanding: 1.2
+  eyeHeightCrouching: 0.8

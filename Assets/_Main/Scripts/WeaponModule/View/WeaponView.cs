@@ -16,8 +16,6 @@ namespace WeaponModule.View
 
         [Header("Recoil Targets")]
         [SerializeField] private Transform recoilPivot;
-
-        // Ссылка на префаб пули (лучше через пул, но пока так)
         [SerializeField] private GameObject bulletPrefab;
 
         private Vector3 _hipPosition;
@@ -42,7 +40,6 @@ namespace WeaponModule.View
                 _cameraTransform = Camera.main.transform.parent;
         }
 
-        // --- Действия ---
         public void SetActive(bool isActive)
         {
             gameObject.SetActive(isActive);
@@ -85,16 +82,12 @@ namespace WeaponModule.View
         {
             if (handsAnimator)
             {
-                // 1. Основное состояние (бежим или нет)
                 handsAnimator.SetBool("IsMoving", isMoving);
 
-                // 2. Для Blend Tree (качание оружия)
-                // 0.1f - это время сглаживания (dampTime), чтобы анимация была плавной
                 handsAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
                 handsAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
             }
 
-            // Если у пушки есть свой аниматор, передаем и туда
             if (gunAnimator)
             {
                 gunAnimator.SetBool("IsMoving", isMoving);
@@ -103,43 +96,29 @@ namespace WeaponModule.View
             }
         }
 
-        // --- Прицеливание (Update Logic) ---
-        // View сама интерполирует позицию, Контроллер только говорит "Прицелься"
 
         public void UpdateAiming(bool isAiming, float stabilityTarget)
         {
-            // 1. Двигаем сам объект (как и раньше)
             Vector3 targetPos = isAiming ? _config.AimPosition : _hipPosition;
             Quaternion targetRot = isAiming ? Quaternion.Euler(_config.AimRotation) : _hipRotation;
 
             float speed = _config.AimSpeed * Time.deltaTime;
             aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPos, speed);
             aimPivot.localRotation = Quaternion.Slerp(aimPivot.localRotation, targetRot, speed);
-
-            // 2. Считаем Blend для аниматора (Стабильность)
-            // Если целимся -> идем к aimStability (0.8), иначе -> к 0.
             float targetBlend = isAiming ? stabilityTarget : 0f;
 
-            // Плавно меняем значение
             _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
-
-            // Передаем в аниматоры
             if (handsAnimator) handsAnimator.SetFloat("AimBlend", _currentAimBlend);
             if (gunAnimator) gunAnimator.SetFloat("AimBlend", _currentAimBlend);
         }
         public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
         {
-            // 1. Считаем математику
             _weaponRecoil.Update(deltaTime);
             _cameraRecoil.Update(deltaTime);
             _sway.Update(lookInput, _config.Sway, deltaTime, isAiming);
-
-            // 2. Применяем к ОРУЖИЮ (RecoilPivot)
-            // Складываем позицию отдачи и позицию sway
             recoilPivot.localPosition = _weaponRecoil.CurrentPosition + _sway.OutputPosition;
             recoilPivot.localRotation = Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation;
 
-            // 3. Применяем к КАМЕРЕ (Если нашли её)
             if (_cameraTransform != null)
             {
                 _cameraTransform.localRotation = Quaternion.Euler(_cameraRecoil.CurrentRotation);
@@ -153,10 +132,7 @@ namespace WeaponModule.View
 
             if (bulletObj.TryGetComponent(out Bullet bulletScript))
             {
-                // Получаем скорость игрока (если контроллер найден)
                 Vector3 playerVelocity = _playerCharacter != null ? _playerCharacter.velocity : Vector3.zero;
-
-                // Передаем всё в пулю
                 bulletScript.Setup(damage, speed, _config.InheritVelocity, playerVelocity);
             }
         }

@@ -23,7 +23,7 @@ MonoBehaviour:
   aimRotation: {x: 0, y: 0, z: 0}
   aimSpeed: 10
   aimIsToggle: 1
-  aimStability: 0.5
+  aimStability: 0.801
   HipRecoil:
     RecoilRotation: {x: -1.5, y: 1, z: 1}
     KickBackZ: 0.003

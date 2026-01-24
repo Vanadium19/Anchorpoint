@@ -1,13 +1,14 @@
 using UnityEngine;
+using EntityModule;
 
-namespace WeaponModule.Content // Или WeaponModule.View
+namespace WeaponModule.Content
 {
     [RequireComponent(typeof(Rigidbody))]
     public class Bullet : MonoBehaviour
     {
         [Header("Settings")]
         [SerializeField] private float lifeTime = 3f;
-        [SerializeField] private GameObject hitEffect; // Один общий эффект для всего
+        [SerializeField] private GameObject hitEffect;
 
         private float _damage;
         private Rigidbody _rb;
@@ -19,7 +20,7 @@ namespace WeaponModule.Content // Или WeaponModule.View
             _trail = GetComponent<TrailRenderer>();
 
             if (_trail != null)
-                _trail.enabled = false; // Выключаем трейл, чтобы он не рисовался из (0,0,0)
+                _trail.enabled = false;
         }
 
         public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity)
@@ -31,50 +32,32 @@ namespace WeaponModule.Content // Или WeaponModule.View
                 _rb.linearVelocity = Vector3.zero;
                 _rb.angularVelocity = Vector3.zero;
 
-                // Вектор пули (куда смотрит ствол * скорость пули)
                 Vector3 bulletVel = transform.forward * bulletSpeed;
-
-                // Вектор игрока (куда бежим * коэффициент)
                 Vector3 playerVel = shooterVelocity * inheritFactor;
-
-                // ИТОГОВАЯ СКОРОСТЬ (Сложение векторов)
                 _rb.linearVelocity = bulletVel + playerVel;
             }
 
             if (_trail != null)
             {
                 _trail.Clear();
-                _trail.enabled = true; // Включаем СРАЗУ, без задержки
+                _trail.enabled = true;
             }
             Destroy(gameObject, lifeTime);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            // --- БЛОК НАНЕСЕНИЯ УРОНА ---
-            // Тут мы ищем компоненты здоровья. 
-            // Пока используем SendMessage или интерфейс, если он у тебя есть.
-            // В будущем тут будет вызов HealthSystem.
-
-            // Пример (раскомментируй, когда перенесешь Health):
-            /*
-            if (collision.gameObject.TryGetComponent(out IDamageable target))
+            Debug.Log($"Пуля попала в: {collision.gameObject.name} (Layer: {LayerMask.LayerToName(collision.gameObject.layer)})");
+            IDamageable target = collision.gameObject.GetComponentInParent<IDamageable>();
+            if (target != null)
             {
-                target.TakeDamage(_damage);
+                Vector3 force = transform.forward * 10f;
+                target.TakeDamage(_damage, collision.contacts[0].point, force);
             }
-            */
-
-            // Для теста можно вывести лог
-            // Debug.Log($"Hit: {collision.gameObject.name} for {_damage} dmg");
-
-            // --- ВИЗУАЛ ПОПАДАНИЯ ---
             if (hitEffect != null)
             {
                 ContactPoint contact = collision.contacts[0];
-
-                // Спавним эффект чуть выше точки попадания и поворачиваем по нормали
                 GameObject effect = Instantiate(hitEffect, contact.point + contact.normal * 0.05f, Quaternion.LookRotation(contact.normal));
-
                 Destroy(effect, 2f);
             }
 
