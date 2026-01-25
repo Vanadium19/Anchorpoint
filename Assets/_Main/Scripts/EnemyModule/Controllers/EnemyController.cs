@@ -2,7 +2,6 @@ using Cysharp.Threading.Tasks;
 using EnemyModule.Configs;
 using EnemyModule.Core;
 using EnemyModule.View;
-using EntityModule;
 using System;
 using System.Threading;
 using UnityEngine;
@@ -39,7 +38,7 @@ namespace EnemyModule.Controllers
             _view.Initialize(_config);
             _model.Initialize(_config.MaxAmmo, _view.transform.position);
 
-            _view.Health.TookDamage += OnTakeDamage;
+            _view.Health.DamageTook += OnTakeDamage;
             _view.Health.Died += OnDeath;
         }
 
@@ -53,7 +52,7 @@ namespace EnemyModule.Controllers
 
             if (_view && _view.Health)
             {
-                _view.Health.TookDamage -= OnTakeDamage;
+                _view.Health.DamageTook -= OnTakeDamage;
                 _view.Health.Died -= OnDeath;
             }
         }

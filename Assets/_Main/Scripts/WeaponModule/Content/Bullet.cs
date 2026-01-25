@@ -1,5 +1,5 @@
+using ComponentsModule;
 using UnityEngine;
-using EntityModule;
 
 namespace WeaponModule.Content
 {
@@ -42,18 +42,20 @@ namespace WeaponModule.Content
                 _trail.Clear();
                 _trail.enabled = true;
             }
+
             Destroy(gameObject, lifeTime);
         }
 
         private void OnCollisionEnter(Collision collision)
         {
-            Debug.Log($"Пуля попала в: {collision.gameObject.name} (Layer: {LayerMask.LayerToName(collision.gameObject.layer)})");
-            IDamageable target = collision.gameObject.GetComponentInParent<IDamageable>();
+            var target = collision.gameObject.GetComponentInParent<IDamageable>();
+
             if (target != null)
             {
                 Vector3 force = transform.forward * 10f;
                 target.TakeDamage(_damage, collision.contacts[0].point, force);
             }
+
             if (hitEffect != null)
             {
                 ContactPoint contact = collision.contacts[0];

@@ -4,7 +4,7 @@ using InputModule.Configs;
 
 namespace InputModule.Core
 {
-    public class GameInputService : IGameInput
+    public class GameInputService : IInputMap
     {
         private readonly InputSystem_Actions _actions;
 

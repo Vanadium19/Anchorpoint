@@ -12,7 +12,7 @@ namespace WeaponModule.Controllers
     public class WeaponInventory : IInitializable, ITickable, ILateTickable
     {
         private readonly WeaponController.Factory _factory;
-        private readonly IGameInput _input;
+        private readonly IInputMap _input;
         private readonly List<WeaponSetupData> _loadout;
 
         // Список всех созданных контроллеров (как IWeapon)
@@ -26,7 +26,7 @@ namespace WeaponModule.Controllers
 
         public WeaponInventory(
             WeaponController.Factory factory,
-            IGameInput input,
+            IInputMap input,
             List<WeaponSetupData> loadout)
         {
             _factory = factory;

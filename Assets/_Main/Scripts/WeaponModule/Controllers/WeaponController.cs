@@ -15,7 +15,7 @@ namespace WeaponModule.Controllers
         private readonly WeaponConfig _config;
         private readonly WeaponModel _model;
         private readonly WeaponView _view;
-        private readonly IGameInput _input;
+        private readonly IInputMap _input;
 
         // Состояния
         private float _nextFireTime;
@@ -32,7 +32,7 @@ namespace WeaponModule.Controllers
             WeaponConfig config,
             WeaponModel model,
             WeaponView view,
-            IGameInput input)
+            IInputMap input)
         {
             _config = config;
             _model = model;

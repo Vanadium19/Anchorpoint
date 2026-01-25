@@ -14,7 +14,7 @@ namespace ExtractionModule.Controllers
         private readonly ExtractionConfig _config;
         private readonly ExtractionZoneView _zoneView;
         private readonly ExtractionHUDView _hudView;
-        private readonly IGameInput _input;
+        private readonly IInputMap _input;
 
         private CancellationTokenSource _cts;
 
@@ -22,7 +22,7 @@ namespace ExtractionModule.Controllers
             ExtractionConfig config,
             ExtractionZoneView zoneView,
             ExtractionHUDView hudView,
-            IGameInput input)
+            IInputMap input)
         {
             _config = config;
             _zoneView = zoneView;

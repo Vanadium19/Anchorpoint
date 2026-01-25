@@ -18,11 +18,12 @@ MonoBehaviour:
   jumpHeight: 1.2
   mouseSensitivity: 0.1
   lookXLimit: 85
-  standHeight: 1.5
-  crouchHeight: 1.1
-  crouchTransitionSpeed: 10
   leanAngle: 15
   leanOffset: 0.5
   leanSpeed: 10
-  eyeHeightStanding: 1.2
-  eyeHeightCrouching: 0.8
+  crouchData:
+    crouchHeight: 1.1
+    standHeight: 1.5
+    eyeHeightCrouching: 0.8
+    eyeHeightStanding: 1.2
+    crouchSpeed: 10

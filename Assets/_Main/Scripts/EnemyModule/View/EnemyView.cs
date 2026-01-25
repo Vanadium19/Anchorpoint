@@ -1,8 +1,8 @@
+using ComponentsModule;
 using UnityEngine;
 using UnityEngine.AI;
 using EnemyModule.Configs;
 using WeaponModule.Content;
-using EntityModule;
 
 namespace EnemyModule.View
 {
