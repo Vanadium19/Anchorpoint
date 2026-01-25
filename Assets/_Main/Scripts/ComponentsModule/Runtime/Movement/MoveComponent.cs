@@ -42,7 +42,7 @@ namespace ComponentsModule
         }
 
         //FIXME: Magic numbers
-        //TODO: Логика приседаний
+        //TODO: Add crouch check
         private float GetYTranslation(bool jumped)
         {
             var y = _translationY;
