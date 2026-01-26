@@ -9,30 +9,46 @@ namespace NpcModule.Runtime
         [SerializeField] private float maxDistance = 4f;
         [SerializeField] private LayerMask interactMask = ~0;
         [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private Transform interactorRoot;
+
 
         private void Awake()
         {
-            if (playerCamera == null)
-                playerCamera = Camera.main;
+            playerCamera ??= Camera.main;
+            interactorRoot ??= transform;
         }
+
+
 
         private void Update()
         {
-            if (playerCamera == null)
-                return;
-
             if (!Input.GetKeyDown(interactKey))
                 return;
 
-            if (!TryGetInteractable(out var interactable))
+
+            if (playerCamera == null)
                 return;
 
-            if (!interactable.CanInteract(transform))
+            var ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+
+            if (!Physics.Raycast(ray, out var hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
                 return;
 
 
-            interactable.Interact(transform);
+            var interactable = hit.collider.GetComponentInParent<IInteractable>();
+
+            if (interactable == null)
+                return;
+
+            bool canInteract = interactable.CanInteract(interactorRoot);
+
+            if (!canInteract)
+                return;
+
+            interactable.Interact(interactorRoot);
         }
+
+
 
         private bool TryGetInteractable(out IInteractable interactable)
         {
@@ -46,8 +62,6 @@ namespace NpcModule.Runtime
 
             return interactable != null;
         }
-
-
 
     }
 }

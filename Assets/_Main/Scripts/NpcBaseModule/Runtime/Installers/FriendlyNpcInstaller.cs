@@ -7,12 +7,23 @@ namespace NpcModule.Runtime
     {
         [SerializeField] private FriendlyNpcView view;
 
+        private void OnValidate()
+        {
+            view ??= GetComponent<FriendlyNpcView>();
+        }
+
+        private void Reset()
+        {
+            view ??= GetComponent<FriendlyNpcView>();
+        }
+
         public override void InstallBindings()
         {
-            if (view == null)
-                view = GetComponent<FriendlyNpcView>();
+            view ??= GetComponent<FriendlyNpcView>();
 
-            Container.Bind<FriendlyNpcView>().FromInstance(view).AsSingle();
+            Container.Bind<FriendlyNpcView>()
+                .FromInstance(view)
+                .AsSingle();
 
             Container.BindInterfacesAndSelfTo<FriendlyNpcController>()
                 .AsSingle()

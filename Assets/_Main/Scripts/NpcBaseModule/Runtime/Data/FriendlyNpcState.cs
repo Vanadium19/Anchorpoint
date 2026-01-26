@@ -1,5 +1,5 @@
 public enum FriendlyNpcState
 {
     Patrolling,
-    Responding
+    Responding,
 }

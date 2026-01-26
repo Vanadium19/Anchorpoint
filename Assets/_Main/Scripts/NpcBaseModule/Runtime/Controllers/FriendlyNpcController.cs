@@ -6,6 +6,11 @@ namespace NpcModule.Runtime
 {
     public sealed class FriendlyNpcController : ITickable, IInitializable
     {
+        private const float MinRemainingDistance = 0.1f;
+        private const float RetryWaitSeconds = 0.5f;
+        private const int NavMeshSampleAttempts = 30;
+        private const float MinDirectionSqrMagnitude = 0.0001f;
+
         private readonly FriendlyNpcView _view;
 
         private FriendlyNpcState _state;
@@ -15,6 +20,12 @@ namespace NpcModule.Runtime
         private Vector3 _currentDestination;
         private bool _hasDestination;
 
+        public FriendlyNpcController(FriendlyNpcView view)
+        {
+            _view = view;
+            _state = FriendlyNpcState.Patrolling;
+        }
+
         public void Initialize()
         {
             _view.SetController(this);
@@ -23,13 +34,6 @@ namespace NpcModule.Runtime
             HideText();
             StartPatrol(forceNewPoint: true);
         }
-
-        public FriendlyNpcController(FriendlyNpcView view)
-        {
-            _view = view;
-            _state = FriendlyNpcState.Patrolling;
-        }
-
 
         public void OnInteract(Transform player)
         {
@@ -45,9 +49,6 @@ namespace NpcModule.Runtime
 
         public void Tick()
         {
-            if (_view == null || _view.Transform == null)
-                return;
-
             if (_view.Agent == null)
                 return;
 
@@ -55,17 +56,20 @@ namespace NpcModule.Runtime
             {
                 case FriendlyNpcState.Patrolling:
                     TickPatrolling();
-                    break;
+                    return;
 
                 case FriendlyNpcState.Responding:
                     TickResponding();
-                    break;
+                    return;
+
+                default:
+                    return;
             }
         }
 
         private void TickPatrolling()
         {
-            var agent = _view.Agent;
+            NavMeshAgent agent = _view.Agent;
 
             if (!_hasDestination)
             {
@@ -79,7 +83,11 @@ namespace NpcModule.Runtime
                 return;
             }
 
-            if (!agent.pathPending && agent.remainingDistance <= Mathf.Max(agent.stoppingDistance, 0.1f))
+            if (agent.pathPending)
+                return;
+
+            float remainingDistanceThreshold = Mathf.Max(agent.stoppingDistance, MinRemainingDistance);
+            if (agent.remainingDistance <= remainingDistanceThreshold)
             {
                 _hasDestination = false;
                 _waitTimer = Random.Range(_view.Settings.minWait, _view.Settings.maxWait);
@@ -94,8 +102,8 @@ namespace NpcModule.Runtime
                 return;
             }
 
-            float dist = Vector3.Distance(_player.position, _view.Transform.position);
-            if (dist > _view.Settings.exitRadius)
+            float distance = Vector3.Distance(_player.position, _view.Transform.position);
+            if (distance > _view.Settings.exitRadius)
             {
                 ExitResponding();
                 return;
@@ -108,7 +116,7 @@ namespace NpcModule.Runtime
         {
             _state = FriendlyNpcState.Responding;
 
-            var agent = _view.Agent;
+            NavMeshAgent agent = _view.Agent;
             agent.isStopped = true;
             agent.ResetPath();
 
@@ -120,7 +128,7 @@ namespace NpcModule.Runtime
             _player = null;
             HideText();
 
-            var agent = _view.Agent;
+            NavMeshAgent agent = _view.Agent;
             agent.isStopped = false;
 
             _state = FriendlyNpcState.Patrolling;
@@ -138,29 +146,26 @@ namespace NpcModule.Runtime
 
         private void TrySetNewDestination()
         {
-            var agent = _view.Agent;
+            NavMeshAgent agent = _view.Agent;
 
-            if (TryGetRandomNavMeshPoint(_view.Transform.position, _view.Settings.patrolRadius, out var point))
+            if (TryGetRandomNavMeshPoint(_view.Transform.position, _view.Settings.patrolRadius, out Vector3 point))
             {
                 _currentDestination = point;
                 _hasDestination = true;
                 agent.SetDestination(_currentDestination);
-            }
-            else
-            {
-                _hasDestination = false;
-                _waitTimer = 0.5f;
+                return;
             }
 
-
+            _hasDestination = false;
+            _waitTimer = RetryWaitSeconds;
         }
 
         private static bool TryGetRandomNavMeshPoint(Vector3 origin, float radius, out Vector3 result)
         {
-            for (int i = 0; i < 30; i++)
+            for (int attemptIndex = 0; attemptIndex < NavMeshSampleAttempts; attemptIndex++)
             {
-                Vector3 random = origin + Random.insideUnitSphere * radius;
-                if (NavMesh.SamplePosition(random, out var hit, radius, NavMesh.AllAreas))
+                Vector3 randomPoint = origin + Random.insideUnitSphere * radius;
+                if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, radius, NavMesh.AllAreas))
                 {
                     result = hit.position;
                     return true;
@@ -171,17 +176,16 @@ namespace NpcModule.Runtime
             return false;
         }
 
-
-        private void FaceTarget(Vector3 targetPos)
+        private void FaceTarget(Vector3 targetPosition)
         {
-            var selfPos = _view.Transform.position;
-            Vector3 dir = targetPos - selfPos;
-            dir.y = 0f;
+            Vector3 selfPosition = _view.Transform.position;
+            Vector3 direction = targetPosition - selfPosition;
+            direction.y = 0f;
 
-            if (dir.sqrMagnitude < 0.0001f)
+            if (direction.sqrMagnitude < MinDirectionSqrMagnitude)
                 return;
 
-            float targetYaw = Quaternion.LookRotation(dir, Vector3.up).eulerAngles.y;
+            float targetYaw = Quaternion.LookRotation(direction, Vector3.up).eulerAngles.y;
             float currentYaw = _view.Transform.eulerAngles.y;
 
             float newYaw = Mathf.MoveTowardsAngle(currentYaw, targetYaw, _view.Settings.turnSpeed * Time.deltaTime);
@@ -190,7 +194,7 @@ namespace NpcModule.Runtime
 
         private void ApplyAgentSettings()
         {
-            var agent = _view.Agent;
+            NavMeshAgent agent = _view.Agent;
             if (agent == null)
                 return;
 
@@ -199,18 +203,13 @@ namespace NpcModule.Runtime
 
         private void ShowText()
         {
-            if (_view.WorldText == null)
-                return;
-
-            _view.WorldText.Show(_view.Settings.messageText);
+            _view.WorldText?.Show(_view.Settings.messageText);
         }
+
 
         private void HideText()
         {
-            if (_view.WorldText == null)
-                return;
-
-            _view.WorldText.Hide();
+            _view.WorldText?.Hide();
         }
     }
 }

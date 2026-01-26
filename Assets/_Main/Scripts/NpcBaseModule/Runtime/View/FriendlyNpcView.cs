@@ -22,12 +22,10 @@ namespace NpcModule.Runtime
 
         private void Awake()
         {
-            if (agent == null)
-                agent = GetComponent<NavMeshAgent>();
-
-            if (worldText == null)
-                worldText = GetComponentInChildren<NpcWorldTextView>(true);
+            agent ??= GetComponent<NavMeshAgent>();
+            worldText ??= GetComponentInChildren<NpcWorldTextView>(true);
         }
+
 
         public void SetController(FriendlyNpcController controller)
         {
@@ -39,23 +37,21 @@ namespace NpcModule.Runtime
             if (interactor == null)
                 return false;
 
-            Vector3 a = interactor.position;
-            Vector3 b = transform.position;
+            Vector3 interactorPosition = interactor.position;
+            Vector3 npcPosition = transform.position;
 
-            a.y = 0f;
-            b.y = 0f;
+            interactorPosition.y = 0f;
+            npcPosition.y = 0f;
 
-            float dist = Vector3.Distance(a, b);
-            return dist <= settings.interactionRadius;
+            float distance = Vector3.Distance(interactorPosition, npcPosition);
+            return distance <= settings.interactionRadius;
         }
 
 
         public void Interact(Transform interactor)
         {
-            if (_controller == null)
-                return;
-
-            _controller.OnInteract(interactor);
+            _controller?.OnInteract(interactor);
         }
+
     }
 }

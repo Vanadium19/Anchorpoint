@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6387131889402112624}
   - component: {fileID: 2572490141529304355}
   - component: {fileID: 3989822824608627785}
+  - component: {fileID: 2282141926646214130}
   m_Layer: 6
   m_Name: Canvas
   m_TagString: Untagged
@@ -102,6 +103,20 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2282141926646214130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2798437548891915356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ad33ded299931648b8efdd6b3aef50a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcModule.Runtime.NpcWorldTextView
+  root: {fileID: 0}
+  text: {fileID: 6320253839411741558}
 --- !u!1 &2938057339855544509
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,7 +145,7 @@ Transform:
   m_GameObject: {fileID: 2938057339855544509}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.95, z: 0}
+  m_LocalPosition: {x: -0.04, y: 0.95, z: 0.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -276,7 +291,7 @@ MonoBehaviour:
     messageText: "\u041F\u0440\u0438\u0432\u0435\u0442!"
   agent: {fileID: 4486836947338478467}
   headPoint: {fileID: 5152219526549832197}
-  worldText: {fileID: 2122858921062681857}
+  worldText: {fileID: 2282141926646214130}
 --- !u!114 &511304918385946286
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,7 +388,6 @@ GameObject:
   - component: {fileID: 4317849815485701639}
   - component: {fileID: 6343108505266643278}
   - component: {fileID: 6320253839411741558}
-  - component: {fileID: 2122858921062681857}
   m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -500,17 +514,3 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &2122858921062681857
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7498983993575322465}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ad33ded299931648b8efdd6b3aef50a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::NpcModule.Runtime.NpcWorldTextView
-  root: {fileID: 0}
-  text: {fileID: 6320253839411741558}

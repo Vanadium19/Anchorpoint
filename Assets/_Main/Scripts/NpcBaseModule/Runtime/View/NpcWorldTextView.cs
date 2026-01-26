@@ -10,24 +10,30 @@ namespace NpcModule.Runtime
 
         private void Awake()
         {
-            if (root == null)
-                root = gameObject;
-
             Hide();
+            if (root == null)
+            {
+                var canvas = GetComponentInParent<Canvas>(true);
+                root = canvas != null ? canvas.gameObject : gameObject;
+            }
+
+            if (text == null)
+                text = GetComponentInChildren<TMP_Text>(true);
         }
+
 
         public void Show(string message)
         {
             if (text != null)
-                text.text = message ?? string.Empty;
+                text.SetText(message ?? string.Empty);
 
-            if (root != null)
+            if (root != null && !root.activeSelf)
                 root.SetActive(true);
         }
 
         public void Hide()
         {
-            if (root != null)
+            if (root != null && root.activeSelf)
                 root.SetActive(false);
         }
     }
