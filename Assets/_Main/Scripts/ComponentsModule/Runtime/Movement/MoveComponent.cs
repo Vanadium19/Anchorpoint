@@ -4,6 +4,8 @@ namespace ComponentsModule
 {
     public class MoveComponent : IMoveComponent
     {
+        private const float GroundingForce = -2f;
+
         private readonly CharacterController _characterController;
         private readonly Transform _transform;
 
@@ -11,7 +13,7 @@ namespace ComponentsModule
         private readonly float _gravity;
 
         private float _speed;
-        private float _translationY;
+        private float _verticalVelocity;
 
         public MoveComponent(CharacterController characterController, float speed, float jumpHeight, float gravity)
         {
@@ -24,39 +26,44 @@ namespace ComponentsModule
             _speed = speed;
         }
 
-        public void Move(Vector2 direction, bool jumped)
+        public void Move(Vector2 direction, bool isJumping)
         {
-            var translation = direction.x * _transform.right + direction.y * _transform.forward;
-            translation *= _speed;
+            var movement = direction.x * _transform.right + direction.y * _transform.forward;
+            movement *= _speed;
 
-            _translationY = GetYTranslation(jumped);
-            translation.y = _translationY;
+            _verticalVelocity = CalculateVerticalVelocity(isJumping);
+            movement.y = _verticalVelocity;
 
-            _characterController.Move(translation * Time.deltaTime);
+            _characterController.Move(movement * Time.deltaTime);
         }
 
-        //TODO: Обновлять при приседание
         public void SetSpeed(float value)
         {
             _speed = value;
         }
 
-        //FIXME: Magic numbers
-        //TODO: Add crouch check
-        private float GetYTranslation(bool jumped)
+        private float CalculateVerticalVelocity(bool isJumping)
         {
-            var y = _translationY;
+            var verticalVelocity = _verticalVelocity;
             var isGrounded = _characterController.isGrounded;
 
-            if (jumped && isGrounded /* && !isCrouching*/)
-                y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+            if (isGrounded)
+            {
+                if (isJumping)
+                {
+                    verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+                }
+                else if (verticalVelocity < 0)
+                {
+                    verticalVelocity = GroundingForce;
+                }
+            }
+            else
+            {
+                verticalVelocity += _gravity * Time.deltaTime;
+            }
 
-            if (!isGrounded)
-                y += _gravity * Time.deltaTime;
-            else if (y < 0)
-                y = -2f;
-
-            return y;
+            return verticalVelocity;
         }
     }
 }

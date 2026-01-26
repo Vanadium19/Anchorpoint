@@ -1,4 +1,20 @@
 {
-  "name": "PlayerModule",
-  "references":[ "GUID:ad92713fd5884a16a1e7ccde1a579228", "GUID:5a8d3845af48dc54db440d2b68ad43e7", "GUID:0d8beb7f090555447a6cf5ce9e54dbb4", "GUID:a052d9b9b243434c92f8e11262715c1f" ]
+    "name": "PlayerModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ad92713fd5884a16a1e7ccde1a579228",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:a052d9b9b243434c92f8e11262715c1f",
+        "GUID:7d99cca4b0a08ea41b86c898cce1e885"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

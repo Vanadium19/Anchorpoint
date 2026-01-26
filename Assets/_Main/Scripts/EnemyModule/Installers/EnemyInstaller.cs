@@ -4,6 +4,7 @@ using EnemyModule.Configs;
 using EnemyModule.Controllers;
 using EnemyModule.Core;
 using EnemyModule.View;
+using ComponentsModule;
 
 namespace EnemyModule.Installers
 {
@@ -16,6 +17,11 @@ namespace EnemyModule.Installers
         {
             Container.BindInstance(config).AsSingle();
             Container.BindInstance(view).AsSingle();
+
+            Container.Bind<IHealthComponent>()
+                .To<Health>()
+                .AsSingle()
+                .WithArguments(config.MaxHealth);
 
             Container.Bind<EnemyModel>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnemyController>().AsSingle();

@@ -17,13 +17,11 @@ namespace WeaponModule.Controllers
         private readonly WeaponView _view;
         private readonly IInputMap _input;
 
-        // Состояния
         private float _nextFireTime;
         private bool _isReloading;
         private bool _isAiming;
-        private bool _isAimToggleActive; // Для режима переключения прицела
+        private bool _isAimToggleActive;
 
-        // Флаг для синхронизации выстрела с физикой
         private bool _shouldShootFrame;
 
         private CancellationTokenSource _cts;
@@ -41,9 +39,6 @@ namespace WeaponModule.Controllers
 
             _cts = new CancellationTokenSource();
         }
-
-        // --- IWeapon & IInitializable Implementation ---
-
         public void Initialize()
         {
             _model.Initialize(_config.MaxAmmo);
@@ -64,11 +59,7 @@ namespace WeaponModule.Controllers
         public async UniTask Unequip()
         {
             CancelCurrentActions();
-
-            // Анимация убирания
             _view.SetHolsterState(true);
-
-            // Ждем завершения анимации
             await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime));
 
             _view.gameObject.SetActive(false);
@@ -80,48 +71,29 @@ namespace WeaponModule.Controllers
             _cts.Dispose();
         }
 
-        // --- TICK: Логика и Ввод ---
         public void Tick()
         {
             if (!_view.gameObject.activeSelf) return;
 
-            // 1. Считываем состояние прицеливания
             HandleAimingState();
-
-            // 2. Проверяем, надо ли стрелять (но не спавним пулю тут!)
             CheckFireInput();
-
-            // 3. Обрабатываем нажатие R
             HandleReload();
-
-            // 4. Анимации пальцев и ходьбы
             HandleTriggerFinger();
             HandleMovementAnim();
         }
-
-        // --- LATE TICK: Визуал и Спавн ---
-        // Вызывается после всех Update, чтобы синхронизировать отдачу и вылет пули
         public void LateTick()
         {
             if (!_view.gameObject.activeSelf) return;
-
-            // 1. Применяем отдачу и покачивание (Двигаем ствол)
             HandleProceduralAnimation();
-
-            // 2. Если в Tick мы решили стрелять - стреляем сейчас (из сдвинутого ствола)
             if (_shouldShootFrame)
             {
                 Fire();
                 _shouldShootFrame = false;
             }
         }
-
-        // --- Logic Methods ---
-
         private void HandleProceduralAnimation()
         {
             Vector2 lookDelta = _input.LookInput;
-            // Обновляем позицию RecoilPivot
             _view.UpdateProcedural(Time.deltaTime, lookDelta, _isAiming);
         }
 
@@ -144,8 +116,6 @@ namespace WeaponModule.Controllers
                     _isAiming = _input.IsAimPressed;
                 }
             }
-
-            // Передаем во View состояние и параметр стабильности для аниматора
             _view.UpdateAiming(_isAiming, _config.AimStability);
         }
 
@@ -157,9 +127,7 @@ namespace WeaponModule.Controllers
             {
                 if (_model.CurrentAmmo > 0)
                 {
-                    // Ставим флаг, чтобы выстрелить в LateTick
                     _shouldShootFrame = true;
-                    // Обновляем таймер сразу, чтобы не стрелять дважды
                     _nextFireTime = Time.time + _config.FireRate;
                 }
                 else
@@ -171,14 +139,9 @@ namespace WeaponModule.Controllers
 
         private void Fire()
         {
-            // Пытаемся забрать патрон
             if (_model.TryConsumeAmmo())
             {
-                // 1. Визуальные эффекты (Вспышка, Звук, Анимация)
-                // Передаем _isAiming, чтобы View знала, какую отдачу применять
                 _view.PlayFireEffects(_isAiming);
-
-                // 2. Спавн пули
                 _view.SpawnBullet(_config.Damage, _config.BulletSpeed);
             }
         }
@@ -204,9 +167,6 @@ namespace WeaponModule.Controllers
         {
             _view.SetTriggerHold(_input.IsFirePressed);
         }
-
-        // --- Async Routines ---
-
         private async UniTaskVoid ReloadRoutine()
         {
             _isReloading = true;
@@ -224,13 +184,9 @@ namespace WeaponModule.Controllers
 
         private async UniTaskVoid DrawWeaponRoutine()
         {
-            _view.SetHolsterState(false); // Draw Trigger
-
-            // Блокируем стрельбу на время доставания
+            _view.SetHolsterState(false);
             _isReloading = true;
-
             bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
-
             if (!canceled) _isReloading = false;
         }
 

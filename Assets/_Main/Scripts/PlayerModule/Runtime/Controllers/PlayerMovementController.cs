@@ -1,5 +1,6 @@
 using ComponentsModule;
 using InputModule.Core;
+using PlayerModule.Configs; // <-- Не забудь добавить этот using для конфига
 using Zenject;
 
 namespace PlayerModule
@@ -10,20 +11,23 @@ namespace PlayerModule
         private readonly IRotationComponent _rotation;
         private readonly ICrouchComponent _croucher;
         private readonly ILeanComponent _leaner;
-
         private readonly IInputMap _inputMap;
+        private readonly PlayerConfig _config;
 
-        public PlayerMovementController(IMoveComponent mover,
+        public PlayerMovementController(
+            IMoveComponent mover,
             IRotationComponent rotation,
             ICrouchComponent croucher,
             ILeanComponent leaner,
-            IInputMap inputMap)
+            IInputMap inputMap,
+            PlayerConfig config)
         {
             _mover = mover;
             _inputMap = inputMap;
             _rotation = rotation;
             _leaner = leaner;
             _croucher = croucher;
+            _config = config;
         }
 
         public void Tick()
@@ -37,7 +41,10 @@ namespace PlayerModule
         private void Move()
         {
             var direction = _inputMap.MoveInput;
-            var jumped = _inputMap.IsJumpPressed;
+            var isCrouching = _inputMap.IsCrouchPressed;
+            float targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
+            _mover.SetSpeed(targetSpeed);
+            var jumped = _inputMap.IsJumpPressed && !isCrouching;
             _mover.Move(direction, jumped);
         }
 

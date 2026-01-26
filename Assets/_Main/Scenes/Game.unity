@@ -801,7 +801,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &221580486
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1355,7 +1355,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &453287597
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1385,7 +1385,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 489959970}
-  - component: {fileID: 489959969}
   - component: {fileID: 489959968}
   - component: {fileID: 489959971}
   m_Layer: 0
@@ -1407,9 +1406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89715ad69b973a14899afa2c6730b30b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Zenject::Zenject.SceneContext
-  _scriptableObjectInstallers: []
+  _scriptableObjectInstallers:
+  - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
-  - {fileID: 489959969}
   - {fileID: 489959971}
   _installerPrefabs: []
   _autoRun: 1
@@ -1428,18 +1427,6 @@ MonoBehaviour:
   _parentNewObjectsUnderSceneContext: 0
   _contractNames: []
   _parentContractNames: []
---- !u!114 &489959969
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 489959967}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aabbc5185639e5546a17f50d00f6ba6f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: InputModule::InputModule.Installers.InputInstaller
 --- !u!4 &489959970
 Transform:
   m_ObjectHideFlags: 0
@@ -2300,19 +2287,7 @@ MonoBehaviour:
   patrolPoints:
   - {fileID: 683275547}
   - {fileID: 84723202}
---- !u!114 &778607685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 778607678}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85d0e1ebc4cc397428f0bc0e4979e97b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EntityModule.HealthComponent
-  maxHealth: 100
+  agent: {fileID: 778607686}
 --- !u!195 &778607686
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2363,6 +2338,18 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
   m_PrefabInstance: {fileID: 818078916}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &778607689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778607678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
 --- !u!1 &782376416
 GameObject:
   m_ObjectHideFlags: 0
@@ -2959,9 +2946,6 @@ PrefabInstance:
       addedObject: {fileID: 778607686}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 778607685}
-    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 778607684}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
@@ -2972,6 +2956,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 778607681}
+    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 778607689}
     - targetCorrespondingSourceObject: {fileID: 100032, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2072954673}
@@ -3386,7 +3373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &960095246
 Transform:
   m_ObjectHideFlags: 0
@@ -3396,7 +3383,7 @@ Transform:
   m_GameObject: {fileID: 960095245}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.77, y: 2.58, z: 17.7}
+  m_LocalPosition: {x: 15.4, y: 2.58, z: 17.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3589,8 +3576,8 @@ GameObject:
   - component: {fileID: 1150780798}
   - component: {fileID: 1150780796}
   - component: {fileID: 1150780800}
-  - component: {fileID: 1150780801}
   - component: {fileID: 1150780802}
+  - component: {fileID: 1150780803}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -3651,7 +3638,7 @@ Transform:
   m_GameObject: {fileID: 1150780794}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.99, z: 0}
+  m_LocalPosition: {x: 0, y: 5.71, z: -4.73}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3677,19 +3664,6 @@ MonoBehaviour:
   - Name: TestAK
     Config: {fileID: 11400000, guid: 62d382726bd9b0a48a386b4c1664888e, type: 2}
     View: {fileID: 175084216}
---- !u!114 &1150780801
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1150780794}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85d0e1ebc4cc397428f0bc0e4979e97b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: NewAssembly::EntityModule.HealthComponent
-  maxHealth: 100
 --- !u!114 &1150780802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3706,9 +3680,20 @@ MonoBehaviour:
   cameraRoot: {fileID: 1307877283}
   player: {fileID: 1150780799}
   gameOverView: {fileID: 1567717076}
-  healthComponent: {fileID: 1150780801}
   healthView: {fileID: 1829193761}
   config: {fileID: 11400000, guid: 56d6520b3fa0b7942a570cb671186295, type: 2}
+--- !u!114 &1150780803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150780794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
 --- !u!1 &1158476882
 GameObject:
   m_ObjectHideFlags: 0
@@ -4681,7 +4666,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1819702166
 RectTransform:
   m_ObjectHideFlags: 0

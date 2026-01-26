@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 20ae7b1973634924c9617d38a0222010, type: 3}
   m_Name: PlayerConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModule.Configs.PlayerConfig
+  maxHealth: 100
   walkSpeed: 3
-  crouchSpeed: 2.5
+  crouchSpeed: 1.5
   gravity: -15
   jumpHeight: 1.2
   mouseSensitivity: 0.1

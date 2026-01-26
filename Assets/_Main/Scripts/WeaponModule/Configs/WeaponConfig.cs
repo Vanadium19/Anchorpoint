@@ -27,8 +27,6 @@ namespace WeaponModule.Configs
         [Range(0f, 1f)]
         [SerializeField] private float aimStability = 0.8f;
 
-        // --- НОВЫЕ ПОЛЯ (Recoil & Sway) ---
-        // Важно: они должны быть public, чтобы View мог их читать
         [Header("--- Recoil & Sway ---")]
         public RecoilSettings HipRecoil;
         public RecoilSettings AimRecoil;
@@ -36,7 +34,6 @@ namespace WeaponModule.Configs
         public CameraRecoilSettings CamAimRecoil;
         public SwaySettings Sway;
 
-        // --- Геттеры для приватных полей ---
         public float Damage => damage;
         public float FireRate => fireRate;
         public int MaxAmmo => maxAmmo;
@@ -51,13 +48,10 @@ namespace WeaponModule.Configs
         public bool AimIsToggle => aimIsToggle;
         public float AimStability => aimStability;
 
-        // --- Вспомогательные классы настроек ---
-        // Они должны быть [System.Serializable], чтобы отображаться в Инспекторе
-
         [System.Serializable]
         public class RecoilSettings
         {
-            public Vector3 RecoilRotation = new Vector3(-10f, 2f, 2f); // X, Y, Z
+            public Vector3 RecoilRotation = new Vector3(-2f, 2f, 2f);
             public float KickBackZ = 0.2f;
             public float Snappiness = 6f;
             public float ReturnSpeed = 2f;
@@ -66,7 +60,7 @@ namespace WeaponModule.Configs
         [System.Serializable]
         public class CameraRecoilSettings
         {
-            public Vector3 RecoilAmount = new Vector3(-2f, 2f, 0.5f); // X, Y, Z
+            public Vector3 RecoilAmount = new Vector3(-2f, 2f, 0.5f);
             public float Snappiness = 6f;
             public float ReturnSpeed = 2f;
         }

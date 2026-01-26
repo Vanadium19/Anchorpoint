@@ -6,6 +6,9 @@ namespace PlayerModule.Configs
     [CreateAssetMenu(fileName = "PlayerConfig", menuName = "Configs/PlayerConfig")]
     public class PlayerConfig : ScriptableObject
     {
+        [Header("Health")]
+        [SerializeField] private float maxHealth = 100f;
+
         [Header("Movement")]
         [SerializeField] private float walkSpeed = 5f;
         [SerializeField] private float crouchSpeed = 2.5f;
@@ -23,8 +26,7 @@ namespace PlayerModule.Configs
         
         [Header("Crouch")]
         [SerializeField] private CrouchData crouchData;
-
-        // Публичные свойства для доступа
+        public float MaxHealth => maxHealth;
         public float WalkSpeed => walkSpeed;
         public float CrouchSpeed => crouchSpeed;
         

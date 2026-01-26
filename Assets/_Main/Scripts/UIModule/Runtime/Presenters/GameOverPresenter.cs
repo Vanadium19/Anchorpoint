@@ -1,8 +1,8 @@
-using System;
-using UnityEngine.SceneManagement;
-using Zenject;
 using ComponentsModule;
-using InputModule.Core;
+using Core.Services;
+using System;
+using UIModule;
+using Zenject;
 
 namespace UIModule
 {
@@ -10,13 +10,16 @@ namespace UIModule
     {
         private readonly IHealthComponent _health;
         private readonly GameOverView _view;
-        private readonly IInputMap _input;
+        private readonly IGameSessionService _sessionService;
 
-        public GameOverPresenter(IHealthComponent health, GameOverView view, IInputMap input)
+        public GameOverPresenter(
+            IHealthComponent health,
+            GameOverView view,
+            IGameSessionService sessionService)
         {
             _health = health;
-            _input = input;
             _view = view;
+            _sessionService = sessionService;
         }
 
         public void Initialize()
@@ -32,18 +35,14 @@ namespace UIModule
             _view.RestartClicked -= OnRestartClicked;
         }
 
-        //FIXME: Бизнес логика в презентере
         private void OnDied()
         {
-            _input.Disable();
             _view.Show();
         }
 
-        //FIXME: Бизнес логика в презентере
         private void OnRestartClicked()
         {
-            var currentScene = SceneManager.GetActiveScene().name;
-            SceneManager.LoadScene(currentScene);
+            _sessionService.RestartLevel();
         }
     }
 }

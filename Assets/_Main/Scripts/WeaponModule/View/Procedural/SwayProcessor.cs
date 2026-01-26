@@ -13,17 +13,14 @@ namespace WeaponModule.View.Procedural
 
         public void Update(Vector2 inputDelta, WeaponConfig.SwaySettings settings, float deltaTime, bool isAiming)
         {
-            // В прицеле sway меньше в 10 раз
             float multiplier = isAiming ? 0.1f : 1f;
 
-            // Расчет позиции
             float moveX = Mathf.Clamp(-inputDelta.x * settings.Step * multiplier, -settings.MaxStep, settings.MaxStep);
             float moveY = Mathf.Clamp(-inputDelta.y * settings.Step * multiplier, -settings.MaxStep, settings.MaxStep);
 
             Vector3 finalPos = new Vector3(moveX, moveY, 0);
             _currentPos = Vector3.Lerp(_currentPos, finalPos, deltaTime * settings.Smooth);
 
-            // Расчет поворота
             float rotX = Mathf.Clamp(-inputDelta.y * settings.RotationStep * multiplier, -settings.MaxRotation, settings.MaxRotation);
             float rotY = Mathf.Clamp(inputDelta.x * settings.RotationStep * multiplier, -settings.MaxRotation, settings.MaxRotation);
             float rotZ = Mathf.Clamp(-inputDelta.x * settings.Tilt * multiplier, -settings.MaxTilt, settings.MaxTilt);

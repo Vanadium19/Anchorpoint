@@ -92,7 +92,6 @@ namespace ExtractionModule.Controllers
 
         private void CompleteExtraction()
         {
-            Debug.Log("Extraction Complete! Showing Panel...");
             if (_cts != null)
             {
                 _cts.Dispose();

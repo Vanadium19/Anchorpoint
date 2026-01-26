@@ -5,10 +5,9 @@ namespace WeaponModule.View.Procedural
 {
     public class RecoilProcessor
     {
-        // Текущие значения
         private Vector3 _targetRotation;
         private Vector3 _currentRotation;
-        private Vector3 _targetPosition; // Только для оружия
+        private Vector3 _targetPosition;
         private Vector3 _currentPosition;
 
         private float _snappiness;
@@ -17,7 +16,6 @@ namespace WeaponModule.View.Procedural
         public Vector3 CurrentRotation => _currentRotation;
         public Vector3 CurrentPosition => _currentPosition;
 
-        // Вызываем это каждый кадр
         public void Update(float deltaTime)
         {
             _targetRotation = Vector3.Lerp(_targetRotation, Vector3.zero, _returnSpeed * deltaTime);
@@ -40,7 +38,6 @@ namespace WeaponModule.View.Procedural
             _targetPosition += new Vector3(0, 0, -settings.KickBackZ);
         }
 
-        // Перегрузка для камеры (там нет позиции kickback)
         public void FireCamera(WeaponConfig.CameraRecoilSettings settings)
         {
             _snappiness = settings.Snappiness;

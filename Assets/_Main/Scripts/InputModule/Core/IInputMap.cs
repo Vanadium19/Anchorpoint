@@ -4,7 +4,6 @@ namespace InputModule.Core
 {
     public interface IInputMap
     {
-        // Читаемые свойства (только get)
         Vector2 MoveInput { get; }
         Vector2 LookInput { get; }
         bool IsJumpPressed { get; }
@@ -20,7 +19,6 @@ namespace InputModule.Core
         bool IsAimHeld { get; } 
         bool IsAimTriggered { get; } 
 
-        // Методы управления состоянием
         void Enable();
         void Disable();
     }

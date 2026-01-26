@@ -5,6 +5,9 @@ namespace EnemyModule.Configs
     [CreateAssetMenu(fileName = "EnemyConfig", menuName = "Configs/Enemy")]
     public class EnemyConfig : ScriptableObject
     {
+        [Header("Stats")]
+        [SerializeField] private float maxHealth = 100f;
+
         [Header("Sensing")]
         public float SightDistance = 25f;
         public float ViewAngle = 120f;
@@ -24,5 +27,6 @@ namespace EnemyModule.Configs
         public float LookInterval = 2f;
         public float LookTurnSpeed = 2f;
         public float LookAngleRange = 60f;
+        public float MaxHealth => maxHealth;
     }
 }

@@ -1,10 +1,11 @@
+using UnityEngine;
 using Zenject;
 using InputModule.Core;
 
 namespace InputModule.Installers
 {
-    //TODO: Переделать в SO контекст
-    public class InputInstaller : MonoInstaller
+    [CreateAssetMenu(fileName = "InputInstaller", menuName = "Installers/InputInstaller")]
+    public class InputInstaller : ScriptableObjectInstaller
     {
         public override void InstallBindings()
         {

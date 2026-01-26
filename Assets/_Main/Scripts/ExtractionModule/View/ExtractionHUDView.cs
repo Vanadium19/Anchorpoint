@@ -44,8 +44,6 @@ namespace ExtractionModule.View
             successPanel.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-
-            Debug.Log($"[View] Панель включена. Scale: {successPanel.transform.localScale}");
         }
 
         private void OnRestartClicked()

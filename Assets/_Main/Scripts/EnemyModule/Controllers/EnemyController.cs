@@ -38,7 +38,7 @@ namespace EnemyModule.Controllers
             _view.Initialize(_config);
             _model.Initialize(_config.MaxAmmo, _view.transform.position);
 
-            _view.Health.DamageTook += OnTakeDamage;
+            _view.Health.DamageTaken += OnTakeDamage;
             _view.Health.Died += OnDeath;
         }
 
@@ -50,18 +50,17 @@ namespace EnemyModule.Controllers
                 _cts.Dispose();
             }
 
-            if (_view && _view.Health)
+            if (_view != null && _view.Health != null)
             {
-                _view.Health.DamageTook -= OnTakeDamage;
+                _view.Health.DamageTaken -= OnTakeDamage;
                 _view.Health.Died -= OnDeath;
             }
         }
 
         public void Tick()
         {
-            if (!_view.Health.IsAlive) return;
+            if (_view == null || _view.Health == null || !_view.Health.IsAlive) return;
             _view.UpdateAnimator(_view.Velocity);
-            //Debug.Log($"State: {_model.CurrentState} | Target: {_model.HasTarget}");
             if (_isActionBusy) return;
             _view.UpdateAnimator(_view.Velocity);
             switch (_model.CurrentState)

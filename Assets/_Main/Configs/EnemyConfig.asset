@@ -24,7 +24,7 @@ MonoBehaviour:
   ReloadTime: 3
   BulletSpeed: 100
   Damage: 10
-  PatrolWaitTime: 3
+  PatrolWaitTime: 4
   LookInterval: 2
   LookTurnSpeed: 2
-  LookAngleRange: 60
+  LookAngleRange: 90

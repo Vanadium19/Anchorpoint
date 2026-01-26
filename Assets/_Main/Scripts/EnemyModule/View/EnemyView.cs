@@ -3,11 +3,10 @@ using UnityEngine;
 using UnityEngine.AI;
 using EnemyModule.Configs;
 using WeaponModule.Content;
+using Zenject;
 
 namespace EnemyModule.View
 {
-    [RequireComponent(typeof(NavMeshAgent))]
-    [RequireComponent(typeof(HealthComponent))]
     public class EnemyView : MonoBehaviour
     {
         [Header("References")]
@@ -18,46 +17,53 @@ namespace EnemyModule.View
         [SerializeField] private EnemyRagdoll ragdoll;
         [SerializeField] private Transform[] patrolPoints;
 
-        private NavMeshAgent _agent;
-        private HealthComponent _health;
+        [SerializeField] private NavMeshAgent agent;
+
+        private IHealthComponent _health;
         private EnemyConfig _config;
 
         public Transform[] PatrolPoints => patrolPoints;
-        public HealthComponent Health => _health;
+        public IHealthComponent Health => _health;
         public Transform Eyes => eyes;
         public Transform FirePoint => firePoint;
 
-        public bool IsPathPending => _agent.pathPending;
-        public float RemainingDistance => _agent.remainingDistance;
-        public Vector3 Velocity => _agent != null ? _agent.velocity : Vector3.zero;
+        public bool IsPathPending => agent.pathPending;
+        public float RemainingDistance => agent.remainingDistance;
+        public Vector3 Velocity => agent != null ? agent.velocity : Vector3.zero;
+
+        [Inject]
+        public void Construct(IHealthComponent health)
+        {
+            _health = health;
+        }
 
         public void Initialize(EnemyConfig config)
         {
             _config = config;
-            _agent = GetComponent<NavMeshAgent>();
-            _health = GetComponent<HealthComponent>();
-
-            _agent.stoppingDistance = 0.5f;
+            agent.stoppingDistance = 0.5f;
         }
 
         public void MoveTo(Vector3 position)
         {
-            if (_agent.enabled)
+            if (agent.enabled)
             {
-                _agent.isStopped = false;
-                _agent.SetDestination(position);
+                agent.isStopped = false;
+                agent.SetDestination(position);
             }
         }
 
         public void StopMove()
         {
-            if (_agent.enabled) _agent.isStopped = true;
-            _agent.velocity = Vector3.zero;
+            if (agent.enabled)
+            {
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
+            }
         }
 
         public void ResetPath()
         {
-            if (_agent.enabled) _agent.ResetPath();
+            if (agent.enabled) agent.ResetPath();
         }
 
         public void RotateTowards(Vector3 target)
@@ -74,7 +80,7 @@ namespace EnemyModule.View
         {
             if (animator)
             {
-                bool isMoving = velocity.sqrMagnitude > 0.1f;
+                bool isMoving = velocity.sqrMagnitude > 0.01f;
                 animator.SetBool("IsMoving", isMoving);
             }
         }
@@ -104,22 +110,24 @@ namespace EnemyModule.View
         {
             hitPoint = target.position;
             if (target == null) return false;
-            Collider targetCol = target.GetComponent<Collider>();
-            Vector3 targetCenter = targetCol.bounds.center; ;
+
+            Vector3 targetCenter;
+            if (target.TryGetComponent(out Collider targetCol))
+            {
+                targetCenter = targetCol.bounds.center;
+            }
+            else
+            {
+                targetCenter = target.position + Vector3.up * 1.0f;
+            }
+
             Debug.DrawLine(eyes.position, targetCenter, Color.yellow);
             float dist = Vector3.Distance(eyes.position, targetCenter);
             Vector3 dir = (targetCenter - eyes.position).normalized;
             float angleToTarget = Vector3.Angle(eyes.forward, dir);
 
-            if (dist > range)
-            {
-                return false;
-            }
-
-            if (angleToTarget > angle / 2)
-            {
-                return false;
-            }
+            if (dist > range) return false;
+            if (angleToTarget > angle / 2) return false;
 
             Debug.DrawRay(eyes.position, dir * dist, Color.red);
 
@@ -130,10 +138,6 @@ namespace EnemyModule.View
                     Debug.DrawLine(eyes.position, hit.point, Color.green);
                     hitPoint = targetCenter;
                     return true;
-                }
-                else
-                {
-                    return false;
                 }
             }
             return false;
@@ -158,20 +162,6 @@ namespace EnemyModule.View
             }
             coverPos = transform.position;
             return false;
-        }
-        private void OnDrawGizmos()
-        {
-            if (_config == null || eyes == null) return;
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(eyes.position, _config.SightDistance);
-
-            Vector3 leftRay = Quaternion.Euler(0, -_config.ViewAngle / 2, 0) * eyes.forward;
-            Vector3 rightRay = Quaternion.Euler(0, _config.ViewAngle / 2, 0) * eyes.forward;
-
-            Gizmos.color = Color.blue;
-            Gizmos.DrawRay(eyes.position, leftRay * _config.SightDistance);
-            Gizmos.DrawRay(eyes.position, rightRay * _config.SightDistance);
         }
     }
 }

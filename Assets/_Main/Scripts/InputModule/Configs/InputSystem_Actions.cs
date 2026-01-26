@@ -635,6 +635,17 @@ namespace InputModule.Configs
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": """",
+                    ""id"": ""fc83cc67-d272-4927-ab98-1f361ec8e38a"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Crouch"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
                     ""name"": ""1D Axis"",
                     ""id"": ""52d9a3c3-7a04-4983-bd85-b8fee8cf7e0c"",
                     ""path"": ""1DAxis"",

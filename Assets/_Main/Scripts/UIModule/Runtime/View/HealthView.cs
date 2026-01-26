@@ -9,6 +9,13 @@ namespace UIModule
         [SerializeField] private Slider healthSlider;
         [SerializeField] private TMP_Text healthText;
 
+        private void Awake()
+        {
+            if (healthSlider != null)
+            {
+                healthSlider.interactable = false;
+            }
+        }
         public void SetHealth(float current, float max)
         {
             if (healthSlider)

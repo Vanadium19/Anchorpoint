@@ -1,0 +1,2875 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+- Pay special attention to the Repository Description. These contain important context and guidelines specific to this project.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: Assets/_Main/Scripts/**/*.cs, Assets/_Main/Scripts/**/*.asmdef
+- Files matching these patterns are excluded: **/*.meta, **/*.mat, **/*.prefab, **/*.unity, **/*.asset, **/*.png, **/*.jpg, **/*.ogg, **/*.wav, **/*.mp3, **/*.pdf, **/InputSystem_Actions.cs, **/Library/**, **/Temp/**, **/Obj/**, **/Build/**, **/Packages/**, **/ProjectSettings/**, **/UserSettings/**, **/.vs/**, **/.git/**
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<user_provided_header>
+Unity Project Context...
+</user_provided_header>
+
+<directory_structure>
+Assets/_Main/Scripts/ComponentsModule/ComponentsModule.asmdef
+Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/CrouchComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/CrouchData.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/ICrouchComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Health/HealthComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Health/IDamageable.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Health/IHealthComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Lean/ILeanComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Lean/LeanComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Movement/IMoveComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Movement/MoveComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Rotation/IRotationComponent.cs
+Assets/_Main/Scripts/ComponentsModule/Runtime/Rotation/RotationComponent.cs
+Assets/_Main/Scripts/EnemyModule/Configs/EnemyConfig.cs
+Assets/_Main/Scripts/EnemyModule/Controllers/EnemyController.cs
+Assets/_Main/Scripts/EnemyModule/Core/EnemyModel.cs
+Assets/_Main/Scripts/EnemyModule/EnemyModule.asmdef
+Assets/_Main/Scripts/EnemyModule/Installers/EnemyInstaller.cs
+Assets/_Main/Scripts/EnemyModule/View/EnemyRagdoll.cs
+Assets/_Main/Scripts/EnemyModule/View/EnemyView.cs
+Assets/_Main/Scripts/ExtractionModule/Configs/ExtractionConfig.cs
+Assets/_Main/Scripts/ExtractionModule/Controllers/ExtractionController.cs
+Assets/_Main/Scripts/ExtractionModule/ExtractionModule.asmdef
+Assets/_Main/Scripts/ExtractionModule/Installers/ExtractionInstaller.cs
+Assets/_Main/Scripts/ExtractionModule/View/ExtractionHUDView.cs
+Assets/_Main/Scripts/ExtractionModule/View/ExtractionZoneView.cs
+Assets/_Main/Scripts/InputModule/Core/GameInputService.cs
+Assets/_Main/Scripts/InputModule/Core/IInputMap.cs
+Assets/_Main/Scripts/InputModule/InputModule.asmdef
+Assets/_Main/Scripts/InputModule/Installers/InputInstaller.cs
+Assets/_Main/Scripts/PlayerModule/PlayerModule.asmdef
+Assets/_Main/Scripts/PlayerModule/Runtime/Controllers/PlayerMovementController.cs
+Assets/_Main/Scripts/PlayerModule/Runtime/Data/PlayerConfig.cs
+Assets/_Main/Scripts/PlayerModule/Runtime/Installers/PlayerInstaller.cs
+Assets/_Main/Scripts/UIModule/Runtime/Presenters/GameOverPresenter.cs
+Assets/_Main/Scripts/UIModule/Runtime/Presenters/HealthPresenter.cs
+Assets/_Main/Scripts/UIModule/Runtime/View/GameOverView.cs
+Assets/_Main/Scripts/UIModule/Runtime/View/HealthView.cs
+Assets/_Main/Scripts/UIModule/UIModule.asmdef
+Assets/_Main/Scripts/WeaponModule/Configs/WeaponConfig.cs
+Assets/_Main/Scripts/WeaponModule/Content/Bullet.cs
+Assets/_Main/Scripts/WeaponModule/Controllers/WeaponController.cs
+Assets/_Main/Scripts/WeaponModule/Controllers/WeaponInventory.cs
+Assets/_Main/Scripts/WeaponModule/Core/IWeapon.cs
+Assets/_Main/Scripts/WeaponModule/Core/WeaponModel.cs
+Assets/_Main/Scripts/WeaponModule/Installers/WeaponInstaller.cs
+Assets/_Main/Scripts/WeaponModule/View/Procedural/RecoilProcessor.cs
+Assets/_Main/Scripts/WeaponModule/View/Procedural/SwayProcessor.cs
+Assets/_Main/Scripts/WeaponModule/View/WeaponView.cs
+Assets/_Main/Scripts/WeaponModule/WeaponModule.asmdef
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="Assets/_Main/Scripts/ComponentsModule/ComponentsModule.asmdef">
+{
+  "name": "ComponentsModule"
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/CrouchComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public class CrouchComponent : ICrouchComponent
+    {
+        private readonly CharacterController _characterController;
+        private readonly Transform _cameraRoot;
+        private readonly CrouchData _data;
+
+        public CrouchComponent(CharacterController characterController, Transform cameraRoot, CrouchData data)
+        {
+            _characterController = characterController;
+            _cameraRoot = cameraRoot;
+            _data = data;
+        }
+
+        public void Crouch(bool isCrouching)
+        {
+            var targetHeight = isCrouching ? _data.CrouchHeight : _data.StandHeight;
+            var targetEyeHeight = isCrouching ? _data.EyeHeightCrouching : _data.EyeHeightStanding;
+
+            var height = Mathf.Lerp(_characterController.height, targetHeight, Time.deltaTime * _data.CrouchSpeed);
+            _characterController.height = height;
+            _characterController.center = Vector3.up * height / 2f;
+
+            var currentPosition = _cameraRoot.localPosition;
+            var targetPosition = new Vector3(0, targetEyeHeight, 0);
+
+            var position = Vector3.Lerp(currentPosition, targetPosition, Time.deltaTime * _data.CrouchSpeed);
+            _cameraRoot.localPosition = position;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/CrouchData.cs">
+using System;
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    [Serializable]
+    public class CrouchData
+    {
+        [SerializeField] private float crouchHeight = 1.1f;
+        [SerializeField] private float standHeight = 1.5f;
+
+        [SerializeField] private float eyeHeightCrouching = 0.8f;
+        [SerializeField] private float eyeHeightStanding = 1.2f;
+
+        [SerializeField] private float crouchSpeed = 10;
+
+        public float CrouchHeight => crouchHeight;
+        public float StandHeight => standHeight;
+
+        public float EyeHeightCrouching => eyeHeightCrouching;
+        public float EyeHeightStanding => eyeHeightStanding;
+
+        public float CrouchSpeed => crouchSpeed;
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/ICrouchComponent.cs">
+namespace ComponentsModule
+{
+    public interface ICrouchComponent
+    {
+        void Crouch(bool isCrouching);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Health/HealthComponent.cs">
+using System;
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    //TODO: Переделать из MonoBehaviour
+    public class HealthComponent : MonoBehaviour, IDamageable, IHealthComponent
+    {
+        [SerializeField] private float maxHealth = 100f;
+
+        private float _currentHealth;
+
+        public event Action<float, float> HealthChanged;
+        public event Action<Vector3?, Vector3?> DamageTook;
+        public event Action Died;
+
+        public float MaxHealth => maxHealth;
+        public float CurrentHealth => _currentHealth;
+        public bool IsAlive => _currentHealth > 0;
+
+        private void Awake() => _currentHealth = maxHealth;
+
+        public void TakeDamage(float amount, Vector3? hitPoint = null, Vector3? force = null)
+        {
+            if (!IsAlive)
+                return;
+
+            _currentHealth -= amount;
+            _currentHealth = Mathf.Max(_currentHealth, 0);
+
+            HealthChanged?.Invoke(_currentHealth, maxHealth);
+            DamageTook?.Invoke(hitPoint, force);
+
+            if (_currentHealth <= 0)
+                Die();
+        }
+
+        //FIXME: Если нет задачи, не надо делать лишние методы
+        public void Heal(float amount)
+        {
+            if (!IsAlive)
+                return;
+
+            _currentHealth = Mathf.Min(_currentHealth + amount, maxHealth);
+            HealthChanged?.Invoke(_currentHealth, maxHealth);
+        }
+
+        private void Die() => Died?.Invoke();
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Health/IDamageable.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public interface IDamageable
+    {
+        bool IsAlive { get; }
+
+        void TakeDamage(float amount, Vector3? hitPoint = null, Vector3? force = null);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Health/IHealthComponent.cs">
+using System;
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public interface IHealthComponent
+    {
+        event Action<float, float> HealthChanged;
+        event Action<Vector3?, Vector3?> DamageTook;
+        event Action Died;
+
+        float MaxHealth { get; }
+        float CurrentHealth { get; }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Lean/ILeanComponent.cs">
+namespace ComponentsModule
+{
+    public interface ILeanComponent
+    {
+        void Lean(float targetLean);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Lean/LeanComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public class LeanComponent : ILeanComponent
+    {
+        private readonly Transform _cameraRoot;
+
+        private readonly float _leanAngle;
+        private readonly float _leanOffset;
+        private readonly float _leanSpeed;
+
+        private float _currentLean;
+
+        public LeanComponent(Transform cameraRoot, float leanAngle, float leanOffset, float leanSpeed)
+        {
+            _cameraRoot = cameraRoot;
+            _leanAngle = leanAngle;
+            _leanOffset = leanOffset;
+            _leanSpeed = leanSpeed;
+        }
+
+        public void Lean(float targetLean)
+        {
+            _currentLean = Mathf.Lerp(_currentLean, targetLean, Time.deltaTime * _leanSpeed);
+
+            var rotation = Quaternion.Euler(0, 0, -_currentLean * _leanAngle);
+            _cameraRoot.localRotation = rotation;
+
+            var position = _cameraRoot.localPosition;
+            position.x = _currentLean * _leanOffset;
+            _cameraRoot.localPosition = position;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Movement/IMoveComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public interface IMoveComponent
+    {
+        void Move(Vector2 direction, bool jumpe);
+        void SetSpeed(float value);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Rotation/IRotationComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public interface IRotationComponent
+    {
+        void Rotate(Vector2 direction);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Rotation/RotationComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public class RotationComponent : IRotationComponent
+    {
+        private readonly Transform _transform;
+        private readonly Transform _cameraTransform;
+
+        private readonly float _mouseSensitivity;
+        private readonly float _lookXLimit;
+
+        private float _rotationX;
+        private float _rotationY;
+
+        public RotationComponent(Transform transform, float mouseSensitivity, float lookXLimit)
+        {
+            _transform = transform;
+            _cameraTransform = Camera.main!.transform;
+
+            _rotationY = _transform.eulerAngles.y;
+
+            _mouseSensitivity = mouseSensitivity;
+            _lookXLimit = lookXLimit;
+        }
+
+        public void Rotate(Vector2 direction)
+        {
+            _rotationX += -direction.y * _mouseSensitivity;
+            _rotationX = Mathf.Clamp(_rotationX, -_lookXLimit, _lookXLimit);
+
+            _rotationY += direction.x * _mouseSensitivity;
+
+            _cameraTransform.localRotation = Quaternion.Euler(_rotationX, 0, 0);
+            _transform.rotation = Quaternion.Euler(0, _rotationY, 0);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/Configs/EnemyConfig.cs">
+using UnityEngine;
+
+namespace EnemyModule.Configs
+{
+    [CreateAssetMenu(fileName = "EnemyConfig", menuName = "Configs/Enemy")]
+    public class EnemyConfig : ScriptableObject
+    {
+        [Header("Sensing")]
+        public float SightDistance = 25f;
+        public float ViewAngle = 120f;
+        public LayerMask ViewMask;
+        public float MemoryTime = 10f;
+
+        [Header("Combat")]
+        public float AttackRange = 10f;
+        public float FireRate = 1f;
+        public int MaxAmmo = 10;
+        public float ReloadTime = 3f;
+        public float BulletSpeed = 30f;
+        public float Damage = 10f;
+
+        [Header("Patrol")]
+        public float PatrolWaitTime = 3f;
+        public float LookInterval = 2f;
+        public float LookTurnSpeed = 2f;
+        public float LookAngleRange = 60f;
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/Core/EnemyModel.cs">
+using System;
+using UnityEngine;
+
+namespace EnemyModule.Core
+{
+    public class EnemyModel
+    {
+        public enum AIState { Patrol, Chase, Attack, Reload }
+
+        private AIState _currentState;
+        private int _currentAmmo;
+        private Vector3 _lastKnownPosition;
+        private bool _hasTarget;
+
+        public event Action<AIState> StateChanged;
+
+        public AIState CurrentState => _currentState;
+        public int CurrentAmmo => _currentAmmo;
+        public Vector3 LastKnownPosition => _lastKnownPosition;
+        public bool HasTarget => _hasTarget;
+
+        public void Initialize(int maxAmmo, Vector3 startPos)
+        {
+            _currentAmmo = maxAmmo;
+            _lastKnownPosition = startPos;
+            SetState(AIState.Patrol);
+        }
+
+        public void SetState(AIState newState)
+        {
+            if (_currentState == newState) return;
+            _currentState = newState;
+            StateChanged?.Invoke(newState);
+        }
+
+        public void SetTargetPosition(Vector3 pos)
+        {
+            _lastKnownPosition = pos;
+            _hasTarget = true;
+        }
+
+        public void ClearTarget()
+        {
+            _hasTarget = false;
+        }
+
+        public bool TryConsumeAmmo()
+        {
+            if (_currentAmmo <= 0) return false;
+            _currentAmmo--;
+            return true;
+        }
+
+        public void Reload(int maxAmmo)
+        {
+            _currentAmmo = maxAmmo;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/Installers/EnemyInstaller.cs">
+using UnityEngine;
+using Zenject;
+using EnemyModule.Configs;
+using EnemyModule.Controllers;
+using EnemyModule.Core;
+using EnemyModule.View;
+
+namespace EnemyModule.Installers
+{
+    public class EnemyInstaller : MonoInstaller
+    {
+        [SerializeField] private EnemyConfig config;
+        [SerializeField] private EnemyView view;
+
+        public override void InstallBindings()
+        {
+            Container.BindInstance(config).AsSingle();
+            Container.BindInstance(view).AsSingle();
+
+            Container.Bind<EnemyModel>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemyController>().AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/View/EnemyRagdoll.cs">
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace EnemyModule.View
+{
+    public class EnemyRagdoll : MonoBehaviour
+    {
+        [SerializeField] private Animator animator;
+        [SerializeField] private NavMeshAgent agent;
+        [SerializeField] private Collider mainCollider;
+
+        private Rigidbody[] _bodies;
+        private Collider[] _colliders;
+
+        private void Awake()
+        {
+            _bodies = GetComponentsInChildren<Rigidbody>();
+            _colliders = GetComponentsInChildren<Collider>();
+            ToggleRagdoll(false);
+        }
+
+        public void Activate(Vector3? force = null, Vector3? hitPoint = null)
+        {
+            if (animator) animator.enabled = false;
+            if (agent) agent.enabled = false;
+            if (mainCollider) mainCollider.enabled = false;
+
+            ToggleRagdoll(true);
+
+            if (force.HasValue && hitPoint.HasValue)
+            {
+                ApplyForce(hitPoint.Value, force.Value);
+            }
+        }
+
+        private void ToggleRagdoll(bool state)
+        {
+            foreach (var rb in _bodies) rb.isKinematic = !state;
+            foreach (var col in _colliders)
+            {
+                if (col != mainCollider) col.enabled = state;
+            }
+        }
+
+        private void ApplyForce(Vector3 pos, Vector3 dir)
+        {
+            Rigidbody closest = null;
+            float minDst = float.MaxValue;
+            foreach (var rb in _bodies)
+            {
+                float d = Vector3.Distance(rb.position, pos);
+                if (d < minDst) { minDst = d; closest = rb; }
+            }
+            if (closest) closest.AddForce(dir, ForceMode.Impulse);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/Configs/ExtractionConfig.cs">
+using UnityEngine;
+
+namespace ExtractionModule.Configs
+{
+    [CreateAssetMenu(fileName = "ExtractionConfig", menuName = "Configs/Extraction")]
+    public class ExtractionConfig : ScriptableObject
+    {
+        [Tooltip("Время в секундах, которое нужно простоять в зоне")]
+        public float ExtractionTime = 5.0f;
+
+        [Tooltip("Текст таймера. {0} заменится на время.")]
+        public string TimerTextFormat = "EVAC IN: {0:F1}";
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/ExtractionModule.asmdef">
+{
+    "name": "ExtractionModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/Installers/ExtractionInstaller.cs">
+using UnityEngine;
+using Zenject;
+using ExtractionModule.Configs;
+using ExtractionModule.Controllers;
+using ExtractionModule.View;
+
+namespace ExtractionModule.Installers
+{
+    public class ExtractionInstaller : MonoInstaller
+    {
+        [SerializeField] private ExtractionConfig config;
+        [SerializeField] private ExtractionZoneView zoneView;
+        [SerializeField] private ExtractionHUDView hudView;
+
+        public override void InstallBindings()
+        {
+            Container.BindInstance(config).AsSingle();
+            Container.BindInstance(zoneView).AsSingle();
+            Container.BindInstance(hudView).AsSingle();
+
+            Container.BindInterfacesAndSelfTo<ExtractionController>().AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/View/ExtractionHUDView.cs">
+using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+namespace ExtractionModule.View
+{
+    public class ExtractionHUDView : MonoBehaviour
+    {
+        [Header("Timer UI")]
+        [SerializeField] private GameObject timerContainer;
+        [SerializeField] private TMP_Text timerText;
+
+        [Header("Success UI")]
+        [SerializeField] private GameObject successPanel;
+        [SerializeField] private Button restartButton;
+
+        private void Awake()
+        {
+            if (timerContainer) timerContainer.SetActive(false);
+            if (successPanel) successPanel.SetActive(false);
+
+            if (restartButton)
+                restartButton.onClick.AddListener(OnRestartClicked);
+        }
+
+        public void ShowTimer(float timeRemaining, string textFormat)
+        {
+            if (this == null || timerContainer == null) return;
+            timerContainer.SetActive(true);
+            if (timerText)
+                timerText.text = string.Format(textFormat, timeRemaining);
+        }
+
+        public void HideTimer()
+        {
+            if (this == null || timerContainer == null) return;
+            timerContainer.SetActive(false);
+        }
+
+        public void ShowSuccessScreen()
+        {
+            if (successPanel == null) return;
+            successPanel.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            Debug.Log($"[View] Панель включена. Scale: {successPanel.transform.localScale}");
+        }
+
+        private void OnRestartClicked()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/View/ExtractionZoneView.cs">
+using System;
+using UnityEngine;
+
+namespace ExtractionModule.View
+{
+    public class ExtractionZoneView : MonoBehaviour
+    {
+        public event Action<bool> PlayerPresenceChanged;
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Player"))
+            {
+                PlayerPresenceChanged?.Invoke(true);
+            }
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag("Player"))
+            {
+                PlayerPresenceChanged?.Invoke(false);
+            }
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/Core/IInputMap.cs">
+using UnityEngine;
+
+namespace InputModule.Core
+{
+    public interface IInputMap
+    {
+        // Читаемые свойства (только get)
+        Vector2 MoveInput { get; }
+        Vector2 LookInput { get; }
+        bool IsJumpPressed { get; }
+        bool IsCrouchPressed { get; }
+        float LeanInput { get; }
+
+        float WeaponScroll { get; }
+        int SelectWeaponIndex { get; }
+        bool IsFirePressed { get; }
+        bool IsAimPressed { get; } 
+        bool IsReloadPressed { get; }
+        bool IsHolsterPressed { get; }
+        bool IsAimHeld { get; } 
+        bool IsAimTriggered { get; } 
+
+        // Методы управления состоянием
+        void Enable();
+        void Disable();
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/InputModule.asmdef">
+{
+    "name": "InputModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Controllers/PlayerMovementController.cs">
+using ComponentsModule;
+using InputModule.Core;
+using Zenject;
+
+namespace PlayerModule
+{
+    public class PlayerMovementController : ITickable
+    {
+        private readonly IMoveComponent _mover;
+        private readonly IRotationComponent _rotation;
+        private readonly ICrouchComponent _croucher;
+        private readonly ILeanComponent _leaner;
+
+        private readonly IInputMap _inputMap;
+
+        public PlayerMovementController(IMoveComponent mover,
+            IRotationComponent rotation,
+            ICrouchComponent croucher,
+            ILeanComponent leaner,
+            IInputMap inputMap)
+        {
+            _mover = mover;
+            _inputMap = inputMap;
+            _rotation = rotation;
+            _leaner = leaner;
+            _croucher = croucher;
+        }
+
+        public void Tick()
+        {
+            Move();
+            Rotate();
+            Crouch();
+            Lean();
+        }
+
+        private void Move()
+        {
+            var direction = _inputMap.MoveInput;
+            var jumped = _inputMap.IsJumpPressed;
+            _mover.Move(direction, jumped);
+        }
+
+        private void Rotate()
+        {
+            var direction = _inputMap.LookInput;
+            _rotation.Rotate(direction);
+        }
+
+        private void Lean()
+        {
+            var targetLean = _inputMap.LeanInput;
+            _leaner.Lean(targetLean);
+        }
+
+        private void Crouch()
+        {
+            var isCrouching = _inputMap.IsCrouchPressed;
+            _croucher.Crouch(isCrouching);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Data/PlayerConfig.cs">
+using ComponentsModule;
+using UnityEngine;
+
+namespace PlayerModule.Configs
+{
+    [CreateAssetMenu(fileName = "PlayerConfig", menuName = "Configs/PlayerConfig")]
+    public class PlayerConfig : ScriptableObject
+    {
+        [Header("Movement")]
+        [SerializeField] private float walkSpeed = 5f;
+        [SerializeField] private float crouchSpeed = 2.5f;
+        [SerializeField] private float gravity = -15f;
+        [SerializeField] private float jumpHeight = 1.2f;
+        
+        [Header("Look")]
+        [SerializeField] private float mouseSensitivity = 0.1f;
+        [SerializeField] private float lookXLimit = 85f;
+        
+        [Header("Lean")]
+        [SerializeField] private float leanAngle = 15f;
+        [SerializeField] private float leanOffset = 0.5f;
+        [SerializeField] private float leanSpeed = 10f;
+        
+        [Header("Crouch")]
+        [SerializeField] private CrouchData crouchData;
+
+        // Публичные свойства для доступа
+        public float WalkSpeed => walkSpeed;
+        public float CrouchSpeed => crouchSpeed;
+        
+        public float Gravity => gravity;
+        public float JumpHeight => jumpHeight;
+        
+        public float MouseSensitivity => mouseSensitivity;
+        public float LookXLimit => lookXLimit;
+
+        public float LeanAngle => leanAngle;
+        public float LeanOffset => leanOffset;
+        public float LeanSpeed => leanSpeed;
+        
+        public CrouchData CrouchData => crouchData;
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Installers/PlayerInstaller.cs">
+using System;
+using ComponentsModule;
+using PlayerModule.Configs;
+using UIModule;
+using UnityEngine;
+using Zenject;
+
+namespace PlayerModule
+{
+    public class PlayerInstaller : MonoInstaller
+    {
+        [Header("References")]
+        [SerializeField] private CharacterController characterController;
+        [SerializeField] private Transform cameraRoot;
+        [SerializeField] private Transform player;
+
+        [SerializeField] private GameOverView gameOverView;
+
+        [Header("Health")]
+        [SerializeField] private HealthComponent healthComponent;
+        [SerializeField] private HealthView healthView;
+
+        [Header("Settings")]
+        [SerializeField] private PlayerConfig config;
+
+        private void OnValidate()
+        {
+            player ??= transform;
+            healthComponent ??= GetComponent<HealthComponent>();
+            characterController ??= GetComponent<CharacterController>();
+        }
+
+        public override void InstallBindings()
+        {
+            Container.Bind<PlayerConfig>()
+                .FromInstance(config)
+                .AsSingle();
+
+            Container.Bind<CharacterController>()
+                .FromInstance(characterController)
+                .AsSingle();
+
+            Container.Bind<Transform>()
+                .FromInstance(player)
+                .AsSingle();
+
+            Container.Bind<IMoveComponent>()
+                .To<MoveComponent>()
+                .AsSingle()
+                .WithArguments(config.WalkSpeed, config.JumpHeight, config.Gravity);
+
+            Container.Bind<IRotationComponent>()
+                .To<RotationComponent>()
+                .AsSingle()
+                .WithArguments(config.MouseSensitivity, config.LookXLimit);
+
+            Container.Bind<ICrouchComponent>()
+                .To<CrouchComponent>()
+                .AsSingle()
+                .WithArguments(cameraRoot, config.CrouchData);
+
+            Container.Bind<ILeanComponent>()
+                .To<LeanComponent>()
+                .AsSingle()
+                .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
+
+            Container.BindInterfacesTo<HealthComponent>()
+                .FromInstance(healthComponent)
+                .AsSingle();
+
+            Container.BindInterfacesTo<PlayerMovementController>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<HealthView>()
+                .FromInstance(healthView)
+                .AsSingle();
+
+            Container.Bind<GameOverView>()
+                .FromInstance(gameOverView)
+                .AsSingle();
+
+            Container.BindInterfacesTo<HealthPresenter>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesTo<GameOverPresenter>()
+                .AsSingle()
+                .NonLazy();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/Runtime/Presenters/GameOverPresenter.cs">
+using System;
+using UnityEngine.SceneManagement;
+using Zenject;
+using ComponentsModule;
+using InputModule.Core;
+
+namespace UIModule
+{
+    public class GameOverPresenter : IInitializable, IDisposable
+    {
+        private readonly IHealthComponent _health;
+        private readonly GameOverView _view;
+        private readonly IInputMap _input;
+
+        public GameOverPresenter(IHealthComponent health, GameOverView view, IInputMap input)
+        {
+            _health = health;
+            _input = input;
+            _view = view;
+        }
+
+        public void Initialize()
+        {
+            _view.Hide();
+            _health.Died += OnDied;
+            _view.RestartClicked += OnRestartClicked;
+        }
+
+        public void Dispose()
+        {
+            _health.Died -= OnDied;
+            _view.RestartClicked -= OnRestartClicked;
+        }
+
+        //FIXME: Бизнес логика в презентере
+        private void OnDied()
+        {
+            _input.Disable();
+            _view.Show();
+        }
+
+        //FIXME: Бизнес логика в презентере
+        private void OnRestartClicked()
+        {
+            var currentScene = SceneManager.GetActiveScene().name;
+            SceneManager.LoadScene(currentScene);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/Runtime/Presenters/HealthPresenter.cs">
+using System;
+using Zenject;
+using ComponentsModule;
+
+namespace UIModule
+{
+    public class HealthPresenter : IInitializable, IDisposable
+    {
+        private readonly IHealthComponent _health;
+        private readonly HealthView _view;
+
+        public HealthPresenter(IHealthComponent health, HealthView view)
+        {
+            _health = health;
+            _view = view;
+        }
+
+        public void Initialize()
+        {
+            OnHealthChanged(_health.CurrentHealth, _health.MaxHealth);
+            _health.HealthChanged += OnHealthChanged;
+        }
+
+        public void Dispose() => _health.HealthChanged -= OnHealthChanged;
+
+        private void OnHealthChanged(float current, float max) => _view.SetHealth(current, max);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/Runtime/View/GameOverView.cs">
+using UnityEngine;
+using UnityEngine.UI;
+using System;
+
+namespace UIModule
+{
+    public class GameOverView : MonoBehaviour
+    {
+        [SerializeField] private GameObject panel;
+        [SerializeField] private Button restartButton;
+
+        public event Action RestartClicked;
+
+        private void OnEnable() => restartButton.onClick.AddListener(OnRestartButtonClicked);
+
+        private void OnDisable() => restartButton.onClick.RemoveListener(OnRestartButtonClicked);
+
+        public void Show()
+        {
+            panel.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        public void Hide() => panel.SetActive(false);
+
+        private void OnRestartButtonClicked() => RestartClicked?.Invoke();
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/Runtime/View/HealthView.cs">
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+
+namespace UIModule
+{
+    public class HealthView : MonoBehaviour
+    {
+        [SerializeField] private Slider healthSlider;
+        [SerializeField] private TMP_Text healthText;
+
+        public void SetHealth(float current, float max)
+        {
+            if (healthSlider)
+            {
+                healthSlider.maxValue = max;
+                healthSlider.value = current;
+            }
+
+            if (healthText)
+                healthText.text = $"{Mathf.CeilToInt(current)} / {max}";
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/UIModule.asmdef">
+{
+    "name": "UIModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ad92713fd5884a16a1e7ccde1a579228",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Configs/WeaponConfig.cs">
+using UnityEngine;
+
+namespace WeaponModule.Configs
+{
+    [CreateAssetMenu(fileName = "WeaponConfig", menuName = "Configs/Weapon")]
+    public class WeaponConfig : ScriptableObject
+    {
+        [Header("Stats")]
+        [SerializeField] private float damage = 20f;
+        [SerializeField] private float fireRate = 0.1f;
+        [SerializeField] private int maxAmmo = 30;
+        [SerializeField] private float bulletSpeed = 200f;
+
+        [Header("Physics")]
+        [Range(0f, 1f)]
+        [SerializeField] private float inheritVelocity = 0.5f;
+
+        [Header("Timings")]
+        [SerializeField] private float reloadTime = 2.0f;
+        [SerializeField] private float drawTime = 1.0f;
+
+        [Header("Aiming")]
+        [SerializeField] private Vector3 aimPosition;
+        [SerializeField] private Vector3 aimRotation;
+        [SerializeField] private float aimSpeed = 10f;
+        [SerializeField] private bool aimIsToggle = false;
+        [Range(0f, 1f)]
+        [SerializeField] private float aimStability = 0.8f;
+
+        // --- НОВЫЕ ПОЛЯ (Recoil & Sway) ---
+        // Важно: они должны быть public, чтобы View мог их читать
+        [Header("--- Recoil & Sway ---")]
+        public RecoilSettings HipRecoil;
+        public RecoilSettings AimRecoil;
+        public CameraRecoilSettings CamHipRecoil;
+        public CameraRecoilSettings CamAimRecoil;
+        public SwaySettings Sway;
+
+        // --- Геттеры для приватных полей ---
+        public float Damage => damage;
+        public float FireRate => fireRate;
+        public int MaxAmmo => maxAmmo;
+        public float BulletSpeed => bulletSpeed;
+        public float InheritVelocity => inheritVelocity;
+        public float ReloadTime => reloadTime;
+        public float DrawTime => drawTime;
+
+        public Vector3 AimPosition => aimPosition;
+        public Vector3 AimRotation => aimRotation;
+        public float AimSpeed => aimSpeed;
+        public bool AimIsToggle => aimIsToggle;
+        public float AimStability => aimStability;
+
+        // --- Вспомогательные классы настроек ---
+        // Они должны быть [System.Serializable], чтобы отображаться в Инспекторе
+
+        [System.Serializable]
+        public class RecoilSettings
+        {
+            public Vector3 RecoilRotation = new Vector3(-10f, 2f, 2f); // X, Y, Z
+            public float KickBackZ = 0.2f;
+            public float Snappiness = 6f;
+            public float ReturnSpeed = 2f;
+        }
+
+        [System.Serializable]
+        public class CameraRecoilSettings
+        {
+            public Vector3 RecoilAmount = new Vector3(-2f, 2f, 0.5f); // X, Y, Z
+            public float Snappiness = 6f;
+            public float ReturnSpeed = 2f;
+        }
+
+        [System.Serializable]
+        public class SwaySettings
+        {
+            [Header("Position")]
+            public float Step = 0.02f;
+            public float MaxStep = 0.06f;
+            public float Smooth = 8f;
+
+            [Header("Rotation")]
+            public float RotationStep = 4f;
+            public float MaxRotation = 10f;
+            public float SmoothRot = 10f;
+
+            [Header("Tilt (Z)")]
+            public float Tilt = 2f;
+            public float MaxTilt = 5f;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Core/IWeapon.cs">
+using Cysharp.Threading.Tasks; // Добавь using
+
+namespace WeaponModule.Core
+{
+    public interface IWeapon
+    {
+        void Initialize();
+        void Tick();
+        void LateTick();
+        void Equip();
+        UniTask Unequip();
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Core/WeaponModel.cs">
+using System;
+
+namespace WeaponModule.Core
+{
+    public class WeaponModel
+    {
+        private int _currentAmmo;
+        private int _maxAmmo;
+
+        public event Action<int, int> AmmoChanged; // Текущие, Макс
+
+        public int CurrentAmmo => _currentAmmo;
+        public bool IsFull => _currentAmmo == _maxAmmo;
+        public bool IsEmpty => _currentAmmo <= 0;
+
+        public void Initialize(int maxAmmo)
+        {
+            _maxAmmo = maxAmmo;
+            _currentAmmo = maxAmmo;
+            Notify();
+        }
+
+        public bool TryConsumeAmmo()
+        {
+            if (_currentAmmo <= 0) return false;
+
+            _currentAmmo--;
+            Notify();
+            return true;
+        }
+
+        public void Reload()
+        {
+            _currentAmmo = _maxAmmo;
+            Notify();
+        }
+
+        private void Notify() => AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Installers/WeaponInstaller.cs">
+using UnityEngine;
+using Zenject;
+using System.Collections.Generic; // Обязательно для List
+using WeaponModule.Configs;
+using WeaponModule.Controllers; // Тут лежит класс WeaponSetupData
+using WeaponModule.Core;
+using WeaponModule.View;
+
+namespace WeaponModule.Installers
+{
+    public class WeaponInstaller : MonoInstaller
+    {
+        [Header("Inventory Setup")]
+        // Вот этот список должен появиться в Инспекторе
+        [SerializeField] private List<WeaponSetupData> loadout;
+
+        public override void InstallBindings()
+        {
+            // 1. Передаем список настроек (Loadout) в Инвентарь
+            // Zenject отдаст этот список в конструктор WeaponInventory
+            Container.BindInstance(loadout).AsSingle();
+
+            // 2. Биндим Модель
+            // Важно: AsTransient() означает "создавай новую модель для каждого нового оружия".
+            // Иначе у всех пушек будут общие патроны.
+            Container.Bind<WeaponModel>().AsTransient();
+
+            // 3. Биндим ФАБРИКУ
+            // Это магия Zenject: он создает класс, который умеет делать WeaponController,
+            // используя Config и View, которые мы передадим из Инвентаря.
+            Container.BindFactory<WeaponConfig, WeaponView, WeaponController, WeaponController.Factory>();
+
+            // 4. Биндим ИНВЕНТАРЬ
+            // InterfacesAndSelf означает, что он работает и как IInitializable (Start), и как ITickable (Update)
+            Container.BindInterfacesAndSelfTo<WeaponInventory>().AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/View/Procedural/RecoilProcessor.cs">
+using UnityEngine;
+using WeaponModule.Configs;
+
+namespace WeaponModule.View.Procedural
+{
+    public class RecoilProcessor
+    {
+        // Текущие значения
+        private Vector3 _targetRotation;
+        private Vector3 _currentRotation;
+        private Vector3 _targetPosition; // Только для оружия
+        private Vector3 _currentPosition;
+
+        private float _snappiness;
+        private float _returnSpeed;
+
+        public Vector3 CurrentRotation => _currentRotation;
+        public Vector3 CurrentPosition => _currentPosition;
+
+        // Вызываем это каждый кадр
+        public void Update(float deltaTime)
+        {
+            _targetRotation = Vector3.Lerp(_targetRotation, Vector3.zero, _returnSpeed * deltaTime);
+            _currentRotation = Vector3.Slerp(_currentRotation, _targetRotation, _snappiness * deltaTime);
+
+            _targetPosition = Vector3.Lerp(_targetPosition, Vector3.zero, _returnSpeed * deltaTime);
+            _currentPosition = Vector3.Lerp(_currentPosition, _targetPosition, _snappiness * deltaTime);
+        }
+
+        public void Fire(WeaponConfig.RecoilSettings settings)
+        {
+            _snappiness = settings.Snappiness;
+            _returnSpeed = settings.ReturnSpeed;
+
+            _targetRotation += new Vector3(
+                settings.RecoilRotation.x,
+                Random.Range(-settings.RecoilRotation.y, settings.RecoilRotation.y),
+                Random.Range(-settings.RecoilRotation.z, settings.RecoilRotation.z));
+
+            _targetPosition += new Vector3(0, 0, -settings.KickBackZ);
+        }
+
+        // Перегрузка для камеры (там нет позиции kickback)
+        public void FireCamera(WeaponConfig.CameraRecoilSettings settings)
+        {
+            _snappiness = settings.Snappiness;
+            _returnSpeed = settings.ReturnSpeed;
+
+            _targetRotation += new Vector3(
+                settings.RecoilAmount.x,
+                Random.Range(-settings.RecoilAmount.y, settings.RecoilAmount.y),
+                Random.Range(-settings.RecoilAmount.z, settings.RecoilAmount.z));
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/View/Procedural/SwayProcessor.cs">
+using UnityEngine;
+using WeaponModule.Configs;
+
+namespace WeaponModule.View.Procedural
+{
+    public class SwayProcessor
+    {
+        private Vector3 _currentPos;
+        private Quaternion _currentRot;
+
+        public Vector3 OutputPosition => _currentPos;
+        public Quaternion OutputRotation => _currentRot;
+
+        public void Update(Vector2 inputDelta, WeaponConfig.SwaySettings settings, float deltaTime, bool isAiming)
+        {
+            // В прицеле sway меньше в 10 раз
+            float multiplier = isAiming ? 0.1f : 1f;
+
+            // Расчет позиции
+            float moveX = Mathf.Clamp(-inputDelta.x * settings.Step * multiplier, -settings.MaxStep, settings.MaxStep);
+            float moveY = Mathf.Clamp(-inputDelta.y * settings.Step * multiplier, -settings.MaxStep, settings.MaxStep);
+
+            Vector3 finalPos = new Vector3(moveX, moveY, 0);
+            _currentPos = Vector3.Lerp(_currentPos, finalPos, deltaTime * settings.Smooth);
+
+            // Расчет поворота
+            float rotX = Mathf.Clamp(-inputDelta.y * settings.RotationStep * multiplier, -settings.MaxRotation, settings.MaxRotation);
+            float rotY = Mathf.Clamp(inputDelta.x * settings.RotationStep * multiplier, -settings.MaxRotation, settings.MaxRotation);
+            float rotZ = Mathf.Clamp(-inputDelta.x * settings.Tilt * multiplier, -settings.MaxTilt, settings.MaxTilt);
+
+            Quaternion finalRot = Quaternion.Euler(rotX, rotY, rotZ);
+            _currentRot = Quaternion.Slerp(_currentRot, finalRot, deltaTime * settings.SmoothRot);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Movement/MoveComponent.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public class MoveComponent : IMoveComponent
+    {
+        private readonly CharacterController _characterController;
+        private readonly Transform _transform;
+
+        private readonly float _jumpHeight;
+        private readonly float _gravity;
+
+        private float _speed;
+        private float _translationY;
+
+        public MoveComponent(CharacterController characterController, float speed, float jumpHeight, float gravity)
+        {
+            _characterController = characterController;
+            _transform = characterController.transform;
+
+            _jumpHeight = jumpHeight;
+            _gravity = gravity;
+
+            _speed = speed;
+        }
+
+        public void Move(Vector2 direction, bool jumped)
+        {
+            var translation = direction.x * _transform.right + direction.y * _transform.forward;
+            translation *= _speed;
+
+            _translationY = GetYTranslation(jumped);
+            translation.y = _translationY;
+
+            _characterController.Move(translation * Time.deltaTime);
+        }
+
+        //TODO: Обновлять при приседание
+        public void SetSpeed(float value)
+        {
+            _speed = value;
+        }
+
+        //FIXME: Magic numbers
+        //TODO: Add crouch check
+        private float GetYTranslation(bool jumped)
+        {
+            var y = _translationY;
+            var isGrounded = _characterController.isGrounded;
+
+            if (jumped && isGrounded /* && !isCrouching*/)
+                y = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
+
+            if (!isGrounded)
+                y += _gravity * Time.deltaTime;
+            else if (y < 0)
+                y = -2f;
+
+            return y;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/Controllers/EnemyController.cs">
+using Cysharp.Threading.Tasks;
+using EnemyModule.Configs;
+using EnemyModule.Core;
+using EnemyModule.View;
+using System;
+using System.Threading;
+using UnityEngine;
+using Zenject;
+
+namespace EnemyModule.Controllers
+{
+    public class EnemyController : IInitializable, ITickable, IDisposable
+    {
+        private readonly EnemyConfig _config;
+        private readonly EnemyModel _model;
+        private readonly EnemyView _view;
+        private CancellationTokenSource _cts;
+
+        private Transform _playerTransform;
+        private float _nextFireTime;
+        private float _chaseTimer;
+        private int _patrolIndex = 0;
+        private bool _isActionBusy;
+
+        public EnemyController(EnemyConfig config, EnemyModel model, EnemyView view)
+        {
+            _config = config;
+            _model = model;
+            _view = view;
+        }
+
+        public void Initialize()
+        {
+            _cts = new CancellationTokenSource();
+            var playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj) _playerTransform = playerObj.transform;
+
+            _view.Initialize(_config);
+            _model.Initialize(_config.MaxAmmo, _view.transform.position);
+
+            _view.Health.DamageTook += OnTakeDamage;
+            _view.Health.Died += OnDeath;
+        }
+
+        public void Dispose()
+        {
+            if (_cts != null)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+            }
+
+            if (_view && _view.Health)
+            {
+                _view.Health.DamageTook -= OnTakeDamage;
+                _view.Health.Died -= OnDeath;
+            }
+        }
+
+        public void Tick()
+        {
+            if (!_view.Health.IsAlive) return;
+            _view.UpdateAnimator(_view.Velocity);
+            //Debug.Log($"State: {_model.CurrentState} | Target: {_model.HasTarget}");
+            if (_isActionBusy) return;
+            _view.UpdateAnimator(_view.Velocity);
+            switch (_model.CurrentState)
+            {
+                case EnemyModel.AIState.Patrol:
+                    UpdatePatrol();
+                    break;
+                case EnemyModel.AIState.Chase:
+                    UpdateChase();
+                    break;
+                case EnemyModel.AIState.Attack:
+                    UpdateAttack();
+                    break;
+                case EnemyModel.AIState.Reload:
+                    break;
+            }
+        }
+
+        private void UpdatePatrol()
+        {
+            if (TrySpotPlayer()) return;
+
+            if (_view.PatrolPoints.Length == 0) return;
+
+            if (!_view.IsPathPending && _view.RemainingDistance < 0.5f)
+            {
+                PatrolWaitRoutine().Forget();
+            }
+        }
+
+        private async UniTaskVoid PatrolWaitRoutine()
+        {
+            _isActionBusy = true;
+            _view.StopMove();
+
+            float totalWaitTime = _config.PatrolWaitTime;
+            float timer = 0;
+            float nextLookTime = 0;
+
+            while (timer < totalWaitTime)
+            {
+                float dt = Time.deltaTime;
+                timer += dt;
+
+                if (TrySpotPlayer())
+                {
+                    _isActionBusy = false;
+                    return;
+                }
+
+                if (timer >= nextLookTime)
+                {
+                    nextLookTime = timer + UnityEngine.Random.Range(1.5f, 3f);
+
+                    float randomAngle = UnityEngine.Random.Range(-_config.LookAngleRange, _config.LookAngleRange);
+
+                    RotateToAngleRoutine(randomAngle).Forget();
+                }
+                await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
+                if (_view == null || !_view.Health.IsAlive) return;
+            }
+
+            _patrolIndex = (_patrolIndex + 1) % _view.PatrolPoints.Length;
+            _view.MoveTo(_view.PatrolPoints[_patrolIndex].position);
+
+            _isActionBusy = false;
+        }
+        private async UniTaskVoid RotateToAngleRoutine(float angleOffset)
+        {
+            Quaternion startRot = _view.transform.rotation;
+            Quaternion targetRot = startRot * Quaternion.Euler(0, angleOffset, 0);
+
+            float t = 0;
+            float duration = 1.0f;
+
+            while (t < 1f)
+            {
+                if (_cts.IsCancellationRequested || !_view.Health.IsAlive) return;
+
+                if (_model.CurrentState != EnemyModel.AIState.Patrol) return;
+
+                t += Time.deltaTime / duration;
+
+                _view.transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+
+                await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
+            }
+        }
+        private void UpdateChase()
+        {
+            float dist = Vector3.Distance(_view.transform.position, _model.LastKnownPosition);
+            bool canSee = CheckVision(out Vector3 targetPos);
+
+            if (canSee)
+            {
+                _model.SetTargetPosition(targetPos);
+                _chaseTimer = _config.MemoryTime;
+
+                if (dist <= _config.AttackRange)
+                {
+                    _model.SetState(EnemyModel.AIState.Attack);
+                    _view.StopMove();
+                }
+                else
+                {
+                    _view.MoveTo(_model.LastKnownPosition);
+                }
+            }
+            else
+            {
+                _view.MoveTo(_model.LastKnownPosition);
+
+                if (dist < 2f)
+                {
+                    _chaseTimer -= Time.deltaTime;
+                    if (_chaseTimer <= 0)
+                    {
+                        _model.SetState(EnemyModel.AIState.Patrol);
+                        _view.MoveTo(_view.PatrolPoints[_patrolIndex].position);
+                    }
+                }
+            }
+        }
+
+        private void UpdateAttack()
+        {
+            if (_model.CurrentAmmo <= 0)
+            {
+                ReloadRoutine().Forget();
+                return;
+            }
+
+            bool canSee = CheckVision(out Vector3 targetPos);
+            float dist = Vector3.Distance(_view.transform.position, _model.LastKnownPosition);
+
+            if (!canSee || dist > _config.AttackRange * 1.2f)
+            {
+                _model.SetState(EnemyModel.AIState.Chase);
+                return;
+            }
+
+            _model.SetTargetPosition(targetPos);
+            _view.StopMove();
+            _view.RotateTowards(_model.LastKnownPosition);
+
+            if (Time.time >= _nextFireTime)
+            {
+                _nextFireTime = Time.time + 1f / _config.FireRate;
+                if (_model.TryConsumeAmmo())
+                {
+                    _view.SpawnBullet(targetPos);
+                }
+            }
+        }
+
+        private async UniTaskVoid ReloadRoutine()
+        {
+            _model.SetState(EnemyModel.AIState.Reload);
+            _isActionBusy = true;
+
+            if (_view.FindCover(_model.LastKnownPosition, 15f, out Vector3 coverPos))
+            {
+                _view.MoveTo(coverPos);
+                while (_view != null && _view.RemainingDistance > 1f)
+                {
+                    if (_cts.IsCancellationRequested) return;
+                    await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
+                }
+            }
+
+            if (_view == null || _cts.IsCancellationRequested) return;
+
+            _view.StopMove();
+
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
+
+            if (canceled) return;
+            if (_view == null) return;
+
+            _model.Reload(_config.MaxAmmo);
+            _model.SetState(EnemyModel.AIState.Chase);
+            _isActionBusy = false;
+        }
+
+        private bool CheckVision(out Vector3 targetPos)
+        {
+            return _view.CheckLineOfSight(_playerTransform, _config.SightDistance, _config.ViewAngle, _config.ViewMask, out targetPos);
+        }
+
+        private bool TrySpotPlayer()
+        {
+            if (_playerTransform == null) return false;
+            if (CheckVision(out Vector3 pos))
+            {
+                _model.SetTargetPosition(pos);
+                _model.SetState(EnemyModel.AIState.Chase);
+                return true;
+            }
+            return false;
+        }
+
+        private void OnTakeDamage(Vector3? hitPos, Vector3? force)
+        {
+            if (_playerTransform)
+            {
+                _model.SetTargetPosition(_playerTransform.position);
+                _model.SetState(EnemyModel.AIState.Chase);
+            }
+        }
+
+        private void OnDeath()
+        {
+            _view.Die(null, null);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/EnemyModule.asmdef">
+{
+    "name": "EnemyModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:61af276ff4b779247aca1e9043c620bc",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:c962557d490c485478b5ea03480dc5b3",
+        "GUID:ad92713fd5884a16a1e7ccde1a579228"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+<file path="Assets/_Main/Scripts/EnemyModule/View/EnemyView.cs">
+using ComponentsModule;
+using UnityEngine;
+using UnityEngine.AI;
+using EnemyModule.Configs;
+using WeaponModule.Content;
+
+namespace EnemyModule.View
+{
+    [RequireComponent(typeof(NavMeshAgent))]
+    [RequireComponent(typeof(HealthComponent))]
+    public class EnemyView : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private Transform eyes;
+        [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject bulletPrefab;
+        [SerializeField] private Animator animator;
+        [SerializeField] private EnemyRagdoll ragdoll;
+        [SerializeField] private Transform[] patrolPoints;
+
+        private NavMeshAgent _agent;
+        private HealthComponent _health;
+        private EnemyConfig _config;
+
+        public Transform[] PatrolPoints => patrolPoints;
+        public HealthComponent Health => _health;
+        public Transform Eyes => eyes;
+        public Transform FirePoint => firePoint;
+
+        public bool IsPathPending => _agent.pathPending;
+        public float RemainingDistance => _agent.remainingDistance;
+        public Vector3 Velocity => _agent != null ? _agent.velocity : Vector3.zero;
+
+        public void Initialize(EnemyConfig config)
+        {
+            _config = config;
+            _agent = GetComponent<NavMeshAgent>();
+            _health = GetComponent<HealthComponent>();
+
+            _agent.stoppingDistance = 0.5f;
+        }
+
+        public void MoveTo(Vector3 position)
+        {
+            if (_agent.enabled)
+            {
+                _agent.isStopped = false;
+                _agent.SetDestination(position);
+            }
+        }
+
+        public void StopMove()
+        {
+            if (_agent.enabled) _agent.isStopped = true;
+            _agent.velocity = Vector3.zero;
+        }
+
+        public void ResetPath()
+        {
+            if (_agent.enabled) _agent.ResetPath();
+        }
+
+        public void RotateTowards(Vector3 target)
+        {
+            Vector3 dir = (target - transform.position).normalized;
+            dir.y = 0;
+            if (dir != Vector3.zero)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 10f);
+            }
+        }
+
+        public void UpdateAnimator(Vector3 velocity)
+        {
+            if (animator)
+            {
+                bool isMoving = velocity.sqrMagnitude > 0.1f;
+                animator.SetBool("IsMoving", isMoving);
+            }
+        }
+
+        public void SpawnBullet(Vector3 targetPos)
+        {
+            if (animator) animator.SetTrigger("Shoot");
+
+            Vector3 dir = (targetPos - firePoint.position).normalized;
+            GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(dir));
+
+            if (bulletObj.TryGetComponent(out Bullet bullet))
+            {
+                bullet.Setup(_config.Damage, _config.BulletSpeed, 0f, Vector3.zero);
+            }
+        }
+
+        public void Die(Vector3? hitPos, Vector3? hitForce)
+        {
+            if (ragdoll) ragdoll.Activate(hitForce, hitPos);
+            else Destroy(gameObject);
+
+            if (ragdoll) Destroy(gameObject, 10f);
+        }
+
+        public bool CheckLineOfSight(Transform target, float range, float angle, LayerMask mask, out Vector3 hitPoint)
+        {
+            hitPoint = target.position;
+            if (target == null) return false;
+            Collider targetCol = target.GetComponent<Collider>();
+            Vector3 targetCenter = targetCol.bounds.center; ;
+            Debug.DrawLine(eyes.position, targetCenter, Color.yellow);
+            float dist = Vector3.Distance(eyes.position, targetCenter);
+            Vector3 dir = (targetCenter - eyes.position).normalized;
+            float angleToTarget = Vector3.Angle(eyes.forward, dir);
+
+            if (dist > range)
+            {
+                return false;
+            }
+
+            if (angleToTarget > angle / 2)
+            {
+                return false;
+            }
+
+            Debug.DrawRay(eyes.position, dir * dist, Color.red);
+
+            if (Physics.Raycast(eyes.position, dir, out RaycastHit hit, range, mask))
+            {
+                if (hit.transform.root == target.root)
+                {
+                    Debug.DrawLine(eyes.position, hit.point, Color.green);
+                    hitPoint = targetCenter;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        public bool FindCover(Vector3 threatPos, float radius, out Vector3 coverPos)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 randomPoint = transform.position + UnityEngine.Random.insideUnitSphere * radius;
+                if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+                {
+                    if (Physics.Raycast(threatPos + Vector3.up, (hit.position - threatPos).normalized, out RaycastHit rayHit, Vector3.Distance(threatPos, hit.position), _config.ViewMask))
+                    {
+                        if (rayHit.transform.root != transform.root)
+                        {
+                            coverPos = hit.position;
+                            return true;
+                        }
+                    }
+                }
+            }
+            coverPos = transform.position;
+            return false;
+        }
+        private void OnDrawGizmos()
+        {
+            if (_config == null || eyes == null) return;
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(eyes.position, _config.SightDistance);
+
+            Vector3 leftRay = Quaternion.Euler(0, -_config.ViewAngle / 2, 0) * eyes.forward;
+            Vector3 rightRay = Quaternion.Euler(0, _config.ViewAngle / 2, 0) * eyes.forward;
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(eyes.position, leftRay * _config.SightDistance);
+            Gizmos.DrawRay(eyes.position, rightRay * _config.SightDistance);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/ExtractionModule/Controllers/ExtractionController.cs">
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Zenject;
+using UnityEngine;
+using ExtractionModule.Configs;
+using ExtractionModule.View;
+using InputModule.Core;
+
+namespace ExtractionModule.Controllers
+{
+    public class ExtractionController : IInitializable, IDisposable
+    {
+        private readonly ExtractionConfig _config;
+        private readonly ExtractionZoneView _zoneView;
+        private readonly ExtractionHUDView _hudView;
+        private readonly IInputMap _input;
+
+        private CancellationTokenSource _cts;
+
+        public ExtractionController(
+            ExtractionConfig config,
+            ExtractionZoneView zoneView,
+            ExtractionHUDView hudView,
+            IInputMap input)
+        {
+            _config = config;
+            _zoneView = zoneView;
+            _hudView = hudView;
+            _input = input;
+        }
+
+        public void Initialize()
+        {
+            if (_zoneView != null)
+                _zoneView.PlayerPresenceChanged += OnZoneStateChanged;
+        }
+
+        public void Dispose()
+        {
+            if (_zoneView != null)
+                _zoneView.PlayerPresenceChanged -= OnZoneStateChanged;
+
+            CancelExtraction();
+        }
+
+        private void OnZoneStateChanged(bool isInside)
+        {
+            if (isInside)
+            {
+                StartExtraction().Forget();
+            }
+            else
+            {
+                CancelExtraction();
+            }
+        }
+
+        private void CancelExtraction()
+        {
+            if (_cts != null)
+            {
+                _cts.Cancel();
+                _cts.Dispose();
+                _cts = null;
+            }
+            if (_hudView != null && !_hudView.Equals(null))
+            {
+                _hudView.HideTimer();
+            }
+        }
+
+        private async UniTaskVoid StartExtraction()
+        {
+            CancelExtraction();
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
+
+            float timer = _config.ExtractionTime;
+
+            while (timer > 0)
+            {
+                if (_hudView == null || _hudView.Equals(null)) return;
+                _hudView.ShowTimer(timer, _config.TimerTextFormat);
+                bool isCanceled = await UniTask.Yield(PlayerLoopTiming.Update, token).SuppressCancellationThrow();
+                if (isCanceled) return;
+                timer -= Time.deltaTime;
+            }
+
+            CompleteExtraction();
+        }
+
+        private void CompleteExtraction()
+        {
+            Debug.Log("Extraction Complete! Showing Panel...");
+            if (_cts != null)
+            {
+                _cts.Dispose();
+                _cts = null;
+            }
+
+            if (_hudView != null)
+            {
+                _hudView.HideTimer();
+                _hudView.ShowSuccessScreen();
+            }
+
+            if (_input != null)
+            {
+                _input.Disable();
+            }
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Controllers/WeaponController.cs">
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+using Zenject;
+using InputModule.Core;
+using WeaponModule.Configs;
+using WeaponModule.Core;
+using WeaponModule.View;
+
+namespace WeaponModule.Controllers
+{
+    public class WeaponController : IWeapon, IInitializable, ITickable, ILateTickable, IDisposable
+    {
+        private readonly WeaponConfig _config;
+        private readonly WeaponModel _model;
+        private readonly WeaponView _view;
+        private readonly IInputMap _input;
+
+        // Состояния
+        private float _nextFireTime;
+        private bool _isReloading;
+        private bool _isAiming;
+        private bool _isAimToggleActive; // Для режима переключения прицела
+
+        // Флаг для синхронизации выстрела с физикой
+        private bool _shouldShootFrame;
+
+        private CancellationTokenSource _cts;
+
+        public WeaponController(
+            WeaponConfig config,
+            WeaponModel model,
+            WeaponView view,
+            IInputMap input)
+        {
+            _config = config;
+            _model = model;
+            _view = view;
+            _input = input;
+
+            _cts = new CancellationTokenSource();
+        }
+
+        // --- IWeapon & IInitializable Implementation ---
+
+        public void Initialize()
+        {
+            _model.Initialize(_config.MaxAmmo);
+            _view.Initialize(_config);
+        }
+
+        public void Equip()
+        {
+            _view.gameObject.SetActive(true);
+            _isReloading = false;
+            _isAiming = false;
+            _isAimToggleActive = false;
+            _shouldShootFrame = false;
+
+            DrawWeaponRoutine().Forget();
+        }
+
+        public async UniTask Unequip()
+        {
+            CancelCurrentActions();
+
+            // Анимация убирания
+            _view.SetHolsterState(true);
+
+            // Ждем завершения анимации
+            await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime));
+
+            _view.gameObject.SetActive(false);
+        }
+
+        public void Dispose()
+        {
+            CancelCurrentActions();
+            _cts.Dispose();
+        }
+
+        // --- TICK: Логика и Ввод ---
+        public void Tick()
+        {
+            if (!_view.gameObject.activeSelf) return;
+
+            // 1. Считываем состояние прицеливания
+            HandleAimingState();
+
+            // 2. Проверяем, надо ли стрелять (но не спавним пулю тут!)
+            CheckFireInput();
+
+            // 3. Обрабатываем нажатие R
+            HandleReload();
+
+            // 4. Анимации пальцев и ходьбы
+            HandleTriggerFinger();
+            HandleMovementAnim();
+        }
+
+        // --- LATE TICK: Визуал и Спавн ---
+        // Вызывается после всех Update, чтобы синхронизировать отдачу и вылет пули
+        public void LateTick()
+        {
+            if (!_view.gameObject.activeSelf) return;
+
+            // 1. Применяем отдачу и покачивание (Двигаем ствол)
+            HandleProceduralAnimation();
+
+            // 2. Если в Tick мы решили стрелять - стреляем сейчас (из сдвинутого ствола)
+            if (_shouldShootFrame)
+            {
+                Fire();
+                _shouldShootFrame = false;
+            }
+        }
+
+        // --- Logic Methods ---
+
+        private void HandleProceduralAnimation()
+        {
+            Vector2 lookDelta = _input.LookInput;
+            // Обновляем позицию RecoilPivot
+            _view.UpdateProcedural(Time.deltaTime, lookDelta, _isAiming);
+        }
+
+        private void HandleAimingState()
+        {
+            if (_isReloading)
+            {
+                _isAiming = false;
+                _isAimToggleActive = false;
+            }
+            else
+            {
+                if (_config.AimIsToggle)
+                {
+                    if (_input.IsAimTriggered) _isAimToggleActive = !_isAimToggleActive;
+                    _isAiming = _isAimToggleActive;
+                }
+                else
+                {
+                    _isAiming = _input.IsAimPressed;
+                }
+            }
+
+            // Передаем во View состояние и параметр стабильности для аниматора
+            _view.UpdateAiming(_isAiming, _config.AimStability);
+        }
+
+        private void CheckFireInput()
+        {
+            if (_isReloading) return;
+
+            if (_input.IsFirePressed && Time.time >= _nextFireTime)
+            {
+                if (_model.CurrentAmmo > 0)
+                {
+                    // Ставим флаг, чтобы выстрелить в LateTick
+                    _shouldShootFrame = true;
+                    // Обновляем таймер сразу, чтобы не стрелять дважды
+                    _nextFireTime = Time.time + _config.FireRate;
+                }
+                else
+                {
+                    // Тут можно добавить звук "Dry Fire" (Клик)
+                }
+            }
+        }
+
+        private void Fire()
+        {
+            // Пытаемся забрать патрон
+            if (_model.TryConsumeAmmo())
+            {
+                // 1. Визуальные эффекты (Вспышка, Звук, Анимация)
+                // Передаем _isAiming, чтобы View знала, какую отдачу применять
+                _view.PlayFireEffects(_isAiming);
+
+                // 2. Спавн пули
+                _view.SpawnBullet(_config.Damage, _config.BulletSpeed);
+            }
+        }
+
+        private void HandleReload()
+        {
+            if (_isReloading) return;
+
+            if (_input.IsReloadPressed && !_model.IsFull)
+            {
+                ReloadRoutine().Forget();
+            }
+        }
+
+        private void HandleMovementAnim()
+        {
+            Vector2 input = _input.MoveInput;
+            bool isMoving = input.magnitude > 0.1f;
+            _view.SetMovementState(isMoving, input);
+        }
+
+        private void HandleTriggerFinger()
+        {
+            _view.SetTriggerHold(_input.IsFirePressed);
+        }
+
+        // --- Async Routines ---
+
+        private async UniTaskVoid ReloadRoutine()
+        {
+            _isReloading = true;
+            _view.PlayReload();
+
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
+
+            if (!canceled)
+            {
+                _model.Reload();
+            }
+
+            _isReloading = false;
+        }
+
+        private async UniTaskVoid DrawWeaponRoutine()
+        {
+            _view.SetHolsterState(false); // Draw Trigger
+
+            // Блокируем стрельбу на время доставания
+            _isReloading = true;
+
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
+
+            if (!canceled) _isReloading = false;
+        }
+
+        private void CancelCurrentActions()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
+            _cts = new CancellationTokenSource();
+            _isReloading = false;
+        }
+
+        public class Factory : PlaceholderFactory<WeaponConfig, WeaponView, WeaponController> { }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Controllers/WeaponInventory.cs">
+using System.Collections.Generic;
+using UnityEngine;
+using Zenject;
+using Cysharp.Threading.Tasks;
+using InputModule.Core;
+using WeaponModule.Core;
+using WeaponModule.Configs;
+using WeaponModule.View;
+
+namespace WeaponModule.Controllers
+{
+    public class WeaponInventory : IInitializable, ITickable, ILateTickable
+    {
+        private readonly WeaponController.Factory _factory;
+        private readonly IInputMap _input;
+        private readonly List<WeaponSetupData> _loadout;
+
+        // Список всех созданных контроллеров (как IWeapon)
+        private readonly List<IWeapon> _weapons = new();
+
+        private IWeapon _currentWeapon;
+        private int _currentIndex = -1; // -1 значит "руки пусты"
+
+        // Флаг блокировки: true, пока идет анимация смены оружия
+        private bool _isSwitching = false;
+
+        public WeaponInventory(
+            WeaponController.Factory factory,
+            IInputMap input,
+            List<WeaponSetupData> loadout)
+        {
+            _factory = factory;
+            _input = input;
+            _loadout = loadout;
+        }
+
+        public void Initialize()
+        {
+            // 1. Создаем всё оружие при старте игры
+            foreach (var setup in _loadout)
+            {
+                var weapon = _factory.Create(setup.Config, setup.View);
+
+                weapon.Initialize();
+
+                // Сразу прячем визуально (без анимации, мгновенно)
+                // Т.к. Unequip теперь асинхронный, при инициализации лучше
+                // вручную выключить объект через View, если есть доступ, 
+                // или просто вызвать Unequip().Forget(), так как игра еще на старте.
+                // Но правильнее всего при старте просто выключить объект.
+                setup.View.gameObject.SetActive(false);
+
+                _weapons.Add(weapon);
+            }
+
+            // 2. Достаем первое оружие (если есть)
+            if (_weapons.Count > 0)
+            {
+                // Запускаем без ожидания (Forget), так как это старт игры
+                EquipWeapon(0).Forget();
+            }
+        }
+
+        public void Tick()
+        {
+            // Если сейчас идет смена оружия — блокируем всё (и стрельбу, и новую смену)
+            if (_isSwitching) return;
+
+            // Обновляем активное оружие (стрельба, прицеливание)
+            _currentWeapon?.Tick();
+
+            // Слушаем ввод для смены
+            HandleInput();
+        }
+
+        public void LateTick()
+        {
+            _currentWeapon?.LateTick();
+        }
+
+        private void HandleInput()
+        {
+            // А) Прямой выбор кнопками (1, 2, 3...)
+            int requestedIndex = _input.SelectWeaponIndex;
+            if (requestedIndex != -1)
+            {
+                EquipWeapon(requestedIndex).Forget();
+                return; // Если выбрали кнопку, скролл в этом кадре игнорируем
+            }
+
+            // Б) Прокрутка колесиком
+            float scroll = _input.WeaponScroll;
+            if (scroll > 0.1f) // Вверх -> Следующее
+            {
+                EquipNext();
+            }
+            else if (scroll < -0.1f) // Вниз -> Предыдущее
+            {
+                EquipPrevious();
+            }
+        }
+
+        private void EquipNext()
+        {
+            // Если рук нет (пустые), начинаем с 0
+            if (_currentIndex == -1)
+            {
+                EquipWeapon(0).Forget();
+                return;
+            }
+
+            int nextIndex = _currentIndex + 1;
+            if (nextIndex >= _weapons.Count) nextIndex = 0; // Зацикливаем
+
+            EquipWeapon(nextIndex).Forget();
+        }
+
+        private void EquipPrevious()
+        {
+            if (_currentIndex == -1)
+            {
+                EquipWeapon(_weapons.Count - 1).Forget();
+                return;
+            }
+
+            int prevIndex = _currentIndex - 1;
+            if (prevIndex < 0) prevIndex = _weapons.Count - 1; // Зацикливаем
+
+            EquipWeapon(prevIndex).Forget();
+        }
+
+        // Главный метод смены (Асинхронный)
+        private async UniTaskVoid EquipWeapon(int index)
+        {
+            // Проверка на валидность индекса
+            if (index < 0 || index >= _weapons.Count) return;
+
+            // Блокируем ввод на время анимаций
+            _isSwitching = true;
+
+            // СЦЕНАРИЙ 1: TOGGLE (Убираем текущее, если выбрали его же)
+            if (_weapons[index] == _currentWeapon)
+            {
+                if (_currentWeapon != null)
+                {
+                    await _currentWeapon.Unequip(); // Ждем анимацию Holster
+                }
+
+                _currentWeapon = null;
+                _currentIndex = -1;
+
+                _isSwitching = false; // Разблокируем
+                return;
+            }
+
+            // СЦЕНАРИЙ 2: СМЕНА (Swap)
+
+            // 1. Если что-то есть в руках — убираем и ЖДЕМ
+            if (_currentWeapon != null)
+            {
+                await _currentWeapon.Unequip();
+            }
+
+            // 2. Меняем ссылку на новое
+            _currentIndex = index;
+            _currentWeapon = _weapons[index];
+
+            // 3. Достаем новое (анимация Draw запустится внутри Equip)
+            // Equip у нас синхронный (fire-and-forget анимацию), 
+            // но если нужно ждать доставания перед стрельбой — это делает сам контроллер.
+            _currentWeapon.Equip();
+
+            // Небольшая задержка, чтобы флаг не снялся раньше времени, 
+            // если Equip мгновенный (опционально)
+            // await UniTask.Yield(); 
+
+            _isSwitching = false;
+        }
+    }
+
+    // Этот класс нужен для настройки списка в Инспекторе (в WeaponInstaller)
+    [System.Serializable]
+    public class WeaponSetupData
+    {
+        public string Name;
+        public WeaponConfig Config;
+        public WeaponView View;
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/View/WeaponView.cs">
+using UnityEngine;
+using WeaponModule.Configs;
+using WeaponModule.Content;
+using WeaponModule.View.Procedural;
+
+namespace WeaponModule.View
+{
+    public class WeaponView : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private Animator handsAnimator;
+        [SerializeField] private Animator gunAnimator;
+        [SerializeField] private ParticleSystem muzzleFlash;
+        [SerializeField] private Transform firePoint;
+        [SerializeField] private Transform aimPivot;
+
+        [Header("Recoil Targets")]
+        [SerializeField] private Transform recoilPivot;
+        [SerializeField] private GameObject bulletPrefab;
+
+        private Vector3 _hipPosition;
+        private Quaternion _hipRotation;
+        private WeaponConfig _config;
+        private float _currentAimBlend = 0f;
+        private CharacterController _playerCharacter;
+
+        private Transform _cameraTransform;
+        private RecoilProcessor _weaponRecoil = new();
+        private RecoilProcessor _cameraRecoil = new();
+        private SwayProcessor _sway = new();
+
+
+        public void Initialize(WeaponConfig config)
+        {
+            _config = config;
+            _hipPosition = aimPivot.localPosition;
+            _hipRotation = aimPivot.localRotation;
+            _playerCharacter = GetComponentInParent<CharacterController>();
+            if (Camera.main != null)
+                _cameraTransform = Camera.main.transform.parent;
+        }
+
+        public void SetActive(bool isActive)
+        {
+            gameObject.SetActive(isActive);
+        }
+
+        public void SetTriggerHold(bool isHeld)
+        {
+            if (handsAnimator) handsAnimator.SetBool("TriggerHold", isHeld);
+        }
+        public void PlayFireEffects(bool isAiming)
+        {
+            if (gunAnimator) gunAnimator.Play("Fire", 1, 0f);
+            if (muzzleFlash) muzzleFlash.Play();
+            if (isAiming)
+            {
+                _weaponRecoil.Fire(_config.AimRecoil);
+                _cameraRecoil.FireCamera(_config.CamAimRecoil);
+            }
+            else
+            {
+                _weaponRecoil.Fire(_config.HipRecoil);
+                _cameraRecoil.FireCamera(_config.CamHipRecoil);
+            }
+        }
+
+        public void PlayReload()
+        {
+            if (handsAnimator) handsAnimator.SetTrigger("Reload");
+            if (gunAnimator) gunAnimator.SetTrigger("Reload");
+        }
+
+        public void SetHolsterState(bool isHolstered)
+        {
+            string trigger = isHolstered ? "Holster" : "Draw";
+            if (handsAnimator) handsAnimator.SetTrigger(trigger);
+            if (gunAnimator) gunAnimator.SetTrigger(trigger);
+        }
+
+        public void SetMovementState(bool isMoving, Vector2 inputVector)
+        {
+            if (handsAnimator)
+            {
+                handsAnimator.SetBool("IsMoving", isMoving);
+
+                handsAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
+                handsAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
+            }
+
+            if (gunAnimator)
+            {
+                gunAnimator.SetBool("IsMoving", isMoving);
+                gunAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
+                gunAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
+            }
+        }
+
+
+        public void UpdateAiming(bool isAiming, float stabilityTarget)
+        {
+            Vector3 targetPos = isAiming ? _config.AimPosition : _hipPosition;
+            Quaternion targetRot = isAiming ? Quaternion.Euler(_config.AimRotation) : _hipRotation;
+
+            float speed = _config.AimSpeed * Time.deltaTime;
+            aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPos, speed);
+            aimPivot.localRotation = Quaternion.Slerp(aimPivot.localRotation, targetRot, speed);
+            float targetBlend = isAiming ? stabilityTarget : 0f;
+
+            _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
+            if (handsAnimator) handsAnimator.SetFloat("AimBlend", _currentAimBlend);
+            if (gunAnimator) gunAnimator.SetFloat("AimBlend", _currentAimBlend);
+        }
+        public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
+        {
+            _weaponRecoil.Update(deltaTime);
+            _cameraRecoil.Update(deltaTime);
+            _sway.Update(lookInput, _config.Sway, deltaTime, isAiming);
+            recoilPivot.localPosition = _weaponRecoil.CurrentPosition + _sway.OutputPosition;
+            recoilPivot.localRotation = Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation;
+
+            if (_cameraTransform != null)
+            {
+                _cameraTransform.localRotation = Quaternion.Euler(_cameraRecoil.CurrentRotation);
+            }
+        }
+        public void SpawnBullet(float damage, float speed)
+        {
+            if (bulletPrefab == null || firePoint == null) return;
+
+            GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+
+            if (bulletObj.TryGetComponent(out Bullet bulletScript))
+            {
+                Vector3 playerVelocity = _playerCharacter != null ? _playerCharacter.velocity : Vector3.zero;
+                bulletScript.Setup(damage, speed, _config.InheritVelocity, playerVelocity);
+            }
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/Core/GameInputService.cs">
+using System;
+using UnityEngine;
+using InputModule.Configs;
+
+namespace InputModule.Core
+{
+    public class GameInputService : IInputMap
+    {
+        private readonly InputSystem_Actions _actions;
+
+        public GameInputService()
+        {
+            _actions = new InputSystem_Actions();
+            _actions.Player.Enable(); // Включаем карту Player
+        }
+
+        // --- Основное движение ---
+        public Vector2 MoveInput => _actions.Player.Move.ReadValue<Vector2>();
+        public Vector2 LookInput => _actions.Player.Look.ReadValue<Vector2>();
+        public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
+        public bool IsCrouchPressed => _actions.Player.Crouch.IsPressed();
+        public float LeanInput => _actions.Player.Lean.ReadValue<float>();
+
+        // --- Бой ---
+        public bool IsFirePressed => _actions.Player.Attack.IsPressed();
+        public bool IsAimPressed => _actions.Player.Aim.IsPressed();
+        public bool IsAimHeld => _actions.Player.Aim.IsPressed();
+        public bool IsAimTriggered => _actions.Player.Aim.WasPressedThisFrame();
+        public bool IsReloadPressed => _actions.Player.Reload.WasPressedThisFrame();
+        public bool IsHolsterPressed => _actions.Player.Holster.WasPressedThisFrame();
+
+        // --- Инвентарь ---
+
+        // Возвращает индекс оружия (0, 1, 2) или -1, если ничего не нажато
+        public int SelectWeaponIndex
+        {
+            get
+            {
+                if (_actions.Player.Weapon1.WasPressedThisFrame()) return 0;
+                if (_actions.Player.Weapon2.WasPressedThisFrame()) return 1;
+                if (_actions.Player.Weapon3.WasPressedThisFrame()) return 2;
+
+                return -1;
+            }
+        }
+
+        // Возвращает направление прокрутки: 1 (вверх), -1 (вниз) или 0
+        public float WeaponScroll
+        {
+            get
+            {
+                float scrollValue = _actions.Player.WeaponScroll.ReadValue<float>();
+                // Нормализуем значение, так как мыши бывают разные (кто-то выдает 120, кто-то 0.1)
+                if (scrollValue > 0) return 1f;
+                if (scrollValue < 0) return -1f;
+                return 0f;
+            }
+        }
+
+        // --- Управление сервисом ---
+        public void Enable() => _actions.Enable();
+        public void Disable() => _actions.Disable();
+        public void Dispose()
+        {
+            _actions.Disable();
+            _actions.Dispose();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/Installers/InputInstaller.cs">
+using Zenject;
+using InputModule.Core;
+
+namespace InputModule.Installers
+{
+    //TODO: Переделать в SO контекст
+    public class InputInstaller : MonoInstaller
+    {
+        public override void InstallBindings()
+        {
+            Container.BindInterfacesAndSelfTo<GameInputService>()
+                .AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/PlayerModule.asmdef">
+{
+  "name": "PlayerModule",
+  "references":[ "GUID:ad92713fd5884a16a1e7ccde1a579228", "GUID:5a8d3845af48dc54db440d2b68ad43e7", "GUID:0d8beb7f090555447a6cf5ce9e54dbb4", "GUID:a052d9b9b243434c92f8e11262715c1f" ]
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/Content/Bullet.cs">
+using ComponentsModule;
+using UnityEngine;
+
+namespace WeaponModule.Content
+{
+    [RequireComponent(typeof(Rigidbody))]
+    public class Bullet : MonoBehaviour
+    {
+        [Header("Settings")]
+        [SerializeField] private float lifeTime = 3f;
+        [SerializeField] private GameObject hitEffect;
+
+        private float _damage;
+        private Rigidbody _rb;
+        private TrailRenderer _trail;
+
+        private void Awake()
+        {
+            _rb = GetComponent<Rigidbody>();
+            _trail = GetComponent<TrailRenderer>();
+
+            if (_trail != null)
+                _trail.enabled = false;
+        }
+
+        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity)
+        {
+            _damage = damage;
+
+            if (_rb != null)
+            {
+                _rb.linearVelocity = Vector3.zero;
+                _rb.angularVelocity = Vector3.zero;
+
+                Vector3 bulletVel = transform.forward * bulletSpeed;
+                Vector3 playerVel = shooterVelocity * inheritFactor;
+                _rb.linearVelocity = bulletVel + playerVel;
+            }
+
+            if (_trail != null)
+            {
+                _trail.Clear();
+                _trail.enabled = true;
+            }
+
+            Destroy(gameObject, lifeTime);
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            var target = collision.gameObject.GetComponentInParent<IDamageable>();
+
+            if (target != null)
+            {
+                Vector3 force = transform.forward * 10f;
+                target.TakeDamage(_damage, collision.contacts[0].point, force);
+            }
+
+            if (hitEffect != null)
+            {
+                ContactPoint contact = collision.contacts[0];
+                GameObject effect = Instantiate(hitEffect, contact.point + contact.normal * 0.05f, Quaternion.LookRotation(contact.normal));
+                Destroy(effect, 2f);
+            }
+
+            Destroy(gameObject);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/WeaponModule/WeaponModule.asmdef">
+{
+    "name": "WeaponModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:bae74e8de93bc434190a94426fd359de",
+        "GUID:61af276ff4b779247aca1e9043c620bc",
+        "GUID:ad92713fd5884a16a1e7ccde1a579228"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+</files>
