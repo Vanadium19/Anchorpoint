@@ -3,9 +3,10 @@ using UnityEngine;
 
 namespace ComponentsModule
 {
-    public class Health : IHealthComponent
+    public class HealthComponent : IHealthComponent
     {
         private readonly float _maxHealth;
+
         private float _currentHealth;
 
         public event Action<float, float> HealthChanged;
@@ -16,7 +17,7 @@ namespace ComponentsModule
         public float CurrentHealth => _currentHealth;
         public bool IsAlive => _currentHealth > 0;
 
-        public Health(float maxHealth)
+        public HealthComponent(float maxHealth)
         {
             _maxHealth = maxHealth;
             _currentHealth = maxHealth;
@@ -34,9 +35,7 @@ namespace ComponentsModule
             DamageTaken?.Invoke(hitPoint, force);
 
             if (_currentHealth <= 0)
-            {
                 Died?.Invoke();
-            }
         }
     }
 }

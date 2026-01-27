@@ -1,4 +1,3 @@
-using System;
 using ComponentsModule;
 using PlayerModule.Configs;
 using UIModule;
@@ -63,8 +62,8 @@ namespace PlayerModule
                 .AsSingle()
                 .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
 
-            Container.Bind<IHealthComponent>()
-                .To<Health>()
+            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
+                .To<HealthComponent>()
                 .AsSingle()
                 .WithArguments(config.MaxHealth);
 

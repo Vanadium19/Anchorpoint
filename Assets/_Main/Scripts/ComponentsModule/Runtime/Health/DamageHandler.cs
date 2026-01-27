@@ -5,10 +5,10 @@ namespace ComponentsModule
 {
     public class DamageHandler : MonoBehaviour, IDamageable
     {
-        private IHealthComponent _health;
+        private IDamageable _health;
 
         [Inject]
-        public void Construct(IHealthComponent health)
+        public void Construct(IDamageable health)
         {
             _health = health;
         }
@@ -16,8 +16,6 @@ namespace ComponentsModule
         public bool IsAlive => _health != null && _health.IsAlive;
 
         public void TakeDamage(float amount, Vector3? hitPoint = null, Vector3? force = null)
-        {
-            _health?.TakeDamage(amount, hitPoint, force);
-        }
+            => _health?.TakeDamage(amount, hitPoint, force);
     }
 }

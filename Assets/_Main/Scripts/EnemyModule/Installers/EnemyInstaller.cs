@@ -18,13 +18,16 @@ namespace EnemyModule.Installers
             Container.BindInstance(config).AsSingle();
             Container.BindInstance(view).AsSingle();
 
-            Container.Bind<IHealthComponent>()
-                .To<Health>()
+            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
+                .To<HealthComponent>()
                 .AsSingle()
                 .WithArguments(config.MaxHealth);
 
             Container.Bind<EnemyModel>().AsSingle();
-            Container.BindInterfacesAndSelfTo<EnemyController>().AsSingle();
+
+            Container.BindInterfacesTo<EnemyController>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }
