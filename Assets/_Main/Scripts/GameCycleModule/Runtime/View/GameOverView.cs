@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-namespace UIModule
+namespace GameCycleModule
 {
     public class GameOverView : MonoBehaviour
     {

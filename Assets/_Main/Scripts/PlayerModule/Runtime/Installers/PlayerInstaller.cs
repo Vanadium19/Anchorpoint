@@ -2,7 +2,6 @@ using ComponentsModule;
 using UIModule;
 using UnityEngine;
 using Zenject;
-using Core.Services;
 
 namespace PlayerModule
 {
@@ -12,8 +11,6 @@ namespace PlayerModule
         [SerializeField] private CharacterController characterController;
         [SerializeField] private Transform cameraRoot;
         [SerializeField] private Transform player;
-        
-        [SerializeField] private GameOverView gameOverView;
         
         [Header("Health")]
         [SerializeField] private HealthView healthView;
@@ -66,23 +63,11 @@ namespace PlayerModule
                 .AsSingle()
                 .WithArguments(config.MaxHealth);
 
-            Container.BindInterfacesTo<GameSessionService>()
-                .AsSingle()
-                .NonLazy();
-
             Container.Bind<HealthView>()
                 .FromInstance(healthView)
                 .AsSingle();
-
-            Container.Bind<GameOverView>()
-                .FromInstance(gameOverView)
-                .AsSingle();
-
+            
             Container.BindInterfacesTo<HealthPresenter>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.BindInterfacesTo<GameOverPresenter>()
                 .AsSingle()
                 .NonLazy();
 

@@ -12,10 +12,9 @@ namespace UIModule
         private void Awake()
         {
             if (healthSlider != null)
-            {
                 healthSlider.interactable = false;
-            }
         }
+
         public void SetHealth(float current, float max)
         {
             if (healthSlider)

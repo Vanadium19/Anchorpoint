@@ -1387,6 +1387,7 @@ GameObject:
   - component: {fileID: 489959970}
   - component: {fileID: 489959968}
   - component: {fileID: 489959971}
+  - component: {fileID: 489959972}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1410,6 +1411,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
   - {fileID: 489959971}
+  - {fileID: 489959972}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1457,6 +1459,20 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: a4c0e8cc841f9cd479496a06cf682353, type: 2}
   zoneView: {fileID: 63042969}
   hudView: {fileID: 317137221}
+--- !u!114 &489959972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489959967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87ba03e6c24241e68d4935b4de76b7ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameCycleModule::GameCycleModule.GameCycleInstaller
+  gameOverView: {fileID: 1567717076}
+  playerProvider: {fileID: 1150780804}
 --- !u!1 &491514575 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100018, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
@@ -3578,6 +3594,7 @@ GameObject:
   - component: {fileID: 1150780800}
   - component: {fileID: 1150780802}
   - component: {fileID: 1150780803}
+  - component: {fileID: 1150780804}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -3679,7 +3696,6 @@ MonoBehaviour:
   characterController: {fileID: 1150780798}
   cameraRoot: {fileID: 1307877283}
   player: {fileID: 1150780799}
-  gameOverView: {fileID: 1567717076}
   healthView: {fileID: 1829193761}
   config: {fileID: 11400000, guid: 56d6520b3fa0b7942a570cb671186295, type: 2}
 --- !u!114 &1150780803
@@ -3694,6 +3710,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
+--- !u!114 &1150780804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150780794}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6c288322a834cda9cfe72595873f91f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: PlayerModule::PlayerModule.PlayerProvider
+  context: {fileID: 1150780796}
 --- !u!1 &1158476882
 GameObject:
   m_ObjectHideFlags: 0

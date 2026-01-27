@@ -1,4 +1,4 @@
-namespace Core.Services
+namespace GameCycleModule
 {
     public interface IGameSessionService
     {
