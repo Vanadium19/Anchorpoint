@@ -1,20 +1,20 @@
 using Cysharp.Threading.Tasks;
-using EnemyModule.Configs;
-using EnemyModule.Core;
-using EnemyModule.View;
 using System;
 using System.Threading;
+using PlayerModule;
 using UnityEngine;
 using Zenject;
 
-namespace EnemyModule.Controllers
+namespace EnemyModule
 {
     public class EnemyController : IInitializable, ITickable, IDisposable
     {
+        private readonly PlayerProvider _player;
         private readonly EnemyConfig _config;
         private readonly EnemyModel _model;
         private readonly EnemyView _view;
-        private CancellationTokenSource _cts;
+
+        private CancellationTokenSource _cancellationToken;
 
         private Transform _playerTransform;
         private float _nextFireTime;
@@ -22,8 +22,12 @@ namespace EnemyModule.Controllers
         private int _patrolIndex = 0;
         private bool _isActionBusy;
 
-        public EnemyController(EnemyConfig config, EnemyModel model, EnemyView view)
+        public EnemyController(EnemyConfig config,
+            EnemyModel model,
+            EnemyView view,
+            PlayerProvider player)
         {
+            _player = player;
             _config = config;
             _model = model;
             _view = view;
@@ -31,9 +35,11 @@ namespace EnemyModule.Controllers
 
         public void Initialize()
         {
-            _cts = new CancellationTokenSource();
-            var playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj) _playerTransform = playerObj.transform;
+            var playerTransform = _player.Get<Transform>();
+            _cancellationToken = new();
+
+            if (playerTransform)
+                _playerTransform = playerTransform.transform;
 
             _view.Initialize(_config);
             _model.Initialize(_config.MaxAmmo, _view.transform.position);
@@ -44,13 +50,13 @@ namespace EnemyModule.Controllers
 
         public void Dispose()
         {
-            if (_cts != null)
+            if (_cancellationToken != null)
             {
-                _cts.Cancel();
-                _cts.Dispose();
+                _cancellationToken.Cancel();
+                _cancellationToken.Dispose();
             }
 
-            if (_view != null && _view.Health != null)
+            if (_view && _view.Health != null)
             {
                 _view.Health.DamageTaken -= OnTakeDamage;
                 _view.Health.Died -= OnDeath;
@@ -59,36 +65,46 @@ namespace EnemyModule.Controllers
 
         public void Tick()
         {
-            if (_view == null || _view.Health == null || !_view.Health.IsAlive) return;
+            if (!_view || _view.Health is not { IsAlive: true })
+                return;
+
             _view.UpdateAnimator(_view.Velocity);
-            if (_isActionBusy) return;
+
+            if (_isActionBusy)
+                return;
+
             _view.UpdateAnimator(_view.Velocity);
+
             switch (_model.CurrentState)
             {
-                case EnemyModel.AIState.Patrol:
+                case AIState.Patrol:
                     UpdatePatrol();
                     break;
-                case EnemyModel.AIState.Chase:
+
+                case AIState.Chase:
                     UpdateChase();
                     break;
-                case EnemyModel.AIState.Attack:
+
+                case AIState.Attack:
                     UpdateAttack();
                     break;
-                case EnemyModel.AIState.Reload:
+
+                case AIState.Reload:
                     break;
             }
         }
 
         private void UpdatePatrol()
         {
-            if (TrySpotPlayer()) return;
+            if (TrySpotPlayer())
+                return;
 
-            if (_view.PatrolPoints.Length == 0) return;
+            if (_view.PatrolPoints.Length == 0)
+                return;
 
+            //FIXME: Magic numbers
             if (!_view.IsPathPending && _view.RemainingDistance < 0.5f)
-            {
                 PatrolWaitRoutine().Forget();
-            }
         }
 
         private async UniTaskVoid PatrolWaitRoutine()
@@ -102,8 +118,8 @@ namespace EnemyModule.Controllers
 
             while (timer < totalWaitTime)
             {
-                float dt = Time.deltaTime;
-                timer += dt;
+                timer += Time.deltaTime;
+                ;
 
                 if (TrySpotPlayer())
                 {
@@ -119,8 +135,11 @@ namespace EnemyModule.Controllers
 
                     RotateToAngleRoutine(randomAngle).Forget();
                 }
-                await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
-                if (_view == null || !_view.Health.IsAlive) return;
+
+                await UniTask.Yield(PlayerLoopTiming.Update, _cancellationToken.Token).SuppressCancellationThrow();
+
+                if (!_view || !_view.Health.IsAlive)
+                    return;
             }
 
             _patrolIndex = (_patrolIndex + 1) % _view.PatrolPoints.Length;
@@ -128,30 +147,35 @@ namespace EnemyModule.Controllers
 
             _isActionBusy = false;
         }
+
         private async UniTaskVoid RotateToAngleRoutine(float angleOffset)
         {
             Quaternion startRot = _view.transform.rotation;
             Quaternion targetRot = startRot * Quaternion.Euler(0, angleOffset, 0);
 
-            float t = 0;
+            //Fixme: MagicNumbers
+            float lerpFactor = 0;
             float duration = 1.0f;
 
-            while (t < 1f)
+            while (lerpFactor < 1f)
             {
-                if (_cts.IsCancellationRequested || !_view.Health.IsAlive) return;
+                if (_cancellationToken.IsCancellationRequested || !_view.Health.IsAlive)
+                    return;
 
-                if (_model.CurrentState != EnemyModel.AIState.Patrol) return;
+                if (_model.CurrentState != AIState.Patrol)
+                    return;
 
-                t += Time.deltaTime / duration;
+                lerpFactor += Time.deltaTime / duration;
 
-                _view.transform.rotation = Quaternion.Slerp(startRot, targetRot, t);
+                _view.transform.rotation = Quaternion.Slerp(startRot, targetRot, lerpFactor);
 
-                await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
+                await UniTask.Yield(PlayerLoopTiming.Update, _cancellationToken.Token).SuppressCancellationThrow();
             }
         }
+
         private void UpdateChase()
         {
-            float dist = Vector3.Distance(_view.transform.position, _model.LastKnownPosition);
+            float distance = Vector3.Distance(_view.transform.position, _model.LastKnownPosition);
             bool canSee = CheckVision(out Vector3 targetPos);
 
             if (canSee)
@@ -159,9 +183,9 @@ namespace EnemyModule.Controllers
                 _model.SetTargetPosition(targetPos);
                 _chaseTimer = _config.MemoryTime;
 
-                if (dist <= _config.AttackRange)
+                if (distance <= _config.AttackRange)
                 {
-                    _model.SetState(EnemyModel.AIState.Attack);
+                    _model.SetState(AIState.Attack);
                     _view.StopMove();
                 }
                 else
@@ -173,12 +197,14 @@ namespace EnemyModule.Controllers
             {
                 _view.MoveTo(_model.LastKnownPosition);
 
-                if (dist < 2f)
+                //Fixme: MagicNumbers
+                if (distance < 2f)
                 {
                     _chaseTimer -= Time.deltaTime;
+
                     if (_chaseTimer <= 0)
                     {
-                        _model.SetState(EnemyModel.AIState.Patrol);
+                        _model.SetState(AIState.Patrol);
                         _view.MoveTo(_view.PatrolPoints[_patrolIndex].position);
                     }
                 }
@@ -198,7 +224,7 @@ namespace EnemyModule.Controllers
 
             if (!canSee || dist > _config.AttackRange * 1.2f)
             {
-                _model.SetState(EnemyModel.AIState.Chase);
+                _model.SetState(AIState.Chase);
                 return;
             }
 
@@ -208,57 +234,66 @@ namespace EnemyModule.Controllers
 
             if (Time.time >= _nextFireTime)
             {
+                //Fixme: MagicNumbers
                 _nextFireTime = Time.time + 1f / _config.FireRate;
+
                 if (_model.TryConsumeAmmo())
-                {
                     _view.SpawnBullet(targetPos);
-                }
             }
         }
 
         private async UniTaskVoid ReloadRoutine()
         {
-            _model.SetState(EnemyModel.AIState.Reload);
+            _model.SetState(AIState.Reload);
             _isActionBusy = true;
 
             if (_view.FindCover(_model.LastKnownPosition, 15f, out Vector3 coverPos))
             {
                 _view.MoveTo(coverPos);
-                while (_view != null && _view.RemainingDistance > 1f)
+
+                while (_view && _view.RemainingDistance > 1f)
                 {
-                    if (_cts.IsCancellationRequested) return;
-                    await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token).SuppressCancellationThrow();
+                    if (_cancellationToken.IsCancellationRequested)
+                        return;
+
+                    await UniTask.Yield(PlayerLoopTiming.Update, _cancellationToken.Token).SuppressCancellationThrow();
                 }
             }
 
-            if (_view == null || _cts.IsCancellationRequested) return;
+            if (_view == null || _cancellationToken.IsCancellationRequested)
+                return;
 
             _view.StopMove();
 
-            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _cancellationToken.Token)
+                .SuppressCancellationThrow();
 
-            if (canceled) return;
-            if (_view == null) return;
+            if (canceled)
+                return;
+
+            if (!_view)
+                return;
 
             _model.Reload(_config.MaxAmmo);
-            _model.SetState(EnemyModel.AIState.Chase);
+            _model.SetState(AIState.Chase);
             _isActionBusy = false;
         }
 
         private bool CheckVision(out Vector3 targetPos)
-        {
-            return _view.CheckLineOfSight(_playerTransform, _config.SightDistance, _config.ViewAngle, _config.ViewMask, out targetPos);
-        }
+            => _view.CheckLineOfSight(_playerTransform, _config.SightDistance, _config.ViewAngle, _config.ViewMask, out targetPos);
 
         private bool TrySpotPlayer()
         {
-            if (_playerTransform == null) return false;
+            if (!_playerTransform)
+                return false;
+
             if (CheckVision(out Vector3 pos))
             {
                 _model.SetTargetPosition(pos);
-                _model.SetState(EnemyModel.AIState.Chase);
+                _model.SetState(AIState.Chase);
                 return true;
             }
+
             return false;
         }
 
@@ -267,13 +302,10 @@ namespace EnemyModule.Controllers
             if (_playerTransform)
             {
                 _model.SetTargetPosition(_playerTransform.position);
-                _model.SetState(EnemyModel.AIState.Chase);
+                _model.SetState(AIState.Chase);
             }
         }
 
-        private void OnDeath()
-        {
-            _view.Die(null, null);
-        }
+        private void OnDeath() => _view.Die(null, null);
     }
 }

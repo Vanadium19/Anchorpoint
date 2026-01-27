@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace EnemyModule.View
+namespace EnemyModule
 {
     public class EnemyRagdoll : MonoBehaviour
     {
@@ -21,37 +21,53 @@ namespace EnemyModule.View
 
         public void Activate(Vector3? force = null, Vector3? hitPoint = null)
         {
-            if (animator) animator.enabled = false;
-            if (agent) agent.enabled = false;
-            if (mainCollider) mainCollider.enabled = false;
+            if (animator)
+                animator.enabled = false;
+
+            if (agent)
+                agent.enabled = false;
+
+            if (mainCollider)
+                mainCollider.enabled = false;
 
             ToggleRagdoll(true);
 
             if (force.HasValue && hitPoint.HasValue)
-            {
                 ApplyForce(hitPoint.Value, force.Value);
-            }
         }
 
         private void ToggleRagdoll(bool state)
         {
-            foreach (var rb in _bodies) rb.isKinematic = !state;
-            foreach (var col in _colliders)
+            foreach (var body in _bodies)
+                body.isKinematic = !state;
+
+            foreach (var collider in _colliders)
             {
-                if (col != mainCollider) col.enabled = state;
+                if (collider != mainCollider)
+                {
+                    collider.enabled = state;
+                }
             }
         }
 
-        private void ApplyForce(Vector3 pos, Vector3 dir)
+        private void ApplyForce(Vector3 position, Vector3 direction)
         {
             Rigidbody closest = null;
-            float minDst = float.MaxValue;
-            foreach (var rb in _bodies)
+            float minDistance = float.MaxValue;
+
+            foreach (var body in _bodies)
             {
-                float d = Vector3.Distance(rb.position, pos);
-                if (d < minDst) { minDst = d; closest = rb; }
+                float distance = Vector3.Distance(body.position, position);
+
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closest = body;
+                }
             }
-            if (closest) closest.AddForce(dir, ForceMode.Impulse);
+
+            if (closest)
+                closest.AddForce(direction, ForceMode.Impulse);
         }
     }
 }

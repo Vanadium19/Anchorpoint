@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace EnemyModule.Core
+namespace EnemyModule
 {
     public class EnemyModel
     {
-        public enum AIState { Patrol, Chase, Attack, Reload }
-
         private AIState _currentState;
         private int _currentAmmo;
         private Vector3 _lastKnownPosition;
@@ -28,7 +26,9 @@ namespace EnemyModule.Core
 
         public void SetState(AIState newState)
         {
-            if (_currentState == newState) return;
+            if (_currentState == newState)
+                return;
+
             _currentState = newState;
             StateChanged?.Invoke(newState);
         }
@@ -39,21 +39,18 @@ namespace EnemyModule.Core
             _hasTarget = true;
         }
 
-        public void ClearTarget()
-        {
-            _hasTarget = false;
-        }
+        //FIXME: Unused method
+        public void ClearTarget() => _hasTarget = false;
 
         public bool TryConsumeAmmo()
         {
-            if (_currentAmmo <= 0) return false;
+            if (_currentAmmo <= 0)
+                return false;
+
             _currentAmmo--;
             return true;
         }
 
-        public void Reload(int maxAmmo)
-        {
-            _currentAmmo = maxAmmo;
-        }
+        public void Reload(int maxAmmo) => _currentAmmo = maxAmmo;
     }
 }

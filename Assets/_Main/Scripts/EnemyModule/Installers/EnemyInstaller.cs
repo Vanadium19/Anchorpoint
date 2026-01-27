@@ -1,12 +1,8 @@
 using UnityEngine;
 using Zenject;
-using EnemyModule.Configs;
-using EnemyModule.Controllers;
-using EnemyModule.Core;
-using EnemyModule.View;
 using ComponentsModule;
 
-namespace EnemyModule.Installers
+namespace EnemyModule
 {
     public class EnemyInstaller : MonoInstaller
     {
