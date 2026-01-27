@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ExtractionModule.View
+namespace ExtractionModule
 {
     public class ExtractionZoneView : MonoBehaviour
     {
@@ -10,17 +10,13 @@ namespace ExtractionModule.View
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Player"))
-            {
                 PlayerPresenceChanged?.Invoke(true);
-            }
         }
 
         private void OnTriggerExit(Collider other)
         {
             if (other.CompareTag("Player"))
-            {
                 PlayerPresenceChanged?.Invoke(false);
-            }
         }
     }
 }

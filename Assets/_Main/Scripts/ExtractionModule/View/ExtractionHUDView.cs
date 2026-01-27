@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-namespace ExtractionModule.View
+namespace ExtractionModule
 {
     public class ExtractionHUDView : MonoBehaviour
     {
@@ -17,8 +17,8 @@ namespace ExtractionModule.View
 
         private void Awake()
         {
-            if (timerContainer) timerContainer.SetActive(false);
-            if (successPanel) successPanel.SetActive(false);
+            timerContainer?.SetActive(false);
+            successPanel?.SetActive(false);
 
             if (restartButton)
                 restartButton.onClick.AddListener(OnRestartClicked);
@@ -26,29 +26,22 @@ namespace ExtractionModule.View
 
         public void ShowTimer(float timeRemaining, string textFormat)
         {
-            if (this == null || timerContainer == null) return;
-            timerContainer.SetActive(true);
-            if (timerText)
-                timerText.text = string.Format(textFormat, timeRemaining);
+            timerContainer?.SetActive(true);
+            timerText.text = string.Format(textFormat, timeRemaining);
         }
 
-        public void HideTimer()
-        {
-            if (this == null || timerContainer == null) return;
-            timerContainer.SetActive(false);
-        }
+        public void HideTimer() => timerContainer?.SetActive(false);
 
         public void ShowSuccessScreen()
         {
-            if (successPanel == null) return;
+            if (!successPanel)
+                return;
+
             successPanel.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
 
-        private void OnRestartClicked()
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        }
+        private void OnRestartClicked() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

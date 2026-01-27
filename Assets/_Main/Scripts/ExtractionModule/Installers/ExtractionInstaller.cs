@@ -1,10 +1,7 @@
 using UnityEngine;
 using Zenject;
-using ExtractionModule.Configs;
-using ExtractionModule.Controllers;
-using ExtractionModule.View;
 
-namespace ExtractionModule.Installers
+namespace ExtractionModule
 {
     public class ExtractionInstaller : MonoInstaller
     {

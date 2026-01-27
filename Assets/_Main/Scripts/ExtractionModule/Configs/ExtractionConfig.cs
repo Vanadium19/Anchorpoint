@@ -1,8 +1,9 @@
 using UnityEngine;
 
-namespace ExtractionModule.Configs
+namespace ExtractionModule
 {
     [CreateAssetMenu(fileName = "ExtractionConfig", menuName = "Configs/Extraction")]
+    //FIXME: Tooltip на английском
     public class ExtractionConfig : ScriptableObject
     {
         [Tooltip("Время в секундах, которое нужно простоять в зоне")]

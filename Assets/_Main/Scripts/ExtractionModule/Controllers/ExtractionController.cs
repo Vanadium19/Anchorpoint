@@ -3,11 +3,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
 using UnityEngine;
-using ExtractionModule.Configs;
-using ExtractionModule.View;
 using InputModule;
 
-namespace ExtractionModule.Controllers
+namespace ExtractionModule
 {
     public class ExtractionController : IInitializable, IDisposable
     {
@@ -16,7 +14,7 @@ namespace ExtractionModule.Controllers
         private readonly ExtractionHUDView _hudView;
         private readonly IInputService _input;
 
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource _tokenSource;
 
         public ExtractionController(ExtractionConfig config,
             ExtractionZoneView zoneView,
@@ -46,44 +44,43 @@ namespace ExtractionModule.Controllers
         private void OnZoneStateChanged(bool isInside)
         {
             if (isInside)
-            {
                 StartExtraction().Forget();
-            }
             else
-            {
                 CancelExtraction();
-            }
         }
 
         private void CancelExtraction()
         {
-            if (_cts != null)
+            if (_tokenSource != null)
             {
-                _cts.Cancel();
-                _cts.Dispose();
-                _cts = null;
+                _tokenSource.Cancel();
+                _tokenSource.Dispose();
+                _tokenSource = null;
             }
 
-            if (_hudView != null && !_hudView.Equals(null))
-            {
+            if (_hudView && !_hudView.Equals(null))
                 _hudView.HideTimer();
-            }
         }
 
         private async UniTaskVoid StartExtraction()
         {
             CancelExtraction();
-            _cts = new CancellationTokenSource();
-            var token = _cts.Token;
+            _tokenSource = new();
 
-            float timer = _config.ExtractionTime;
+            var token = _tokenSource.Token;
+            var timer = _config.ExtractionTime;
 
             while (timer > 0)
             {
-                if (_hudView == null || _hudView.Equals(null)) return;
+                if (_hudView == null || _hudView.Equals(null))
+                    return;
+
                 _hudView.ShowTimer(timer, _config.TimerTextFormat);
                 bool isCanceled = await UniTask.Yield(PlayerLoopTiming.Update, token).SuppressCancellationThrow();
-                if (isCanceled) return;
+
+                if (isCanceled)
+                    return;
+
                 timer -= Time.deltaTime;
             }
 
@@ -92,10 +89,10 @@ namespace ExtractionModule.Controllers
 
         private void CompleteExtraction()
         {
-            if (_cts != null)
+            if (_tokenSource != null)
             {
-                _cts.Dispose();
-                _cts = null;
+                _tokenSource.Dispose();
+                _tokenSource = null;
             }
 
             if (_hudView != null)
@@ -104,10 +101,7 @@ namespace ExtractionModule.Controllers
                 _hudView.ShowSuccessScreen();
             }
 
-            if (_input != null)
-            {
-                _input.Disable();
-            }
+            _input?.Disable();
         }
     }
 }
