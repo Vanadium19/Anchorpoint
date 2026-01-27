@@ -1,0 +1,125 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Finger
+  m_Mask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: arms
+    m_Weight: 0
+  - m_Path: Arms_Rig
+    m_Weight: 0
+  - m_Path: Arms_Rig/root
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/camera
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Hand_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Hand_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Pole_Target_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Pole_Target_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Upper_Arm_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/Upper_Arm_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/Index_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/index_finger_01_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/index_finger_01_L/index_finger_02_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/index_finger_01_L/index_finger_02_L/index_finger_03_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/Little_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/little_finger_01_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/little_finger_01_L/little_finger_02_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/little_finger_01_L/little_finger_02_L/little_finger_03_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/MIddle_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/middle_finger_01_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/middle_finger_01_L/middle_finger_02_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/middle_finger_01_L/middle_finger_02_L/middle_finger_03_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/Ring_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/ring_finger_01_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/ring_finger_01_L/ring_finger_02_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/ring_finger_01_L/ring_finger_02_L/ring_finger_03_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/thumb_01_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/thumb_01_L/thumb_02_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/thumb_01_L/thumb_02_L/thumb_03_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_L/lower_arm_L/hand_L/Thumb_Ctrl_L
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/Index_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/index_finger_01_R
+    m_Weight: 1
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/index_finger_01_R/index_finger_02_R
+    m_Weight: 1
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/index_finger_01_R/index_finger_02_R/index_finger_03_R
+    m_Weight: 1
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/Little_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/little_finger_01_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/little_finger_01_R/little_finger_02_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/little_finger_01_R/little_finger_02_R/little_finger_03_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/MIddle_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/middle_finger_01_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/middle_finger_01_R/middle_finger_02_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/middle_finger_01_R/middle_finger_02_R/middle_finger_03_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/Ring_Ctrl_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/ring_finger_01_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/ring_finger_01_R/ring_finger_02_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/ring_finger_01_R/ring_finger_02_R/ring_finger_03_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/thumb_01_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/thumb_01_R/thumb_02_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/thumb_01_R/thumb_02_R/thumb_03_R
+    m_Weight: 0
+  - m_Path: Arms_Rig/root/upper_arm_R/lower_arm_R/hand_R/Thumb_Ctrl_R
+    m_Weight: 0

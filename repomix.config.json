@@ -1,0 +1,39 @@
+{
+    "output": {
+      "filePath": "Project_Context.xml",
+      "style": "xml",
+      "headerText": "Unity Project Context..."
+    },
+    "ignore": {
+      "useGitignore": true,
+      "customPatterns": [
+        "**/*.meta",
+        "**/*.mat",
+        "**/*.prefab",
+        "**/*.unity",
+        "**/*.asset",
+        "**/*.png",
+        "**/*.jpg",
+        "**/*.ogg",
+        "**/*.wav",
+        "**/*.mp3",
+        "**/*.pdf",
+        
+        "**/InputSystem_Actions.cs", 
+  
+        "**/Library/**",
+        "**/Temp/**",
+        "**/Obj/**",
+        "**/Build/**",
+        "**/Packages/**",
+        "**/ProjectSettings/**",
+        "**/UserSettings/**",
+        "**/.vs/**",
+        "**/.git/**"
+      ]
+    },
+    "include": [
+      "Assets/_Main/Scripts/**/*.cs",
+      "Assets/_Main/Scripts/**/*.asmdef"
+    ]
+  }
