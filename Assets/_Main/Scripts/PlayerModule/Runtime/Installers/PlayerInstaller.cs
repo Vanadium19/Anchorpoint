@@ -1,5 +1,4 @@
 using ComponentsModule;
-using PlayerModule.Configs;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -13,12 +12,12 @@ namespace PlayerModule
         [SerializeField] private CharacterController characterController;
         [SerializeField] private Transform cameraRoot;
         [SerializeField] private Transform player;
-
+        
         [SerializeField] private GameOverView gameOverView;
-
+        
         [Header("Health")]
         [SerializeField] private HealthView healthView;
-
+        
         [Header("Settings")]
         [SerializeField] private PlayerConfig config;
 

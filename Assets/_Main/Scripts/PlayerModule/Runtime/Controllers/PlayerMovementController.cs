@@ -1,6 +1,5 @@
 using ComponentsModule;
 using InputModule.Core;
-using PlayerModule.Configs; // <-- Не забудь добавить этот using для конфига
 using Zenject;
 
 namespace PlayerModule
@@ -14,8 +13,7 @@ namespace PlayerModule
         private readonly IInputMap _inputMap;
         private readonly PlayerConfig _config;
 
-        public PlayerMovementController(
-            IMoveComponent mover,
+        public PlayerMovementController(IMoveComponent mover,
             IRotationComponent rotation,
             ICrouchComponent croucher,
             ILeanComponent leaner,
@@ -40,11 +38,13 @@ namespace PlayerModule
 
         private void Move()
         {
-            var direction = _inputMap.MoveInput;
             var isCrouching = _inputMap.IsCrouchPressed;
-            float targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
-            _mover.SetSpeed(targetSpeed);
             var jumped = _inputMap.IsJumpPressed && !isCrouching;
+
+            var targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
+            _mover.SetSpeed(targetSpeed);
+
+            var direction = _inputMap.MoveInput;
             _mover.Move(direction, jumped);
         }
 
