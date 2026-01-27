@@ -1,6 +1,6 @@
-using Cysharp.Threading.Tasks; // Добавь using
+using Cysharp.Threading.Tasks;
 
-namespace WeaponModule.Core
+namespace WeaponModule
 {
     public interface IWeapon
     {

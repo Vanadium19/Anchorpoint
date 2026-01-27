@@ -1,22 +1,21 @@
 using UnityEngine;
-using WeaponModule.Configs;
-using WeaponModule.Content;
-using WeaponModule.View.Procedural;
 
-namespace WeaponModule.View
+namespace WeaponModule
 {
     public class WeaponView : MonoBehaviour
     {
-        [Header("References")]
-        [SerializeField] private Animator handsAnimator;
+        [Header("References")] [SerializeField] private Animator handsAnimator;
         [SerializeField] private Animator gunAnimator;
         [SerializeField] private ParticleSystem muzzleFlash;
         [SerializeField] private Transform firePoint;
         [SerializeField] private Transform aimPivot;
 
-        [Header("Recoil Targets")]
-        [SerializeField] private Transform recoilPivot;
+        [Header("Recoil Targets")] [SerializeField] private Transform recoilPivot;
         [SerializeField] private GameObject bulletPrefab;
+
+        private readonly RecoilProcessor _weaponRecoil = new();
+        private readonly RecoilProcessor _cameraRecoil = new();
+        private readonly SwayProcessor _sway = new();
 
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
@@ -25,34 +24,36 @@ namespace WeaponModule.View
         private CharacterController _playerCharacter;
 
         private Transform _cameraTransform;
-        private RecoilProcessor _weaponRecoil = new();
-        private RecoilProcessor _cameraRecoil = new();
-        private SwayProcessor _sway = new();
-
 
         public void Initialize(WeaponConfig config)
         {
             _config = config;
             _hipPosition = aimPivot.localPosition;
             _hipRotation = aimPivot.localRotation;
+
+            //TODO: Через SerializeField
             _playerCharacter = GetComponentInParent<CharacterController>();
-            if (Camera.main != null)
-                _cameraTransform = Camera.main.transform.parent;
+            _cameraTransform = Camera.main!.transform.parent;
         }
 
-        public void SetActive(bool isActive)
-        {
-            gameObject.SetActive(isActive);
-        }
+        //FIXME: Unused method
+        public void SetActive(bool isActive) => gameObject.SetActive(isActive);
 
         public void SetTriggerHold(bool isHeld)
         {
-            if (handsAnimator) handsAnimator.SetBool("TriggerHold", isHeld);
+            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
+            handsAnimator?.SetBool("TriggerHold", isHeld);
         }
+
         public void PlayFireEffects(bool isAiming)
         {
-            if (gunAnimator) gunAnimator.Play("Fire", 1, 0f);
-            if (muzzleFlash) muzzleFlash.Play();
+            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
+            //FIXME: Magic numbers
+            gunAnimator?.Play("Fire", 1, 0f);
+
+            if (muzzleFlash)
+                muzzleFlash.Play();
+
             if (isAiming)
             {
                 _weaponRecoil.Fire(_config.AimRecoil);
@@ -67,19 +68,24 @@ namespace WeaponModule.View
 
         public void PlayReload()
         {
-            if (handsAnimator) handsAnimator.SetTrigger("Reload");
-            if (gunAnimator) gunAnimator.SetTrigger("Reload");
+            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
+            handsAnimator?.SetTrigger("Reload");
+            gunAnimator?.SetTrigger("Reload");
         }
 
         public void SetHolsterState(bool isHolstered)
         {
+            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
             string trigger = isHolstered ? "Holster" : "Draw";
-            if (handsAnimator) handsAnimator.SetTrigger(trigger);
-            if (gunAnimator) gunAnimator.SetTrigger(trigger);
+
+            handsAnimator?.SetTrigger(trigger);
+            gunAnimator?.SetTrigger(trigger);
         }
 
         public void SetMovementState(bool isMoving, Vector2 inputVector)
         {
+            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
+            //FIXME: Magic numbers
             if (handsAnimator)
             {
                 handsAnimator.SetBool("IsMoving", isMoving);
@@ -88,12 +94,12 @@ namespace WeaponModule.View
                 handsAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
             }
 
-            if (gunAnimator)
-            {
-                gunAnimator.SetBool("IsMoving", isMoving);
-                gunAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
-                gunAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
-            }
+            if (!gunAnimator)
+                return;
+
+            gunAnimator.SetBool("IsMoving", isMoving);
+            gunAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
+            gunAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
         }
 
 
@@ -111,6 +117,7 @@ namespace WeaponModule.View
             if (handsAnimator) handsAnimator.SetFloat("AimBlend", _currentAimBlend);
             if (gunAnimator) gunAnimator.SetFloat("AimBlend", _currentAimBlend);
         }
+
         public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
         {
             _weaponRecoil.Update(deltaTime);
@@ -124,6 +131,7 @@ namespace WeaponModule.View
                 _cameraTransform.localRotation = Quaternion.Euler(_cameraRecoil.CurrentRotation);
             }
         }
+
         public void SpawnBullet(float damage, float speed)
         {
             if (bulletPrefab == null || firePoint == null) return;

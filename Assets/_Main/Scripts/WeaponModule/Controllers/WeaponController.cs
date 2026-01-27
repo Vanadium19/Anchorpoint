@@ -4,11 +4,8 @@ using Cysharp.Threading.Tasks;
 using InputModule;
 using UnityEngine;
 using Zenject;
-using WeaponModule.Configs;
-using WeaponModule.Core;
-using WeaponModule.View;
 
-namespace WeaponModule.Controllers
+namespace WeaponModule
 {
     public class WeaponController : IWeapon, IInitializable, ITickable, ILateTickable, IDisposable
     {
@@ -24,10 +21,9 @@ namespace WeaponModule.Controllers
 
         private bool _shouldShootFrame;
 
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource _tokenSource;
 
-        public WeaponController(
-            WeaponConfig config,
+        public WeaponController(WeaponConfig config,
             WeaponModel model,
             WeaponView view,
             IInputMap input)
@@ -37,8 +33,9 @@ namespace WeaponModule.Controllers
             _view = view;
             _input = input;
 
-            _cts = new CancellationTokenSource();
+            _tokenSource = new();
         }
+
         public void Initialize()
         {
             _model.Initialize(_config.MaxAmmo);
@@ -68,12 +65,13 @@ namespace WeaponModule.Controllers
         public void Dispose()
         {
             CancelCurrentActions();
-            _cts.Dispose();
+            _tokenSource.Dispose();
         }
 
         public void Tick()
         {
-            if (!_view.gameObject.activeSelf) return;
+            if (!_view.gameObject.activeSelf)
+                return;
 
             HandleAimingState();
             CheckFireInput();
@@ -81,16 +79,21 @@ namespace WeaponModule.Controllers
             HandleTriggerFinger();
             HandleMovementAnim();
         }
+
         public void LateTick()
         {
-            if (!_view.gameObject.activeSelf) return;
+            if (!_view.gameObject.activeSelf)
+                return;
+
             HandleProceduralAnimation();
+
             if (_shouldShootFrame)
             {
                 Fire();
                 _shouldShootFrame = false;
             }
         }
+
         private void HandleProceduralAnimation()
         {
             Vector2 lookDelta = _input.LookInput;
@@ -108,7 +111,9 @@ namespace WeaponModule.Controllers
             {
                 if (_config.AimIsToggle)
                 {
-                    if (_input.IsAimTriggered) _isAimToggleActive = !_isAimToggleActive;
+                    if (_input.IsAimTriggered)
+                        _isAimToggleActive = !_isAimToggleActive;
+
                     _isAiming = _isAimToggleActive;
                 }
                 else
@@ -116,12 +121,14 @@ namespace WeaponModule.Controllers
                     _isAiming = _input.IsAimPressed;
                 }
             }
+
             _view.UpdateAiming(_isAiming, _config.AimStability);
         }
 
         private void CheckFireInput()
         {
-            if (_isReloading) return;
+            if (_isReloading)
+                return;
 
             if (_input.IsFirePressed && Time.time >= _nextFireTime)
             {
@@ -129,10 +136,6 @@ namespace WeaponModule.Controllers
                 {
                     _shouldShootFrame = true;
                     _nextFireTime = Time.time + _config.FireRate;
-                }
-                else
-                {
-                    // Тут можно добавить звук "Dry Fire" (Клик)
                 }
             }
         }
@@ -148,12 +151,11 @@ namespace WeaponModule.Controllers
 
         private void HandleReload()
         {
-            if (_isReloading) return;
+            if (_isReloading)
+                return;
 
             if (_input.IsReloadPressed && !_model.IsFull)
-            {
                 ReloadRoutine().Forget();
-            }
         }
 
         private void HandleMovementAnim()
@@ -167,17 +169,17 @@ namespace WeaponModule.Controllers
         {
             _view.SetTriggerHold(_input.IsFirePressed);
         }
+
         private async UniTaskVoid ReloadRoutine()
         {
             _isReloading = true;
             _view.PlayReload();
 
-            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _tokenSource.Token)
+                .SuppressCancellationThrow();
 
             if (!canceled)
-            {
                 _model.Reload();
-            }
 
             _isReloading = false;
         }
@@ -186,18 +188,20 @@ namespace WeaponModule.Controllers
         {
             _view.SetHolsterState(false);
             _isReloading = true;
-            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _cts.Token).SuppressCancellationThrow();
-            if (!canceled) _isReloading = false;
+
+            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
+                .SuppressCancellationThrow();
+
+            if (!canceled)
+                _isReloading = false;
         }
 
         private void CancelCurrentActions()
         {
-            _cts.Cancel();
-            _cts.Dispose();
-            _cts = new CancellationTokenSource();
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = new();
             _isReloading = false;
         }
-
-        public class Factory : PlaceholderFactory<WeaponConfig, WeaponView, WeaponController> { }
     }
 }

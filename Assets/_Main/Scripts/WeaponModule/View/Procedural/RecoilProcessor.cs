@@ -1,7 +1,6 @@
 using UnityEngine;
-using WeaponModule.Configs;
 
-namespace WeaponModule.View.Procedural
+namespace WeaponModule
 {
     public class RecoilProcessor
     {
@@ -25,26 +24,24 @@ namespace WeaponModule.View.Procedural
             _currentPosition = Vector3.Lerp(_currentPosition, _targetPosition, _snappiness * deltaTime);
         }
 
-        public void Fire(WeaponConfig.RecoilSettings settings)
+        public void Fire(RecoilSettings settings)
         {
             _snappiness = settings.Snappiness;
             _returnSpeed = settings.ReturnSpeed;
 
-            _targetRotation += new Vector3(
-                settings.RecoilRotation.x,
+            _targetRotation += new Vector3(settings.RecoilRotation.x,
                 Random.Range(-settings.RecoilRotation.y, settings.RecoilRotation.y),
                 Random.Range(-settings.RecoilRotation.z, settings.RecoilRotation.z));
 
             _targetPosition += new Vector3(0, 0, -settings.KickBackZ);
         }
 
-        public void FireCamera(WeaponConfig.CameraRecoilSettings settings)
+        public void FireCamera(CameraRecoilSettings settings)
         {
             _snappiness = settings.Snappiness;
             _returnSpeed = settings.ReturnSpeed;
 
-            _targetRotation += new Vector3(
-                settings.RecoilAmount.x,
+            _targetRotation += new Vector3(settings.RecoilAmount.x,
                 Random.Range(-settings.RecoilAmount.y, settings.RecoilAmount.y),
                 Random.Range(-settings.RecoilAmount.z, settings.RecoilAmount.z));
         }

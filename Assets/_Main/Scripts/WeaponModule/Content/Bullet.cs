@@ -1,9 +1,8 @@
 using ComponentsModule;
 using UnityEngine;
 
-namespace WeaponModule.Content
+namespace WeaponModule
 {
-    [RequireComponent(typeof(Rigidbody))]
     public class Bullet : MonoBehaviour
     {
         [Header("Settings")]
@@ -11,12 +10,13 @@ namespace WeaponModule.Content
         [SerializeField] private GameObject hitEffect;
 
         private float _damage;
-        private Rigidbody _rb;
+        private Rigidbody _rigidbody;
         private TrailRenderer _trail;
 
         private void Awake()
         {
-            _rb = GetComponent<Rigidbody>();
+            //FIXME: Через SerializeField
+            _rigidbody = GetComponent<Rigidbody>();
             _trail = GetComponent<TrailRenderer>();
 
             if (_trail != null)
@@ -27,14 +27,14 @@ namespace WeaponModule.Content
         {
             _damage = damage;
 
-            if (_rb != null)
+            if (_rigidbody != null)
             {
-                _rb.linearVelocity = Vector3.zero;
-                _rb.angularVelocity = Vector3.zero;
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
 
                 Vector3 bulletVel = transform.forward * bulletSpeed;
                 Vector3 playerVel = shooterVelocity * inheritFactor;
-                _rb.linearVelocity = bulletVel + playerVel;
+                _rigidbody.linearVelocity = bulletVel + playerVel;
             }
 
             if (_trail != null)
@@ -48,6 +48,7 @@ namespace WeaponModule.Content
 
         private void OnCollisionEnter(Collision collision)
         {
+            //TODO: Через прокси
             var target = collision.gameObject.GetComponentInParent<IDamageable>();
 
             if (target != null)
@@ -59,6 +60,7 @@ namespace WeaponModule.Content
             if (hitEffect != null)
             {
                 ContactPoint contact = collision.contacts[0];
+                //FIXME: Magic numbers
                 GameObject effect = Instantiate(hitEffect, contact.point + contact.normal * 0.05f, Quaternion.LookRotation(contact.normal));
                 Destroy(effect, 2f);
             }

@@ -1,7 +1,7 @@
 using ComponentsModule;
 using UnityEngine;
 using UnityEngine.AI;
-using WeaponModule.Content;
+using WeaponModule;
 using Zenject;
 
 namespace EnemyModule

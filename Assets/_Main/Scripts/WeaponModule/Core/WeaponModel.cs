@@ -1,13 +1,13 @@
 using System;
 
-namespace WeaponModule.Core
+namespace WeaponModule
 {
     public class WeaponModel
     {
         private int _currentAmmo;
         private int _maxAmmo;
 
-        public event Action<int, int> AmmoChanged; // Текущие, Макс
+        public event Action<int, int> AmmoChanged;
 
         public int CurrentAmmo => _currentAmmo;
         public bool IsFull => _currentAmmo == _maxAmmo;
@@ -17,24 +17,23 @@ namespace WeaponModule.Core
         {
             _maxAmmo = maxAmmo;
             _currentAmmo = maxAmmo;
-            Notify();
+            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
         }
 
         public bool TryConsumeAmmo()
         {
-            if (_currentAmmo <= 0) return false;
+            if (_currentAmmo <= 0)
+                return false;
 
             _currentAmmo--;
-            Notify();
+            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
             return true;
         }
 
         public void Reload()
         {
             _currentAmmo = _maxAmmo;
-            Notify();
+            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
         }
-
-        private void Notify() => AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
     }
 }
