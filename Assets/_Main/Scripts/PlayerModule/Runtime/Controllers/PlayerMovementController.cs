@@ -1,5 +1,5 @@
 using ComponentsModule;
-using InputModule.Core;
+using InputModule;
 using Zenject;
 
 namespace PlayerModule

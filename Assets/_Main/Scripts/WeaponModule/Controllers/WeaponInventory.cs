@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 using Cysharp.Threading.Tasks;
-using InputModule.Core;
+using InputModule;
 using WeaponModule.Core;
 using WeaponModule.Configs;
 using WeaponModule.View;
@@ -19,8 +19,7 @@ namespace WeaponModule.Controllers
         private int _currentIndex = -1;
         private bool _isSwitching = false;
 
-        public WeaponInventory(
-            WeaponController.Factory factory,
+        public WeaponInventory(WeaponController.Factory factory,
             IInputMap input,
             List<WeaponSetupData> loadout)
         {
@@ -38,6 +37,7 @@ namespace WeaponModule.Controllers
                 setup.View.gameObject.SetActive(false);
                 _weapons.Add(weapon);
             }
+
             if (_weapons.Count > 0)
             {
                 EquipWeapon(0).Forget();
@@ -59,12 +59,15 @@ namespace WeaponModule.Controllers
         private void HandleInput()
         {
             int requestedIndex = _input.SelectWeaponIndex;
+
             if (requestedIndex != -1)
             {
                 EquipWeapon(requestedIndex).Forget();
                 return;
             }
+
             float scroll = _input.WeaponScroll;
+
             if (scroll > 0.1f)
             {
                 EquipNext();
@@ -102,10 +105,12 @@ namespace WeaponModule.Controllers
 
             EquipWeapon(prevIndex).Forget();
         }
+
         private async UniTaskVoid EquipWeapon(int index)
         {
             if (index < 0 || index >= _weapons.Count) return;
             _isSwitching = true;
+
             if (_weapons[index] == _currentWeapon)
             {
                 if (_currentWeapon != null)
@@ -119,16 +124,19 @@ namespace WeaponModule.Controllers
                 _isSwitching = false;
                 return;
             }
+
             if (_currentWeapon != null)
             {
                 await _currentWeapon.Unequip();
             }
+
             _currentIndex = index;
             _currentWeapon = _weapons[index];
             _currentWeapon.Equip();
             _isSwitching = false;
         }
     }
+
     [System.Serializable]
     public class WeaponSetupData
     {

@@ -1,17 +1,18 @@
 using UnityEngine;
 using InputModule.Configs;
 
-namespace InputModule.Core
+namespace InputModule
 {
-    public class GameInputService : IInputMap
+    public class GameInputService : IInputMap, IInputService
     {
         private readonly InputSystem_Actions _actions;
 
         public GameInputService()
         {
-            _actions = new InputSystem_Actions();
+            _actions = new();
             _actions.Player.Enable();
         }
+
         public Vector2 MoveInput => _actions.Player.Move.ReadValue<Vector2>();
         public Vector2 LookInput => _actions.Player.Look.ReadValue<Vector2>();
         public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
@@ -42,14 +43,18 @@ namespace InputModule.Core
             get
             {
                 float scrollValue = _actions.Player.WeaponScroll.ReadValue<float>();
+
                 if (scrollValue > 0) return 1f;
+
                 if (scrollValue < 0) return -1f;
+
                 return 0f;
             }
         }
 
         public void Enable() => _actions.Enable();
         public void Disable() => _actions.Disable();
+
         public void Dispose()
         {
             _actions.Disable();

@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using InputModule;
 using UnityEngine;
 using Zenject;
-using InputModule.Core;
 using WeaponModule.Configs;
 using WeaponModule.Core;
 using WeaponModule.View;

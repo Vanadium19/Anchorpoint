@@ -5,7 +5,7 @@ using Zenject;
 using UnityEngine;
 using ExtractionModule.Configs;
 using ExtractionModule.View;
-using InputModule.Core;
+using InputModule;
 
 namespace ExtractionModule.Controllers
 {
@@ -14,15 +14,14 @@ namespace ExtractionModule.Controllers
         private readonly ExtractionConfig _config;
         private readonly ExtractionZoneView _zoneView;
         private readonly ExtractionHUDView _hudView;
-        private readonly IInputMap _input;
+        private readonly IInputService _input;
 
         private CancellationTokenSource _cts;
 
-        public ExtractionController(
-            ExtractionConfig config,
+        public ExtractionController(ExtractionConfig config,
             ExtractionZoneView zoneView,
             ExtractionHUDView hudView,
-            IInputMap input)
+            IInputService input)
         {
             _config = config;
             _zoneView = zoneView;
@@ -64,6 +63,7 @@ namespace ExtractionModule.Controllers
                 _cts.Dispose();
                 _cts = null;
             }
+
             if (_hudView != null && !_hudView.Equals(null))
             {
                 _hudView.HideTimer();

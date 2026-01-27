@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace InputModule.Core
+namespace InputModule
 {
     public interface IInputMap
     {
@@ -13,13 +13,10 @@ namespace InputModule.Core
         float WeaponScroll { get; }
         int SelectWeaponIndex { get; }
         bool IsFirePressed { get; }
-        bool IsAimPressed { get; } 
+        bool IsAimPressed { get; }
         bool IsReloadPressed { get; }
         bool IsHolsterPressed { get; }
-        bool IsAimHeld { get; } 
-        bool IsAimTriggered { get; } 
-
-        void Enable();
-        void Disable();
+        bool IsAimHeld { get; }
+        bool IsAimTriggered { get; }
     }
 }

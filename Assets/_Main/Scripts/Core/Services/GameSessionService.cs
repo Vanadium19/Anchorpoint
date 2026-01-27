@@ -3,16 +3,16 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using Zenject;
 using ComponentsModule;
-using InputModule.Core;
+using InputModule;
 
 namespace Core.Services
 {
     public class GameSessionService : IGameSessionService, IInitializable, IDisposable
     {
         private readonly IHealthComponent _health;
-        private readonly IInputMap _input;
+        private readonly IInputService _input;
 
-        public GameSessionService(IHealthComponent health, IInputMap input)
+        public GameSessionService(IHealthComponent health, IInputService input)
         {
             _health = health;
             _input = input;
@@ -36,6 +36,7 @@ namespace Core.Services
         {
             _input.Disable();
         }
+
         public void RestartLevel()
         {
             var currentScene = SceneManager.GetActiveScene().name;
