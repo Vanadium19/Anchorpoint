@@ -245,7 +245,7 @@ GameObject:
   - component: {fileID: 4486836947338478467}
   - component: {fileID: 4945237763936442680}
   m_Layer: 6
-  m_Name: FriendlyNpc 1 1
+  m_Name: FriendlyNpc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -281,14 +281,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcModule.Runtime.FriendlyNpcView
   settings:
-    interactionRadius: 2
-    exitRadius: 4
-    patrolRadius: 6
-    moveSpeed: 2
-    turnSpeed: 360
-    minWait: 0.5
-    maxWait: 2
-    messageText: "\u041F\u0440\u0438\u0432\u0435\u0442!"
+    InteractionRadius: 2
+    ExitRadius: 4
+    PatrolRadius: 6
+    MoveSpeed: 2
+    TurnSpeed: 360
+    MinWait: 0.5
+    MaxWait: 2
+    MessageText: Hello!
   agent: {fileID: 4486836947338478467}
   headPoint: {fileID: 5152219526549832197}
   worldText: {fileID: 2282141926646214130}

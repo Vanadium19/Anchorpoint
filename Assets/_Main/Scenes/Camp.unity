@@ -716,7 +716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6272627532053934224, guid: 0febceccc0ec0e543b63596ef2774beb, type: 3}
       propertyPath: m_Name
-      value: FriendlyNpc 1 1
+      value: FriendlyNpc
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace NpcModule.Runtime
+namespace NpcBaseModule
 {
     public sealed class FriendlyNpcView : MonoBehaviour, IInteractable
     {
@@ -13,7 +13,7 @@ namespace NpcModule.Runtime
         private FriendlyNpcController _controller;
 
         public Transform Transform => transform;
-        public float InteractionRadius => settings.interactionRadius;
+        public float InteractionRadius => settings.InteractionRadius;
 
         public FriendlyNpcSettings Settings => settings;
         public NavMeshAgent Agent => agent;
@@ -26,11 +26,7 @@ namespace NpcModule.Runtime
             worldText ??= GetComponentInChildren<NpcWorldTextView>(true);
         }
 
-
-        public void SetController(FriendlyNpcController controller)
-        {
-            _controller = controller;
-        }
+        public void SetController(FriendlyNpcController controller) => _controller = controller;
 
         public bool CanInteract(Transform interactor)
         {
@@ -44,14 +40,9 @@ namespace NpcModule.Runtime
             npcPosition.y = 0f;
 
             float distance = Vector3.Distance(interactorPosition, npcPosition);
-            return distance <= settings.interactionRadius;
+            return distance <= settings.InteractionRadius;
         }
 
-
-        public void Interact(Transform interactor)
-        {
-            _controller?.OnInteract(interactor);
-        }
-
+        public void Interact(Transform interactor) => _controller?.OnInteract(interactor);
     }
 }

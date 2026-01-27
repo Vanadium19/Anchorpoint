@@ -1,5 +1,8 @@
-public enum FriendlyNpcState
+namespace NpcBaseModule
 {
-    Patrolling,
-    Responding,
+    public enum FriendlyNpcState
+    {
+        Patrolling,
+        Responding,
+    }
 }

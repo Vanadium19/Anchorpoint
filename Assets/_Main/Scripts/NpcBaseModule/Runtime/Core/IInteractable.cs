@@ -1,11 +1,13 @@
 using UnityEngine;
 
-public interface IInteractable
+namespace NpcBaseModule
 {
-    Transform Transform { get; }
-    float InteractionRadius { get; }
+    public interface IInteractable
+    {
+        Transform Transform { get; }
+        float InteractionRadius { get; }
 
-    bool CanInteract(Transform interactor);
-    void Interact(Transform interactor);
+        bool CanInteract(Transform interactor);
+        void Interact(Transform interactor);
+    }
 }
-

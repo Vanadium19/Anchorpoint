@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace NpcModule.Runtime
+namespace NpcBaseModule
 {
     public sealed class NpcWorldTextView : MonoBehaviour
     {
@@ -10,31 +10,23 @@ namespace NpcModule.Runtime
 
         private void Awake()
         {
-            Hide();
             if (root == null)
             {
                 var canvas = GetComponentInParent<Canvas>(true);
                 root = canvas != null ? canvas.gameObject : gameObject;
             }
 
-            if (text == null)
-                text = GetComponentInChildren<TMP_Text>(true);
+            text ??= GetComponentInChildren<TMP_Text>(true);
         }
 
+        private void Start() => Hide();
 
         public void Show(string message)
         {
-            if (text != null)
-                text.SetText(message ?? string.Empty);
-
-            if (root != null && !root.activeSelf)
-                root.SetActive(true);
+            text?.SetText(message);
+            root?.SetActive(true);
         }
 
-        public void Hide()
-        {
-            if (root != null && root.activeSelf)
-                root.SetActive(false);
-        }
+        public void Hide() => root?.SetActive(false);
     }
 }
