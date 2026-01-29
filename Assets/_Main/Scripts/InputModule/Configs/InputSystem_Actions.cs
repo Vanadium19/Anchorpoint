@@ -246,6 +246,15 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ToggleInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""9c5b95aa-33b0-4f68-acd3-aa74fc04efea"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -593,7 +602,7 @@ namespace InputModule.Configs
                 {
                     ""name"": """",
                     ""id"": ""1c04ea5f-b012-41d1-a6f7-02e963b52893"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
@@ -752,6 +761,28 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""WeaponScroll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7947820c-65c5-4c44-ac53-67673c9f8b85"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToggleInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""17e8ec5a-cc06-40e1-a255-36ad256a9ef7"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""ToggleInventory"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1356,6 +1387,7 @@ namespace InputModule.Configs
             m_Player_Weapon2 = m_Player.FindAction("Weapon2", throwIfNotFound: true);
             m_Player_Weapon3 = m_Player.FindAction("Weapon3", throwIfNotFound: true);
             m_Player_WeaponScroll = m_Player.FindAction("WeaponScroll", throwIfNotFound: true);
+            m_Player_ToggleInventory = m_Player.FindAction("ToggleInventory", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1466,6 +1498,7 @@ namespace InputModule.Configs
         private readonly InputAction m_Player_Weapon2;
         private readonly InputAction m_Player_Weapon3;
         private readonly InputAction m_Player_WeaponScroll;
+        private readonly InputAction m_Player_ToggleInventory;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -1546,6 +1579,10 @@ namespace InputModule.Configs
             /// </summary>
             public InputAction @WeaponScroll => m_Wrapper.m_Player_WeaponScroll;
             /// <summary>
+            /// Provides access to the underlying input action "Player/ToggleInventory".
+            /// </summary>
+            public InputAction @ToggleInventory => m_Wrapper.m_Player_ToggleInventory;
+            /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
             public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1622,6 +1659,9 @@ namespace InputModule.Configs
                 @WeaponScroll.started += instance.OnWeaponScroll;
                 @WeaponScroll.performed += instance.OnWeaponScroll;
                 @WeaponScroll.canceled += instance.OnWeaponScroll;
+                @ToggleInventory.started += instance.OnToggleInventory;
+                @ToggleInventory.performed += instance.OnToggleInventory;
+                @ToggleInventory.canceled += instance.OnToggleInventory;
             }
 
             /// <summary>
@@ -1684,6 +1724,9 @@ namespace InputModule.Configs
                 @WeaponScroll.started -= instance.OnWeaponScroll;
                 @WeaponScroll.performed -= instance.OnWeaponScroll;
                 @WeaponScroll.canceled -= instance.OnWeaponScroll;
+                @ToggleInventory.started -= instance.OnToggleInventory;
+                @ToggleInventory.performed -= instance.OnToggleInventory;
+                @ToggleInventory.canceled -= instance.OnToggleInventory;
             }
 
             /// <summary>
@@ -2103,6 +2146,13 @@ namespace InputModule.Configs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnWeaponScroll(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleInventory(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

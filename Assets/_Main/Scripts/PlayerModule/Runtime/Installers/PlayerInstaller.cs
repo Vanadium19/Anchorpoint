@@ -2,6 +2,7 @@ using ComponentsModule;
 using UIModule;
 using UnityEngine;
 using Zenject;
+using InventoryModule;
 
 namespace PlayerModule
 {
@@ -72,6 +73,12 @@ namespace PlayerModule
                 .NonLazy();
 
             Container.BindInterfacesTo<PlayerMovementController>()
+                .AsSingle()
+                .NonLazy();
+            Container.BindInterfacesTo<PlayerInteractionController>()
+                .AsSingle()
+                .NonLazy();
+            Container.BindInterfacesTo<InventoryDeathHandler>()
                 .AsSingle()
                 .NonLazy();
         }

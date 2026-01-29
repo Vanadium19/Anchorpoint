@@ -9,6 +9,8 @@ namespace InputModule
         bool IsJumpPressed { get; }
         bool IsCrouchPressed { get; }
         float LeanInput { get; }
+        bool IsInteractPressed { get; }
+        bool IsInventoryPressed { get; }
 
         float WeaponScroll { get; }
         int SelectWeaponIndex { get; }

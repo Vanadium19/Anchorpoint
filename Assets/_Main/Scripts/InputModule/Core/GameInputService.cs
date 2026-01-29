@@ -18,6 +18,8 @@ namespace InputModule
         public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
         public bool IsCrouchPressed => _actions.Player.Crouch.IsPressed();
         public float LeanInput => _actions.Player.Lean.ReadValue<float>();
+        public bool IsInteractPressed => _actions.Player.Interact.WasPressedThisFrame();
+        public bool IsInventoryPressed => _actions.Player.ToggleInventory.WasPressedThisFrame();
 
         public bool IsFirePressed => _actions.Player.Attack.IsPressed();
         public bool IsAimPressed => _actions.Player.Aim.IsPressed();
