@@ -6,75 +6,126 @@ namespace InventoryModule
 {
     public class InventoryModel
     {
-        private readonly int _width;
-        private readonly int _height;
-        private readonly List<InventoryItem> _items = new();
+        private readonly InventoryGrid _grid;
+        private readonly List<InventoryItem> _items = new List<InventoryItem>();
 
         public event Action Updated;
 
         public InventoryModel(int width, int height)
         {
-            _width = width;
-            _height = height;
+            _grid = new InventoryGrid(width, height);
         }
 
         public IEnumerable<InventoryItem> Items => _items;
-        public int Width => _width;
-        public int Height => _height;
 
         public bool TryAddItem(ItemConfig config, int amount)
         {
-            foreach (var item in _items)
+            if (config.MaxStack > 1)
             {
-                if (item.Id != config.Id)
-                    continue;
-
-                if (item.Amount >= item.MaxStack)
-                    continue;
-
-                item.TryAddAmount(amount, out int remainder);
-                amount = remainder;
-
-                if (amount <= 0)
+                foreach (var item in _items)
                 {
-                    Updated?.Invoke();
-                    return true;
+                    if (item.Id == config.Id && item.Amount < item.MaxStack)
+                    {
+                        item.TryAddAmount(amount, out int remainder);
+                        int added = amount - remainder;
+
+                        if (added > 0)
+                        {
+                            amount = remainder;
+                            Updated?.Invoke();
+
+                            if (amount <= 0)
+                                return true;
+                        }
+                    }
                 }
             }
 
             while (amount > 0)
             {
-                if (!FindSpaceFor(config.Width, config.Height, out Vector2Int position))
+                if (!TryFindPlaceForItem(config, out Vector2Int position, out bool isRotated))
+                {
+                    Updated?.Invoke();
                     return false;
+                }
 
-                int addAmount = Mathf.Min(amount, config.MaxStack);
-                var newItem = new InventoryItem(config.Id, position, new(config.Width, config.Height), config.MaxStack, addAmount);
+                int toAdd = Mathf.Min(amount, config.MaxStack);
+                var newItem = new InventoryItem(
+                    config.Id,
+                    position,
+                    new Vector2Int(config.Width, config.Height),
+                    config.MaxStack,
+                    toAdd
+                );
+                newItem.IsRotated = isRotated;
 
+                _grid.PlaceItem(newItem, position, isRotated);
                 _items.Add(newItem);
-                amount -= addAmount;
+                amount -= toAdd;
+
+                Updated?.Invoke();
             }
 
-            Updated?.Invoke();
             return true;
         }
 
-        public void Clear()
+        public bool TryMoveItem(InventoryItem item, Vector2Int newPosition, bool isRotated, Vector2Int? mouseGridPos = null)
         {
-            _items.Clear();
-            Updated?.Invoke();
-        }
+            Vector2Int size = item.GetSize(isRotated);
 
-        private bool FindSpaceFor(int itemW, int itemH, out Vector2Int position)
-        {
-            position = new Vector2Int(-1, -1);
-
-            for (int y = 0; y <= _height - itemH; y++)
+            if (mouseGridPos.HasValue && item.MaxStack > 1)
             {
-                for (int x = 0; x <= _width - itemW; x++)
+                var targetAtCursor = GetItemAt(mouseGridPos.Value.x, mouseGridPos.Value.y, ignoreItem: item);
+
+                if (targetAtCursor != null && targetAtCursor.Id == item.Id)
                 {
-                    if (IsAreaFree(x, y, itemW, itemH))
+                    int spaceAvailable = targetAtCursor.MaxStack - targetAtCursor.Amount;
+
+                    if (spaceAvailable > 0)
                     {
-                        position = new Vector2Int(x, y);
+                        int amountToAdd = Mathf.Min(item.Amount, spaceAvailable);
+                        targetAtCursor.TryAddAmount(amountToAdd, out int _);
+                        item.Amount -= amountToAdd;
+
+                        if (item.Amount <= 0)
+                        {
+                            _items.Remove(item);
+                            _grid.ClearItem(item);
+                            Updated?.Invoke();
+                            return true;
+                        }
+                        else
+                        {
+                            Updated?.Invoke();
+                            return true;
+                        }
+                    }
+                }
+            }
+            if (_grid.IsAreaFree(newPosition, size, item))
+            {
+                _grid.PlaceItem(item, newPosition, isRotated);
+                Updated?.Invoke();
+                return true;
+            }
+            var overlappingItems = _grid.GetItemsAtArea(newPosition, size);
+            overlappingItems.Remove(item);
+
+            if (overlappingItems.Count == 1)
+            {
+                var obstacle = overlappingItems[0];
+                Vector2Int obstacleSize = obstacle.GetSize(obstacle.IsRotated);
+
+                if (_grid.IsAreaFree(item.Position, obstacleSize, obstacle))
+                {
+                    bool swapped = _grid.TrySwapItems(
+                        item, newPosition, isRotated,
+                        obstacle, item.Position, obstacle.IsRotated
+                    );
+
+                    if (swapped)
+                    {
+                        Updated?.Invoke();
                         return true;
                     }
                 }
@@ -83,19 +134,128 @@ namespace InventoryModule
             return false;
         }
 
-        private bool IsAreaFree(int startX, int startY, int width, int height)
+        public bool TrySplitItem(InventoryItem originalItem, Vector2Int targetPos, bool isRotated)
+        {
+            if (originalItem.Amount < 2)
+                return false;
+
+            Vector2Int splitSize = originalItem.GetSize(isRotated);
+            Vector2Int originalSize = originalItem.GetSize(originalItem.IsRotated);
+            if (_grid.AreasOverlap(targetPos, splitSize, originalItem.Position, originalSize))
+                return false;
+
+            int moveAmount = originalItem.Amount / 2;
+            int keepAmount = originalItem.Amount - moveAmount;
+            if (_grid.IsAreaFree(targetPos, splitSize))
+            {
+                originalItem.Amount = keepAmount;
+
+                var newItem = new InventoryItem(
+                    originalItem.Id,
+                    targetPos,
+                    originalItem.BaseSize,
+                    originalItem.MaxStack,
+                    moveAmount
+                );
+                newItem.IsRotated = isRotated;
+
+                _grid.PlaceItem(newItem, targetPos, isRotated);
+                _items.Add(newItem);
+                Updated?.Invoke();
+                return true;
+            }
+            var overlappingItems = _grid.GetItemsAtArea(targetPos, splitSize);
+            InventoryItem targetItem = null;
+
+            foreach (var overlap in overlappingItems)
+            {
+                if (overlap != originalItem && overlap.Id == originalItem.Id && overlap.MaxStack > 1)
+                {
+                    targetItem = overlap;
+                    break;
+                }
+            }
+
+            if (targetItem != null)
+            {
+                int spaceAvailable = targetItem.MaxStack - targetItem.Amount;
+                if (spaceAvailable > 0)
+                {
+                    int toAdd = Mathf.Min(moveAmount, spaceAvailable);
+                    targetItem.TryAddAmount(toAdd, out int _);
+                    originalItem.Amount -= toAdd;
+
+                    Updated?.Invoke();
+                    return toAdd > 0;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryFindPlaceForItem(ItemConfig config, out Vector2Int position, out bool isRotated)
+        {
+            Vector2Int size = new Vector2Int(config.Width, config.Height);
+            for (int y = 0; y <= _grid.Height - size.y; y++)
+            {
+                for (int x = 0; x <= _grid.Width - size.x; x++)
+                {
+                    var testPos = new Vector2Int(x, y);
+                    if (_grid.IsAreaFree(testPos, size))
+                    {
+                        position = testPos;
+                        isRotated = false;
+                        return true;
+                    }
+                }
+            }
+            Vector2Int rotatedSize = new Vector2Int(size.y, size.x);
+            for (int y = 0; y <= _grid.Height - rotatedSize.y; y++)
+            {
+                for (int x = 0; x <= _grid.Width - rotatedSize.x; x++)
+                {
+                    var testPos = new Vector2Int(x, y);
+                    if (_grid.IsAreaFree(testPos, rotatedSize))
+                    {
+                        position = testPos;
+                        isRotated = true;
+                        return true;
+                    }
+                }
+            }
+
+            position = Vector2Int.zero;
+            isRotated = false;
+            return false;
+        }
+
+        private InventoryItem GetItemAt(int x, int y, InventoryItem ignoreItem = null)
         {
             foreach (var item in _items)
             {
-                if (startX < item.Position.x + item.Size.x &&
-                    startX + width > item.Position.x &&
-                    startY < item.Position.y + item.Size.y &&
-                    startY + height > item.Position.y)
+                if (item == ignoreItem) continue;
+
+                Vector2Int itemSize = item.GetSize(item.IsRotated);
+                int w = itemSize.x;
+                int h = itemSize.y;
+
+                if (x >= item.Position.x && x < item.Position.x + w &&
+                    y >= item.Position.y && y < item.Position.y + h)
                 {
-                    return false;
+                    return item;
                 }
             }
-            return true;
+            return null;
+        }
+
+        public void Clear()
+        {
+            foreach (var item in _items)
+            {
+                _grid.ClearItem(item);
+            }
+            _items.Clear();
+            Updated?.Invoke();
         }
     }
 }

@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: Scrap Metal
   icon: {fileID: -2137217032, guid: fa9d4b3a0df108f48bb7457fd830e980, type: 3}
   prefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
-  width: 2
+  width: 1
   height: 2
   maxStack: 5

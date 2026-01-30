@@ -4,5 +4,6 @@ namespace InputModule
     {
         void Enable();
         void Disable();
+        void SetUIMode(bool isActive);
     }
 }

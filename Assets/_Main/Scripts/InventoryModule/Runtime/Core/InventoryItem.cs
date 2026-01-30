@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace InventoryModule
@@ -5,18 +6,35 @@ namespace InventoryModule
     public class InventoryItem
     {
         public ItemName Id { get; }
-        public Vector2Int Position { get; }
-        public Vector2Int Size { get; }
+        public Vector2Int Position { get; internal set; }
+        private readonly int _baseWidth;
+        private readonly int _baseHeight;
         public int MaxStack { get; }
-        public int Amount { get; private set; }
+        public int Amount { get; set; }
+        public bool IsRotated { get; internal set; }
+
+        public Vector2Int Size => IsRotated
+            ? new Vector2Int(_baseHeight, _baseWidth)
+            : new Vector2Int(_baseWidth, _baseHeight);
+
+        public Vector2Int BaseSize => new Vector2Int(_baseWidth, _baseHeight);
+
+        public Vector2Int GetSize(bool rotated)
+        {
+            return rotated
+                ? new Vector2Int(_baseHeight, _baseWidth)
+                : new Vector2Int(_baseWidth, _baseHeight);
+        }
 
         public InventoryItem(ItemName id, Vector2Int position, Vector2Int size, int maxStack, int amount)
         {
             Id = id;
             Position = position;
-            Size = size;
+            _baseWidth = size.x;
+            _baseHeight = size.y;
             MaxStack = maxStack;
             Amount = amount;
+            IsRotated = false;
         }
 
         public bool TryAddAmount(int value, out int remainder)
