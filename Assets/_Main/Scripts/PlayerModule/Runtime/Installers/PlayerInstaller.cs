@@ -75,9 +75,11 @@ namespace PlayerModule
             Container.BindInterfacesTo<PlayerMovementController>()
                 .AsSingle()
                 .NonLazy();
-            Container.BindInterfacesTo<PlayerInteractionController>()
+
+            Container.BindInterfacesAndSelfTo<PlayerInteractionController>()
                 .AsSingle()
                 .NonLazy();
+
             Container.BindInterfacesTo<InventoryDeathHandler>()
                 .AsSingle()
                 .NonLazy();

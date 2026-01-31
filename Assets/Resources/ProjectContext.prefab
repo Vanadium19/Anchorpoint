@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4504210640190269513}
   - component: {fileID: 2990750458375650146}
-  - component: {fileID: 4750640492762781410}
+  - component: {fileID: 1183441546344267572}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Zenject::Zenject.ProjectContext
   _scriptableObjectInstallers: []
   _monoInstallers:
-  - {fileID: 4750640492762781410}
+  - {fileID: 1183441546344267572}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
       _missingHandlerDefaultResponse: 2
       _requireStrictUnsubscribe: 0
       _defaultAsyncTickPriority: 1
---- !u!114 &4750640492762781410
+--- !u!114 &1183441546344267572
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -71,8 +71,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 5534078141944324955}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d16799418bb61945a5385f1f8443a8c, type: 3}
+  m_Script: {fileID: 11500000, guid: acff9fdc1a940a843a8d4c502959979b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryProjectInstaller
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryGlobalInstaller
   inventoryConfig: {fileID: 11400000, guid: 554b5d8536118b5469b2694daf2d766a, type: 2}
-  itemCatalog: {fileID: 11400000, guid: c2bfcb40d3f47fa42b56e35129d45304, type: 2}
+  itemDatabase: {fileID: 11400000, guid: 0f1fa79f1b22b344dbbe73527d7f80fa, type: 2}

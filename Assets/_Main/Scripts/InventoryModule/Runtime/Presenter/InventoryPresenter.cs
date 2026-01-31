@@ -1,46 +1,74 @@
 using System;
+using System.Threading;
 using InputModule;
 using UnityEngine;
 using Zenject;
 
 namespace InventoryModule
 {
-    public class InventoryPresenter : IInitializable, ITickable, IDisposable
+    public sealed class InventoryPresenter : IInitializable, ITickable, IDisposable
     {
-        private readonly InventoryModel _model;
+        private readonly IInventoryService _inventoryService;
+        private readonly IItemProvider _itemProvider;
         private readonly InventoryView _view;
-        private readonly InventoryConfig _config;
-        private readonly ItemCatalog _catalog;
-
         private readonly IInputMap _inputMap;
         private readonly IInputService _inputService;
+        private readonly CancellationTokenSource _cancellationTokenSource;
+        private InventoryItemView _currentlyDraggedItem;
 
-        public InventoryPresenter(InventoryModel model, InventoryView view,
-            InventoryConfig config, ItemCatalog catalog,
-            IInputMap inputMap, IInputService inputService)
+        public InventoryPresenter(
+            IInventoryService inventoryService,
+            IItemProvider itemProvider,
+            InventoryView view,
+            IInputMap inputMap,
+            IInputService inputService)
         {
-            _model = model;
-            _view = view;
-            _config = config;
-            _catalog = catalog;
-            _inputMap = inputMap;
-            _inputService = inputService;
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
+            _view = view ?? throw new ArgumentNullException(nameof(view));
+            _inputMap = inputMap ?? throw new ArgumentNullException(nameof(inputMap));
+            _inputService = inputService ?? throw new ArgumentNullException(nameof(inputService));
+
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         public void Initialize()
         {
-            _view.Initialize(_config, _catalog, _inputMap);
-            _model.Updated += OnInventoryUpdated;
+            _view.Initialize(_itemProvider, _inputMap);
+            _view.GenerateGrid(_inventoryService.Width, _inventoryService.Height);
+
+            _inventoryService.InventoryUpdated += OnInventoryUpdated;
             _view.ItemDropped += OnItemDropped;
+            _view.ItemRemoved += OnItemRemoved;
+
+            _view.ItemDragStarted += OnItemDragStarted;
+            _view.ItemDragEnded += OnItemDragEnded;
+
             OnInventoryUpdated();
         }
 
         public void Dispose()
         {
-            _model.Updated -= OnInventoryUpdated;
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+
+            _inventoryService.InventoryUpdated -= OnInventoryUpdated;
             _view.ItemDropped -= OnItemDropped;
+            _view.ItemRemoved -= OnItemRemoved;
+
+            _view.ItemDragStarted -= OnItemDragStarted;
+            _view.ItemDragEnded -= OnItemDragEnded;
         }
 
+        private void OnItemDragStarted(InventoryItemView itemView)
+        {
+            _currentlyDraggedItem = itemView;
+        }
+
+        private void OnItemDragEnded(InventoryItemView itemView)
+        {
+            _currentlyDraggedItem = null;
+        }
         public void Tick()
         {
             if (_inputMap.IsInventoryPressed)
@@ -49,31 +77,61 @@ namespace InventoryModule
                 _view.Toggle(newState);
                 _inputService.SetUIMode(newState);
             }
+
+            if (_view.IsVisible && _inputMap.IsRotatePressed && _currentlyDraggedItem != null)
+            {
+                _currentlyDraggedItem.Rotate();
+            }
         }
 
         private void OnInventoryUpdated()
         {
-            _view.Render(_model.Items);
+            var items = _inventoryService.GetAllItems();
+            _view.Render(items, _itemProvider);
         }
 
-        private void OnItemDropped(InventoryItemView itemView, Vector2Int newPosition)
+        private async void OnItemDropped(InventoryItemView itemView, Vector2Int newPosition)
         {
-            bool success = false;
             var item = itemView.Item;
-            Vector2Int mouseGridPos = _view.GetMouseGridPosition();
+            if (item == null)
+                return;
+
+            InventoryOperationResult result;
 
             if (itemView.IsSplitting)
             {
-                success = _model.TrySplitItem(item, newPosition, itemView.LocalIsRotated);
+                result = await _inventoryService.SplitItemAsync(
+                    item,
+                    newPosition,
+                    itemView.LocalIsRotated,
+                    _cancellationTokenSource.Token);
             }
             else
             {
-                success = _model.TryMoveItem(item, newPosition, itemView.LocalIsRotated, mouseGridPos);
+                result = await _inventoryService.MoveItemAsync(
+                    item,
+                    newPosition,
+                    itemView.LocalIsRotated,
+                    _cancellationTokenSource.Token);
             }
+            OnInventoryUpdated();
 
-            if (!success)
+            if (!result.Success)
             {
+                Debug.LogWarning($"Inventory operation failed: {result.ErrorMessage}");
                 OnInventoryUpdated();
+            }
+        }
+
+        private async void OnItemRemoved(InventoryItemView itemView)
+        {
+            var result = await _inventoryService.RemoveItemAsync(
+                itemView.Item,
+                _cancellationTokenSource.Token);
+
+            if (!result.Success)
+            {
+                Debug.LogWarning($"Failed to remove item: {result.ErrorMessage}");
             }
         }
     }

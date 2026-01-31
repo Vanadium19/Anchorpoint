@@ -1,17 +1,16 @@
-using InputModule;
 using UnityEngine;
 using Zenject;
 
 namespace InventoryModule
 {
-    public class InventoryUIInstaller : MonoInstaller
+    public sealed class InventorySceneInstaller : MonoInstaller
     {
-        [SerializeField] private InventoryView view;
+        [SerializeField] private InventoryView inventoryView;
 
         public override void InstallBindings()
         {
             Container.Bind<InventoryView>()
-                .FromInstance(view)
+                .FromInstance(inventoryView)
                 .AsSingle();
 
             Container.BindInterfacesTo<InventoryPresenter>()

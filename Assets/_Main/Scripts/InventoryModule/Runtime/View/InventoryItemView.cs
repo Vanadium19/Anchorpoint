@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 namespace InventoryModule
 {
@@ -26,7 +27,6 @@ namespace InventoryModule
         private InventoryItem _item;
         private float _tileSize;
         private float _spacing;
-        private InputModule.IInputMap _input;
 
         private Vector2 _centeringOffset;
         private bool _localIsRotated;
@@ -34,6 +34,8 @@ namespace InventoryModule
         private int _originalAmount;
         private bool _isDragging;
         private bool _rotatePressedLastFrame;
+        private bool _canRotate;
+        private Func<bool> _splitCheck;
 
         private GameObject _splitDummy;
 
@@ -41,17 +43,17 @@ namespace InventoryModule
         public bool IsSplitting => _isSplitting;
         public bool LocalIsRotated => _localIsRotated;
 
-        public void Setup(InventoryItem item, ItemConfig config, float tileSize, float spacing, InputModule.IInputMap input)
+        public void Setup(InventoryItem item, ItemDefinition config, float tileSize, float spacing, Func<bool> splitCheck)
         {
             _item = item;
             _tileSize = tileSize;
             _spacing = spacing;
-            _input = input;
+            _splitCheck = splitCheck;
 
+            _canRotate = config.CanRotate;
             _localIsRotated = item.IsRotated;
             _originalAmount = item.Amount;
             _isDragging = false;
-            _rotatePressedLastFrame = false;
 
             if (iconImage != null)
                 iconImage.sprite = config.Icon;
@@ -59,24 +61,14 @@ namespace InventoryModule
             UpdateVisuals();
         }
 
-        private void Update()
+        public void Rotate()
         {
-            if (!_isDragging) return;
-
-            bool rotatePressed = _input.IsRotatePressed;
-
-            if (rotatePressed && !_rotatePressedLastFrame)
-            {
-                _localIsRotated = !_localIsRotated;
-
-                UpdateVisuals();
-                RecalculateOffset();
-                SnapToCursor();
-
-                DragUpdated?.Invoke(this);
-            }
-
-            _rotatePressedLastFrame = rotatePressed;
+            if (!_canRotate) return;
+            _localIsRotated = !_localIsRotated;
+            UpdateVisuals();
+            RecalculateOffset();
+            SnapToCursor();
+            DragUpdated?.Invoke(this);
         }
 
         private void UpdateVisuals()
@@ -98,6 +90,8 @@ namespace InventoryModule
                 float posX = (_item.Position.x * _tileSize) + (_item.Position.x * _spacing);
                 float posY = -((_item.Position.y * _tileSize) + (_item.Position.y * _spacing));
                 rectTransform.anchoredPosition = new Vector2(posX, posY);
+                rectTransform.localScale = Vector3.one;
+                rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y, 0);
             }
 
             if (amountText != null)
@@ -118,20 +112,18 @@ namespace InventoryModule
         public void OnBeginDrag(PointerEventData eventData)
         {
             _isDragging = true;
-            _isSplitting = _input.IsSplitPressed && _item.Amount > 1;
+            _isSplitting = _splitCheck != null && _splitCheck.Invoke() && _item.Amount > 1;
 
             if (_isSplitting)
             {
                 CreateSplitDummy();
+                int moveAmount = _item.Amount / 2;
+                if (amountText != null) amountText.text = moveAmount.ToString();
             }
 
             canvasGroup.blocksRaycasts = false;
             canvasGroup.alpha = dragAlpha;
-
-            UpdateVisuals();
             RecalculateOffset();
-            SnapToCursor();
-
             DragStarted?.Invoke(this);
         }
 
@@ -156,27 +148,35 @@ namespace InventoryModule
         private void CreateSplitDummy()
         {
             _splitDummy = Instantiate(gameObject, transform.parent);
+            var clonedView = _splitDummy.GetComponent<InventoryItemView>();
+            TMP_Text dummyText = clonedView != null ? clonedView.amountText : null;
+            if (clonedView != null) Destroy(clonedView);
 
-            Destroy(_splitDummy.GetComponent<InventoryItemView>());
             var cg = _splitDummy.GetComponent<CanvasGroup>();
             if (cg == null) cg = _splitDummy.AddComponent<CanvasGroup>();
             cg.alpha = splitGhostAlpha;
             cg.blocksRaycasts = false;
 
             var dummyRect = _splitDummy.GetComponent<RectTransform>();
-            dummyRect.anchoredPosition = rectTransform.anchoredPosition;
-            dummyRect.sizeDelta = rectTransform.sizeDelta;
-
-            var dummyText = _splitDummy.GetComponentInChildren<TMP_Text>();
-            int stayingAmount = _originalAmount - (_originalAmount / 2);
-            if (stayingAmount > 1)
+            if (dummyRect != null && rectTransform != null)
             {
-                dummyText.gameObject.SetActive(true);
-                dummyText.text = stayingAmount.ToString();
+                dummyRect.anchoredPosition = rectTransform.anchoredPosition;
+                dummyRect.sizeDelta = rectTransform.sizeDelta;
             }
-            else
+
+            int stayingAmount = _originalAmount - (_originalAmount / 2);
+
+            if (dummyText != null)
             {
-                dummyText.gameObject.SetActive(false);
+                if (stayingAmount > 1)
+                {
+                    dummyText.gameObject.SetActive(true);
+                    dummyText.text = stayingAmount.ToString();
+                }
+                else
+                {
+                    dummyText.gameObject.SetActive(false);
+                }
             }
         }
 

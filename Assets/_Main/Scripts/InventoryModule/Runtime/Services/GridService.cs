@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace InventoryModule
 {
-    public class InventoryGrid
+    public sealed class GridService
     {
         private readonly GridCell[,] _cells;
         private readonly int _width;
@@ -13,7 +12,7 @@ namespace InventoryModule
         public int Width => _width;
         public int Height => _height;
 
-        public InventoryGrid(int width, int height)
+        public GridService(int width, int height)
         {
             _width = width;
             _height = height;
@@ -133,12 +132,14 @@ namespace InventoryModule
             PlaceItem(item2, pos2, rot2);
             return true;
         }
+
         public bool AreasOverlap(Vector2Int pos1, Vector2Int size1, Vector2Int pos2, Vector2Int size2)
         {
             bool overlapX = pos1.x < pos2.x + size2.x && pos1.x + size1.x > pos2.x;
             bool overlapY = pos1.y < pos2.y + size2.y && pos1.y + size1.y > pos2.y;
             return overlapX && overlapY;
         }
+
         public List<InventoryItem> GetItemsAtArea(Vector2Int position, Vector2Int size)
         {
             var items = new List<InventoryItem>();
@@ -159,6 +160,19 @@ namespace InventoryModule
             }
 
             return items;
+        }
+
+        public InventoryItem GetItemAtPosition(Vector2Int position)
+        {
+            foreach (var cell in _cells)
+            {
+                if (cell.IsOccupied && cell.OccupyingItem.Position == position)
+                {
+                    return cell.OccupyingItem;
+                }
+            }
+
+            return null;
         }
     }
 }

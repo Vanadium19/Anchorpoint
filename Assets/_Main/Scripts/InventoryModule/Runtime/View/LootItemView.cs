@@ -1,34 +1,66 @@
 using UnityEngine;
-using Zenject;
 
 namespace InventoryModule
 {
-    public class LootItemView : MonoBehaviour, ILootable
+    public class LootItemView : MonoBehaviour
     {
-        [SerializeField] private ItemName itemName;
+        [SerializeField] private ItemDefinition itemDefinition;
         [SerializeField] private int amount = 1;
 
-        private ItemCatalog _catalog;
-        private ItemConfig _cachedConfig;
+        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private ParticleSystem pickupParticles;
+        [SerializeField] private AudioClip pickupSound;
 
-        [Inject]
-        public void Construct(ItemCatalog catalog)
+        private ItemDatabase _database;
+        private ItemDefinition _cachedDefinition;
+
+        public ItemDefinition ItemDef => GetItemDefinition();
+        public int Amount => amount;
+
+        public void SetAmount(int newAmount)
         {
-            _catalog = catalog;
+            amount = Mathf.Max(1, newAmount);
         }
 
-        public ItemConfig Config
+        private ItemDefinition GetItemDefinition()
         {
-            get
+            if (_cachedDefinition != null)
+                return _cachedDefinition;
+
+            if (itemDefinition != null)
             {
-                if (_cachedConfig == null && _catalog != null)
-                    _catalog.TryGetConfig(itemName, out _cachedConfig);
-                return _cachedConfig;
+                _cachedDefinition = itemDefinition;
+                return _cachedDefinition;
+            }
+
+            return null;
+        }
+
+        private void OnValidate()
+        {
+            if (itemDefinition != null && itemDefinition.WorldPrefab != null)
+            {
             }
         }
 
-        public int Amount => amount;
+        private void UpdateVisual()
+        {
+        }
 
-        public void Collect() => Destroy(gameObject);
+        public void Collect()
+        {
+            if (pickupParticles != null)
+            {
+                var particles = Instantiate(pickupParticles, transform.position, Quaternion.identity);
+                Destroy(particles.gameObject, 2f);
+            }
+
+            if (pickupSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            }
+
+            Destroy(gameObject);
+        }
     }
 }

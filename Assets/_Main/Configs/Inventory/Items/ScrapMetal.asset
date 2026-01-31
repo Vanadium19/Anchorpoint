@@ -9,13 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad7f3a26d0569f74397d8cc9aa83c986, type: 3}
+  m_Script: {fileID: 11500000, guid: 6058cb8a58a9fdc4cab7806e0b0ae954, type: 3}
   m_Name: ScrapMetal
-  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemConfig
-  id: 1
-  displayName: Scrap Metal
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDefinition
+  itemName: ScrapMetal
+  description: 
   icon: {fileID: -2137217032, guid: fa9d4b3a0df108f48bb7457fd830e980, type: 3}
-  prefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
-  width: 1
-  height: 2
+  worldPrefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
+  inventoryPrefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
+  width: 2
+  height: 1
   maxStack: 5
+  canRotate: 1
+  weight: 0.1
+  value: 1
+  category: 1
