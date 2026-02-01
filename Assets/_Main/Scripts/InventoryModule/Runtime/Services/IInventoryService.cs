@@ -35,5 +35,6 @@ namespace InventoryModule
         bool CanPlaceItem(ItemDefinition itemDefinition, Vector2Int position, bool isRotated);
         InventoryItem GetItemAtPosition(Vector2Int position);
         IReadOnlyList<InventoryItem> GetAllItems();
+        void ClearInventory();
     }
 }

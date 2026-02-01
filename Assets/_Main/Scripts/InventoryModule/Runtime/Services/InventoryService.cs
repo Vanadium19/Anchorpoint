@@ -160,6 +160,25 @@ namespace InventoryModule
 
             try
             {
+                int moveAmount = item.Amount / 2;
+
+                var targetItem = GetItemAtPosition(splitPosition);
+
+                if (targetItem != null && targetItem != item && targetItem.Id == item.Id)
+                {
+                    if (targetItem.Amount < targetItem.MaxStack)
+                    {
+                        int canAccept = targetItem.MaxStack - targetItem.Amount;
+                        int actualMove = Mathf.Min(moveAmount, canAccept);
+
+                        targetItem.Amount += actualMove;
+                        item.Amount -= actualMove;
+
+                        InventoryUpdated?.Invoke();
+                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess(targetItem));
+                    }
+                }
+
                 var splitSize = item.GetSize(isRotated);
                 var originalSize = item.GetSize(item.IsRotated);
 
@@ -175,10 +194,7 @@ namespace InventoryModule
                         "Cannot split: target position is occupied"));
                 }
 
-                int moveAmount = item.Amount / 2;
-                int keepAmount = item.Amount - moveAmount;
-
-                item.Amount = keepAmount;
+                item.Amount -= moveAmount;
 
                 var newItem = CreateInventoryItem(
                     _itemDatabase.GetItem(item.Id),
@@ -338,6 +354,12 @@ namespace InventoryModule
             {
                 IsRotated = isRotated
             };
+        }
+        public void ClearInventory()
+        {
+            _gridService.ClearAll();
+            _model.Clear();
+            InventoryUpdated?.Invoke();
         }
     }
 }

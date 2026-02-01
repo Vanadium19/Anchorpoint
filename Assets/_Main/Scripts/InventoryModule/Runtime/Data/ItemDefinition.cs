@@ -8,7 +8,7 @@ namespace InventoryModule
         [SerializeField] private string itemName;
         [SerializeField, TextArea(3, 5)] private string description;
         [SerializeField] private Sprite icon;
-        [SerializeField] private GameObject worldPrefab;
+        [SerializeField] private LootItemView worldPrefab;
         [SerializeField] private GameObject inventoryPrefab;
 
         [Min(1)][SerializeField] private int width = 1;
@@ -37,7 +37,7 @@ namespace InventoryModule
         public string ItemName => itemName;
         public string Description => description;
         public Sprite Icon => icon;
-        public GameObject WorldPrefab => worldPrefab;
+        public LootItemView WorldPrefab => worldPrefab;
         public GameObject InventoryPrefab => inventoryPrefab;
         public int Width => width;
         public int Height => height;

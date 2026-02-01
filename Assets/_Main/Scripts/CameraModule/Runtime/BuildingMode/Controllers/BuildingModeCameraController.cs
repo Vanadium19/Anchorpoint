@@ -33,8 +33,12 @@ namespace CameraModule
 
         public void SetActive(bool value)
         {
-            if (_isActive == value)
-                return;
+            if (_isActive == value) return;
+
+            if (value)
+            {
+                _cameraService.CaptureStartPosition();
+            }
 
             _isActive = value;
 

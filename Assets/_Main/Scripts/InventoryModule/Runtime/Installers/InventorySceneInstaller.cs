@@ -1,3 +1,4 @@
+using ComponentsModule;
 using UnityEngine;
 using Zenject;
 
@@ -16,6 +17,9 @@ namespace InventoryModule
             Container.BindInterfacesTo<InventoryPresenter>()
                 .AsSingle()
                 .NonLazy();
+            Container.Bind<IPlayerPositionProvider>()
+                .FromComponentInHierarchy()
+                .AsSingle();
         }
     }
 }

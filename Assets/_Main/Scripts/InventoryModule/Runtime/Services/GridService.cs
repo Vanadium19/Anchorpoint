@@ -174,5 +174,16 @@ namespace InventoryModule
 
             return null;
         }
+
+        public void ClearAll()
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    _cells[x, y].Vacate();
+                }
+            }
+        }
     }
 }

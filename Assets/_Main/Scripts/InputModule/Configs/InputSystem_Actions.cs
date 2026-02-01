@@ -143,7 +143,7 @@ namespace InputModule.Configs
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""f1ba0d36-48eb-4cd5-b651-1c94a6531f70"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -246,6 +246,15 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Build"",
+                    ""type"": ""Button"",
+                    ""id"": ""7cd8d494-ee0e-47d0-8aa6-6d1acae16371"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -378,6 +387,17 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""groups"": ""Joystick"",
                     ""action"": ""Move"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8464039d-b616-46eb-bd77-dc33a28939fb"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Build"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1351,6 +1371,34 @@ namespace InputModule.Configs
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Build"",
+            ""id"": ""6b67343b-5104-41d1-b7c1-1e902a57d7f1"",
+            ""actions"": [
+                {
+                    ""name"": ""Build"",
+                    ""type"": ""Button"",
+                    ""id"": ""fd278a84-1234-4502-96a8-1e3f850a5dc5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""79624776-1751-4594-948e-ea5a345c4b75"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Build"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1435,6 +1483,7 @@ namespace InputModule.Configs
             m_Player_Weapon2 = m_Player.FindAction("Weapon2", throwIfNotFound: true);
             m_Player_Weapon3 = m_Player.FindAction("Weapon3", throwIfNotFound: true);
             m_Player_WeaponScroll = m_Player.FindAction("WeaponScroll", throwIfNotFound: true);
+            m_Player_Build = m_Player.FindAction("Build", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1452,6 +1501,9 @@ namespace InputModule.Configs
             m_Global_ToggleInventory = m_Global.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Global_RotateItem = m_Global.FindAction("RotateItem", throwIfNotFound: true);
             m_Global_SplitStack = m_Global.FindAction("SplitStack", throwIfNotFound: true);
+            // Build
+            m_Build = asset.FindActionMap("Build", throwIfNotFound: true);
+            m_Build_Build = m_Build.FindAction("Build", throwIfNotFound: true);
         }
 
         ~@InputSystem_Actions()
@@ -1459,6 +1511,7 @@ namespace InputModule.Configs
             UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Player.Disable() has not been called.");
             UnityEngine.Debug.Assert(!m_UI.enabled, "This will cause a leak and performance issues, InputSystem_Actions.UI.Disable() has not been called.");
             UnityEngine.Debug.Assert(!m_Global.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Global.Disable() has not been called.");
+            UnityEngine.Debug.Assert(!m_Build.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Build.Disable() has not been called.");
         }
 
         /// <summary>
@@ -1551,6 +1604,7 @@ namespace InputModule.Configs
         private readonly InputAction m_Player_Weapon2;
         private readonly InputAction m_Player_Weapon3;
         private readonly InputAction m_Player_WeaponScroll;
+        private readonly InputAction m_Player_Build;
         /// <summary>
         /// Provides access to input actions defined in input action map "Player".
         /// </summary>
@@ -1631,6 +1685,10 @@ namespace InputModule.Configs
             /// </summary>
             public InputAction @WeaponScroll => m_Wrapper.m_Player_WeaponScroll;
             /// <summary>
+            /// Provides access to the underlying input action "Player/Build".
+            /// </summary>
+            public InputAction @Build => m_Wrapper.m_Player_Build;
+            /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
             public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1707,6 +1765,9 @@ namespace InputModule.Configs
                 @WeaponScroll.started += instance.OnWeaponScroll;
                 @WeaponScroll.performed += instance.OnWeaponScroll;
                 @WeaponScroll.canceled += instance.OnWeaponScroll;
+                @Build.started += instance.OnBuild;
+                @Build.performed += instance.OnBuild;
+                @Build.canceled += instance.OnBuild;
             }
 
             /// <summary>
@@ -1769,6 +1830,9 @@ namespace InputModule.Configs
                 @WeaponScroll.started -= instance.OnWeaponScroll;
                 @WeaponScroll.performed -= instance.OnWeaponScroll;
                 @WeaponScroll.canceled -= instance.OnWeaponScroll;
+                @Build.started -= instance.OnBuild;
+                @Build.performed -= instance.OnBuild;
+                @Build.canceled -= instance.OnBuild;
             }
 
             /// <summary>
@@ -2115,6 +2179,102 @@ namespace InputModule.Configs
         /// Provides a new <see cref="GlobalActions" /> instance referencing this action map.
         /// </summary>
         public GlobalActions @Global => new GlobalActions(this);
+
+        // Build
+        private readonly InputActionMap m_Build;
+        private List<IBuildActions> m_BuildActionsCallbackInterfaces = new List<IBuildActions>();
+        private readonly InputAction m_Build_Build;
+        /// <summary>
+        /// Provides access to input actions defined in input action map "Build".
+        /// </summary>
+        public struct BuildActions
+        {
+            private @InputSystem_Actions m_Wrapper;
+
+            /// <summary>
+            /// Construct a new instance of the input action map wrapper class.
+            /// </summary>
+            public BuildActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+            /// <summary>
+            /// Provides access to the underlying input action "Build/Build".
+            /// </summary>
+            public InputAction @Build => m_Wrapper.m_Build_Build;
+            /// <summary>
+            /// Provides access to the underlying input action map instance.
+            /// </summary>
+            public InputActionMap Get() { return m_Wrapper.m_Build; }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+            public void Enable() { Get().Enable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+            public void Disable() { Get().Disable(); }
+            /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+            public bool enabled => Get().enabled;
+            /// <summary>
+            /// Implicitly converts an <see ref="BuildActions" /> to an <see ref="InputActionMap" /> instance.
+            /// </summary>
+            public static implicit operator InputActionMap(BuildActions set) { return set.Get(); }
+            /// <summary>
+            /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <param name="instance">Callback instance.</param>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+            /// </remarks>
+            /// <seealso cref="BuildActions" />
+            public void AddCallbacks(IBuildActions instance)
+            {
+                if (instance == null || m_Wrapper.m_BuildActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_BuildActionsCallbackInterfaces.Add(instance);
+                @Build.started += instance.OnBuild;
+                @Build.performed += instance.OnBuild;
+                @Build.canceled += instance.OnBuild;
+            }
+
+            /// <summary>
+            /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+            /// </summary>
+            /// <remarks>
+            /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+            /// </remarks>
+            /// <seealso cref="BuildActions" />
+            private void UnregisterCallbacks(IBuildActions instance)
+            {
+                @Build.started -= instance.OnBuild;
+                @Build.performed -= instance.OnBuild;
+                @Build.canceled -= instance.OnBuild;
+            }
+
+            /// <summary>
+            /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="BuildActions.UnregisterCallbacks(IBuildActions)" />.
+            /// </summary>
+            /// <seealso cref="BuildActions.UnregisterCallbacks(IBuildActions)" />
+            public void RemoveCallbacks(IBuildActions instance)
+            {
+                if (m_Wrapper.m_BuildActionsCallbackInterfaces.Remove(instance))
+                    UnregisterCallbacks(instance);
+            }
+
+            /// <summary>
+            /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+            /// </summary>
+            /// <remarks>
+            /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+            /// </remarks>
+            /// <seealso cref="BuildActions.AddCallbacks(IBuildActions)" />
+            /// <seealso cref="BuildActions.RemoveCallbacks(IBuildActions)" />
+            /// <seealso cref="BuildActions.UnregisterCallbacks(IBuildActions)" />
+            public void SetCallbacks(IBuildActions instance)
+            {
+                foreach (var item in m_Wrapper.m_BuildActionsCallbackInterfaces)
+                    UnregisterCallbacks(item);
+                m_Wrapper.m_BuildActionsCallbackInterfaces.Clear();
+                AddCallbacks(instance);
+            }
+        }
+        /// <summary>
+        /// Provides a new <see cref="BuildActions" /> instance referencing this action map.
+        /// </summary>
+        public BuildActions @Build => new BuildActions(this);
         private int m_KeyboardMouseSchemeIndex = -1;
         /// <summary>
         /// Provides access to the input control scheme.
@@ -2306,6 +2466,13 @@ namespace InputModule.Configs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnWeaponScroll(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Build" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnBuild(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
@@ -2413,6 +2580,21 @@ namespace InputModule.Configs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnSplitStack(InputAction.CallbackContext context);
+        }
+        /// <summary>
+        /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Build" which allows adding and removing callbacks.
+        /// </summary>
+        /// <seealso cref="BuildActions.AddCallbacks(IBuildActions)" />
+        /// <seealso cref="BuildActions.RemoveCallbacks(IBuildActions)" />
+        public interface IBuildActions
+        {
+            /// <summary>
+            /// Method invoked when associated input action "Build" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnBuild(InputAction.CallbackContext context);
         }
     }
 }

@@ -10,8 +10,6 @@ namespace InventoryModule
         [SerializeField] private MeshRenderer meshRenderer;
         [SerializeField] private ParticleSystem pickupParticles;
         [SerializeField] private AudioClip pickupSound;
-
-        private ItemDatabase _database;
         private ItemDefinition _cachedDefinition;
 
         public ItemDefinition ItemDef => GetItemDefinition();
@@ -35,18 +33,12 @@ namespace InventoryModule
 
             return null;
         }
-
-        private void OnValidate()
+        public void Initialize(ItemDefinition definition, int newAmount)
         {
-            if (itemDefinition != null && itemDefinition.WorldPrefab != null)
-            {
-            }
+            this.itemDefinition = definition;
+            this.amount = newAmount;
+            _cachedDefinition = definition;
         }
-
-        private void UpdateVisual()
-        {
-        }
-
         public void Collect()
         {
             if (pickupParticles != null)

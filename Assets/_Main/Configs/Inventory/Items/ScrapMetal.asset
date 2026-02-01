@@ -15,8 +15,8 @@ MonoBehaviour:
   itemName: ScrapMetal
   description: 
   icon: {fileID: -2137217032, guid: fa9d4b3a0df108f48bb7457fd830e980, type: 3}
-  worldPrefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
-  inventoryPrefab: {fileID: 5790531758984005865, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
+  worldPrefab: {fileID: 4239781895274958637, guid: 059ace23df0503449b05d7027cea4128, type: 3}
+  inventoryPrefab: {fileID: 7929940482639392972, guid: 059ace23df0503449b05d7027cea4128, type: 3}
   width: 2
   height: 1
   maxStack: 5

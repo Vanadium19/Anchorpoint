@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: ExtractionModule::ExtractionModule.Configs.ExtractionConfig
   ExtractionTime: 5
   TimerTextFormat: 'Extraction in: {0:F1}'
+  BaseSceneName: Camp

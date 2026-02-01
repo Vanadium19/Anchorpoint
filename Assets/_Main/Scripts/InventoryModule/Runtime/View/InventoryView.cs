@@ -1,6 +1,7 @@
 using InputModule;
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,22 +17,38 @@ namespace InventoryModule
         [SerializeField] private float tileSize = 64f;
         [SerializeField] private float spacing = 1f;
 
+        [Header("Tooltip Settings")]
+        [SerializeField] private CanvasGroup tooltipCanvasGroup;
+        [SerializeField] private TMP_Text tooltipText;
+        [SerializeField] private Vector2 tooltipOffset = new Vector2(15f, -15f);
+
         public event Action<InventoryItemView, Vector2Int> ItemDropped;
         public event Action<InventoryItemView> ItemRemoved;
         public event Action<InventoryItemView> ItemDragStarted;
         public event Action<InventoryItemView> ItemDragEnded;
+        public event Action<InventoryItemView> ItemPointerEntered;
+        public event Action<InventoryItemView> ItemPointerExited;
 
         private readonly List<InventoryItemView> _spawnedItems = new();
         private IItemProvider _itemProvider;
         private IInputMap _input;
 
         public bool IsVisible => windowRoot.activeSelf;
+        public void Hide() => Toggle(false);
 
         public void Initialize(IItemProvider itemProvider, IInputMap input)
         {
             _itemProvider = itemProvider;
             _input = input;
             Hide();
+        }
+
+        private void Update()
+        {
+            if (tooltipCanvasGroup.alpha > 0)
+            {
+                UpdateTooltipPosition();
+            }
         }
 
         public void GenerateGrid(int width, int height)
@@ -64,12 +81,16 @@ namespace InventoryModule
 
         public void Toggle(bool state)
         {
+            if (!state)
+            {
+                HideTooltip();
+            }
+
             windowRoot.SetActive(state);
+
             Cursor.visible = state;
             Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
         }
-
-        public void Hide() => Toggle(false);
 
         public void Render(IReadOnlyList<InventoryItem> items, IItemProvider itemProvider)
         {
@@ -85,6 +106,8 @@ namespace InventoryModule
                 itemView.DragStarted += OnItemDragStarted;
                 itemView.DragEnded += OnItemDragEnded;
                 itemView.DragUpdated += OnItemDragUpdated;
+                itemView.PointerEntered += view => ItemPointerEntered?.Invoke(view);
+                itemView.PointerExited += view => ItemPointerExited?.Invoke(view);
 
                 _spawnedItems.Add(itemView);
             }
@@ -153,6 +176,46 @@ namespace InventoryModule
             int y = Mathf.FloorToInt(-localPoint.y / step);
 
             return new Vector2Int(x, y);
+        }
+
+        public void ShowTooltip(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+
+            tooltipText.text = text;
+            UpdateTooltipPosition();
+
+            tooltipCanvasGroup.alpha = 1f;
+            tooltipCanvasGroup.gameObject.SetActive(true);
+        }
+
+        public void HideTooltip()
+        {
+            tooltipCanvasGroup.alpha = 0f;
+            if (tooltipCanvasGroup.gameObject.activeSelf)
+            {
+                tooltipCanvasGroup.gameObject.SetActive(false);
+            }
+        }
+        private void UpdateTooltipPosition()
+        {
+            tooltipCanvasGroup.transform.position = Input.mousePosition + (Vector3)tooltipOffset;
+        }
+        private void OnEnable()
+        {
+            HideTooltip();
+        }
+        private void OnDisable()
+        {
+            HideTooltip();
+        }
+        public bool IsMouseOverGrid()
+        {
+            return RectTransformUtility.RectangleContainsScreenPoint(
+                gridBackground,
+                Input.mousePosition,
+                null
+            );
         }
     }
 }

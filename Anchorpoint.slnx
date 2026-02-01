@@ -16,6 +16,7 @@
   <Project Path="UIModule.csproj" />
   <Project Path="PlayerModule.csproj" />
   <Project Path="CommandsModule.csproj" />
+  <Project Path="DepartureModule.csproj" />
   <Project Path="GameCycleModule.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>

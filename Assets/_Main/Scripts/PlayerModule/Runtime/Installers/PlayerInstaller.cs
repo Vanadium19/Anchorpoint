@@ -19,6 +19,9 @@ namespace PlayerModule
         [Header("Settings")]
         [SerializeField] private PlayerConfig config;
 
+        [Header("UI")]
+        [SerializeField] private InteractionHUDView interactionHUDView;
+
         private void OnValidate()
         {
             player ??= transform;
@@ -59,11 +62,6 @@ namespace PlayerModule
                 .AsSingle()
                 .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
 
-            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
-                .To<HealthComponent>()
-                .AsSingle()
-                .WithArguments(config.MaxHealth);
-
             Container.Bind<HealthView>()
                 .FromInstance(healthView)
                 .AsSingle();
@@ -80,9 +78,27 @@ namespace PlayerModule
                 .AsSingle()
                 .NonLazy();
 
+            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
+                .To<HealthComponent>()
+                .AsSingle()
+                .WithArguments(config.MaxHealth);
+
             Container.BindInterfacesTo<InventoryDeathHandler>()
                 .AsSingle()
                 .NonLazy();
+
+            Container.BindInstance(interactionHUDView)
+                .AsSingle();
+
+            Container.BindInterfacesTo<InteractionPresenter>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<IPlayerPositionProvider>()
+                .FromInstance(player.GetComponent<PlayerProvider>())
+                .AsSingle();
+
+
         }
     }
 }

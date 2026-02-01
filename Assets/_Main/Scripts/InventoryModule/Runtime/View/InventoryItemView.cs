@@ -6,7 +6,7 @@ using System;
 
 namespace InventoryModule
 {
-    public class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("References")]
         [SerializeField] private Image iconImage;
@@ -23,6 +23,8 @@ namespace InventoryModule
         public event System.Action<InventoryItemView> DragStarted;
         public event System.Action<InventoryItemView> DragEnded;
         public event System.Action<InventoryItemView> DragUpdated;
+        public event Action<InventoryItemView> PointerEntered;
+        public event Action<InventoryItemView> PointerExited;
 
         private InventoryItem _item;
         private float _tileSize;
@@ -111,6 +113,7 @@ namespace InventoryModule
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            PointerExited?.Invoke(this);
             _isDragging = true;
             _isSplitting = _splitCheck != null && _splitCheck.Invoke() && _item.Amount > 1;
 
@@ -199,6 +202,26 @@ namespace InventoryModule
             {
                 rectTransform.anchoredPosition = localMousePos + _centeringOffset;
             }
+        }
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (Cursor.lockState == CursorLockMode.Locked || _isDragging) return;
+
+            PointerEntered?.Invoke(this);
+        }
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            PointerExited?.Invoke(this);
+        }
+        private void OnEnable()
+        {
+            _isDragging = false;
+            _rotatePressedLastFrame = false;
+        }
+        private void OnDisable()
+        {
+            PointerExited?.Invoke(this);
+            _isDragging = false;
         }
     }
 }

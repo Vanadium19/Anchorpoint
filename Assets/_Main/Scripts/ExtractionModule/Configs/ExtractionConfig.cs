@@ -3,13 +3,15 @@ using UnityEngine;
 namespace ExtractionModule
 {
     [CreateAssetMenu(fileName = "ExtractionConfig", menuName = "Configs/Extraction")]
-    //FIXME: Tooltip на английском
     public class ExtractionConfig : ScriptableObject
     {
-        [Tooltip("Время в секундах, которое нужно простоять в зоне")]
+        [Tooltip("Time for extraction")]
         public float ExtractionTime = 5.0f;
 
-        [Tooltip("Текст таймера. {0} заменится на время.")]
+        [Tooltip("Timer text. {0} -> is time for extraction.")]
         public string TimerTextFormat = "EVAC IN: {0:F1}";
+
+        [Header("Scene Transition")]
+        public string BaseSceneName = "BaseScene";
     }
 }

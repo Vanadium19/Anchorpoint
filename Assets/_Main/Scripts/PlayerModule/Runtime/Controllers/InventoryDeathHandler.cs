@@ -7,27 +7,24 @@ namespace PlayerModule
 {
     public class InventoryDeathHandler : IInitializable, IDisposable
     {
-        private readonly PlayerProvider _playerProvider;
-        private readonly InventoryModel _inventory;
-
-        public InventoryDeathHandler(PlayerProvider playerProvider, InventoryModel inventory)
+        private readonly IHealthComponent _health;
+        private readonly IInventoryService _inventoryService;
+        public InventoryDeathHandler(IHealthComponent health, IInventoryService inventoryService)
         {
-            _playerProvider = playerProvider;
-            _inventory = inventory;
+            _health = health;
+            _inventoryService = inventoryService;
         }
 
         public void Initialize()
         {
-            if (_playerProvider.TryGet<IHealthComponent>(out var health))
-                health.Died += OnDied;
+            _health.Died += OnDied;
         }
 
         public void Dispose()
         {
-            if (_playerProvider.TryGet<IHealthComponent>(out var health))
-                health.Died -= OnDied;
+            _health.Died -= OnDied;
         }
 
-        private void OnDied() => _inventory.Clear();
+        private void OnDied() => _inventoryService.ClearInventory();
     }
 }
