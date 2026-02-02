@@ -266,6 +266,8 @@ namespace InventoryModule
             return null;
         }
 
+        public void UpdateInventory() => InventoryUpdated?.Invoke();
+
         private int TryStackExistingItems(ItemDefinition itemDefinition, int amount)
         {
             int remainingAmount = amount;

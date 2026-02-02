@@ -25,6 +25,7 @@ namespace BuildingModule
 
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
+            Container.Bind<IStorageService>().To<StorageService>().AsSingle();
             Container.Bind<BuildingFactory>().AsSingle();
 
             Container.Bind<IConstructionModeService>().To<ConstructionModeService>().AsSingle();

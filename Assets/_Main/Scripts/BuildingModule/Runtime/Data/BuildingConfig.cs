@@ -7,8 +7,10 @@ namespace BuildingModule
     {
         [SerializeField] private BuildingName name;
         [SerializeField] private BuildingView prefab;
+        [SerializeField] private Price price;
 
         public BuildingName Name => name;
         public BuildingView Prefab => prefab;
+        public Price Price => price;
     }
 }

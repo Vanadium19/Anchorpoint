@@ -7,15 +7,20 @@ namespace BuildingModule
         private readonly IGrid _grid;
 
         private readonly IPreviewService _previewService;
+        private readonly IStorageService _storage;
         private readonly BuildingFactory _factory;
 
         private BuildingName _currentBuilding;
 
-        public PlacementService(IGrid grid, IPreviewService previewService, BuildingFactory factory)
+        public PlacementService(IGrid grid,
+            IPreviewService previewService,
+            IStorageService storage,
+            BuildingFactory factory)
         {
             _grid = grid;
             _previewService = previewService;
             _factory = factory;
+            _storage = storage;
         }
 
         public BuildingName CurrentBuilding => _currentBuilding;
@@ -51,7 +56,11 @@ namespace BuildingModule
             if (tile.IsOccupied)
                 return false;
 
+            if (!_storage.CanBuy(_currentBuilding))
+                return false;
+
             _factory.Create(_currentBuilding, tile.WorldPosition, Quaternion.identity);
+            _storage.Buy(_currentBuilding);
             tile.Occupy();
             Cancel();
             return true;
