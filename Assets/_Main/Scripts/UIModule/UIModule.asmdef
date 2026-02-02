@@ -1,0 +1,18 @@
+{
+    "name": "UIModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ad92713fd5884a16a1e7ccde1a579228",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
