@@ -1,21 +1,26 @@
 using System;
 using UnityEngine;
 using Zenject;
+using InputModule;
 
 namespace BuildingModule
 {
     public class ConstructionModePresenter : IInitializable, IDisposable
     {
         private readonly IConstructionModeService _service;
+        private readonly IInputService _inputService;
 
         private readonly GameObject _constructionPanel;
         private readonly GridView _gridView;
 
-        public ConstructionModePresenter(IConstructionModeService service,
+        public ConstructionModePresenter(
+            IConstructionModeService service,
+            IInputService inputService,
             GameObject constructionPanel,
             GridView gridView)
         {
             _service = service;
+            _inputService = inputService;
             _constructionPanel = constructionPanel;
             _gridView = gridView;
         }
@@ -28,6 +33,7 @@ namespace BuildingModule
         {
             _gridView.gameObject.SetActive(isActive);
             _constructionPanel.SetActive(isActive);
+            _inputService.SetBuildMode(isActive);
         }
     }
 }

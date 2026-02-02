@@ -12,6 +12,7 @@ namespace CameraModule
 
         public override void InstallBindings()
         {
+            /* 
             Container.Bind<IBuildingModeCameraService>()
                 .To<BuildingModeCameraService>()
                 .AsSingle()
@@ -20,6 +21,7 @@ namespace CameraModule
             Container.BindInterfacesTo<BuildingModeCameraController>()
                 .AsSingle()
                 .NonLazy();
+            */
         }
     }
 }

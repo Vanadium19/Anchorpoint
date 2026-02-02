@@ -12,8 +12,8 @@ namespace CameraModule
         private readonly float _minHeight;
         private readonly float _maxHeight;
 
-        private readonly Vector3 _startPosition;
-        private readonly Quaternion _startRotation;
+        private Vector3 _startPosition;
+        private Quaternion _startRotation;
 
         private float _angle;
 
@@ -26,7 +26,15 @@ namespace CameraModule
             _maxHeight = maxHeight;
 
             _transform = Camera.main!.transform;
-            _transform.GetPositionAndRotation(out _startPosition, out _startRotation);
+
+        }
+
+        public void CaptureStartPosition()
+        {
+            _startPosition = _transform.position;
+            _startRotation = _transform.rotation;
+
+            _angle = _startRotation.eulerAngles.y;
         }
 
         public void Move(Vector3 direction)

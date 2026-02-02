@@ -31,6 +31,9 @@ namespace ExtractionModule
         {
             if (_zoneView != null)
                 _zoneView.PlayerPresenceChanged += OnZoneStateChanged;
+
+            if (_hudView != null)
+                _hudView.Setup(_config.BaseSceneName);
         }
 
         public void Dispose()

@@ -26,7 +26,12 @@ namespace PlayerModule
         
         [Header("Crouch")]
         [SerializeField] private CrouchData crouchData;
-        
+
+        [Header("Interaction")]
+        [SerializeField] private LayerMask interactionLayer;
+        [SerializeField] private float interactionDistance = 3f;
+        [SerializeField] private string interactionHintFormat = "Нажмите [F], чтобы подобрать {0} x{1}";
+
         public float MaxHealth => maxHealth;
         public float WalkSpeed => walkSpeed;
         public float CrouchSpeed => crouchSpeed;
@@ -42,5 +47,9 @@ namespace PlayerModule
         public float LeanSpeed => leanSpeed;
         
         public CrouchData CrouchData => crouchData;
+
+        public LayerMask InteractionLayer => interactionLayer;
+        public float InteractionDistance => interactionDistance;
+        public string InteractionHintFormat => interactionHintFormat;
     }
 }

@@ -15,6 +15,11 @@ namespace ExtractionModule
         [SerializeField] private GameObject successPanel;
         [SerializeField] private Button restartButton;
 
+        private string _targetScene;
+        public void Setup(string baseSceneName)
+        {
+            _targetScene = baseSceneName;
+        }
         private void Awake()
         {
             timerContainer?.SetActive(false);
@@ -34,14 +39,23 @@ namespace ExtractionModule
 
         public void ShowSuccessScreen()
         {
-            if (!successPanel)
-                return;
+            if (!successPanel) return;
 
             successPanel.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
 
-        private void OnRestartClicked() => SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        private void OnRestartClicked()
+        {
+            if (!string.IsNullOrEmpty(_targetScene))
+            {
+                SceneManager.LoadScene(_targetScene);
+            }
+            else
+            {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+        }
     }
 }

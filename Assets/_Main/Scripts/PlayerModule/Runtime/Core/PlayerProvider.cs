@@ -1,9 +1,10 @@
 using UnityEngine;
 using Zenject;
+using ComponentsModule;
 
 namespace PlayerModule
 {
-    public class PlayerProvider : MonoBehaviour
+    public class PlayerProvider : MonoBehaviour, IPlayerPositionProvider
     {
         [SerializeField] private GameObjectContext context;
 
@@ -26,5 +27,8 @@ namespace PlayerModule
             value = _container.TryResolve<T>();
             return value != null;
         }
+        public Vector3 Position => transform.position;
+        public Quaternion Rotation => transform.rotation;
+        public Vector3 Forward => transform.forward;
     }
 }
