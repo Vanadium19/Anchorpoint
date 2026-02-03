@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace InventoryModule
 {
-    public sealed class GridService
+    public sealed class GridService : IGridService
     {
         private readonly GridCell[,] _cells;
         private readonly int _width;
@@ -75,10 +75,7 @@ namespace InventoryModule
         {
             Vector2Int size = item.GetSize(isRotated);
             if (!IsAreaFree(position, size, item))
-            {
-                Debug.LogWarning($"Cannot place item at position {position} with size {size}");
                 return;
-            }
 
             ClearItem(item);
 
@@ -90,8 +87,8 @@ namespace InventoryModule
                 }
             }
 
-            item.Position = position;
-            item.IsRotated = isRotated;
+            item.SetPosition(position);
+            item.SetIsRotated(isRotated);
         }
 
         public void ClearItem(InventoryItem item)
@@ -140,9 +137,9 @@ namespace InventoryModule
             return overlapX && overlapY;
         }
 
-        public List<InventoryItem> GetItemsAtArea(Vector2Int position, Vector2Int size)
+        public void GetItemsAtArea(Vector2Int position, Vector2Int size, List<InventoryItem> resultBuffer)
         {
-            var items = new List<InventoryItem>();
+            resultBuffer.Clear();
 
             for (int x = position.x; x < position.x + size.x; x++)
             {
@@ -151,15 +148,13 @@ namespace InventoryModule
                     var cell = GetCell(x, y);
                     if (cell != null && cell.IsOccupied)
                     {
-                        if (!items.Contains(cell.OccupyingItem))
+                        if (!resultBuffer.Contains(cell.OccupyingItem))
                         {
-                            items.Add(cell.OccupyingItem);
+                            resultBuffer.Add(cell.OccupyingItem);
                         }
                     }
                 }
             }
-
-            return items;
         }
 
         public InventoryItem GetItemAtPosition(Vector2Int position)

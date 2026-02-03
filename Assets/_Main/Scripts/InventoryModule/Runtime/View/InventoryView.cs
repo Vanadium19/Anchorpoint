@@ -22,29 +22,38 @@ namespace InventoryModule
         [SerializeField] private TMP_Text tooltipText;
         [SerializeField] private Vector2 tooltipOffset = new Vector2(15f, -15f);
 
-        public event Action<InventoryItemView, Vector2Int> ItemDropped;
-        public event Action<InventoryItemView> ItemRemoved;
+        public event Action<InventoryItemView, Vector2Int, Vector2> ItemDropped;
         public event Action<InventoryItemView> ItemDragStarted;
         public event Action<InventoryItemView> ItemDragEnded;
         public event Action<InventoryItemView> ItemPointerEntered;
         public event Action<InventoryItemView> ItemPointerExited;
 
         private readonly List<InventoryItemView> _spawnedItems = new();
-        private IItemProvider _itemProvider;
+        private readonly Dictionary<InventoryItemView, Action<InventoryItemView>> _pointerEnteredHandlers = new();
+        private readonly Dictionary<InventoryItemView, Action<InventoryItemView>> _pointerExitedHandlers = new();
+        private IInventoryItemPool _itemPool;
+        private IItemDatabase _itemDatabase;
         private IInputMap _input;
+        private Vector2 _lastMousePosition;
+        private Action<InventoryItemView, Vector2> _onItemDragEnded;
 
         public bool IsVisible => windowRoot.activeSelf;
+        public InventoryItemView ItemPrefab => itemPrefab;
+        public RectTransform ItemsContainer => itemsContainer;
         public void Hide() => Toggle(false);
 
-        public void Initialize(IItemProvider itemProvider, IInputMap input)
+        public void Initialize(IInventoryItemPool itemPool, IItemDatabase itemDatabase, IInputMap input)
         {
-            _itemProvider = itemProvider;
+            _itemPool = itemPool;
+            _itemDatabase = itemDatabase;
             _input = input;
+            _onItemDragEnded = (item, pos) => OnItemDragEnded(item, pos);
             Hide();
         }
 
         private void Update()
         {
+            _lastMousePosition = Input.mousePosition;
             if (tooltipCanvasGroup.alpha > 0)
             {
                 UpdateTooltipPosition();
@@ -92,22 +101,31 @@ namespace InventoryModule
             Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
         }
 
-        public void Render(IReadOnlyList<InventoryItem> items, IItemProvider itemProvider)
+        public void Render(IReadOnlyList<InventoryItem> items)
         {
             ClearItems();
 
             foreach (var item in items)
             {
-                var itemDef = itemProvider.GetItemDefinition(item.Id);
-                if (itemDef == null) continue;
+                var itemDef = _itemDatabase.GetItem(item.Id);
+                if (itemDef == null)
+                    continue;
 
-                var itemView = Instantiate(itemPrefab, itemsContainer);
+                var itemView = _itemPool.Get();
+                itemView.transform.SetParent(itemsContainer, false);
                 itemView.Setup(item, itemDef, tileSize, spacing, () => _input.IsSplitPressed);
+                
                 itemView.DragStarted += OnItemDragStarted;
-                itemView.DragEnded += OnItemDragEnded;
+                itemView.DragEnded += _onItemDragEnded;
                 itemView.DragUpdated += OnItemDragUpdated;
-                itemView.PointerEntered += view => ItemPointerEntered?.Invoke(view);
-                itemView.PointerExited += view => ItemPointerExited?.Invoke(view);
+                
+                Action<InventoryItemView> enteredHandler = view => ItemPointerEntered?.Invoke(view);
+                Action<InventoryItemView> exitedHandler = view => ItemPointerExited?.Invoke(view);
+                _pointerEnteredHandlers[itemView] = enteredHandler;
+                _pointerExitedHandlers[itemView] = exitedHandler;
+                
+                itemView.PointerEntered += enteredHandler;
+                itemView.PointerExited += exitedHandler;
 
                 _spawnedItems.Add(itemView);
             }
@@ -124,23 +142,23 @@ namespace InventoryModule
             // Optional: visual feedback during drag
         }
 
-        private void OnItemDragEnded(InventoryItemView itemView)
+        private void OnItemDragEnded(InventoryItemView itemView, Vector2 screenPosition)
         {
-            Vector2Int gridPos = GetGridPosition(itemView);
+            Vector2Int gridPos = GetGridPosition(screenPosition, itemView.RectTransform);
             itemView.transform.SetParent(itemsContainer, true);
-            ItemDropped?.Invoke(itemView, gridPos);
+            ItemDropped?.Invoke(itemView, gridPos, screenPosition);
             ItemDragEnded?.Invoke(itemView);
         }
 
-        private Vector2Int GetGridPosition(InventoryItemView itemView)
+        private Vector2Int GetGridPosition(Vector2 screenPosition, RectTransform itemRectTransform)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 itemsContainer,
-                Input.mousePosition,
+                screenPosition,
                 null,
                 out var localMousePos
             );
-            var rect = itemView.GetComponent<RectTransform>().rect;
+            var rect = itemRectTransform.rect;
             float itemTopLeftX = localMousePos.x - (rect.width * 0.5f);
             float itemTopLeftY = localMousePos.y + (rect.height * 0.5f);
 
@@ -156,66 +174,78 @@ namespace InventoryModule
         {
             for (int i = _spawnedItems.Count - 1; i >= 0; i--)
             {
-                if (_spawnedItems[i] != null)
-                    Destroy(_spawnedItems[i].gameObject);
+                var itemView = _spawnedItems[i];
+                if (itemView != null)
+                {
+                    itemView.DragStarted -= OnItemDragStarted;
+                    itemView.DragEnded -= _onItemDragEnded;
+                    itemView.DragUpdated -= OnItemDragUpdated;
+                    
+                    if (_pointerEnteredHandlers.TryGetValue(itemView, out var enteredHandler))
+                    {
+                        itemView.PointerEntered -= enteredHandler;
+                        _pointerEnteredHandlers.Remove(itemView);
+                    }
+                    
+                    if (_pointerExitedHandlers.TryGetValue(itemView, out var exitedHandler))
+                    {
+                        itemView.PointerExited -= exitedHandler;
+                        _pointerExitedHandlers.Remove(itemView);
+                    }
+                    
+                    _itemPool.Return(itemView);
+                }
             }
             _spawnedItems.Clear();
         }
 
-        public Vector2Int GetMouseGridPosition()
+        public Vector2Int GetMouseGridPosition(Vector2 screenPosition)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 itemsContainer,
-                Input.mousePosition,
+                screenPosition,
                 null,
-                out Vector2 localPoint
+                out var localPos
             );
 
-            float step = tileSize + spacing;
-            int x = Mathf.FloorToInt(localPoint.x / step);
-            int y = Mathf.FloorToInt(-localPoint.y / step);
+            float cellSize = tileSize + spacing;
+            int x = Mathf.FloorToInt(localPos.x / cellSize);
+            int y = Mathf.FloorToInt(-localPos.y / cellSize);
 
             return new Vector2Int(x, y);
         }
 
+        public bool IsMouseOverGrid(Vector2 screenPosition)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                itemsContainer,
+                screenPosition,
+                null,
+                out var localPos
+            );
+
+            return itemsContainer.rect.Contains(localPos);
+        }
+
         public void ShowTooltip(string text)
         {
-            if (string.IsNullOrEmpty(text)) return;
-
-            tooltipText.text = text;
-            UpdateTooltipPosition();
-
-            tooltipCanvasGroup.alpha = 1f;
-            tooltipCanvasGroup.gameObject.SetActive(true);
+            if (tooltipText != null)
+            {
+                tooltipText.text = text;
+                tooltipCanvasGroup.alpha = 1f;
+            }
         }
 
         public void HideTooltip()
         {
             tooltipCanvasGroup.alpha = 0f;
-            if (tooltipCanvasGroup.gameObject.activeSelf)
-            {
-                tooltipCanvasGroup.gameObject.SetActive(false);
-            }
         }
+
         private void UpdateTooltipPosition()
         {
-            tooltipCanvasGroup.transform.position = Input.mousePosition + (Vector3)tooltipOffset;
-        }
-        private void OnEnable()
-        {
-            HideTooltip();
-        }
-        private void OnDisable()
-        {
-            HideTooltip();
-        }
-        public bool IsMouseOverGrid()
-        {
-            return RectTransformUtility.RectangleContainsScreenPoint(
-                gridBackground,
-                Input.mousePosition,
-                null
-            );
+            tooltipText.rectTransform.position = new Vector2(
+                _lastMousePosition.x + tooltipOffset.x,
+                _lastMousePosition.y + tooltipOffset.y);
         }
     }
 }

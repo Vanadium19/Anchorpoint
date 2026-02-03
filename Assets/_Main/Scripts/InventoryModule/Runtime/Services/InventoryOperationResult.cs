@@ -1,22 +1,32 @@
 namespace InventoryModule
 {
-    public class InventoryOperationResult
+    public enum InventoryError
     {
-        public bool Success { get; }
-        public string ErrorMessage { get; }
+        None,
+        NoSpace,
+        InvalidItem,
+        PositionOccupied,
+        ItemNotFound,
+        CannotSplit,
+        InternalError
+    }
+
+    public sealed class InventoryOperationResult
+    {
+        public bool Success => Error == InventoryError.None;
+        public InventoryError Error { get; }
         public InventoryItem AffectedItem { get; }
 
-        private InventoryOperationResult(bool success, string errorMessage, InventoryItem affectedItem)
+        private InventoryOperationResult(InventoryError error, InventoryItem affectedItem)
         {
-            Success = success;
-            ErrorMessage = errorMessage;
+            Error = error;
             AffectedItem = affectedItem;
         }
 
         public static InventoryOperationResult CreateSuccess(InventoryItem item = null)
-            => new InventoryOperationResult(true, string.Empty, item);
+            => new InventoryOperationResult(InventoryError.None, item);
 
-        public static InventoryOperationResult CreateFailure(string errorMessage, InventoryItem item = null)
-            => new InventoryOperationResult(false, errorMessage, item);
+        public static InventoryOperationResult CreateFailure(InventoryError error, InventoryItem item = null)
+            => new InventoryOperationResult(error, item);
     }
 }

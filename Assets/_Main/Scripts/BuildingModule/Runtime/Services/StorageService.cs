@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading;
 using InventoryModule;
 
 namespace BuildingModule
@@ -51,11 +50,11 @@ namespace BuildingModule
             foreach (var itemToCount in config.Price.Values)
             {
                 var resource = _inventory.Items.First(item => item.Id == itemToCount.ItemDefinition.Id);
-                resource.Amount -= itemToCount.Count;
+                resource.AddAmount(-itemToCount.Count);
                 _inventoryService.UpdateInventory();
-                
+
                 if (resource.Amount <=0)
-                    _inventoryService.RemoveItemAsync(resource, CancellationToken.None);
+                    _inventoryService.RemoveItem(resource);
             }
 
             return true;

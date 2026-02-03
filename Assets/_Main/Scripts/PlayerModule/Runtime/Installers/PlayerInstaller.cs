@@ -97,8 +97,6 @@ namespace PlayerModule
             Container.Bind<IPlayerPositionProvider>()
                 .FromInstance(player.GetComponent<PlayerProvider>())
                 .AsSingle();
-
-
         }
     }
 }

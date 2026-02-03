@@ -1,10 +1,10 @@
 ﻿<Solution>
   <Project Path="Zenject.csproj" />
+  <Project Path="InventoryModule.csproj" />
   <Project Path="NpcBaseModule.csproj" />
   <Project Path="ExtractionModule.csproj" />
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="SimpleFolderIcon.csproj" />
-  <Project Path="InventoryModule.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="WeaponModule.csproj" />
   <Project Path="ComponentsModule.csproj" />

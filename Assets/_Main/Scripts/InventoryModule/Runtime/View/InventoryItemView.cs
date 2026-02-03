@@ -6,7 +6,7 @@ using System;
 
 namespace InventoryModule
 {
-    public class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+    public sealed class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("References")]
         [SerializeField] private Image iconImage;
@@ -20,8 +20,13 @@ namespace InventoryModule
         [Range(0f, 1f)]
         [SerializeField] private float splitGhostAlpha = 0.5f;
 
+        [Header("Split Ghost")]
+        [SerializeField] private CanvasGroup splitGhost;
+        [SerializeField] private Image splitGhostIcon;
+        [SerializeField] private TMP_Text splitGhostAmountText;
+
         public event System.Action<InventoryItemView> DragStarted;
-        public event System.Action<InventoryItemView> DragEnded;
+        public event System.Action<InventoryItemView, Vector2> DragEnded;
         public event System.Action<InventoryItemView> DragUpdated;
         public event Action<InventoryItemView> PointerEntered;
         public event Action<InventoryItemView> PointerExited;
@@ -31,19 +36,28 @@ namespace InventoryModule
         private float _spacing;
 
         private Vector2 _centeringOffset;
+        private Vector2 _lastMousePosition;
         private bool _localIsRotated;
         private bool _isSplitting;
-        private int _originalAmount;
         private bool _isDragging;
-        private bool _rotatePressedLastFrame;
         private bool _canRotate;
         private Func<bool> _splitCheck;
-
-        private GameObject _splitDummy;
 
         public InventoryItem Item => _item;
         public bool IsSplitting => _isSplitting;
         public bool LocalIsRotated => _localIsRotated;
+        public RectTransform RectTransform => rectTransform;
+
+        private void OnEnable()
+        {
+            _isDragging = false;
+        }
+
+        private void OnDisable()
+        {
+            PointerExited?.Invoke(this);
+            _isDragging = false;
+        }
 
         public void Setup(InventoryItem item, ItemDefinition config, float tileSize, float spacing, Func<bool> splitCheck)
         {
@@ -54,7 +68,6 @@ namespace InventoryModule
 
             _canRotate = config.CanRotate;
             _localIsRotated = item.IsRotated;
-            _originalAmount = item.Amount;
             _isDragging = false;
 
             if (iconImage != null)
@@ -69,8 +82,62 @@ namespace InventoryModule
             _localIsRotated = !_localIsRotated;
             UpdateVisuals();
             RecalculateOffset();
-            SnapToCursor();
+            SnapToCursor(_lastMousePosition);
             DragUpdated?.Invoke(this);
+        }
+
+        public void ResetView()
+        {
+            _item = null;
+            _isDragging = false;
+            _isSplitting = false;
+            _localIsRotated = false;
+            _splitCheck = null;
+            
+            DragStarted = null;
+            DragEnded = null;
+            DragUpdated = null;
+            PointerEntered = null;
+            PointerExited = null;
+            
+            if (amountText != null)
+            {
+                amountText.text = "";
+                amountText.gameObject.SetActive(false);
+            }
+            
+            if (iconImage != null)
+                iconImage.sprite = null;
+                
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = true;
+            }
+
+            if (splitGhost != null)
+            {
+                splitGhost.gameObject.SetActive(false);
+                splitGhost.transform.SetParent(transform, false);
+            }
+        }
+
+        public void RefreshAmount()
+        {
+            if (amountText != null && _item != null)
+            {
+                int showAmount = _isSplitting ? (_item.Amount / 2) : _item.Amount;
+                if (showAmount > 1)
+                {
+                    amountText.gameObject.SetActive(true);
+                    amountText.text = showAmount.ToString();
+                    amountText.ForceMeshUpdate();
+                }
+                else
+                {
+                    amountText.gameObject.SetActive(false);
+                }
+            }
         }
 
         private void UpdateVisuals()
@@ -96,19 +163,7 @@ namespace InventoryModule
                 rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y, 0);
             }
 
-            if (amountText != null)
-            {
-                int showAmount = _isSplitting ? (_originalAmount / 2) : _item.Amount;
-                if (showAmount > 1)
-                {
-                    amountText.gameObject.SetActive(true);
-                    amountText.text = showAmount.ToString();
-                }
-                else
-                {
-                    amountText.gameObject.SetActive(false);
-                }
-            }
+            RefreshAmount();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -119,9 +174,33 @@ namespace InventoryModule
 
             if (_isSplitting)
             {
-                CreateSplitDummy();
                 int moveAmount = _item.Amount / 2;
-                if (amountText != null) amountText.text = moveAmount.ToString();
+                int stayingAmount = _item.Amount - moveAmount;
+
+                if (splitGhost != null)
+                {
+                    if (stayingAmount > 1 && splitGhostAmountText != null)
+                    {
+                        splitGhostAmountText.text = stayingAmount.ToString();
+                        splitGhostAmountText.gameObject.SetActive(true);
+                    }
+                    else if (splitGhostAmountText != null)
+                    {
+                        splitGhostAmountText.gameObject.SetActive(false);
+                    }
+
+                    if (splitGhostIcon != null && iconImage != null)
+                    {
+                        splitGhostIcon.sprite = iconImage.sprite;
+                    }
+
+                    splitGhost.transform.SetParent(transform.parent, false);
+                    splitGhost.GetComponent<RectTransform>().anchoredPosition = rectTransform.anchoredPosition;
+                    splitGhost.GetComponent<RectTransform>().sizeDelta = rectTransform.sizeDelta;
+                    splitGhost.alpha = splitGhostAlpha;
+                    splitGhost.blocksRaycasts = false;
+                    splitGhost.gameObject.SetActive(true);
+                }
             }
 
             canvasGroup.blocksRaycasts = false;
@@ -132,7 +211,8 @@ namespace InventoryModule
 
         public void OnDrag(PointerEventData eventData)
         {
-            SnapToCursor();
+            _lastMousePosition = eventData.position;
+            SnapToCursor(_lastMousePosition);
             DragUpdated?.Invoke(this);
         }
 
@@ -142,45 +222,13 @@ namespace InventoryModule
             canvasGroup.blocksRaycasts = true;
             canvasGroup.alpha = 1f;
 
-            if (_splitDummy != null)
-                Destroy(_splitDummy);
-
-            DragEnded?.Invoke(this);
-        }
-
-        private void CreateSplitDummy()
-        {
-            _splitDummy = Instantiate(gameObject, transform.parent);
-            var clonedView = _splitDummy.GetComponent<InventoryItemView>();
-            TMP_Text dummyText = clonedView != null ? clonedView.amountText : null;
-            if (clonedView != null) Destroy(clonedView);
-
-            var cg = _splitDummy.GetComponent<CanvasGroup>();
-            if (cg == null) cg = _splitDummy.AddComponent<CanvasGroup>();
-            cg.alpha = splitGhostAlpha;
-            cg.blocksRaycasts = false;
-
-            var dummyRect = _splitDummy.GetComponent<RectTransform>();
-            if (dummyRect != null && rectTransform != null)
+            if (splitGhost != null)
             {
-                dummyRect.anchoredPosition = rectTransform.anchoredPosition;
-                dummyRect.sizeDelta = rectTransform.sizeDelta;
+                splitGhost.gameObject.SetActive(false);
+                splitGhost.transform.SetParent(transform, false);
             }
 
-            int stayingAmount = _originalAmount - (_originalAmount / 2);
-
-            if (dummyText != null)
-            {
-                if (stayingAmount > 1)
-                {
-                    dummyText.gameObject.SetActive(true);
-                    dummyText.text = stayingAmount.ToString();
-                }
-                else
-                {
-                    dummyText.gameObject.SetActive(false);
-                }
-            }
+            DragEnded?.Invoke(this, eventData.position);
         }
 
         private void RecalculateOffset()
@@ -189,14 +237,14 @@ namespace InventoryModule
             _centeringOffset = new Vector2(-rect.width * 0.5f, rect.height * 0.5f);
         }
 
-        private void SnapToCursor()
+        private void SnapToCursor(Vector2 screenPosition)
         {
             var parentRT = transform.parent as RectTransform;
             if (parentRT == null) return;
 
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 parentRT,
-                Input.mousePosition,
+                screenPosition,
                 null,
                 out var localMousePos))
             {
@@ -209,19 +257,10 @@ namespace InventoryModule
 
             PointerEntered?.Invoke(this);
         }
+
         public void OnPointerExit(PointerEventData eventData)
         {
             PointerExited?.Invoke(this);
-        }
-        private void OnEnable()
-        {
-            _isDragging = false;
-            _rotatePressedLastFrame = false;
-        }
-        private void OnDisable()
-        {
-            PointerExited?.Invoke(this);
-            _isDragging = false;
         }
     }
 }

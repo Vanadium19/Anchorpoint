@@ -60,14 +60,17 @@ Assets/_Main/Scripts/BuildingModule/Runtime/Data/BuildingCatalog.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Data/BuildingConfig.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Data/BuildingName.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Data/GridConfig.cs
+Assets/_Main/Scripts/BuildingModule/Runtime/Data/Price.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Installers/BuildingModuleInstaller.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Presenters/ConstructionModePresenter.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/ConstructionModeService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/IConstructionModeService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/IPlacementService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/IPreviewService.cs
+Assets/_Main/Scripts/BuildingModule/Runtime/Services/IStorageService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/PlacementService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/Services/PreviewService.cs
+Assets/_Main/Scripts/BuildingModule/Runtime/Services/StorageService.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/View/BuildingView.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/View/Buttons/SelectBuildingButton.cs
 Assets/_Main/Scripts/BuildingModule/Runtime/View/GridView.cs
@@ -137,11 +140,13 @@ Assets/_Main/Scripts/InventoryModule/Runtime/Installers/InventoryGlobalInstaller
 Assets/_Main/Scripts/InventoryModule/Runtime/Installers/InventorySceneInstaller.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/Presenter/InventoryPresenter.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/Services/GridService.cs
+Assets/_Main/Scripts/InventoryModule/Runtime/Services/IGridService.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/Services/IInventoryService.cs
-Assets/_Main/Scripts/InventoryModule/Runtime/Services/IItemProvider.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/Services/InventoryOperationResult.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/Services/InventoryService.cs
-Assets/_Main/Scripts/InventoryModule/Runtime/Services/ItemProvider.cs
+Assets/_Main/Scripts/InventoryModule/Runtime/Services/ItemDropService.cs
+Assets/_Main/Scripts/InventoryModule/Runtime/Services/LootItemFactory.cs
+Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryItemPool.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryItemView.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryView.cs
 Assets/_Main/Scripts/InventoryModule/Runtime/View/LootItemView.cs
@@ -187,297 +192,172 @@ Assets/_Main/Scripts/WeaponModule/WeaponModule.asmdef
 <files>
 This section contains the contents of the repository's files.
 
-<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Position/IPlayerPositionProvider.cs">
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/IGridService.cs">
+using System.Collections.Generic;
 using UnityEngine;
 
-namespace ComponentsModule
+namespace InventoryModule
 {
-    public interface IPlayerPositionProvider
+    public interface IGridService
     {
-        Vector3 Position { get; }
-        Quaternion Rotation { get; }
-        Vector3 Forward { get; }
+        int Width { get; }
+        int Height { get; }
+
+        bool IsCellOccupied(int x, int y);
+        bool IsAreaFree(Vector2Int position, Vector2Int size, InventoryItem ignoreItem = null);
+        bool CanPlaceItem(InventoryItem item, Vector2Int position, bool isRotated);
+        void PlaceItem(InventoryItem item, Vector2Int position, bool isRotated);
+        void ClearItem(InventoryItem item);
+        void ClearAll();
+        bool TrySwapItems(InventoryItem item1, Vector2Int pos1, bool rot1,
+                          InventoryItem item2, Vector2Int pos2, bool rot2);
+        bool AreasOverlap(Vector2Int pos1, Vector2Int size1, Vector2Int pos2, Vector2Int size2);
+        List<InventoryItem> GetItemsAtArea(Vector2Int position, Vector2Int size);
+        InventoryItem GetItemAtPosition(Vector2Int position);
     }
 }
 </file>
 
-<file path="Assets/_Main/Scripts/DepartureModule/Configs/DepartureConfig.cs">
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/ItemDropService.cs">
+using ComponentsModule;
 using UnityEngine;
 
-namespace DepartureModule
+namespace InventoryModule
 {
-    [CreateAssetMenu(fileName = "DepartureConfig", menuName = "Configs/Departure/DepartureConfig")]
-    public class DepartureConfig : ScriptableObject
+    public interface IItemDropService
     {
-        public float DepartureTime = 3.0f;
-        public string TargetSceneName = "MainLevel";
-        public string TimerTextFormat = "ОТПРАВЛЕНИЕ ЧЕРЕЗ: {0:F1}";
+        void SpawnItemInWorld(ItemDefinition itemDefinition, int amount, IPlayerPositionProvider playerPosition, InventoryConfig config);
     }
-}
-</file>
 
-<file path="Assets/_Main/Scripts/DepartureModule/Controllers/DepartureController.cs">
-using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-using Zenject;
-
-namespace DepartureModule
-{
-    public class DepartureController : IInitializable, IDisposable
+    public sealed class ItemDropService : IItemDropService
     {
-        private readonly DepartureConfig _config;
-        private readonly DepartureZoneView _zoneView;
-        private readonly DepartureHUDView _hudView;
+        private readonly ILootItemFactory _lootItemFactory;
 
-        private CancellationTokenSource _cts;
-
-        public DepartureController(DepartureConfig config,
-            DepartureZoneView zoneView,
-            DepartureHUDView hudView)
+        public ItemDropService(ILootItemFactory lootItemFactory)
         {
-            _config = config;
-            _zoneView = zoneView;
-            _hudView = hudView;
+            _lootItemFactory = lootItemFactory;
         }
 
-        public void Initialize()
+        public void SpawnItemInWorld(ItemDefinition itemDefinition, int amount, IPlayerPositionProvider playerPosition, InventoryConfig config)
         {
-            _hudView.Hide();
-            _zoneView.PlayerPresenceChanged += OnZoneStateChanged;
-        }
-
-        public void Dispose()
-        {
-            _zoneView.PlayerPresenceChanged -= OnZoneStateChanged;
-            CancelTimer();
-        }
-
-        private void OnZoneStateChanged(bool isInside)
-        {
-            if (isInside) StartTimer().Forget();
-            else CancelTimer();
-        }
-
-        private async UniTaskVoid StartTimer()
-        {
-            CancelTimer();
-            _cts = new CancellationTokenSource();
-
-            float timer = _config.DepartureTime;
-
-            try
-            {
-                while (timer > 0)
-                {
-                    _hudView.ShowTimer(timer, _config.TimerTextFormat);
-                    await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token);
-                    timer -= Time.deltaTime;
-                }
-
-                CompleteDeparture();
-            }
-            catch (OperationCanceledException)
-            {
-                _hudView.Hide();
-            }
-        }
-
-        private void CancelTimer()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = null;
-
-            if (_hudView != null)
-            {
-                _hudView.Hide();
-            }
-        }
-
-        private void CompleteDeparture()
-        {
-            SceneManager.LoadScene(_config.TargetSceneName);
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/DepartureModule/DepartureModule.asmdef">
-{
-    "name": "DepartureModule",
-    "rootNamespace": "",
-    "references": [
-        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
-}
-</file>
-
-<file path="Assets/_Main/Scripts/DepartureModule/Installers/DepartureInstaller.cs">
-using UnityEngine;
-using Zenject;
-
-namespace DepartureModule
-{
-    public class DepartureInstaller : MonoInstaller
-    {
-        [SerializeField] private DepartureConfig config;
-        [SerializeField] private DepartureZoneView zoneView;
-        [SerializeField] private DepartureHUDView hudView;
-
-        public override void InstallBindings()
-        {
-            Container.BindInstance(config).AsSingle();
-            Container.BindInstance(zoneView).AsSingle();
-            Container.BindInstance(hudView).AsSingle();
-
-            Container.BindInterfacesTo<DepartureController>().AsSingle();
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/DepartureModule/View/DepartureHUDView.cs">
-using UnityEngine;
-using TMPro;
-
-namespace DepartureModule
-{
-    public class DepartureHUDView : MonoBehaviour
-    {
-        [SerializeField] private GameObject container;
-        [SerializeField] private TMP_Text timerText;
-
-        public void ShowTimer(float time, string format)
-        {
-            container.SetActive(true);
-            timerText.text = string.Format(format, time);
-        }
-
-        public void Hide()
-        {
-            if (this == null || container == null) return;
-            container.SetActive(false);
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/DepartureModule/View/DepartureZoneView.cs">
-using System;
-using UnityEngine;
-
-namespace DepartureModule
-{
-    public class DepartureZoneView : MonoBehaviour
-    {
-        public event Action<bool> PlayerPresenceChanged;
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Player"))
-                PlayerPresenceChanged?.Invoke(true);
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (other.CompareTag("Player"))
-                PlayerPresenceChanged?.Invoke(false);
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Presenters/InteractionPresenter.cs">
-using System;
-using Zenject;
-using UIModule;
-using InventoryModule;
-
-namespace PlayerModule
-{
-    public class InteractionPresenter : IInitializable, IDisposable
-    {
-        private readonly PlayerInteractionController _controller;
-        private readonly InteractionHUDView _view;
-        private readonly PlayerConfig _config;
-        private string _cachedMessage;
-        private LootItemView _lastLoot;
-
-        public InteractionPresenter(
-            PlayerInteractionController controller,
-            InteractionHUDView view,
-            PlayerConfig config)
-        {
-            _controller = controller;
-            _view = view;
-            _config = config;
-        }
-
-        public void Initialize()
-        {
-            _view.Show("");
-            _view.Hide();
-            _controller.HoverChanged += OnHoverChanged;
-        }
-
-        public void Dispose()
-        {
-            _controller.HoverChanged -= OnHoverChanged;
-        }
-
-        private void OnHoverChanged(LootItemView loot)
-        {
-            if (loot == null)
-            {
-                _lastLoot = null;
-                _view.Hide();
+            if (itemDefinition?.WorldPrefab == null)
                 return;
-            }
-            if (_lastLoot == loot) return;
 
-            _lastLoot = loot;
-            _cachedMessage = string.Format(_config.InteractionHintFormat, loot.ItemDef.ItemName, loot.Amount);
-            _view.Show(_cachedMessage);
+            Vector3 spawnPosition = playerPosition.Position + playerPosition.Forward * config.DiscardOffset + Vector3.up * config.DiscardUpOffset;
+
+            LootItemView worldItem = _lootItemFactory.Create(itemDefinition, amount, spawnPosition, playerPosition.Rotation);
+
+            if (worldItem == null)
+                return;
+
+            if (worldItem.TryGetComponent<Rigidbody>(out var rigidbody))
+            {
+                Vector3 throwDirection = playerPosition.Rotation * Vector3.forward;
+                rigidbody.AddForce(throwDirection * config.DiscardThrowForce, ForceMode.Impulse);
+            }
         }
     }
 }
 </file>
 
-<file path="Assets/_Main/Scripts/UIModule/Runtime/View/InteractionHUDView.cs">
-using TMPro;
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/LootItemFactory.cs">
 using UnityEngine;
+using Zenject;
 
-namespace UIModule
+namespace InventoryModule
 {
-    public class InteractionHUDView : MonoBehaviour
+    public interface ILootItemFactory
     {
-        [SerializeField] private CanvasGroup canvasGroup;
-        [SerializeField] private TMP_Text hintText;
+        LootItemView Create(ItemDefinition definition, int amount, Vector3 position, Quaternion rotation);
+    }
 
-        public void Show(string message)
+    public sealed class LootItemFactory : IFactory<ItemDefinition, int, Vector3, Quaternion, LootItemView>, ILootItemFactory
+    {
+        private readonly DiContainer _container;
+
+        public LootItemFactory(DiContainer container)
         {
-            hintText.text = message;
-            canvasGroup.alpha = 1f;
+            _container = container;
         }
 
-        public void Hide()
+        public LootItemView Create(ItemDefinition definition, int amount, Vector3 position, Quaternion rotation)
         {
-            canvasGroup.alpha = 0f;
+            if (definition?.WorldPrefab == null)
+                return null;
+
+            var lootItem = _container.InstantiatePrefabForComponent<LootItemView>(
+                definition.WorldPrefab,
+                position,
+                rotation,
+                null);
+
+            lootItem.Initialize(definition, amount);
+
+            return lootItem;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryItemPool.cs">
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace InventoryModule
+{
+    public interface IInventoryItemPool
+    {
+        InventoryItemView Get();
+        void Return(InventoryItemView itemView);
+        void WarmUp(int count);
+    }
+
+    public sealed class InventoryItemPool : IInventoryItemPool
+    {
+        private readonly InventoryItemView _prefab;
+        private readonly Transform _container;
+        private readonly Queue<InventoryItemView> _pool;
+
+        public InventoryItemPool(InventoryItemView prefab, Transform container)
+        {
+            _prefab = prefab;
+            _container = container;
+            _pool = new Queue<InventoryItemView>();
+        }
+
+        public InventoryItemView Get()
+        {
+            if (_pool.Count > 0)
+            {
+                var itemView = _pool.Dequeue();
+                itemView.ResetView();
+                itemView.gameObject.SetActive(true);
+                return itemView;
+            }
+
+            var newItem = GameObject.Instantiate(_prefab, _container);
+            newItem.ResetView();
+            return newItem;
+        }
+
+        public void Return(InventoryItemView itemView)
+        {
+            if (itemView == null)
+                return;
+
+            itemView.ResetView();
+            itemView.gameObject.SetActive(false);
+            _pool.Enqueue(itemView);
+        }
+
+        public void WarmUp(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                var itemView = Get();
+                itemView.gameObject.SetActive(false);
+                _pool.Enqueue(itemView);
+            }
         }
     }
 }
@@ -491,7 +371,8 @@ namespace UIModule
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:2ee52fb8401542f4b618b9750c4c11fd",
         "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
-        "GUID:5a8d3845af48dc54db440d2b68ad43e7"
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:f952cb0599c86ac4794b61418ea81496"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -833,9 +714,11 @@ namespace BuildingModule
     {
         [SerializeField] private BuildingName name;
         [SerializeField] private BuildingView prefab;
+        [SerializeField] private Price price;
 
         public BuildingName Name => name;
         public BuildingView Prefab => prefab;
+        public Price Price => price;
     }
 }
 </file>
@@ -870,6 +753,32 @@ namespace BuildingModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/BuildingModule/Runtime/Data/Price.cs">
+using System;
+using System.Collections.Generic;
+using InventoryModule;
+using UnityEngine;
+
+namespace BuildingModule
+{
+    [Serializable]
+    public class Price
+    {
+        [SerializeField] private ItemToCount[] value;
+
+        public IEnumerable<ItemToCount> Values => value;
+    }
+
+    //TODO: Replace with Odin serialized dictionary
+    [Serializable]
+    public class ItemToCount
+    {
+        public ItemDefinition ItemDefinition;
+        public int Count;
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/BuildingModule/Runtime/Installers/BuildingModuleInstaller.cs">
 using BuildingModule.Runtime.Commands;
 using UnityEngine;
@@ -898,6 +807,7 @@ namespace BuildingModule
 
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
+            Container.Bind<IStorageService>().To<StorageService>().AsSingle();
             Container.Bind<BuildingFactory>().AsSingle();
 
             Container.Bind<IConstructionModeService>().To<ConstructionModeService>().AsSingle();
@@ -1027,6 +937,17 @@ namespace BuildingModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/BuildingModule/Runtime/Services/IStorageService.cs">
+namespace BuildingModule
+{
+    public interface IStorageService
+    {
+        bool CanBuy(BuildingName name);
+        bool Buy(BuildingName name);
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/BuildingModule/Runtime/Services/PlacementService.cs">
 using UnityEngine;
 
@@ -1037,15 +958,20 @@ namespace BuildingModule
         private readonly IGrid _grid;
 
         private readonly IPreviewService _previewService;
+        private readonly IStorageService _storage;
         private readonly BuildingFactory _factory;
 
         private BuildingName _currentBuilding;
 
-        public PlacementService(IGrid grid, IPreviewService previewService, BuildingFactory factory)
+        public PlacementService(IGrid grid,
+            IPreviewService previewService,
+            IStorageService storage,
+            BuildingFactory factory)
         {
             _grid = grid;
             _previewService = previewService;
             _factory = factory;
+            _storage = storage;
         }
 
         public BuildingName CurrentBuilding => _currentBuilding;
@@ -1081,7 +1007,11 @@ namespace BuildingModule
             if (tile.IsOccupied)
                 return false;
 
+            if (!_storage.CanBuy(_currentBuilding))
+                return false;
+
             _factory.Create(_currentBuilding, tile.WorldPosition, Quaternion.identity);
+            _storage.Buy(_currentBuilding);
             tile.Occupy();
             Cancel();
             return true;
@@ -1146,6 +1076,72 @@ namespace BuildingModule
         {
             var color = isOccupied ? Color.red : Color.green;
             _preview.MeshRenderer.material.color = color;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/BuildingModule/Runtime/Services/StorageService.cs">
+using System.Linq;
+using InventoryModule;
+
+namespace BuildingModule
+{
+    public class StorageService : IStorageService
+    {
+        private readonly BuildingCatalog _buildingCatalog;
+
+        //FIXME: Нужнен ефактор инвентаря
+        private readonly InventoryModel _inventory;
+        private readonly IInventoryService _inventoryService;
+
+        public StorageService(InventoryModel inventory,
+            BuildingCatalog buildingCatalog,
+            IInventoryService inventoryService)
+        {
+            _inventory = inventory;
+            _buildingCatalog = buildingCatalog;
+            _inventoryService = inventoryService;
+        }
+
+        public bool CanBuy(BuildingName name)
+        {
+            if (!_buildingCatalog.TryGetConfig(name, out var config))
+                return false;
+
+            foreach (var itemToCount in config.Price.Values)
+            {
+                var resource = _inventory.Items.FirstOrDefault(item => item.Id == itemToCount.ItemDefinition.Id);
+
+                if (resource == null)
+                    return false;
+
+                if (resource.Amount < itemToCount.Count)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool Buy(BuildingName name)
+        {
+            if (!_buildingCatalog.TryGetConfig(name, out var config))
+                return false;
+
+            if (!CanBuy(name))
+                return false;
+
+            foreach (var itemToCount in config.Price.Values)
+            {
+                var resource = _inventory.Items.First(item => item.Id == itemToCount.ItemDefinition.Id);
+                resource.AddAmount(-itemToCount.Count);
+                _inventoryService.UpdateInventory();
+
+                if (resource.Amount <=0)
+                    _inventoryService.RemoveItem(resource);
+            }
+
+            return true;
         }
     }
 }
@@ -1672,6 +1668,23 @@ namespace CommandsModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/ComponentsModule/ComponentsModule.asmdef">
+{
+    "name": "ComponentsModule",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
 <file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Crouch/CrouchComponent.cs">
 using UnityEngine;
 
@@ -1980,6 +1993,20 @@ namespace ComponentsModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Position/IPlayerPositionProvider.cs">
+using UnityEngine;
+
+namespace ComponentsModule
+{
+    public interface IPlayerPositionProvider
+    {
+        Vector3 Position { get; }
+        Quaternion Rotation { get; }
+        Vector3 Forward { get; }
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/ComponentsModule/Runtime/Rotation/IRotationComponent.cs">
 using UnityEngine;
 
@@ -2028,6 +2055,207 @@ namespace ComponentsModule
 
             _cameraTransform.localRotation = Quaternion.Euler(_rotationX, 0, 0);
             _transform.rotation = Quaternion.Euler(0, _rotationY, 0);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/Configs/DepartureConfig.cs">
+using UnityEngine;
+
+namespace DepartureModule
+{
+    [CreateAssetMenu(fileName = "DepartureConfig", menuName = "Configs/Departure/DepartureConfig")]
+    public class DepartureConfig : ScriptableObject
+    {
+        public float DepartureTime = 3.0f;
+        public string TargetSceneName = "MainLevel";
+        public string TimerTextFormat = "ОТПРАВЛЕНИЕ ЧЕРЕЗ: {0:F1}";
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/Controllers/DepartureController.cs">
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using Zenject;
+
+namespace DepartureModule
+{
+    public class DepartureController : IInitializable, IDisposable
+    {
+        private readonly DepartureConfig _config;
+        private readonly DepartureZoneView _zoneView;
+        private readonly DepartureHUDView _hudView;
+
+        private CancellationTokenSource _cts;
+
+        public DepartureController(DepartureConfig config,
+            DepartureZoneView zoneView,
+            DepartureHUDView hudView)
+        {
+            _config = config;
+            _zoneView = zoneView;
+            _hudView = hudView;
+        }
+
+        public void Initialize()
+        {
+            _hudView.Hide();
+            _zoneView.PlayerPresenceChanged += OnZoneStateChanged;
+        }
+
+        public void Dispose()
+        {
+            _zoneView.PlayerPresenceChanged -= OnZoneStateChanged;
+            CancelTimer();
+        }
+
+        private void OnZoneStateChanged(bool isInside)
+        {
+            if (isInside) StartTimer().Forget();
+            else CancelTimer();
+        }
+
+        private async UniTaskVoid StartTimer()
+        {
+            CancelTimer();
+            _cts = new CancellationTokenSource();
+
+            float timer = _config.DepartureTime;
+
+            try
+            {
+                while (timer > 0)
+                {
+                    _hudView.ShowTimer(timer, _config.TimerTextFormat);
+                    await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token);
+                    timer -= Time.deltaTime;
+                }
+
+                CompleteDeparture();
+            }
+            catch (OperationCanceledException)
+            {
+                _hudView.Hide();
+            }
+        }
+
+        private void CancelTimer()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
+
+            if (_hudView != null)
+            {
+                _hudView.Hide();
+            }
+        }
+
+        private void CompleteDeparture()
+        {
+            SceneManager.LoadScene(_config.TargetSceneName);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/DepartureModule.asmdef">
+{
+    "name": "DepartureModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/Installers/DepartureInstaller.cs">
+using UnityEngine;
+using Zenject;
+
+namespace DepartureModule
+{
+    public class DepartureInstaller : MonoInstaller
+    {
+        [SerializeField] private DepartureConfig config;
+        [SerializeField] private DepartureZoneView zoneView;
+        [SerializeField] private DepartureHUDView hudView;
+
+        public override void InstallBindings()
+        {
+            Container.BindInstance(config).AsSingle();
+            Container.BindInstance(zoneView).AsSingle();
+            Container.BindInstance(hudView).AsSingle();
+
+            Container.BindInterfacesTo<DepartureController>().AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/View/DepartureHUDView.cs">
+using UnityEngine;
+using TMPro;
+
+namespace DepartureModule
+{
+    public class DepartureHUDView : MonoBehaviour
+    {
+        [SerializeField] private GameObject container;
+        [SerializeField] private TMP_Text timerText;
+
+        public void ShowTimer(float time, string format)
+        {
+            container.SetActive(true);
+            timerText.text = string.Format(format, time);
+        }
+
+        public void Hide()
+        {
+            if (this == null || container == null) return;
+            container.SetActive(false);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/DepartureModule/View/DepartureZoneView.cs">
+using System;
+using UnityEngine;
+
+namespace DepartureModule
+{
+    public class DepartureZoneView : MonoBehaviour
+    {
+        public event Action<bool> PlayerPresenceChanged;
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Player"))
+                PlayerPresenceChanged?.Invoke(true);
+        }
+
+        private void OnTriggerExit(Collider other)
+        {
+            if (other.CompareTag("Player"))
+                PlayerPresenceChanged?.Invoke(false);
         }
     }
 }
@@ -3223,6 +3451,164 @@ namespace GameCycleModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/InputModule/Core/GameInputService.cs">
+using UnityEngine;
+using System;
+using InputModule.Configs;
+
+namespace InputModule
+{
+    public class GameInputService : IInputMap, IInputService, IDisposable
+    {
+        private readonly InputSystem_Actions _actions;
+
+        public GameInputService()
+        {
+            _actions = new();
+            _actions.Player.Enable();
+            _actions.Global.Enable();
+            _actions.Build.Enable();
+        }
+        public void SetUIMode(bool isActive)
+        {
+            if (isActive)
+            {
+                _actions.Player.Disable();
+                _actions.Build.Disable();
+            }
+            else
+            {
+                _actions.Player.Enable();
+                _actions.Build.Enable();
+            }
+        }
+        public void SetBuildMode(bool isActive)
+        {
+            if (isActive)
+            {
+                _actions.Player.Disable();
+                _actions.Global.Disable();
+                _actions.Build.Enable();
+
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+            }
+            else
+            {
+                _actions.Player.Enable();
+                _actions.Global.Enable();
+                _actions.Build.Disable();
+
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+            }
+        }
+        public Vector2 MoveInput => _actions.Player.Move.ReadValue<Vector2>();
+        public Vector2 LookInput => _actions.Player.Look.ReadValue<Vector2>();
+        public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
+        public bool IsCrouchPressed => _actions.Player.Crouch.IsPressed();
+        public float LeanInput => _actions.Player.Lean.ReadValue<float>();
+        public bool IsInteractPressed => _actions.Player.Interact.WasPressedThisFrame();
+
+        public bool IsFirePressed => _actions.Player.Attack.IsPressed();
+        public bool IsAimPressed => _actions.Player.Aim.IsPressed();
+        public bool IsAimHeld => _actions.Player.Aim.IsPressed();
+        public bool IsAimTriggered => _actions.Player.Aim.WasPressedThisFrame();
+        public bool IsReloadPressed => _actions.Player.Reload.WasPressedThisFrame();
+        public bool IsHolsterPressed => _actions.Player.Holster.WasPressedThisFrame();
+
+        public bool IsInventoryPressed => _actions.Global.ToggleInventory.WasPressedThisFrame();
+        public bool IsRotatePressed => _actions.Global.RotateItem.WasPressedThisFrame();
+        public bool IsSplitPressed => _actions.Global.SplitStack.IsPressed();
+
+        public bool IsBuildPressed => _actions.Player.Build.WasPressedThisFrame() ||
+                               _actions.Build.Build.WasPressedThisFrame();
+        public int SelectWeaponIndex
+        {
+            get
+            {
+                if (_actions.Player.Weapon1.WasPressedThisFrame()) return 0;
+                if (_actions.Player.Weapon2.WasPressedThisFrame()) return 1;
+                if (_actions.Player.Weapon3.WasPressedThisFrame()) return 2;
+
+                return -1;
+            }
+        }
+
+        public float WeaponScroll
+        {
+            get
+            {
+                float scrollValue = _actions.Player.WeaponScroll.ReadValue<float>();
+
+                if (scrollValue > 0) return 1f;
+
+                if (scrollValue < 0) return -1f;
+
+                return 0f;
+            }
+        }
+
+        public void Enable() => _actions.Enable();
+        public void Disable() => _actions.Disable();
+
+        public void Dispose()
+        {
+            _actions.Player.Disable();
+            _actions.Global.Disable();
+            _actions.Build.Disable();
+            _actions.Disable();
+            _actions.Dispose();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/Core/IInputMap.cs">
+using UnityEngine;
+
+namespace InputModule
+{
+    public interface IInputMap
+    {
+        Vector2 MoveInput { get; }
+        Vector2 LookInput { get; }
+        bool IsJumpPressed { get; }
+        bool IsCrouchPressed { get; }
+        float LeanInput { get; }
+        bool IsInteractPressed { get; }
+
+        float WeaponScroll { get; }
+        int SelectWeaponIndex { get; }
+        bool IsFirePressed { get; }
+        bool IsAimPressed { get; }
+        bool IsReloadPressed { get; }
+        bool IsHolsterPressed { get; }
+        bool IsAimHeld { get; }
+        bool IsAimTriggered { get; }
+
+        bool IsInventoryPressed { get; }
+        bool IsRotatePressed { get; }
+        bool IsSplitPressed { get; }
+
+        bool IsBuildPressed { get; }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InputModule/Core/IInputService.cs">
+namespace InputModule
+{
+    public interface IInputService
+    {
+        void Enable();
+        void Disable();
+        void SetUIMode(bool isActive);
+        void SetBuildMode(bool isActive);
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/InputModule/InputModule.asmdef">
 {
     "name": "InputModule",
@@ -3260,24 +3646,185 @@ namespace InputModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/InventoryModule/InventoryModule.asmdef">
+{
+    "name": "InventoryModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:ad92713fd5884a16a1e7ccde1a579228"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Core/GridCell.cs">
 using UnityEngine;
 
 namespace InventoryModule
 {
-    public class GridCell
+    public sealed class GridCell
     {
+        private InventoryItem _occupyingItem;
+
         public Vector2Int Position { get; }
-        public InventoryItem OccupyingItem { get; private set; }
-        public bool IsOccupied => OccupyingItem != null;
+
+        public InventoryItem OccupyingItem => _occupyingItem;
+        public bool IsOccupied => _occupyingItem != null;
 
         public GridCell(Vector2Int position)
         {
             Position = position;
         }
 
-        public void Occupy(InventoryItem item) => OccupyingItem = item;
-        public void Vacate() => OccupyingItem = null;
+        public void Occupy(InventoryItem item)
+        {
+            _occupyingItem = item;
+        }
+
+        public void Vacate()
+        {
+            _occupyingItem = null;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Core/InventoryItem.cs">
+using UnityEngine;
+
+namespace InventoryModule
+{
+    public sealed class InventoryItem
+    {
+        private readonly int _baseWidth;
+        private readonly int _baseHeight;
+
+        public string Id { get; }
+
+        private int _amount;
+
+        public Vector2Int Position { get; private set; }
+        public bool IsRotated { get; private set; }
+        public int MaxStack { get; }
+        public int Amount => _amount;
+
+        public Vector2Int Size => IsRotated
+            ? new Vector2Int(_baseHeight, _baseWidth)
+            : new Vector2Int(_baseWidth, _baseHeight);
+
+        public Vector2Int BaseSize => new Vector2Int(_baseWidth, _baseHeight);
+
+        public InventoryItem(string id, Vector2Int position, Vector2Int size, int maxStack, int amount)
+        {
+            Id = id;
+            Position = position;
+            _baseWidth = size.x;
+            _baseHeight = size.y;
+            MaxStack = maxStack;
+            _amount = amount;
+            IsRotated = false;
+        }
+
+        public Vector2Int GetSize(bool rotated)
+        {
+            return rotated
+                ? new Vector2Int(_baseHeight, _baseWidth)
+                : new Vector2Int(_baseWidth, _baseHeight);
+        }
+
+        public bool TryAddAmount(int value, out int remainder)
+        {
+            int space = MaxStack - _amount;
+            int toAdd = Mathf.Min(space, value);
+            _amount += toAdd;
+            remainder = value - toAdd;
+            return remainder < value;
+        }
+
+        public void SetPosition(Vector2Int position)
+        {
+            Position = position;
+        }
+
+        public void SetAmount(int amount)
+        {
+            _amount = amount;
+        }
+
+        public void AddAmount(int delta)
+        {
+            _amount += delta;
+        }
+
+        public void SetIsRotated(bool isRotated)
+        {
+            IsRotated = isRotated;
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Core/InventoryModel.cs">
+using System;
+using System.Collections.Generic;
+
+namespace InventoryModule
+{
+    public sealed class InventoryModel
+    {
+        private readonly List<InventoryItem> _items = new();
+
+        public int Width { get; }
+        public int Height { get; }
+        public IReadOnlyList<InventoryItem> Items => _items;
+
+        public InventoryModel(int width, int height)
+        {
+            if (width <= 0 || height <= 0)
+                throw new ArgumentException("Inventory dimensions must be positive");
+
+            Width = width;
+            Height = height;
+        }
+
+        public void AddItem(InventoryItem item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            if (_items.Contains(item))
+                throw new InvalidOperationException("Item already exists in inventory");
+
+            _items.Add(item);
+        }
+
+        public void RemoveItem(InventoryItem item)
+        {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+
+            if (!_items.Contains(item))
+                throw new InvalidOperationException("Item not found in inventory");
+
+            _items.Remove(item);
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+        }
     }
 }
 </file>
@@ -3309,27 +3856,41 @@ namespace InventoryModule
 </file>
 
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Data/ItemDatabase.cs">
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace InventoryModule
 {
+    public interface IItemDatabase
+    {
+        IReadOnlyList<ItemDefinition> AllItems { get; }
+        ItemDefinition GetItem(string itemId);
+        bool TryGetItem(string itemId, out ItemDefinition item);
+        List<ItemDefinition> GetItemsByCategory(ItemCategory category);
+        bool ContainsItem(string itemId);
+    }
+
     [CreateAssetMenu(fileName = "ItemDatabase", menuName = "Game/Inventory/Item Database")]
-    public class ItemDatabase : ScriptableObject
+    public sealed class ItemDatabase : ScriptableObject, IItemDatabase
     {
         [SerializeField] private List<ItemDefinition> items = new();
 
-        private Dictionary<string, ItemDefinition> _cache;
+        private Lazy<Dictionary<string, ItemDefinition>> _lazyCache;
 
         public IReadOnlyList<ItemDefinition> AllItems => items;
 
+        private void Awake()
+        {
+            _lazyCache = new Lazy<Dictionary<string, ItemDefinition>>(() => new Dictionary<string, ItemDefinition>());
+        }
+
         public ItemDefinition GetItem(string itemId)
         {
-            if (_cache == null)
-                BuildCache();
+            EnsureCacheBuilt();
 
-            if (_cache.TryGetValue(itemId, out var item))
+            if (_lazyCache.Value.TryGetValue(itemId, out var item))
                 return item;
 
             return null;
@@ -3351,30 +3912,32 @@ namespace InventoryModule
             return items.Any(item => item.Id == itemId);
         }
 
-        private void BuildCache()
+        private void EnsureCacheBuilt()
         {
-            _cache = new Dictionary<string, ItemDefinition>();
+            if (_lazyCache.IsValueCreated)
+                return;
 
+            var cache = _lazyCache.Value;
             foreach (var item in items)
             {
-                if (item == null) continue;
+                if (item == null)
+                    continue;
 
-                if (!_cache.ContainsKey(item.Id))
-                {
-                    _cache[item.Id] = item;
-                }
+                if (!cache.ContainsKey(item.Id))
+                    cache[item.Id] = item;
             }
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            _cache = null;
+            _lazyCache = new Lazy<Dictionary<string, ItemDefinition>>(() => new Dictionary<string, ItemDefinition>());
 
             var seenIds = new HashSet<string>();
             foreach (var item in items)
             {
-                if (item == null) continue;
+                if (item == null)
+                    continue;
 
                 if (seenIds.Contains(item.Id))
                 {
@@ -3403,7 +3966,7 @@ using UnityEngine;
 namespace InventoryModule
 {
     [CreateAssetMenu(fileName = "NewItem", menuName = "Game/Inventory/Item")]
-    public class ItemDefinition : ScriptableObject
+    public sealed class ItemDefinition : ScriptableObject
     {
         [SerializeField] private string itemName;
         [SerializeField, TextArea(3, 5)] private string description;
@@ -3515,7 +4078,7 @@ namespace InventoryModule
                 .FromInstance(inventoryConfig)
                 .AsSingle();
 
-            Container.Bind<ItemDatabase>()
+            Container.Bind<IItemDatabase>()
                 .FromInstance(itemDatabase)
                 .AsSingle();
 
@@ -3523,12 +4086,21 @@ namespace InventoryModule
                 .AsSingle()
                 .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
 
-            Container.Bind<IItemProvider>()
-                .To<ItemProvider>()
-                .AsSingle();
+            Container.Bind<IGridService>()
+                .To<GridService>()
+                .AsSingle()
+                .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
 
             Container.Bind<IInventoryService>()
                 .To<InventoryService>()
+                .AsSingle();
+
+            Container.Bind<IItemDropService>()
+                .To<ItemDropService>()
+                .AsSingle();
+
+            Container.Bind<ILootItemFactory>()
+                .To<LootItemFactory>()
                 .AsSingle();
         }
     }
@@ -3552,6 +4124,11 @@ namespace InventoryModule
                 .FromInstance(inventoryView)
                 .AsSingle();
 
+            Container.Bind<IInventoryItemPool>()
+                .To<InventoryItemPool>()
+                .AsSingle()
+                .WithArguments(inventoryView.ItemPrefab, inventoryView.ItemsContainer);
+
             Container.BindInterfacesTo<InventoryPresenter>()
                 .AsSingle()
                 .NonLazy();
@@ -3563,13 +4140,191 @@ namespace InventoryModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Presenter/InventoryPresenter.cs">
+using InputModule;
+using System;
+using UnityEngine;
+using Zenject;
+using ComponentsModule;
+
+namespace InventoryModule
+{
+    public sealed class InventoryPresenter : IInitializable, ITickable, IDisposable
+    {
+        private readonly IInventoryService _inventoryService;
+        private readonly IItemDatabase _itemDatabase;
+        private readonly InventoryView _view;
+        private readonly IInputMap _inputMap;
+        private readonly IInputService _inputService;
+        private readonly IPlayerPositionProvider _playerPosition;
+        private readonly InventoryConfig _config;
+        private readonly IItemDropService _itemDropService;
+        private readonly IInventoryItemPool _itemPool;
+        private InventoryItemView _currentlyDraggedItem;
+        private float _lastOpenTime;
+
+        public InventoryPresenter(
+            IInventoryService inventoryService,
+            IItemDatabase itemDatabase,
+            InventoryView view,
+            IInputMap inputMap,
+            IInputService inputService,
+            IPlayerPositionProvider playerPosition,
+            InventoryConfig config,
+            IItemDropService itemDropService,
+            IInventoryItemPool itemPool)
+        {
+            _inventoryService = inventoryService;
+            _itemDatabase = itemDatabase;
+            _view = view;
+            _inputMap = inputMap;
+            _inputService = inputService;
+            _playerPosition = playerPosition;
+            _config = config;
+            _itemDropService = itemDropService;
+            _itemPool = itemPool;
+        }
+
+        public void Initialize()
+        {
+            _view.Initialize(_itemPool, _itemDatabase, _inputMap);
+            _view.GenerateGrid(_inventoryService.Width, _inventoryService.Height);
+
+            _inventoryService.InventoryUpdated += OnInventoryUpdated;
+            _view.ItemDropped += OnItemDropped;
+
+            _view.ItemDragStarted += OnItemDragStarted;
+            _view.ItemDragEnded += OnItemDragEnded;
+
+            _view.ItemPointerEntered += OnItemPointerEntered;
+            _view.ItemPointerExited += OnItemPointerExited;
+
+            OnInventoryUpdated();
+            _view.HideTooltip();
+        }
+
+        public void Dispose()
+        {
+            _inventoryService.InventoryUpdated -= OnInventoryUpdated;
+            _view.ItemDropped -= OnItemDropped;
+
+            _view.ItemDragStarted -= OnItemDragStarted;
+            _view.ItemDragEnded -= OnItemDragEnded;
+
+            _view.ItemPointerEntered -= OnItemPointerEntered;
+            _view.ItemPointerExited -= OnItemPointerExited;
+        }
+
+        private void OnItemDragStarted(InventoryItemView view) => _currentlyDraggedItem = view;
+
+        private void OnItemDragEnded(InventoryItemView view) => _currentlyDraggedItem = null;
+
+        public void Tick()
+        {
+            if (_inputMap.IsInventoryPressed)
+            {
+                bool newState = !_view.IsVisible;
+
+                if (newState)
+                {
+                    _lastOpenTime = Time.time;
+                }
+                else
+                {
+                    _view.HideTooltip();
+                }
+
+                _view.Toggle(newState);
+                _inputService.SetUIMode(newState);
+            }
+
+            if (_view.IsVisible && _inputMap.IsRotatePressed && _currentlyDraggedItem != null)
+            {
+                _currentlyDraggedItem.Rotate();
+            }
+        }
+
+        private void OnItemDropped(InventoryItemView itemView, Vector2Int newPosition)
+        {
+            var item = itemView.Item;
+            if (item == null) return;
+
+            if (!_view.IsMouseOverGrid())
+            {
+                HandleItemDiscard(itemView);
+                return;
+            }
+
+            InventoryOperationResult result;
+
+            if (itemView.IsSplitting)
+            {
+                result = _inventoryService.SplitItem(item, newPosition, itemView.LocalIsRotated);
+            }
+            else
+            {
+                result = _inventoryService.MoveItem(item, newPosition, itemView.LocalIsRotated);
+            }
+            OnInventoryUpdated();
+        }
+
+        private void OnItemPointerEntered(InventoryItemView itemView)
+        {
+            if (!_view.IsVisible || (Time.time - _lastOpenTime) < 0.1f)
+                return;
+
+            if (_itemDatabase.TryGetItem(itemView.Item.Id, out var itemDef))
+            {
+                _view.ShowTooltip(itemDef.ItemName);
+            }
+        }
+
+        private void OnItemPointerExited(InventoryItemView itemView)
+        {
+            _view.HideTooltip();
+        }
+        private void HandleItemDiscard(InventoryItemView itemView)
+        {
+            var item = itemView.Item;
+            if (item == null) return;
+            if (!_itemDatabase.TryGetItem(item.Id, out var itemDef)) return;
+            int amountToDiscard;
+            if (itemView.IsSplitting)
+            {
+                amountToDiscard = item.Amount / 2;
+                item.AddAmount(-amountToDiscard);
+            }
+            else
+            {
+                amountToDiscard = item.Amount;
+                var result = _inventoryService.RemoveItem(item);
+
+                if (!result.Success)
+                {
+                    return;
+                }
+            }
+            _itemDropService.SpawnItemInWorld(itemDef, amountToDiscard, _playerPosition, _config);
+            OnInventoryUpdated();
+        }
+
+        private void OnInventoryUpdated()
+        {
+            if (_view == null) return;
+            var items = _inventoryService.GetAllItems();
+            _view.Render(items);
+        }
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/GridService.cs">
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace InventoryModule
 {
-    public sealed class GridService
+    public sealed class GridService : IGridService
     {
         private readonly GridCell[,] _cells;
         private readonly int _width;
@@ -3641,10 +4396,7 @@ namespace InventoryModule
         {
             Vector2Int size = item.GetSize(isRotated);
             if (!IsAreaFree(position, size, item))
-            {
-                Debug.LogWarning($"Cannot place item at position {position} with size {size}");
                 return;
-            }
 
             ClearItem(item);
 
@@ -3656,8 +4408,8 @@ namespace InventoryModule
                 }
             }
 
-            item.Position = position;
-            item.IsRotated = isRotated;
+            item.SetPosition(position);
+            item.SetIsRotated(isRotated);
         }
 
         public void ClearItem(InventoryItem item)
@@ -3757,8 +4509,6 @@ namespace InventoryModule
 
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/IInventoryService.cs">
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -3769,27 +4519,11 @@ namespace InventoryModule
         event Action InventoryUpdated;
         int Width { get; }
         int Height { get; }
-        UniTask<InventoryOperationResult> AddItemAsync(
-            ItemDefinition itemDefinition,
-            int amount,
-            CancellationToken token);
-
-        UniTask<InventoryOperationResult> MoveItemAsync(
-            InventoryItem item,
-            Vector2Int newPosition,
-            bool isRotated,
-            CancellationToken token);
-
-        UniTask<InventoryOperationResult> SplitItemAsync(
-            InventoryItem item,
-            Vector2Int splitPosition,
-            bool isRotated,
-            CancellationToken token);
-
-        UniTask<InventoryOperationResult> RemoveItemAsync(
-            InventoryItem item,
-            CancellationToken token);
-
+        InventoryOperationResult AddItem(ItemDefinition itemDefinition, int amount);
+        InventoryOperationResult MoveItem(InventoryItem item, Vector2Int newPosition, bool isRotated);
+        InventoryOperationResult SplitItem(InventoryItem item, Vector2Int splitPosition, bool isRotated);
+        InventoryOperationResult RemoveItem(InventoryItem item);
+        void UpdateInventory();
         bool CanPlaceItem(ItemDefinition itemDefinition, Vector2Int position, bool isRotated);
         InventoryItem GetItemAtPosition(Vector2Int position);
         IReadOnlyList<InventoryItem> GetAllItems();
@@ -3798,24 +4532,10 @@ namespace InventoryModule
 }
 </file>
 
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/IItemProvider.cs">
-using UnityEngine;
-
-namespace InventoryModule
-{
-    public interface IItemProvider
-    {
-        ItemDefinition GetItemDefinition(string itemId);
-        bool TryGetItemDefinition(string itemId, out ItemDefinition itemDefinition);
-        Sprite GetItemIcon(string itemId);
-    }
-}
-</file>
-
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/InventoryOperationResult.cs">
 namespace InventoryModule
 {
-    public class InventoryOperationResult
+    public sealed class InventoryOperationResult
     {
         public bool Success { get; }
         public string ErrorMessage { get; }
@@ -3840,8 +4560,6 @@ namespace InventoryModule
 <file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/InventoryService.cs">
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace InventoryModule
@@ -3849,18 +4567,19 @@ namespace InventoryModule
     public sealed class InventoryService : IInventoryService
     {
         private readonly InventoryModel _model;
-        private readonly GridService _gridService;
-        private readonly ItemDatabase _itemDatabase;
+        private readonly IGridService _gridService;
+        private readonly IItemDatabase _itemDatabase;
 
         public event Action InventoryUpdated;
         public IReadOnlyList<InventoryItem> GetAllItems() => _model.Items;
         public int Width => _model.Width;
         public int Height => _model.Height;
-        public InventoryService(InventoryModel model, ItemDatabase itemDatabase)
+
+        public InventoryService(InventoryModel model, IItemDatabase itemDatabase, IGridService gridService)
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _itemDatabase = itemDatabase ?? throw new ArgumentNullException(nameof(itemDatabase));
-            _gridService = new GridService(model.Width, model.Height);
+            _gridService = gridService ?? throw new ArgumentNullException(nameof(gridService));
             InitializeGridWithExistingItems();
         }
 
@@ -3871,18 +4590,14 @@ namespace InventoryModule
                 _gridService.PlaceItem(item, item.Position, item.IsRotated);
             }
         }
-        public UniTask<InventoryOperationResult> AddItemAsync(
-            ItemDefinition itemDefinition,
-            int amount,
-            CancellationToken token)
+
+        public InventoryOperationResult AddItem(ItemDefinition itemDefinition, int amount)
         {
             if (itemDefinition == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item definition is null"));
+                return InventoryOperationResult.CreateFailure("Item definition is null");
 
             if (amount <= 0)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Amount must be positive"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure("Amount must be positive");
 
             try
             {
@@ -3894,7 +4609,7 @@ namespace InventoryModule
                     if (remainingAmount <= 0)
                     {
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess());
+                        return InventoryOperationResult.CreateSuccess();
                     }
                 }
 
@@ -3903,8 +4618,8 @@ namespace InventoryModule
                     var placementResult = TryFindPlaceForItem(itemDefinition, out var position, out var isRotated);
                     if (!placementResult.Success)
                     {
-                        return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                            $"No space for item: {itemDefinition.ItemName}"));
+                        return InventoryOperationResult.CreateFailure(
+                            $"No space for item: {itemDefinition.ItemName}");
                     }
 
                     int stackAmount = Mathf.Min(remainingAmount, itemDefinition.MaxStack);
@@ -3917,25 +4632,18 @@ namespace InventoryModule
                 }
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess());
+                return InventoryOperationResult.CreateSuccess();
             }
             catch (Exception exception)
             {
-                Debug.LogError($"Failed to add item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}");
             }
         }
 
-        public UniTask<InventoryOperationResult> MoveItemAsync(
-            InventoryItem item,
-            Vector2Int newPosition,
-            bool isRotated,
-            CancellationToken token)
+        public InventoryOperationResult MoveItem(InventoryItem item, Vector2Int newPosition, bool isRotated)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure("Item is null");
 
             try
             {
@@ -3948,55 +4656,47 @@ namespace InventoryModule
                         int canTake = targetItem.MaxStack - targetItem.Amount;
                         int toMove = Mathf.Min(canTake, item.Amount);
 
-                        targetItem.Amount += toMove;
-                        item.Amount -= toMove;
+                        targetItem.AddAmount(toMove);
+                        item.AddAmount(-toMove);
 
                         if (item.Amount <= 0)
                         {
-
                             _gridService.ClearItem(item);
                             _model.RemoveItem(item);
                         }
 
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                        return InventoryOperationResult.CreateSuccess(item);
                     }
                 }
 
                 if (!CanPlaceItemAt(item, newPosition, isRotated, item))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure("Position occupied"));
+                    return InventoryOperationResult.CreateFailure("Position occupied");
                 }
 
                 _gridService.ClearItem(item);
                 _gridService.PlaceItem(item, newPosition, isRotated);
 
-                item.Position = newPosition;
-                item.IsRotated = isRotated;
+                item.SetPosition(newPosition);
+                item.SetIsRotated(isRotated);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                return InventoryOperationResult.CreateSuccess(item);
             }
             catch (Exception exception)
             {
-                Debug.LogError($"Failed to move item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure(exception.Message));
+                return InventoryOperationResult.CreateFailure(exception.Message);
             }
         }
 
-        public UniTask<InventoryOperationResult> SplitItemAsync(
-            InventoryItem item,
-            Vector2Int splitPosition,
-            bool isRotated,
-            CancellationToken token)
+        public InventoryOperationResult SplitItem(InventoryItem item, Vector2Int splitPosition, bool isRotated)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
+                return InventoryOperationResult.CreateFailure("Item is null");
 
             if (item.Amount < 2)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Cannot split: item amount less than 2"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure("Cannot split: item amount less than 2");
 
             try
             {
@@ -4011,11 +4711,11 @@ namespace InventoryModule
                         int canAccept = targetItem.MaxStack - targetItem.Amount;
                         int actualMove = Mathf.Min(moveAmount, canAccept);
 
-                        targetItem.Amount += actualMove;
-                        item.Amount -= actualMove;
+                        targetItem.AddAmount(actualMove);
+                        item.AddAmount(-actualMove);
 
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess(targetItem));
+                        return InventoryOperationResult.CreateSuccess(targetItem);
                     }
                 }
 
@@ -4024,17 +4724,17 @@ namespace InventoryModule
 
                 if (_gridService.AreasOverlap(splitPosition, splitSize, item.Position, originalSize))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                        "Cannot split: overlap with original item"));
+                    return InventoryOperationResult.CreateFailure(
+                        "Cannot split: overlap with original item");
                 }
 
                 if (!_gridService.IsAreaFree(splitPosition, splitSize))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                        "Cannot split: target position is occupied"));
+                    return InventoryOperationResult.CreateFailure(
+                        "Cannot split: target position is occupied");
                 }
 
-                item.Amount -= moveAmount;
+                item.AddAmount(-moveAmount);
 
                 var newItem = CreateInventoryItem(
                     _itemDatabase.GetItem(item.Id),
@@ -4046,23 +4746,18 @@ namespace InventoryModule
                 _model.AddItem(newItem);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(newItem));
+                return InventoryOperationResult.CreateSuccess(newItem);
             }
             catch (Exception exception)
             {
-                Debug.LogError($"Failed to split item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}");
             }
         }
 
-        public UniTask<InventoryOperationResult> RemoveItemAsync(
-            InventoryItem item,
-            CancellationToken token)
+        public InventoryOperationResult RemoveItem(InventoryItem item)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure("Item is null");
 
             try
             {
@@ -4070,12 +4765,11 @@ namespace InventoryModule
                 _model.RemoveItem(item);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                return InventoryOperationResult.CreateSuccess(item);
             }
             catch (Exception exception)
             {
-                Debug.LogError($"Failed to remove item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}");
             }
         }
 
@@ -4106,6 +4800,8 @@ namespace InventoryModule
             return null;
         }
 
+        public void UpdateInventory() => InventoryUpdated?.Invoke();
+
         private int TryStackExistingItems(ItemDefinition itemDefinition, int amount)
         {
             int remainingAmount = amount;
@@ -4117,7 +4813,7 @@ namespace InventoryModule
                     int space = existingItem.MaxStack - existingItem.Amount;
                     int toAdd = Mathf.Min(space, remainingAmount);
 
-                    existingItem.Amount += toAdd;
+                    existingItem.AddAmount(toAdd);
                     remainingAmount -= toAdd;
 
                     if (remainingAmount <= 0)
@@ -4185,16 +4881,18 @@ namespace InventoryModule
             int amount,
             bool isRotated)
         {
-            return new InventoryItem(
+            var item = new InventoryItem(
                 itemDefinition.Id,
                 position,
                 new Vector2Int(itemDefinition.Width, itemDefinition.Height),
                 itemDefinition.MaxStack,
-                amount)
-            {
-                IsRotated = isRotated
-            };
+                amount);
+
+            item.SetIsRotated(isRotated);
+
+            return item;
         }
+
         public void ClearInventory()
         {
             _gridService.ClearAll();
@@ -4205,28 +4903,578 @@ namespace InventoryModule
 }
 </file>
 
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Services/ItemProvider.cs">
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryItemView.cs">
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using TMPro;
+using System;
+
+namespace InventoryModule
+{
+    public class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+    {
+        [Header("References")]
+        [SerializeField] private Image iconImage;
+        [SerializeField] private TMP_Text amountText;
+        [SerializeField] private RectTransform rectTransform;
+        [SerializeField] private CanvasGroup canvasGroup;
+
+        [Header("Settings")]
+        [Range(0f, 1f)]
+        [SerializeField] private float dragAlpha = 0.7f;
+        [Range(0f, 1f)]
+        [SerializeField] private float splitGhostAlpha = 0.5f;
+
+        public event System.Action<InventoryItemView> DragStarted;
+        public event System.Action<InventoryItemView> DragEnded;
+        public event System.Action<InventoryItemView> DragUpdated;
+        public event Action<InventoryItemView> PointerEntered;
+        public event Action<InventoryItemView> PointerExited;
+
+        private InventoryItem _item;
+        private float _tileSize;
+        private float _spacing;
+
+        private Vector2 _centeringOffset;
+        private bool _localIsRotated;
+        private bool _isSplitting;
+        private bool _isDragging;
+        private bool _canRotate;
+        private Func<bool> _splitCheck;
+
+        private GameObject _splitDummy;
+
+        public InventoryItem Item => _item;
+        public bool IsSplitting => _isSplitting;
+        public bool LocalIsRotated => _localIsRotated;
+
+        private void OnEnable()
+        {
+            _isDragging = false;
+        }
+
+        private void OnDisable()
+        {
+            PointerExited?.Invoke(this);
+            _isDragging = false;
+        }
+
+        public void Setup(InventoryItem item, ItemDefinition config, float tileSize, float spacing, Func<bool> splitCheck)
+        {
+            _item = item;
+            _tileSize = tileSize;
+            _spacing = spacing;
+            _splitCheck = splitCheck;
+
+            _canRotate = config.CanRotate;
+            _localIsRotated = item.IsRotated;
+            _isDragging = false;
+
+            if (iconImage != null)
+                iconImage.sprite = config.Icon;
+
+            UpdateVisuals();
+        }
+
+        public void Rotate()
+        {
+            if (!_canRotate) return;
+            _localIsRotated = !_localIsRotated;
+            UpdateVisuals();
+            RecalculateOffset();
+            SnapToCursor();
+            DragUpdated?.Invoke(this);
+        }
+
+        public void ResetView()
+        {
+            _item = null;
+            _isDragging = false;
+            _isSplitting = false;
+            _localIsRotated = false;
+            _splitCheck = null;
+            
+            DragStarted = null;
+            DragEnded = null;
+            DragUpdated = null;
+            PointerEntered = null;
+            PointerExited = null;
+            
+            if (amountText != null)
+            {
+                amountText.text = "";
+                amountText.gameObject.SetActive(false);
+            }
+            
+            if (iconImage != null)
+                iconImage.sprite = null;
+                
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = true;
+            }
+        }
+
+        public void RefreshAmount()
+        {
+            if (amountText != null && _item != null)
+            {
+                int showAmount = _isSplitting ? (_item.Amount / 2) : _item.Amount;
+                if (showAmount > 1)
+                {
+                    amountText.gameObject.SetActive(true);
+                    amountText.text = showAmount.ToString();
+                    amountText.ForceMeshUpdate();
+                }
+                else
+                {
+                    amountText.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private void UpdateVisuals()
+        {
+            if (_item == null) return;
+
+            int baseW = _item.IsRotated ? _item.Size.y : _item.Size.x;
+            int baseH = _item.IsRotated ? _item.Size.x : _item.Size.y;
+            int currentW = _localIsRotated ? baseH : baseW;
+            int currentH = _localIsRotated ? baseW : baseH;
+
+            float widthPx = (currentW * _tileSize) + ((currentW - 1) * _spacing);
+            float heightPx = (currentH * _tileSize) + ((currentH - 1) * _spacing);
+
+            rectTransform.sizeDelta = new Vector2(widthPx, heightPx);
+
+            if (!_isDragging)
+            {
+                float posX = (_item.Position.x * _tileSize) + (_item.Position.x * _spacing);
+                float posY = -((_item.Position.y * _tileSize) + (_item.Position.y * _spacing));
+                rectTransform.anchoredPosition = new Vector2(posX, posY);
+                rectTransform.localScale = Vector3.one;
+                rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y, 0);
+            }
+
+            RefreshAmount();
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            PointerExited?.Invoke(this);
+            _isDragging = true;
+            _isSplitting = _splitCheck != null && _splitCheck.Invoke() && _item.Amount > 1;
+
+            if (_isSplitting)
+            {
+                CreateSplitDummy();
+            }
+
+            canvasGroup.blocksRaycasts = false;
+            canvasGroup.alpha = dragAlpha;
+            RecalculateOffset();
+            DragStarted?.Invoke(this);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            SnapToCursor();
+            DragUpdated?.Invoke(this);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            _isDragging = false;
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.alpha = 1f;
+
+            if (_splitDummy != null)
+                Destroy(_splitDummy);
+
+            DragEnded?.Invoke(this);
+        }
+
+        private void CreateSplitDummy()
+        {
+            _splitDummy = Instantiate(gameObject, transform.parent);
+            var clonedView = _splitDummy.GetComponent<InventoryItemView>();
+            TMP_Text dummyText = clonedView != null ? clonedView.amountText : null;
+            if (clonedView != null) Destroy(clonedView);
+
+            var cg = _splitDummy.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                cg.alpha = splitGhostAlpha;
+                cg.blocksRaycasts = false;
+            }
+
+            var dummyRect = _splitDummy.GetComponent<RectTransform>();
+            if (dummyRect != null && rectTransform != null)
+            {
+                dummyRect.anchoredPosition = rectTransform.anchoredPosition;
+                dummyRect.sizeDelta = rectTransform.sizeDelta;
+            }
+
+            int stayingAmount = _item.Amount - (_item.Amount / 2);
+
+            if (dummyText != null)
+            {
+                if (stayingAmount > 1)
+                {
+                    dummyText.gameObject.SetActive(true);
+                    dummyText.text = stayingAmount.ToString();
+                }
+                else
+                {
+                    dummyText.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        private void RecalculateOffset()
+        {
+            var rect = rectTransform.rect;
+            _centeringOffset = new Vector2(-rect.width * 0.5f, rect.height * 0.5f);
+        }
+
+        private void SnapToCursor()
+        {
+            var parentRT = transform.parent as RectTransform;
+            if (parentRT == null) return;
+
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRT,
+                Input.mousePosition,
+                null,
+                out var localMousePos))
+            {
+                rectTransform.anchoredPosition = localMousePos + _centeringOffset;
+            }
+        }
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (Cursor.lockState == CursorLockMode.Locked || _isDragging) return;
+
+            PointerEntered?.Invoke(this);
+        }
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            PointerExited?.Invoke(this);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryView.cs">
+using InputModule;
+using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace InventoryModule
+{
+    public sealed class InventoryView : MonoBehaviour
+    {
+        [SerializeField] private GameObject windowRoot;
+        [SerializeField] private RectTransform itemsContainer;
+        [SerializeField] private RectTransform gridBackground;
+        [SerializeField] private InventoryItemView itemPrefab;
+        [SerializeField] private GameObject slotPrefab;
+        [SerializeField] private float tileSize = 64f;
+        [SerializeField] private float spacing = 1f;
+
+        [Header("Tooltip Settings")]
+        [SerializeField] private CanvasGroup tooltipCanvasGroup;
+        [SerializeField] private TMP_Text tooltipText;
+        [SerializeField] private Vector2 tooltipOffset = new Vector2(15f, -15f);
+
+        public event Action<InventoryItemView, Vector2Int> ItemDropped;
+        public event Action<InventoryItemView> ItemRemoved;
+        public event Action<InventoryItemView> ItemDragStarted;
+        public event Action<InventoryItemView> ItemDragEnded;
+        public event Action<InventoryItemView> ItemPointerEntered;
+        public event Action<InventoryItemView> ItemPointerExited;
+
+        private readonly List<InventoryItemView> _spawnedItems = new();
+        private readonly Dictionary<InventoryItemView, Action<InventoryItemView>> _pointerEnteredHandlers = new();
+        private readonly Dictionary<InventoryItemView, Action<InventoryItemView>> _pointerExitedHandlers = new();
+        private IInventoryItemPool _itemPool;
+        private IItemDatabase _itemDatabase;
+        private IInputMap _input;
+
+        public bool IsVisible => windowRoot.activeSelf;
+        public InventoryItemView ItemPrefab => itemPrefab;
+        public RectTransform ItemsContainer => itemsContainer;
+        public void Hide() => Toggle(false);
+
+        public void Initialize(IInventoryItemPool itemPool, IItemDatabase itemDatabase, IInputMap input)
+        {
+            _itemPool = itemPool;
+            _itemDatabase = itemDatabase;
+            _input = input;
+            Hide();
+        }
+
+        private void Update()
+        {
+            if (tooltipCanvasGroup.alpha > 0)
+            {
+                UpdateTooltipPosition();
+            }
+        }
+
+        public void GenerateGrid(int width, int height)
+        {
+            foreach (Transform child in gridBackground)
+                Destroy(child.gameObject);
+
+            var layout = gridBackground.GetComponent<GridLayoutGroup>();
+            if (layout != null)
+            {
+                layout.cellSize = new Vector2(tileSize, tileSize);
+                layout.spacing = new Vector2(spacing, spacing);
+                layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                layout.constraintCount = width;
+            }
+
+            float totalWidth = (width * tileSize) + ((width - 1) * spacing);
+            float totalHeight = (height * tileSize) + ((height - 1) * spacing);
+
+            Vector2 size = new Vector2(totalWidth, totalHeight);
+            gridBackground.sizeDelta = size;
+            itemsContainer.sizeDelta = size;
+
+            int totalSlots = width * height;
+            for (int i = 0; i < totalSlots; i++)
+            {
+                Instantiate(slotPrefab, gridBackground);
+            }
+        }
+
+        public void Toggle(bool state)
+        {
+            if (!state)
+            {
+                HideTooltip();
+            }
+
+            windowRoot.SetActive(state);
+
+            Cursor.visible = state;
+            Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
+        }
+
+        public void Render(IReadOnlyList<InventoryItem> items)
+        {
+            ClearItems();
+
+            foreach (var item in items)
+            {
+                var itemDef = _itemDatabase.GetItem(item.Id);
+                if (itemDef == null)
+                    continue;
+
+                var itemView = _itemPool.Get();
+                itemView.transform.SetParent(itemsContainer, false);
+                itemView.Setup(item, itemDef, tileSize, spacing, () => _input.IsSplitPressed);
+                
+                itemView.DragStarted += OnItemDragStarted;
+                itemView.DragEnded += OnItemDragEnded;
+                itemView.DragUpdated += OnItemDragUpdated;
+                
+                Action<InventoryItemView> enteredHandler = view => ItemPointerEntered?.Invoke(view);
+                Action<InventoryItemView> exitedHandler = view => ItemPointerExited?.Invoke(view);
+                _pointerEnteredHandlers[itemView] = enteredHandler;
+                _pointerExitedHandlers[itemView] = exitedHandler;
+                
+                itemView.PointerEntered += enteredHandler;
+                itemView.PointerExited += exitedHandler;
+
+                _spawnedItems.Add(itemView);
+            }
+        }
+
+        private void OnItemDragStarted(InventoryItemView itemView)
+        {
+            ItemDragStarted?.Invoke(itemView);
+            itemView.transform.SetParent(windowRoot.transform, true);
+        }
+
+        private void OnItemDragUpdated(InventoryItemView itemView)
+        {
+            // Optional: visual feedback during drag
+        }
+
+        private void OnItemDragEnded(InventoryItemView itemView)
+        {
+            Vector2Int gridPos = GetGridPosition(itemView);
+            itemView.transform.SetParent(itemsContainer, true);
+            ItemDropped?.Invoke(itemView, gridPos);
+            ItemDragEnded?.Invoke(itemView);
+        }
+
+        private Vector2Int GetGridPosition(InventoryItemView itemView)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                itemsContainer,
+                Input.mousePosition,
+                null,
+                out var localMousePos
+            );
+            var rect = itemView.GetComponent<RectTransform>().rect;
+            float itemTopLeftX = localMousePos.x - (rect.width * 0.5f);
+            float itemTopLeftY = localMousePos.y + (rect.height * 0.5f);
+
+            float cellSize = tileSize + spacing;
+
+            int x = Mathf.RoundToInt(itemTopLeftX / cellSize);
+            int y = Mathf.RoundToInt(-itemTopLeftY / cellSize);
+
+            return new Vector2Int(x, y);
+        }
+
+        private void ClearItems()
+        {
+            for (int i = _spawnedItems.Count - 1; i >= 0; i--)
+            {
+                var itemView = _spawnedItems[i];
+                if (itemView != null)
+                {
+                    itemView.DragStarted -= OnItemDragStarted;
+                    itemView.DragEnded -= OnItemDragEnded;
+                    itemView.DragUpdated -= OnItemDragUpdated;
+                    
+                    if (_pointerEnteredHandlers.TryGetValue(itemView, out var enteredHandler))
+                    {
+                        itemView.PointerEntered -= enteredHandler;
+                        _pointerEnteredHandlers.Remove(itemView);
+                    }
+                    
+                    if (_pointerExitedHandlers.TryGetValue(itemView, out var exitedHandler))
+                    {
+                        itemView.PointerExited -= exitedHandler;
+                        _pointerExitedHandlers.Remove(itemView);
+                    }
+                    
+                    _itemPool.Return(itemView);
+                }
+            }
+            _spawnedItems.Clear();
+        }
+
+        public Vector2Int GetMouseGridPosition()
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                itemsContainer,
+                Input.mousePosition,
+                null,
+                out var localPos
+            );
+
+            float cellSize = tileSize + spacing;
+            int x = Mathf.FloorToInt(localPos.x / cellSize);
+            int y = Mathf.FloorToInt(-localPos.y / cellSize);
+
+            return new Vector2Int(x, y);
+        }
+
+        public bool IsMouseOverGrid()
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                itemsContainer,
+                Input.mousePosition,
+                null,
+                out var localPos
+            );
+
+            return itemsContainer.rect.Contains(localPos);
+        }
+
+        public void ShowTooltip(string text)
+        {
+            if (tooltipText != null)
+            {
+                tooltipText.text = text;
+                tooltipCanvasGroup.alpha = 1f;
+            }
+        }
+
+        public void HideTooltip()
+        {
+            tooltipCanvasGroup.alpha = 0f;
+        }
+
+        private void UpdateTooltipPosition()
+        {
+            tooltipText.rectTransform.position = new Vector2(
+                Input.mousePosition.x + tooltipOffset.x,
+                Input.mousePosition.y + tooltipOffset.y);
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/LootItemView.cs">
 using UnityEngine;
 
 namespace InventoryModule
 {
-    public sealed class ItemProvider : IItemProvider
+    public sealed class LootItemView : MonoBehaviour
     {
-        private readonly ItemDatabase _itemDatabase;
+        [SerializeField] private ItemDefinition _itemDefinition;
+        [SerializeField] private int _amount;
+        [SerializeField] private MeshRenderer _meshRenderer;
+        [SerializeField] private ParticleSystem _pickupParticles;
+        [SerializeField] private AudioClip _pickupSound;
 
-        public ItemProvider(ItemDatabase itemDatabase)
+        private ItemDefinition _cachedDefinition;
+
+        public ItemDefinition ItemDef => GetItemDefinition();
+        public int Amount => _amount;
+
+        public void Initialize(ItemDefinition definition, int newAmount)
         {
-            _itemDatabase = itemDatabase;
+            _itemDefinition = definition;
+            _amount = newAmount;
+            _cachedDefinition = definition;
         }
 
-        public ItemDefinition GetItemDefinition(string itemId)
-            => _itemDatabase.GetItem(itemId);
+        public void SetAmount(int newAmount)
+        {
+            _amount = Mathf.Max(1, newAmount);
+        }
 
-        public bool TryGetItemDefinition(string itemId, out ItemDefinition itemDefinition)
-            => _itemDatabase.TryGetItem(itemId, out itemDefinition);
+        public void PlayCollectEffects()
+        {
+            if (_pickupParticles != null)
+            {
+                var particles = Instantiate(_pickupParticles, transform.position, Quaternion.identity);
+                Destroy(particles.gameObject, 2f);
+            }
 
-        public Sprite GetItemIcon(string itemId)
-            => _itemDatabase.GetItem(itemId)?.Icon;
+            if (_pickupSound != null)
+            {
+                AudioSource.PlayClipAtPoint(_pickupSound, transform.position);
+            }
+        }
+
+        private ItemDefinition GetItemDefinition()
+        {
+            if (_cachedDefinition != null)
+                return _cachedDefinition;
+
+            if (_itemDefinition != null)
+            {
+                _cachedDefinition = _itemDefinition;
+                return _cachedDefinition;
+            }
+
+            return null;
+        }
     }
 }
 </file>
@@ -4688,6 +5936,30 @@ namespace NpcBaseModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/PlayerModule/PlayerModule.asmdef">
+{
+    "name": "PlayerModule",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ad92713fd5884a16a1e7ccde1a579228",
+        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:a052d9b9b243434c92f8e11262715c1f",
+        "GUID:f952cb0599c86ac4794b61418ea81496",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
+</file>
+
 <file path="Assets/_Main/Scripts/PlayerModule/Runtime/Controllers/InventoryDeathHandler.cs">
 using System;
 using ComponentsModule;
@@ -4717,6 +5989,110 @@ namespace PlayerModule
         }
 
         private void OnDied() => _inventoryService.ClearInventory();
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Controllers/PlayerInteractionController.cs">
+using InputModule;
+using InventoryModule;
+using System;
+using UIModule;
+using UnityEngine;
+using Zenject;
+
+namespace PlayerModule
+{
+    public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
+    {
+        private readonly IInputMap _input;
+        private readonly IInventoryService _inventoryService;
+        private readonly Camera _camera;
+        private readonly PlayerConfig _config;
+        private readonly UIModule.InteractionHUDView _hud;
+
+        public event Action<LootItemView> HoverChanged;
+        private LootItemView _currentHoveredLoot;
+
+        public PlayerInteractionController(
+            IInputMap input,
+            IInventoryService inventoryService,
+            PlayerConfig config)
+        {
+            _input = input ?? throw new ArgumentNullException(nameof(input));
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _config = config;
+            _camera = Camera.main;
+        }
+
+        public void Initialize()
+        {
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public void Tick()
+        {
+            var ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+
+            if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))
+            {
+                var loot = hit.collider.GetComponentInParent<LootItemView>();
+                UpdateHover(loot);
+
+                if (loot != null && _input.IsInteractPressed)
+                {
+                    TryPickUpLoot(loot);
+                }
+            }
+            else
+            {
+                UpdateHover(null);
+            }
+        }
+
+        private void UpdateHover(LootItemView newLoot)
+        {
+            if (_currentHoveredLoot == null && newLoot == null) return;
+            if (_currentHoveredLoot != null && newLoot == null)
+            {
+                _currentHoveredLoot = null;
+                HoverChanged?.Invoke(null);
+                return;
+            }
+
+            if (_currentHoveredLoot == newLoot) return;
+
+            _currentHoveredLoot = newLoot;
+            HoverChanged?.Invoke(_currentHoveredLoot);
+        }
+
+        private void TryPickUpLoot(LootItemView loot)
+        {
+            try
+            {
+                var itemDefinition = loot.ItemDef;
+
+                if (itemDefinition == null)
+                {
+                    return;
+                }
+
+                var result = _inventoryService.AddItem(itemDefinition, loot.Amount);
+
+                if (result.Success)
+                {
+                    loot.PlayCollectEffects();
+                    UpdateHover(null);
+                    UnityEngine.Object.Destroy(loot.gameObject);
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
     }
 }
 </file>
@@ -4888,6 +6264,167 @@ namespace PlayerModule
 }
 </file>
 
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Installers/PlayerInstaller.cs">
+using ComponentsModule;
+using UIModule;
+using UnityEngine;
+using Zenject;
+using InventoryModule;
+
+namespace PlayerModule
+{
+    public class PlayerInstaller : MonoInstaller
+    {
+        [Header("References")]
+        [SerializeField] private CharacterController characterController;
+        [SerializeField] private Transform cameraRoot;
+        [SerializeField] private Transform player;
+        
+        [Header("Health")]
+        [SerializeField] private HealthView healthView;
+        
+        [Header("Settings")]
+        [SerializeField] private PlayerConfig config;
+
+        [Header("UI")]
+        [SerializeField] private InteractionHUDView interactionHUDView;
+
+        private void OnValidate()
+        {
+            player ??= transform;
+            characterController ??= GetComponent<CharacterController>();
+        }
+
+        public override void InstallBindings()
+        {
+            Container.Bind<PlayerConfig>()
+                .FromInstance(config)
+                .AsSingle();
+
+            Container.Bind<CharacterController>()
+                .FromInstance(characterController)
+                .AsSingle();
+
+            Container.Bind<Transform>()
+                .FromInstance(player)
+                .AsSingle();
+
+            Container.Bind<IMoveComponent>()
+                .To<MoveComponent>()
+                .AsSingle()
+                .WithArguments(config.WalkSpeed, config.JumpHeight, config.Gravity);
+
+            Container.Bind<IRotationComponent>()
+                .To<RotationComponent>()
+                .AsSingle()
+                .WithArguments(config.MouseSensitivity, config.LookXLimit);
+
+            Container.Bind<ICrouchComponent>()
+                .To<CrouchComponent>()
+                .AsSingle()
+                .WithArguments(cameraRoot, config.CrouchData);
+
+            Container.Bind<ILeanComponent>()
+                .To<LeanComponent>()
+                .AsSingle()
+                .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
+
+            Container.Bind<HealthView>()
+                .FromInstance(healthView)
+                .AsSingle();
+            
+            Container.BindInterfacesTo<HealthPresenter>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesTo<PlayerMovementController>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<PlayerInteractionController>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
+                .To<HealthComponent>()
+                .AsSingle()
+                .WithArguments(config.MaxHealth);
+
+            Container.BindInterfacesTo<InventoryDeathHandler>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInstance(interactionHUDView)
+                .AsSingle();
+
+            Container.BindInterfacesTo<InteractionPresenter>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<IPlayerPositionProvider>()
+                .FromInstance(player.GetComponent<PlayerProvider>())
+                .AsSingle();
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Presenters/InteractionPresenter.cs">
+using System;
+using Zenject;
+using UIModule;
+using InventoryModule;
+
+namespace PlayerModule
+{
+    public class InteractionPresenter : IInitializable, IDisposable
+    {
+        private readonly PlayerInteractionController _controller;
+        private readonly InteractionHUDView _view;
+        private readonly PlayerConfig _config;
+        private string _cachedMessage;
+        private LootItemView _lastLoot;
+
+        public InteractionPresenter(
+            PlayerInteractionController controller,
+            InteractionHUDView view,
+            PlayerConfig config)
+        {
+            _controller = controller;
+            _view = view;
+            _config = config;
+        }
+
+        public void Initialize()
+        {
+            _view.Show("");
+            _view.Hide();
+            _controller.HoverChanged += OnHoverChanged;
+        }
+
+        public void Dispose()
+        {
+            _controller.HoverChanged -= OnHoverChanged;
+        }
+
+        private void OnHoverChanged(LootItemView loot)
+        {
+            if (loot == null)
+            {
+                _lastLoot = null;
+                _view.Hide();
+                return;
+            }
+            if (_lastLoot == loot) return;
+
+            _lastLoot = loot;
+            _cachedMessage = string.Format(_config.InteractionHintFormat, loot.ItemDef.ItemName, loot.Amount);
+            _view.Show(_cachedMessage);
+        }
+    }
+}
+</file>
+
 <file path="Assets/_Main/Scripts/UIModule/Runtime/Presenters/HealthPresenter.cs">
 using System;
 using Zenject;
@@ -4947,6 +6484,31 @@ namespace UIModule
 
             if (healthText)
                 healthText.text = $"{Mathf.CeilToInt(current)} / {max}";
+        }
+    }
+}
+</file>
+
+<file path="Assets/_Main/Scripts/UIModule/Runtime/View/InteractionHUDView.cs">
+using TMPro;
+using UnityEngine;
+
+namespace UIModule
+{
+    public class InteractionHUDView : MonoBehaviour
+    {
+        [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private TMP_Text hintText;
+
+        public void Show(string message)
+        {
+            hintText.text = message;
+            canvasGroup.alpha = 1f;
+        }
+
+        public void Hide()
+        {
+            canvasGroup.alpha = 0f;
         }
     }
 }
@@ -5871,1285 +7433,6 @@ namespace WeaponModule
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
-}
-</file>
-
-<file path="Assets/_Main/Scripts/ComponentsModule/ComponentsModule.asmdef">
-{
-    "name": "ComponentsModule",
-    "rootNamespace": "",
-    "references": [],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InputModule/Core/IInputService.cs">
-namespace InputModule
-{
-    public interface IInputService
-    {
-        void Enable();
-        void Disable();
-        void SetUIMode(bool isActive);
-        void SetBuildMode(bool isActive);
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/InventoryModule.asmdef">
-{
-    "name": "InventoryModule",
-    "rootNamespace": "",
-    "references": [
-        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
-        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:ad92713fd5884a16a1e7ccde1a579228"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/LootItemView.cs">
-using UnityEngine;
-
-namespace InventoryModule
-{
-    public class LootItemView : MonoBehaviour
-    {
-        [SerializeField] private ItemDefinition itemDefinition;
-        [SerializeField] private int amount = 1;
-
-        [SerializeField] private MeshRenderer meshRenderer;
-        [SerializeField] private ParticleSystem pickupParticles;
-        [SerializeField] private AudioClip pickupSound;
-        private ItemDefinition _cachedDefinition;
-
-        public ItemDefinition ItemDef => GetItemDefinition();
-        public int Amount => amount;
-
-        public void SetAmount(int newAmount)
-        {
-            amount = Mathf.Max(1, newAmount);
-        }
-
-        private ItemDefinition GetItemDefinition()
-        {
-            if (_cachedDefinition != null)
-                return _cachedDefinition;
-
-            if (itemDefinition != null)
-            {
-                _cachedDefinition = itemDefinition;
-                return _cachedDefinition;
-            }
-
-            return null;
-        }
-        public void Initialize(ItemDefinition definition, int newAmount)
-        {
-            this.itemDefinition = definition;
-            this.amount = newAmount;
-            _cachedDefinition = definition;
-        }
-        public void Collect()
-        {
-            if (pickupParticles != null)
-            {
-                var particles = Instantiate(pickupParticles, transform.position, Quaternion.identity);
-                Destroy(particles.gameObject, 2f);
-            }
-
-            if (pickupSound != null)
-            {
-                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
-            }
-
-            Destroy(gameObject);
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Controllers/PlayerInteractionController.cs">
-using Cysharp.Threading.Tasks;
-using InputModule;
-using InventoryModule;
-using System;
-using System.Threading;
-using UIModule;
-using UnityEngine;
-using Zenject;
-
-namespace PlayerModule
-{
-    public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
-    {
-        private readonly IInputMap _input;
-        private readonly IInventoryService _inventoryService;
-        private readonly IItemProvider _itemProvider;
-        private readonly Camera _camera;
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly PlayerConfig _config;
-        private readonly UIModule.InteractionHUDView _hud;
-
-        public event Action<LootItemView> HoverChanged;
-        private LootItemView _currentHoveredLoot;
-
-        public PlayerInteractionController(
-            IInputMap input,
-            IInventoryService inventoryService,
-            IItemProvider itemProvider,
-            PlayerConfig config)
-        {
-            _input = input ?? throw new ArgumentNullException(nameof(input));
-            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
-            _config = config;
-            _camera = Camera.main;
-            _cancellationTokenSource = new CancellationTokenSource();
-        }
-
-        public void Initialize()
-        {
-            // Initialization if needed
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
-        }
-
-        public void Tick()
-        {
-            var ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-
-            if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))
-            {
-                var loot = hit.collider.GetComponentInParent<LootItemView>();
-                UpdateHover(loot);
-
-                if (loot != null && _input.IsInteractPressed)
-                {
-                    TryPickUpLootAsync(loot).Forget();
-                }
-            }
-            else
-            {
-                UpdateHover(null);
-            }
-        }
-        private void UpdateHover(LootItemView newLoot)
-        {
-            if (_currentHoveredLoot == null && newLoot == null) return;
-            if (_currentHoveredLoot != null && newLoot == null)
-            {
-                _currentHoveredLoot = null;
-                HoverChanged?.Invoke(null);
-                return;
-            }
-
-            if (_currentHoveredLoot == newLoot) return;
-
-            _currentHoveredLoot = newLoot;
-            HoverChanged?.Invoke(_currentHoveredLoot);
-        }
-        private async UniTaskVoid TryPickUpLootAsync(LootItemView loot)
-        {
-            var token = _cancellationTokenSource.Token;
-
-            try
-            {
-                var itemDefinition = _itemProvider.GetItemDefinition(loot.ItemDef.Id);
-
-                if (itemDefinition == null)
-                {
-                    Debug.LogWarning($"Item definition not found for loot: {loot.ItemDef.Id}");
-                    return;
-                }
-
-                var result = await _inventoryService.AddItemAsync(
-                    itemDefinition,
-                    loot.Amount,
-                    token);
-
-                if (result.Success)
-                {
-                    loot.Collect();
-                    UpdateHover(null);
-                }
-                else
-                {
-                    Debug.LogWarning($"Failed to pick up loot: {result.ErrorMessage}");
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // Operation was cancelled, ignore
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError($"Error picking up loot: {exception}");
-            }
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InputModule/Core/GameInputService.cs">
-using UnityEngine;
-using System;
-using InputModule.Configs;
-
-namespace InputModule
-{
-    public class GameInputService : IInputMap, IInputService, IDisposable
-    {
-        private readonly InputSystem_Actions _actions;
-
-        public GameInputService()
-        {
-            _actions = new();
-            _actions.Player.Enable();
-            _actions.Global.Enable();
-            _actions.Build.Enable();
-        }
-        public void SetUIMode(bool isActive)
-        {
-            if (isActive)
-            {
-                _actions.Player.Disable();
-                _actions.Build.Disable();
-            }
-            else
-            {
-                _actions.Player.Enable();
-                _actions.Build.Enable();
-            }
-        }
-        public void SetBuildMode(bool isActive)
-        {
-            if (isActive)
-            {
-                _actions.Player.Disable();
-                _actions.Global.Disable();
-                _actions.Build.Enable();
-
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                _actions.Player.Enable();
-                _actions.Global.Enable();
-                _actions.Build.Disable();
-
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        }
-        public Vector2 MoveInput => _actions.Player.Move.ReadValue<Vector2>();
-        public Vector2 LookInput => _actions.Player.Look.ReadValue<Vector2>();
-        public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
-        public bool IsCrouchPressed => _actions.Player.Crouch.IsPressed();
-        public float LeanInput => _actions.Player.Lean.ReadValue<float>();
-        public bool IsInteractPressed => _actions.Player.Interact.WasPressedThisFrame();
-
-        public bool IsFirePressed => _actions.Player.Attack.IsPressed();
-        public bool IsAimPressed => _actions.Player.Aim.IsPressed();
-        public bool IsAimHeld => _actions.Player.Aim.IsPressed();
-        public bool IsAimTriggered => _actions.Player.Aim.WasPressedThisFrame();
-        public bool IsReloadPressed => _actions.Player.Reload.WasPressedThisFrame();
-        public bool IsHolsterPressed => _actions.Player.Holster.WasPressedThisFrame();
-
-        public bool IsInventoryPressed => _actions.Global.ToggleInventory.WasPressedThisFrame();
-        public bool IsRotatePressed => _actions.Global.RotateItem.WasPressedThisFrame();
-        public bool IsSplitPressed => _actions.Global.SplitStack.IsPressed();
-
-        public bool IsBuildPressed => _actions.Player.Build.WasPressedThisFrame() ||
-                               _actions.Build.Build.WasPressedThisFrame();
-        public int SelectWeaponIndex
-        {
-            get
-            {
-                if (_actions.Player.Weapon1.WasPressedThisFrame()) return 0;
-                if (_actions.Player.Weapon2.WasPressedThisFrame()) return 1;
-                if (_actions.Player.Weapon3.WasPressedThisFrame()) return 2;
-
-                return -1;
-            }
-        }
-
-        public float WeaponScroll
-        {
-            get
-            {
-                float scrollValue = _actions.Player.WeaponScroll.ReadValue<float>();
-
-                if (scrollValue > 0) return 1f;
-
-                if (scrollValue < 0) return -1f;
-
-                return 0f;
-            }
-        }
-
-        public void Enable() => _actions.Enable();
-        public void Disable() => _actions.Disable();
-
-        public void Dispose()
-        {
-            _actions.Player.Disable();
-            _actions.Global.Disable();
-            _actions.Build.Disable();
-            _actions.Disable();
-            _actions.Dispose();
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InputModule/Core/IInputMap.cs">
-using UnityEngine;
-
-namespace InputModule
-{
-    public interface IInputMap
-    {
-        Vector2 MoveInput { get; }
-        Vector2 LookInput { get; }
-        bool IsJumpPressed { get; }
-        bool IsCrouchPressed { get; }
-        float LeanInput { get; }
-        bool IsInteractPressed { get; }
-
-        float WeaponScroll { get; }
-        int SelectWeaponIndex { get; }
-        bool IsFirePressed { get; }
-        bool IsAimPressed { get; }
-        bool IsReloadPressed { get; }
-        bool IsHolsterPressed { get; }
-        bool IsAimHeld { get; }
-        bool IsAimTriggered { get; }
-
-        bool IsInventoryPressed { get; }
-        bool IsRotatePressed { get; }
-        bool IsSplitPressed { get; }
-
-        bool IsBuildPressed { get; }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Core/InventoryItem.cs">
-using UnityEngine;
-
-public class InventoryItem
-{
-    public string Id { get; }
-    public Vector2Int Position { get; internal set; }
-    private readonly int _baseWidth;
-    private readonly int _baseHeight;
-    public int MaxStack { get; }
-    public int Amount { get; set; }
-    public bool IsRotated { get; internal set; }
-
-    public Vector2Int Size => IsRotated
-        ? new Vector2Int(_baseHeight, _baseWidth)
-        : new Vector2Int(_baseWidth, _baseHeight);
-
-    public Vector2Int BaseSize => new Vector2Int(_baseWidth, _baseHeight);
-
-    public Vector2Int GetSize(bool rotated)
-    {
-        return rotated
-            ? new Vector2Int(_baseHeight, _baseWidth)
-            : new Vector2Int(_baseWidth, _baseHeight);
-    }
-
-    public InventoryItem(string id, Vector2Int position, Vector2Int size, int maxStack, int amount)
-    {
-        Id = id;
-        Position = position;
-        _baseWidth = size.x;
-        _baseHeight = size.y;
-        MaxStack = maxStack;
-        Amount = amount;
-        IsRotated = false;
-    }
-
-    public bool TryAddAmount(int value, out int remainder)
-    {
-        int space = MaxStack - Amount;
-        int toAdd = Mathf.Min(space, value);
-        Amount += toAdd;
-        remainder = value - toAdd;
-        return remainder < value;
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Core/InventoryModel.cs">
-using System;
-using System.Collections.Generic;
-
-namespace InventoryModule
-{
-    public sealed class InventoryModel
-    {
-        private readonly List<InventoryItem> _items = new();
-
-        public int Width { get; }
-        public int Height { get; }
-        public IReadOnlyList<InventoryItem> Items => _items;
-
-        public InventoryModel(int width, int height)
-        {
-            if (width <= 0 || height <= 0)
-                throw new ArgumentException("Inventory dimensions must be positive");
-
-            Width = width;
-            Height = height;
-        }
-
-        public void AddItem(InventoryItem item)
-        {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
-
-            if (_items.Contains(item))
-                throw new InvalidOperationException("Item already exists in inventory");
-
-            _items.Add(item);
-        }
-
-        public void RemoveItem(InventoryItem item)
-        {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item));
-
-            if (!_items.Contains(item))
-                throw new InvalidOperationException("Item not found in inventory");
-
-            _items.Remove(item);
-        }
-
-        public void Clear()
-        {
-            _items.Clear();
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/Presenter/InventoryPresenter.cs">
-using Cysharp.Threading.Tasks;
-using InputModule;
-using System;
-using System.Threading;
-using UnityEngine;
-using Zenject;
-using ComponentsModule;
-
-namespace InventoryModule
-{
-    public sealed class InventoryPresenter : IInitializable, ITickable, IDisposable
-    {
-        private readonly IInventoryService _inventoryService;
-        private readonly IItemProvider _itemProvider;
-        private readonly InventoryView _view;
-        private readonly IInputMap _inputMap;
-        private readonly IInputService _inputService;
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly IPlayerPositionProvider _playerPosition;
-        private readonly InventoryConfig _config;
-        private InventoryItemView _currentlyDraggedItem;
-        private float _lastOpenTime;
-
-        public InventoryPresenter(
-            IInventoryService inventoryService,
-            IItemProvider itemProvider,
-            InventoryView view,
-            IInputMap inputMap,
-            IInputService inputService,
-            IPlayerPositionProvider playerPosition,
-            InventoryConfig config)
-        {
-            _inventoryService = inventoryService;
-            _itemProvider = itemProvider;
-            _view = view;
-            _inputMap = inputMap;
-            _inputService = inputService;
-            _playerPosition = playerPosition;
-            _config = config;
-            _cancellationTokenSource = new CancellationTokenSource();
-        }
-
-        public void Initialize()
-        {
-            _view.Initialize(_itemProvider, _inputMap);
-            _view.GenerateGrid(_inventoryService.Width, _inventoryService.Height);
-
-            _inventoryService.InventoryUpdated += OnInventoryUpdated;
-            _view.ItemDropped += OnItemDropped;
-
-            _view.ItemDragStarted += OnItemDragStarted;
-            _view.ItemDragEnded += OnItemDragEnded;
-
-            _view.ItemPointerEntered += OnItemPointerEntered;
-            _view.ItemPointerExited += OnItemPointerExited;
-            
-            OnInventoryUpdated();
-            _view.HideTooltip();
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
-
-            _inventoryService.InventoryUpdated -= OnInventoryUpdated;
-            _view.ItemDropped -= OnItemDropped;
-
-            _view.ItemDragStarted -= OnItemDragStarted;
-            _view.ItemDragEnded -= OnItemDragEnded;
-
-            _view.ItemPointerEntered -= OnItemPointerEntered;
-            _view.ItemPointerExited -= OnItemPointerExited;
-        }
-
-        private void OnItemDragStarted(InventoryItemView view) => _currentlyDraggedItem = view;
-        private void OnItemDragEnded(InventoryItemView view) => _currentlyDraggedItem = null;
-        public void Tick()
-        {
-            if (_inputMap.IsInventoryPressed)
-            {
-                bool newState = !_view.IsVisible;
-
-                if (newState)
-                {
-                    _lastOpenTime = Time.time;
-                }
-                else
-                {
-                    _view.HideTooltip();
-                }
-
-                _view.Toggle(newState);
-                _inputService.SetUIMode(newState);
-            }
-
-            if (_view.IsVisible && _inputMap.IsRotatePressed && _currentlyDraggedItem != null)
-            {
-                _currentlyDraggedItem.Rotate();
-            }
-        }
-
-        private async void OnItemDropped(InventoryItemView itemView, Vector2Int newPosition)
-        {
-            var item = itemView.Item;
-            if (item == null) return;
-
-            if (!_view.IsMouseOverGrid())
-            {
-                await HandleItemDiscard(itemView);
-                return;
-            }
-
-            InventoryOperationResult result;
-
-            if (itemView.IsSplitting)
-            {
-                result = await _inventoryService.SplitItemAsync(
-                    item,
-                    newPosition,
-                    itemView.LocalIsRotated,
-                    _cancellationTokenSource.Token);
-            }
-            else
-            {
-                result = await _inventoryService.MoveItemAsync(
-                    item,
-                    newPosition,
-                    itemView.LocalIsRotated,
-                    _cancellationTokenSource.Token);
-            }
-            OnInventoryUpdated();
-        }
-
-        private void OnItemPointerEntered(InventoryItemView itemView)
-        {
-            if (!_view.IsVisible || (Time.time - _lastOpenTime) < 0.1f)
-                return;
-
-            if (_itemProvider.TryGetItemDefinition(itemView.Item.Id, out var itemDef))
-            {
-                _view.ShowTooltip(itemDef.ItemName);
-            }
-        }
-
-        private void OnItemPointerExited(InventoryItemView itemView)
-        {
-            _view.HideTooltip();
-        }
-        private async UniTask HandleItemDiscard(InventoryItemView itemView)
-        {
-            var item = itemView.Item;
-            if (item == null) return;
-            if (!_itemProvider.TryGetItemDefinition(item.Id, out var itemDef)) return;
-            int amountToDiscard;
-            if (itemView.IsSplitting)
-            {
-                amountToDiscard = item.Amount / 2;
-                item.Amount -= amountToDiscard;
-            }
-            else
-            {
-                amountToDiscard = item.Amount;
-                var result = await _inventoryService.RemoveItemAsync(item, _cancellationTokenSource.Token);
-
-                if (!result.Success)
-                {
-                    return;
-                }
-            }
-            SpawnItemInWorld(itemDef, amountToDiscard);
-            OnInventoryUpdated();
-        }
-
-        private void SpawnItemInWorld(ItemDefinition itemDef, int amount)
-        {
-            if (itemDef.WorldPrefab == null)
-            {
-                return;
-            }
-
-            Vector3 spawnPos = _playerPosition.Position
-                               + _playerPosition.Forward * _config.DiscardOffset
-                               + Vector3.up * _config.DiscardUpOffset;
-
-            LootItemView worldItem = GameObject.Instantiate(
-                itemDef.WorldPrefab,
-                spawnPos,
-                _playerPosition.Rotation);
-
-            worldItem.Initialize(itemDef, amount);
-
-            if (worldItem.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.AddForce(_playerPosition.Forward * _config.DiscardThrowForce, ForceMode.Impulse);
-            }
-        }
-        private void OnInventoryUpdated()
-        {
-            if (_view == null) return;
-            var items = _inventoryService.GetAllItems();
-            _view.Render(items, _itemProvider);
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryItemView.cs">
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using TMPro;
-using System;
-
-namespace InventoryModule
-{
-    public class InventoryItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
-    {
-        [Header("References")]
-        [SerializeField] private Image iconImage;
-        [SerializeField] private TMP_Text amountText;
-        [SerializeField] private RectTransform rectTransform;
-        [SerializeField] private CanvasGroup canvasGroup;
-
-        [Header("Settings")]
-        [Range(0f, 1f)]
-        [SerializeField] private float dragAlpha = 0.7f;
-        [Range(0f, 1f)]
-        [SerializeField] private float splitGhostAlpha = 0.5f;
-
-        public event System.Action<InventoryItemView> DragStarted;
-        public event System.Action<InventoryItemView> DragEnded;
-        public event System.Action<InventoryItemView> DragUpdated;
-        public event Action<InventoryItemView> PointerEntered;
-        public event Action<InventoryItemView> PointerExited;
-
-        private InventoryItem _item;
-        private float _tileSize;
-        private float _spacing;
-
-        private Vector2 _centeringOffset;
-        private bool _localIsRotated;
-        private bool _isSplitting;
-        private int _originalAmount;
-        private bool _isDragging;
-        private bool _rotatePressedLastFrame;
-        private bool _canRotate;
-        private Func<bool> _splitCheck;
-
-        private GameObject _splitDummy;
-
-        public InventoryItem Item => _item;
-        public bool IsSplitting => _isSplitting;
-        public bool LocalIsRotated => _localIsRotated;
-
-        public void Setup(InventoryItem item, ItemDefinition config, float tileSize, float spacing, Func<bool> splitCheck)
-        {
-            _item = item;
-            _tileSize = tileSize;
-            _spacing = spacing;
-            _splitCheck = splitCheck;
-
-            _canRotate = config.CanRotate;
-            _localIsRotated = item.IsRotated;
-            _originalAmount = item.Amount;
-            _isDragging = false;
-
-            if (iconImage != null)
-                iconImage.sprite = config.Icon;
-
-            UpdateVisuals();
-        }
-
-        public void Rotate()
-        {
-            if (!_canRotate) return;
-            _localIsRotated = !_localIsRotated;
-            UpdateVisuals();
-            RecalculateOffset();
-            SnapToCursor();
-            DragUpdated?.Invoke(this);
-        }
-
-        private void UpdateVisuals()
-        {
-            if (_item == null) return;
-
-            int baseW = _item.IsRotated ? _item.Size.y : _item.Size.x;
-            int baseH = _item.IsRotated ? _item.Size.x : _item.Size.y;
-            int currentW = _localIsRotated ? baseH : baseW;
-            int currentH = _localIsRotated ? baseW : baseH;
-
-            float widthPx = (currentW * _tileSize) + ((currentW - 1) * _spacing);
-            float heightPx = (currentH * _tileSize) + ((currentH - 1) * _spacing);
-
-            rectTransform.sizeDelta = new Vector2(widthPx, heightPx);
-
-            if (!_isDragging)
-            {
-                float posX = (_item.Position.x * _tileSize) + (_item.Position.x * _spacing);
-                float posY = -((_item.Position.y * _tileSize) + (_item.Position.y * _spacing));
-                rectTransform.anchoredPosition = new Vector2(posX, posY);
-                rectTransform.localScale = Vector3.one;
-                rectTransform.localPosition = new Vector3(rectTransform.localPosition.x, rectTransform.localPosition.y, 0);
-            }
-
-            if (amountText != null)
-            {
-                int showAmount = _isSplitting ? (_originalAmount / 2) : _item.Amount;
-                if (showAmount > 1)
-                {
-                    amountText.gameObject.SetActive(true);
-                    amountText.text = showAmount.ToString();
-                }
-                else
-                {
-                    amountText.gameObject.SetActive(false);
-                }
-            }
-        }
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            PointerExited?.Invoke(this);
-            _isDragging = true;
-            _isSplitting = _splitCheck != null && _splitCheck.Invoke() && _item.Amount > 1;
-
-            if (_isSplitting)
-            {
-                CreateSplitDummy();
-                int moveAmount = _item.Amount / 2;
-                if (amountText != null) amountText.text = moveAmount.ToString();
-            }
-
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = dragAlpha;
-            RecalculateOffset();
-            DragStarted?.Invoke(this);
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            SnapToCursor();
-            DragUpdated?.Invoke(this);
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            _isDragging = false;
-            canvasGroup.blocksRaycasts = true;
-            canvasGroup.alpha = 1f;
-
-            if (_splitDummy != null)
-                Destroy(_splitDummy);
-
-            DragEnded?.Invoke(this);
-        }
-
-        private void CreateSplitDummy()
-        {
-            _splitDummy = Instantiate(gameObject, transform.parent);
-            var clonedView = _splitDummy.GetComponent<InventoryItemView>();
-            TMP_Text dummyText = clonedView != null ? clonedView.amountText : null;
-            if (clonedView != null) Destroy(clonedView);
-
-            var cg = _splitDummy.GetComponent<CanvasGroup>();
-            if (cg == null) cg = _splitDummy.AddComponent<CanvasGroup>();
-            cg.alpha = splitGhostAlpha;
-            cg.blocksRaycasts = false;
-
-            var dummyRect = _splitDummy.GetComponent<RectTransform>();
-            if (dummyRect != null && rectTransform != null)
-            {
-                dummyRect.anchoredPosition = rectTransform.anchoredPosition;
-                dummyRect.sizeDelta = rectTransform.sizeDelta;
-            }
-
-            int stayingAmount = _originalAmount - (_originalAmount / 2);
-
-            if (dummyText != null)
-            {
-                if (stayingAmount > 1)
-                {
-                    dummyText.gameObject.SetActive(true);
-                    dummyText.text = stayingAmount.ToString();
-                }
-                else
-                {
-                    dummyText.gameObject.SetActive(false);
-                }
-            }
-        }
-
-        private void RecalculateOffset()
-        {
-            var rect = rectTransform.rect;
-            _centeringOffset = new Vector2(-rect.width * 0.5f, rect.height * 0.5f);
-        }
-
-        private void SnapToCursor()
-        {
-            var parentRT = transform.parent as RectTransform;
-            if (parentRT == null) return;
-
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parentRT,
-                Input.mousePosition,
-                null,
-                out var localMousePos))
-            {
-                rectTransform.anchoredPosition = localMousePos + _centeringOffset;
-            }
-        }
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (Cursor.lockState == CursorLockMode.Locked || _isDragging) return;
-
-            PointerEntered?.Invoke(this);
-        }
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            PointerExited?.Invoke(this);
-        }
-        private void OnEnable()
-        {
-            _isDragging = false;
-            _rotatePressedLastFrame = false;
-        }
-        private void OnDisable()
-        {
-            PointerExited?.Invoke(this);
-            _isDragging = false;
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/InventoryModule/Runtime/View/InventoryView.cs">
-using InputModule;
-using System;
-using System.Collections.Generic;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
-
-namespace InventoryModule
-{
-    public sealed class InventoryView : MonoBehaviour
-    {
-        [SerializeField] private GameObject windowRoot;
-        [SerializeField] private RectTransform itemsContainer;
-        [SerializeField] private RectTransform gridBackground;
-        [SerializeField] private InventoryItemView itemPrefab;
-        [SerializeField] private GameObject slotPrefab;
-        [SerializeField] private float tileSize = 64f;
-        [SerializeField] private float spacing = 1f;
-
-        [Header("Tooltip Settings")]
-        [SerializeField] private CanvasGroup tooltipCanvasGroup;
-        [SerializeField] private TMP_Text tooltipText;
-        [SerializeField] private Vector2 tooltipOffset = new Vector2(15f, -15f);
-
-        public event Action<InventoryItemView, Vector2Int> ItemDropped;
-        public event Action<InventoryItemView> ItemRemoved;
-        public event Action<InventoryItemView> ItemDragStarted;
-        public event Action<InventoryItemView> ItemDragEnded;
-        public event Action<InventoryItemView> ItemPointerEntered;
-        public event Action<InventoryItemView> ItemPointerExited;
-
-        private readonly List<InventoryItemView> _spawnedItems = new();
-        private IItemProvider _itemProvider;
-        private IInputMap _input;
-
-        public bool IsVisible => windowRoot.activeSelf;
-        public void Hide() => Toggle(false);
-
-        public void Initialize(IItemProvider itemProvider, IInputMap input)
-        {
-            _itemProvider = itemProvider;
-            _input = input;
-            Hide();
-        }
-
-        private void Update()
-        {
-            if (tooltipCanvasGroup.alpha > 0)
-            {
-                UpdateTooltipPosition();
-            }
-        }
-
-        public void GenerateGrid(int width, int height)
-        {
-            foreach (Transform child in gridBackground)
-                Destroy(child.gameObject);
-
-            var layout = gridBackground.GetComponent<GridLayoutGroup>();
-            if (layout != null)
-            {
-                layout.cellSize = new Vector2(tileSize, tileSize);
-                layout.spacing = new Vector2(spacing, spacing);
-                layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-                layout.constraintCount = width;
-            }
-
-            float totalWidth = (width * tileSize) + ((width - 1) * spacing);
-            float totalHeight = (height * tileSize) + ((height - 1) * spacing);
-
-            Vector2 size = new Vector2(totalWidth, totalHeight);
-            gridBackground.sizeDelta = size;
-            itemsContainer.sizeDelta = size;
-
-            int totalSlots = width * height;
-            for (int i = 0; i < totalSlots; i++)
-            {
-                Instantiate(slotPrefab, gridBackground);
-            }
-        }
-
-        public void Toggle(bool state)
-        {
-            if (!state)
-            {
-                HideTooltip();
-            }
-
-            windowRoot.SetActive(state);
-
-            Cursor.visible = state;
-            Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
-        }
-
-        public void Render(IReadOnlyList<InventoryItem> items, IItemProvider itemProvider)
-        {
-            ClearItems();
-
-            foreach (var item in items)
-            {
-                var itemDef = itemProvider.GetItemDefinition(item.Id);
-                if (itemDef == null) continue;
-
-                var itemView = Instantiate(itemPrefab, itemsContainer);
-                itemView.Setup(item, itemDef, tileSize, spacing, () => _input.IsSplitPressed);
-                itemView.DragStarted += OnItemDragStarted;
-                itemView.DragEnded += OnItemDragEnded;
-                itemView.DragUpdated += OnItemDragUpdated;
-                itemView.PointerEntered += view => ItemPointerEntered?.Invoke(view);
-                itemView.PointerExited += view => ItemPointerExited?.Invoke(view);
-
-                _spawnedItems.Add(itemView);
-            }
-        }
-
-        private void OnItemDragStarted(InventoryItemView itemView)
-        {
-            ItemDragStarted?.Invoke(itemView);
-            itemView.transform.SetParent(windowRoot.transform, true);
-        }
-
-        private void OnItemDragUpdated(InventoryItemView itemView)
-        {
-            // Optional: visual feedback during drag
-        }
-
-        private void OnItemDragEnded(InventoryItemView itemView)
-        {
-            Vector2Int gridPos = GetGridPosition(itemView);
-            itemView.transform.SetParent(itemsContainer, true);
-            ItemDropped?.Invoke(itemView, gridPos);
-            ItemDragEnded?.Invoke(itemView);
-        }
-
-        private Vector2Int GetGridPosition(InventoryItemView itemView)
-        {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                itemsContainer,
-                Input.mousePosition,
-                null,
-                out var localMousePos
-            );
-            var rect = itemView.GetComponent<RectTransform>().rect;
-            float itemTopLeftX = localMousePos.x - (rect.width * 0.5f);
-            float itemTopLeftY = localMousePos.y + (rect.height * 0.5f);
-
-            float cellSize = tileSize + spacing;
-
-            int x = Mathf.RoundToInt(itemTopLeftX / cellSize);
-            int y = Mathf.RoundToInt(-itemTopLeftY / cellSize);
-
-            return new Vector2Int(x, y);
-        }
-
-        private void ClearItems()
-        {
-            for (int i = _spawnedItems.Count - 1; i >= 0; i--)
-            {
-                if (_spawnedItems[i] != null)
-                    Destroy(_spawnedItems[i].gameObject);
-            }
-            _spawnedItems.Clear();
-        }
-
-        public Vector2Int GetMouseGridPosition()
-        {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                itemsContainer,
-                Input.mousePosition,
-                null,
-                out Vector2 localPoint
-            );
-
-            float step = tileSize + spacing;
-            int x = Mathf.FloorToInt(localPoint.x / step);
-            int y = Mathf.FloorToInt(-localPoint.y / step);
-
-            return new Vector2Int(x, y);
-        }
-
-        public void ShowTooltip(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return;
-
-            tooltipText.text = text;
-            UpdateTooltipPosition();
-
-            tooltipCanvasGroup.alpha = 1f;
-            tooltipCanvasGroup.gameObject.SetActive(true);
-        }
-
-        public void HideTooltip()
-        {
-            tooltipCanvasGroup.alpha = 0f;
-            if (tooltipCanvasGroup.gameObject.activeSelf)
-            {
-                tooltipCanvasGroup.gameObject.SetActive(false);
-            }
-        }
-        private void UpdateTooltipPosition()
-        {
-            tooltipCanvasGroup.transform.position = Input.mousePosition + (Vector3)tooltipOffset;
-        }
-        private void OnEnable()
-        {
-            HideTooltip();
-        }
-        private void OnDisable()
-        {
-            HideTooltip();
-        }
-        public bool IsMouseOverGrid()
-        {
-            return RectTransformUtility.RectangleContainsScreenPoint(
-                gridBackground,
-                Input.mousePosition,
-                null
-            );
-        }
-    }
-}
-</file>
-
-<file path="Assets/_Main/Scripts/PlayerModule/PlayerModule.asmdef">
-{
-    "name": "PlayerModule",
-    "rootNamespace": "",
-    "references": [
-        "GUID:ad92713fd5884a16a1e7ccde1a579228",
-        "GUID:5a8d3845af48dc54db440d2b68ad43e7",
-        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
-        "GUID:a052d9b9b243434c92f8e11262715c1f",
-        "GUID:f952cb0599c86ac4794b61418ea81496",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
-    ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
-}
-</file>
-
-<file path="Assets/_Main/Scripts/PlayerModule/Runtime/Installers/PlayerInstaller.cs">
-using ComponentsModule;
-using UIModule;
-using UnityEngine;
-using Zenject;
-using InventoryModule;
-
-namespace PlayerModule
-{
-    public class PlayerInstaller : MonoInstaller
-    {
-        [Header("References")]
-        [SerializeField] private CharacterController characterController;
-        [SerializeField] private Transform cameraRoot;
-        [SerializeField] private Transform player;
-        
-        [Header("Health")]
-        [SerializeField] private HealthView healthView;
-        
-        [Header("Settings")]
-        [SerializeField] private PlayerConfig config;
-
-        [Header("UI")]
-        [SerializeField] private InteractionHUDView interactionHUDView;
-
-        private void OnValidate()
-        {
-            player ??= transform;
-            characterController ??= GetComponent<CharacterController>();
-        }
-
-        public override void InstallBindings()
-        {
-            Container.Bind<PlayerConfig>()
-                .FromInstance(config)
-                .AsSingle();
-
-            Container.Bind<CharacterController>()
-                .FromInstance(characterController)
-                .AsSingle();
-
-            Container.Bind<Transform>()
-                .FromInstance(player)
-                .AsSingle();
-
-            Container.Bind<IMoveComponent>()
-                .To<MoveComponent>()
-                .AsSingle()
-                .WithArguments(config.WalkSpeed, config.JumpHeight, config.Gravity);
-
-            Container.Bind<IRotationComponent>()
-                .To<RotationComponent>()
-                .AsSingle()
-                .WithArguments(config.MouseSensitivity, config.LookXLimit);
-
-            Container.Bind<ICrouchComponent>()
-                .To<CrouchComponent>()
-                .AsSingle()
-                .WithArguments(cameraRoot, config.CrouchData);
-
-            Container.Bind<ILeanComponent>()
-                .To<LeanComponent>()
-                .AsSingle()
-                .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
-
-            Container.Bind<HealthView>()
-                .FromInstance(healthView)
-                .AsSingle();
-            
-            Container.BindInterfacesTo<HealthPresenter>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.BindInterfacesTo<PlayerMovementController>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.BindInterfacesAndSelfTo<PlayerInteractionController>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
-                .To<HealthComponent>()
-                .AsSingle()
-                .WithArguments(config.MaxHealth);
-
-            Container.BindInterfacesTo<InventoryDeathHandler>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.BindInstance(interactionHUDView)
-                .AsSingle();
-
-            Container.BindInterfacesTo<InteractionPresenter>()
-                .AsSingle()
-                .NonLazy();
-
-            Container.Bind<IPlayerPositionProvider>()
-                .FromInstance(player.GetComponent<PlayerProvider>())
-                .AsSingle();
-
-
-        }
-    }
 }
 </file>
 

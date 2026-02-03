@@ -2,18 +2,28 @@ using UnityEngine;
 
 namespace InventoryModule
 {
-    public class GridCell
+    public sealed class GridCell
     {
+        private InventoryItem _occupyingItem;
+
         public Vector2Int Position { get; }
-        public InventoryItem OccupyingItem { get; private set; }
-        public bool IsOccupied => OccupyingItem != null;
+
+        public InventoryItem OccupyingItem => _occupyingItem;
+        public bool IsOccupied => _occupyingItem != null;
 
         public GridCell(Vector2Int position)
         {
             Position = position;
         }
 
-        public void Occupy(InventoryItem item) => OccupyingItem = item;
-        public void Vacate() => OccupyingItem = null;
+        public void Occupy(InventoryItem item)
+        {
+            _occupyingItem = item;
+        }
+
+        public void Vacate()
+        {
+            _occupyingItem = null;
+        }
     }
 }

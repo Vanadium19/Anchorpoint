@@ -14,6 +14,11 @@ namespace InventoryModule
                 .FromInstance(inventoryView)
                 .AsSingle();
 
+            Container.Bind<IInventoryItemPool>()
+                .To<InventoryItemPool>()
+                .AsSingle()
+                .WithArguments(inventoryView.ItemPrefab, inventoryView.ItemsContainer);
+
             Container.BindInterfacesTo<InventoryPresenter>()
                 .AsSingle()
                 .NonLazy();

@@ -3,17 +3,20 @@ using UnityEngine;
 namespace InventoryModule
 {
     [CreateAssetMenu(fileName = "NewItem", menuName = "Game/Inventory/Item")]
-    public class ItemDefinition : ScriptableObject
+    public sealed class ItemDefinition : ScriptableObject
     {
         [SerializeField] private string itemName;
         [SerializeField, TextArea(3, 5)] private string description;
         [SerializeField] private Sprite icon;
         [SerializeField] private LootItemView worldPrefab;
-        [SerializeField] private GameObject inventoryPrefab;
+        [SerializeField] private GameObject inventoryItemViewPrefab;
 
-        [Min(1)][SerializeField] private int width = 1;
-        [Min(1)][SerializeField] private int height = 1;
-        [Min(1)][SerializeField] private int maxStack = 1;
+        [Min(1)]
+        [SerializeField] private int width = 1;
+        [Min(1)]
+        [SerializeField] private int height = 1;
+        [Min(1)]
+        [SerializeField] private int maxStack = 1;
         [SerializeField] private bool canRotate = true;
 
         [SerializeField] private float weight = 0.1f;
@@ -38,7 +41,7 @@ namespace InventoryModule
         public string Description => description;
         public Sprite Icon => icon;
         public LootItemView WorldPrefab => worldPrefab;
-        public GameObject InventoryPrefab => inventoryPrefab;
+        public GameObject InventoryItemViewPrefab => inventoryItemViewPrefab;
         public int Width => width;
         public int Height => height;
         public int MaxStack => maxStack;

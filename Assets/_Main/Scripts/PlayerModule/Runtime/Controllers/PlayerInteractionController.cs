@@ -1,8 +1,6 @@
-using Cysharp.Threading.Tasks;
 using InputModule;
 using InventoryModule;
 using System;
-using System.Threading;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -13,9 +11,7 @@ namespace PlayerModule
     {
         private readonly IInputMap _input;
         private readonly IInventoryService _inventoryService;
-        private readonly IItemProvider _itemProvider;
         private readonly Camera _camera;
-        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly PlayerConfig _config;
         private readonly UIModule.InteractionHUDView _hud;
 
@@ -25,26 +21,20 @@ namespace PlayerModule
         public PlayerInteractionController(
             IInputMap input,
             IInventoryService inventoryService,
-            IItemProvider itemProvider,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
             _config = config;
             _camera = Camera.main;
-            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         public void Initialize()
         {
-            // Initialization if needed
         }
 
         public void Dispose()
         {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
         }
 
         public void Tick()
@@ -58,7 +48,7 @@ namespace PlayerModule
 
                 if (loot != null && _input.IsInteractPressed)
                 {
-                    TryPickUpLootAsync(loot).Forget();
+                    TryPickUpLoot(loot);
                 }
             }
             else
@@ -66,6 +56,7 @@ namespace PlayerModule
                 UpdateHover(null);
             }
         }
+
         private void UpdateHover(LootItemView newLoot)
         {
             if (_currentHoveredLoot == null && newLoot == null) return;
@@ -81,42 +72,29 @@ namespace PlayerModule
             _currentHoveredLoot = newLoot;
             HoverChanged?.Invoke(_currentHoveredLoot);
         }
-        private async UniTaskVoid TryPickUpLootAsync(LootItemView loot)
-        {
-            var token = _cancellationTokenSource.Token;
 
+        private void TryPickUpLoot(LootItemView loot)
+        {
             try
             {
-                var itemDefinition = _itemProvider.GetItemDefinition(loot.ItemDef.Id);
+                var itemDefinition = loot.ItemDef;
 
                 if (itemDefinition == null)
                 {
-                    Debug.LogWarning($"Item definition not found for loot: {loot.ItemDef.Id}");
                     return;
                 }
 
-                var result = await _inventoryService.AddItemAsync(
-                    itemDefinition,
-                    loot.Amount,
-                    token);
+                var result = _inventoryService.AddItem(itemDefinition, loot.Amount);
 
                 if (result.Success)
                 {
-                    loot.Collect();
+                    loot.PlayCollectEffects();
                     UpdateHover(null);
-                }
-                else
-                {
-                    Debug.LogWarning($"Failed to pick up loot: {result.ErrorMessage}");
+                    UnityEngine.Object.Destroy(loot.gameObject);
                 }
             }
-            catch (OperationCanceledException)
+            catch (Exception)
             {
-                // Operation was cancelled, ignore
-            }
-            catch (Exception exception)
-            {
-                Debug.LogError($"Error picking up loot: {exception}");
             }
         }
     }

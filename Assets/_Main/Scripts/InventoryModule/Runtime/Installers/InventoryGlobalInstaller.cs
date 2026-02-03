@@ -14,7 +14,7 @@ namespace InventoryModule
                 .FromInstance(inventoryConfig)
                 .AsSingle();
 
-            Container.Bind<ItemDatabase>()
+            Container.Bind<IItemDatabase>()
                 .FromInstance(itemDatabase)
                 .AsSingle();
 
@@ -22,12 +22,21 @@ namespace InventoryModule
                 .AsSingle()
                 .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
 
-            Container.Bind<IItemProvider>()
-                .To<ItemProvider>()
-                .AsSingle();
+            Container.Bind<IGridService>()
+                .To<GridService>()
+                .AsSingle()
+                .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
 
             Container.Bind<IInventoryService>()
                 .To<InventoryService>()
+                .AsSingle();
+
+            Container.Bind<IItemDropService>()
+                .To<ItemDropService>()
+                .AsSingle();
+
+            Container.Bind<ILootItemFactory>()
+                .To<LootItemFactory>()
                 .AsSingle();
         }
     }

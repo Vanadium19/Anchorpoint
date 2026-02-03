@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace InventoryModule
@@ -9,18 +7,19 @@ namespace InventoryModule
     public sealed class InventoryService : IInventoryService
     {
         private readonly InventoryModel _model;
-        private readonly GridService _gridService;
-        private readonly ItemDatabase _itemDatabase;
+        private readonly IGridService _gridService;
+        private readonly IItemDatabase _itemDatabase;
 
         public event Action InventoryUpdated;
         public IReadOnlyList<InventoryItem> GetAllItems() => _model.Items;
         public int Width => _model.Width;
         public int Height => _model.Height;
-        public InventoryService(InventoryModel model, ItemDatabase itemDatabase)
+
+        public InventoryService(InventoryModel model, IItemDatabase itemDatabase, IGridService gridService)
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _itemDatabase = itemDatabase ?? throw new ArgumentNullException(nameof(itemDatabase));
-            _gridService = new GridService(model.Width, model.Height);
+            _gridService = gridService ?? throw new ArgumentNullException(nameof(gridService));
             InitializeGridWithExistingItems();
         }
 
@@ -31,18 +30,14 @@ namespace InventoryModule
                 _gridService.PlaceItem(item, item.Position, item.IsRotated);
             }
         }
-        public UniTask<InventoryOperationResult> AddItemAsync(
-            ItemDefinition itemDefinition,
-            int amount,
-            CancellationToken token)
+
+        public InventoryOperationResult AddItem(ItemDefinition itemDefinition, int amount)
         {
             if (itemDefinition == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item definition is null"));
+                return InventoryOperationResult.CreateFailure(InventoryError.InvalidItem);
 
             if (amount <= 0)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Amount must be positive"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure(InventoryError.InvalidItem);
 
             try
             {
@@ -54,7 +49,7 @@ namespace InventoryModule
                     if (remainingAmount <= 0)
                     {
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess());
+                        return InventoryOperationResult.CreateSuccess();
                     }
                 }
 
@@ -63,8 +58,7 @@ namespace InventoryModule
                     var placementResult = TryFindPlaceForItem(itemDefinition, out var position, out var isRotated);
                     if (!placementResult.Success)
                     {
-                        return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                            $"No space for item: {itemDefinition.ItemName}"));
+                        return InventoryOperationResult.CreateFailure(InventoryError.NoSpace);
                     }
 
                     int stackAmount = Mathf.Min(remainingAmount, itemDefinition.MaxStack);
@@ -77,25 +71,18 @@ namespace InventoryModule
                 }
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess());
+                return InventoryOperationResult.CreateSuccess();
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                Debug.LogError($"Failed to add item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure(InventoryError.InternalError);
             }
         }
 
-        public UniTask<InventoryOperationResult> MoveItemAsync(
-            InventoryItem item,
-            Vector2Int newPosition,
-            bool isRotated,
-            CancellationToken token)
+        public InventoryOperationResult MoveItem(InventoryItem item, Vector2Int newPosition, bool isRotated)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure(InventoryError.InvalidItem);
 
             try
             {
@@ -108,55 +95,47 @@ namespace InventoryModule
                         int canTake = targetItem.MaxStack - targetItem.Amount;
                         int toMove = Mathf.Min(canTake, item.Amount);
 
-                        targetItem.Amount += toMove;
-                        item.Amount -= toMove;
+                        targetItem.AddAmount(toMove);
+                        item.AddAmount(-toMove);
 
                         if (item.Amount <= 0)
                         {
-
                             _gridService.ClearItem(item);
                             _model.RemoveItem(item);
                         }
 
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                        return InventoryOperationResult.CreateSuccess(item);
                     }
                 }
 
                 if (!CanPlaceItemAt(item, newPosition, isRotated, item))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure("Position occupied"));
+                    return InventoryOperationResult.CreateFailure(InventoryError.PositionOccupied);
                 }
 
                 _gridService.ClearItem(item);
                 _gridService.PlaceItem(item, newPosition, isRotated);
 
-                item.Position = newPosition;
-                item.IsRotated = isRotated;
+                item.SetPosition(newPosition);
+                item.SetIsRotated(isRotated);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                return InventoryOperationResult.CreateSuccess(item);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                Debug.LogError($"Failed to move item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure(exception.Message));
+                return InventoryOperationResult.CreateFailure(InventoryError.InternalError);
             }
         }
 
-        public UniTask<InventoryOperationResult> SplitItemAsync(
-            InventoryItem item,
-            Vector2Int splitPosition,
-            bool isRotated,
-            CancellationToken token)
+        public InventoryOperationResult SplitItem(InventoryItem item, Vector2Int splitPosition, bool isRotated)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
+                return InventoryOperationResult.CreateFailure(InventoryError.InvalidItem);
 
             if (item.Amount < 2)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Cannot split: item amount less than 2"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure(InventoryError.CannotSplit);
 
             try
             {
@@ -171,11 +150,11 @@ namespace InventoryModule
                         int canAccept = targetItem.MaxStack - targetItem.Amount;
                         int actualMove = Mathf.Min(moveAmount, canAccept);
 
-                        targetItem.Amount += actualMove;
-                        item.Amount -= actualMove;
+                        targetItem.AddAmount(actualMove);
+                        item.AddAmount(-actualMove);
 
                         InventoryUpdated?.Invoke();
-                        return UniTask.FromResult(InventoryOperationResult.CreateSuccess(targetItem));
+                        return InventoryOperationResult.CreateSuccess(targetItem);
                     }
                 }
 
@@ -184,17 +163,15 @@ namespace InventoryModule
 
                 if (_gridService.AreasOverlap(splitPosition, splitSize, item.Position, originalSize))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                        "Cannot split: overlap with original item"));
+                    return InventoryOperationResult.CreateFailure(InventoryError.CannotSplit);
                 }
 
                 if (!_gridService.IsAreaFree(splitPosition, splitSize))
                 {
-                    return UniTask.FromResult(InventoryOperationResult.CreateFailure(
-                        "Cannot split: target position is occupied"));
+                    return InventoryOperationResult.CreateFailure(InventoryError.NoSpace);
                 }
 
-                item.Amount -= moveAmount;
+                item.AddAmount(-moveAmount);
 
                 var newItem = CreateInventoryItem(
                     _itemDatabase.GetItem(item.Id),
@@ -206,23 +183,18 @@ namespace InventoryModule
                 _model.AddItem(newItem);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(newItem));
+                return InventoryOperationResult.CreateSuccess(newItem);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                Debug.LogError($"Failed to split item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure(InventoryError.InternalError);
             }
         }
 
-        public UniTask<InventoryOperationResult> RemoveItemAsync(
-            InventoryItem item,
-            CancellationToken token)
+        public InventoryOperationResult RemoveItem(InventoryItem item)
         {
             if (item == null)
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure("Item is null"));
-
-            token.ThrowIfCancellationRequested();
+                return InventoryOperationResult.CreateFailure(InventoryError.InvalidItem);
 
             try
             {
@@ -230,12 +202,11 @@ namespace InventoryModule
                 _model.RemoveItem(item);
 
                 InventoryUpdated?.Invoke();
-                return UniTask.FromResult(InventoryOperationResult.CreateSuccess(item));
+                return InventoryOperationResult.CreateSuccess(item);
             }
-            catch (Exception exception)
+            catch (Exception)
             {
-                Debug.LogError($"Failed to remove item: {exception}");
-                return UniTask.FromResult(InventoryOperationResult.CreateFailure($"Internal error: {exception.Message}"));
+                return InventoryOperationResult.CreateFailure(InventoryError.InternalError);
             }
         }
 
@@ -279,7 +250,7 @@ namespace InventoryModule
                     int space = existingItem.MaxStack - existingItem.Amount;
                     int toAdd = Mathf.Min(space, remainingAmount);
 
-                    existingItem.Amount += toAdd;
+                    existingItem.AddAmount(toAdd);
                     remainingAmount -= toAdd;
 
                     if (remainingAmount <= 0)
@@ -332,7 +303,7 @@ namespace InventoryModule
                 }
             }
 
-            return InventoryOperationResult.CreateFailure("No free space found");
+            return InventoryOperationResult.CreateFailure(InventoryError.NoSpace);
         }
 
         private bool CanPlaceItemAt(InventoryItem item, Vector2Int position, bool isRotated, InventoryItem ignoreItem)
@@ -347,16 +318,18 @@ namespace InventoryModule
             int amount,
             bool isRotated)
         {
-            return new InventoryItem(
+            var item = new InventoryItem(
                 itemDefinition.Id,
                 position,
                 new Vector2Int(itemDefinition.Width, itemDefinition.Height),
                 itemDefinition.MaxStack,
-                amount)
-            {
-                IsRotated = isRotated
-            };
+                amount);
+
+            item.SetIsRotated(isRotated);
+
+            return item;
         }
+
         public void ClearInventory()
         {
             _gridService.ClearAll();
