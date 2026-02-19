@@ -1,6 +1,5 @@
 ﻿<Solution>
   <Project Path="Zenject.csproj" />
-  <Project Path="InventoryModule.csproj" />
   <Project Path="NpcBaseModule.csproj" />
   <Project Path="ExtractionModule.csproj" />
   <Project Path="Zenject-Editor.csproj" />
@@ -11,6 +10,7 @@
   <Project Path="InputModule.csproj" />
   <Project Path="EnemyModule.csproj" />
   <Project Path="BuildingModule.csproj" />
+  <Project Path="InventoryModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="CameraModule.csproj" />
   <Project Path="UIModule.csproj" />

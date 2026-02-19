@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6393143760366389691}
-  - component: {fileID: 4239781895274958637}
+  - component: {fileID: 5447724562284511229}
   m_Layer: 10
   m_Name: ScrapMetal
   m_TagString: Untagged
@@ -26,14 +26,14 @@ Transform:
   m_GameObject: {fileID: 7929940482639392972}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.59, y: 5.08, z: -5.91}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8618717057050136243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4239781895274958637
+--- !u!114 &5447724562284511229
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,14 +42,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7929940482639392972}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 493476de44af5b14cab90b64ffc44dc2, type: 3}
+  m_Script: {fileID: 11500000, guid: a8effb65af8ee51409e334523cb61cd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InventoryModule::InventoryModule.LootItemView
-  itemDefinition: {fileID: 11400000, guid: 4758fcdc5303b2e418ba778061356649, type: 2}
+  itemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
   amount: 1
-  meshRenderer: {fileID: 7480753461434070492}
-  pickupParticles: {fileID: 0}
-  pickupSound: {fileID: 0}
+  collectEffect: {fileID: 0}
+  collectSound: {fileID: 0}
 --- !u!1001 &3209971591685250272
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -117,11 +116,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 6298330194515695643}
   m_SourcePrefab: {fileID: 100100000, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
---- !u!23 &7480753461434070492 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 5430467608962115900, guid: 498ab23c9cbee7845b2c689473697044, type: 3}
-  m_PrefabInstance: {fileID: 3209971591685250272}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8618717057050136243 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6563936361985626707, guid: 498ab23c9cbee7845b2c689473697044, type: 3}

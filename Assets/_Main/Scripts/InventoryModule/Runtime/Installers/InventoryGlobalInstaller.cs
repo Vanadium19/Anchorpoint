@@ -5,38 +5,17 @@ namespace InventoryModule
 {
     public sealed class InventoryGlobalInstaller : MonoInstaller
     {
-        [SerializeField] private InventoryConfig inventoryConfig;
-        [SerializeField] private ItemDatabase itemDatabase;
-
         public override void InstallBindings()
         {
-            Container.Bind<InventoryConfig>()
-                .FromInstance(inventoryConfig)
-                .AsSingle();
-
-            Container.Bind<IItemDatabase>()
-                .FromInstance(itemDatabase)
-                .AsSingle();
-
-            Container.Bind<InventoryModel>()
+            Container.BindInterfacesAndSelfTo<InventoryManager>()
                 .AsSingle()
-                .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
+                .NonLazy();
 
-            Container.Bind<IGridService>()
-                .To<GridService>()
+            Container.BindInterfacesAndSelfTo<EquipmentSlotService>()
                 .AsSingle()
-                .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
+                .NonLazy();
 
-            Container.Bind<IInventoryService>()
-                .To<InventoryService>()
-                .AsSingle();
-
-            Container.Bind<IItemDropService>()
-                .To<ItemDropService>()
-                .AsSingle();
-
-            Container.Bind<ILootItemFactory>()
-                .To<LootItemFactory>()
+            Container.BindInterfacesTo<InventoryStaticDataResetHandler>()
                 .AsSingle();
         }
     }

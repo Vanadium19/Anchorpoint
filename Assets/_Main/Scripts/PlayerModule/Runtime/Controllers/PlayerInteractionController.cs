@@ -10,32 +10,26 @@ namespace PlayerModule
     public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
     {
         private readonly IInputMap _input;
-        private readonly IInventoryService _inventoryService;
+        private readonly IInventoryManager _inventoryManager;
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
-        private readonly UIModule.InteractionHUDView _hud;
 
         public event Action<LootItemView> HoverChanged;
         private LootItemView _currentHoveredLoot;
 
         public PlayerInteractionController(
             IInputMap input,
-            IInventoryService inventoryService,
+            IInventoryManager inventoryManager,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
-            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _config = config;
             _camera = Camera.main;
         }
 
-        public void Initialize()
-        {
-        }
-
-        public void Dispose()
-        {
-        }
+        public void Initialize() { }
+        public void Dispose() { }
 
         public void Tick()
         {
@@ -75,26 +69,41 @@ namespace PlayerModule
 
         private void TryPickUpLoot(LootItemView loot)
         {
-            try
+            var itemData = loot.ItemData;
+
+            if (itemData == null)
             {
-                var itemDefinition = loot.ItemDef;
+                Debug.LogWarning("[PlayerInteractionController] Loot has no ItemData");
+                return;
+            }
 
-                if (itemDefinition == null)
+            bool success;
+
+            if (loot.ItemTable != null)
+            {
+                success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
+                
+                if (!success && itemData.IsEquippable)
                 {
-                    return;
-                }
-
-                var result = _inventoryService.AddItem(itemDefinition, loot.Amount);
-
-                if (result.Success)
-                {
-                    loot.PlayCollectEffects();
-                    UpdateHover(null);
-                    UnityEngine.Object.Destroy(loot.gameObject);
+                    success = _inventoryManager.TryAutoEquipItem(loot.ItemTable);
                 }
             }
-            catch (Exception)
+            else
             {
+                success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
+                
+                if (!success && itemData.IsEquippable)
+                {
+                    var newItem = new ItemTable(itemData) { StackCount = loot.Amount };
+                    success = _inventoryManager.TryAutoEquipItem(newItem);
+                }
+            }
+
+            if (success)
+            {
+                loot.PlayCollectEffects();
+                UpdateHover(null);
+                UnityEngine.Object.Destroy(loot.gameObject);
             }
         }
     }

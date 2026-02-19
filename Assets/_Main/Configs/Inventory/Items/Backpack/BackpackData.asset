@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: BackpackData
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: Backpack
+  description: 
+  icon: {fileID: 57356975, guid: 5918ac2df82c5b146bb6a0fbddd4e677, type: 3}
+  dimensionsSo: {fileID: 11400000, guid: fad4f600fe80e0d41975a6496284e0f5, type: 2}
+  equipmentSlotType: 4
+  isEquippable: 1
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 1
+  containerGrids: {fileID: 5553140710729667534, guid: 3cd113338a4ed304594c6598699a6623, type: 3}
+  canRotate: 1
+  isDropable: 1
+  worldPrefab: {fileID: 2239893881193973045, guid: 25f4847c85809a248911af542e0048c5, type: 3}
