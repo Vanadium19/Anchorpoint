@@ -1085,11 +1085,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 284798616}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8f0aa72ad0d2c154dbfecaca3114bd19, type: 3}
+  m_Script: {fileID: 11500000, guid: 7a454621eddbf7a4295252a9f4d45a3d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: DepartureModule::DepartureModule.DepartureHUDView
-  container: {fileID: 1234387471}
+  m_EditorClassIdentifier: Assembly-CSharp::EvacuationModule.EvacuationHUDView
+  timerContainer: {fileID: 1234387471}
   timerText: {fileID: 505522331}
+  successPanel: {fileID: 0}
+  restartButton: {fileID: 0}
 --- !u!1 &308954957
 GameObject:
   m_ObjectHideFlags: 0
@@ -2197,7 +2199,7 @@ GameObject:
   - component: {fileID: 481534451}
   - component: {fileID: 481534450}
   - component: {fileID: 481534449}
-  - component: {fileID: 481534448}
+  - component: {fileID: 481534453}
   m_Layer: 0
   m_Name: DeparturePoint
   m_TagString: Untagged
@@ -2205,18 +2207,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &481534448
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 481534447}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9471568423831b3459a88b419f32d284, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: DepartureModule::DepartureModule.DepartureZoneView
 --- !u!64 &481534449
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -2311,6 +2301,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &481534453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 481534447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22ea7548f1e578440bce00a47475c1a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EvacuationModule.EvacuationZoneView
 --- !u!1 &505522328
 GameObject:
   m_ObjectHideFlags: 0
@@ -3849,11 +3851,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1121154637}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 737d02f54f578804f933f5e8b724cae8, type: 3}
+  m_Script: {fileID: 11500000, guid: 96e2642b4415651409b7a272d6853186, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: DepartureModule::DepartureModule.DepartureInstaller
-  config: {fileID: 11400000, guid: 2ac97cdf88880024f8fdc3589515800a, type: 2}
-  zoneView: {fileID: 481534448}
+  m_EditorClassIdentifier: Assembly-CSharp::EvacuationModule.EvacuationInstaller
+  config: {fileID: 11400000, guid: 47109fd9bcef83146957070624a318e1, type: 2}
+  zoneView: {fileID: 481534453}
   hudView: {fileID: 284798622}
 --- !u!1 &1234387471
 GameObject:
