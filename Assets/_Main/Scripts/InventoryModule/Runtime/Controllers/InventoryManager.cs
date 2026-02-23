@@ -16,7 +16,7 @@ namespace InventoryModule
 
         private GameObject _inventoryUI;
 
-        private bool _isInventoryOpen = false;
+        private bool _isInventoryOpen;
 
         public GridTable MainGrid => _mainGrid;
         public bool IsInventoryOpen => _isInventoryOpen;

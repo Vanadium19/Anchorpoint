@@ -15,6 +15,10 @@ namespace InventoryModule
                 .AsSingle()
                 .NonLazy();
 
+            Container.BindInterfacesAndSelfTo<GridService>()
+                .AsSingle()
+                .NonLazy();
+
             Container.BindInterfacesTo<InventoryStaticDataResetHandler>()
                 .AsSingle();
         }

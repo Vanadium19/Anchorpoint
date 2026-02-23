@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerConfig
   m_EditorClassIdentifier: Assembly-CSharp::PlayerModule.Configs.PlayerConfig
   maxHealth: 100
-  walkSpeed: 30
+  walkSpeed: 3
   crouchSpeed: 1.5
   gravity: -15
   jumpHeight: 1.2

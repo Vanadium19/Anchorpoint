@@ -29,11 +29,15 @@ namespace InventoryModule
         private const float PlacementUpdateInterval = 0.033f;
 
         private IInventoryManager _inventoryManager;
+        private IEquipmentSlotService _slotService;
+        private IGridService _gridService;
 
         [Inject]
-        private void Construct(IInventoryManager inventoryManager)
+        private void Construct(IInventoryManager inventoryManager, IEquipmentSlotService slotService, IGridService gridService)
         {
             _inventoryManager = inventoryManager;
+            _slotService = slotService;
+            _gridService = gridService;
         }
 
         public override void OnPointerClick(PointerEventData eventData)
@@ -450,7 +454,7 @@ namespace InventoryModule
 
             if (originalParent == null)
             {
-                var slots = FindObjectsOfType<EquipmentSlot>();
+                var slots = _slotService.GetAllSlots();
                 foreach (var slot in slots)
                 {
                     if (slot.CanEquip(Item))
@@ -509,7 +513,7 @@ namespace InventoryModule
                 }
                 else
                 {
-                    var slots = FindObjectsOfType<EquipmentSlot>();
+                    var slots = _slotService.GetAllSlots();
                     foreach (var slot in slots)
                     {
                         if (slot.CanEquip(Item) && !slot.IsEquipped)
@@ -585,8 +589,11 @@ namespace InventoryModule
 
         protected override void HideAllHighlights()
         {
-            var grids = FindObjectsOfType<AbstractGrid>();
-            foreach (var grid in grids) grid.HideHighlight();
+            if (_gridService != null)
+            {
+                var grids = _gridService.GetAllGrids();
+                foreach (var grid in grids) grid.HideHighlight();
+            }
             ClearContainerHighlight();
             ClearStackHighlight();
 
@@ -747,6 +754,8 @@ namespace InventoryModule
 
             if (success)
             {
+                Item.RemoveItselfFromLocation();
+
                 if (_extractedFromSlot != null)
                 {
                     _extractedFromSlot.OnItemPlacedToInventory();

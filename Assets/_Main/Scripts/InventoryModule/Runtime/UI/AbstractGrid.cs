@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Zenject;
 
 namespace InventoryModule
 {
@@ -27,7 +28,7 @@ namespace InventoryModule
         public int GridHeight => gridHeight;
         public float TileSize => tileSize;
 
-        public event Action OnGridReady;
+        public event Action GridReady;
 
         protected RectTransform rectTransform;
         protected Image highlightImage;
@@ -38,8 +39,13 @@ namespace InventoryModule
         private float _lastRefreshTime;
         private const float MinRefreshInterval = 0.01f;
 
+        private IGridService _gridService;
+
         protected virtual void Awake()
         {
+            _gridService = ProjectContext.Instance.Container.Resolve<IGridService>();
+            _gridService?.RegisterGrid(this);
+
             rectTransform = GetComponent<RectTransform>();
 
             rectTransform.anchorMin = new Vector2(0, 1);
@@ -66,14 +72,18 @@ namespace InventoryModule
             }
             CreateHighlightImage();
 
-            OnGridReady?.Invoke();
+            GridReady?.Invoke();
         }
 
         protected virtual void InitializeGrid()
         {
             Grid = new GridTable(gridWidth, gridHeight);
-            Grid.OnInsert += HandleItemInserted;
-            Grid.OnRemove += HandleItemRemoved;
+
+            if (isActiveAndEnabled)
+            {
+                Grid.ItemInserted += HandleItemInserted;
+                Grid.ItemRemoved += HandleItemRemoved;
+            }
 
             rectTransform.sizeDelta = new Vector2(gridWidth * tileSize, gridHeight * tileSize);
             rectTransform.anchoredPosition = Vector2.zero;
@@ -282,10 +292,25 @@ namespace InventoryModule
 
         public void OnDestroy()
         {
+            _gridService?.UnregisterGrid(this);
+        }
+
+        protected virtual void OnEnable()
+        {
             if (Grid != null)
             {
-                Grid.OnInsert -= HandleItemInserted;
-                Grid.OnRemove -= HandleItemRemoved;
+                Grid.ItemInserted += HandleItemInserted;
+                Grid.ItemRemoved += HandleItemRemoved;
+                RebuildGridUISmart();
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (Grid != null)
+            {
+                Grid.ItemInserted -= HandleItemInserted;
+                Grid.ItemRemoved -= HandleItemRemoved;
             }
         }
 
@@ -310,16 +335,19 @@ namespace InventoryModule
         {
             if (newTable == null || rectTransform == null) return;
 
-            if (Grid != null)
+            if (Grid != null && isActiveAndEnabled)
             {
-                Grid.OnInsert -= HandleItemInserted;
-                Grid.OnRemove -= HandleItemRemoved;
+                Grid.ItemInserted -= HandleItemInserted;
+                Grid.ItemRemoved -= HandleItemRemoved;
             }
 
             Grid = newTable;
 
-            Grid.OnInsert += HandleItemInserted;
-            Grid.OnRemove += HandleItemRemoved;
+            if (isActiveAndEnabled)
+            {
+                Grid.ItemInserted += HandleItemInserted;
+                Grid.ItemRemoved += HandleItemRemoved;
+            }
 
             OverrideGridSize(newTable.Width, newTable.Height);
 
@@ -339,15 +367,19 @@ namespace InventoryModule
         {
             if (newTable == null) return;
 
-            if (Grid != null)
+            if (Grid != null && isActiveAndEnabled)
             {
-                Grid.OnInsert -= HandleItemInserted;
-                Grid.OnRemove -= HandleItemRemoved;
+                Grid.ItemInserted -= HandleItemInserted;
+                Grid.ItemRemoved -= HandleItemRemoved;
             }
 
             Grid = newTable;
-            Grid.OnInsert += HandleItemInserted;
-            Grid.OnRemove += HandleItemRemoved;
+
+            if (isActiveAndEnabled)
+            {
+                Grid.ItemInserted += HandleItemInserted;
+                Grid.ItemRemoved += HandleItemRemoved;
+            }
 
             OverrideGridSize(newTable.Width, newTable.Height);
 

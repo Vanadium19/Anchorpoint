@@ -76,7 +76,7 @@ namespace InventoryModule
         private ContainerMetadata _metadata;
         private Canvas _canvas;
 
-        public event Action<ContainerWindow> OnWindowClosed;
+        public event Action<ContainerWindow> WindowClosed;
 
         private void Awake()
         {
@@ -340,7 +340,7 @@ namespace InventoryModule
 
             _panelInstance = null;
 
-            OnWindowClosed?.Invoke(this);
+            WindowClosed?.Invoke(this);
             Destroy(gameObject);
         }
 

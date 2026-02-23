@@ -16,8 +16,12 @@ namespace InventoryModule
 
         public InventoryMetadata InventoryMetadata { get; private set; }
 
+        // TODO: Код взят из ассета
         public int Width => IsRotated ? ItemDataSo.Height : ItemDataSo.Width;
+
+        // TODO: Код взят из ассета
         public int Height => IsRotated ? ItemDataSo.Width : ItemDataSo.Height;
+
         public bool CanRotate => ItemDataSo.CanRotate;
         public bool IsStackable => ItemDataSo.IsStackable;
         public int MaxStack => ItemDataSo.MaxStackSize;
@@ -40,6 +44,7 @@ namespace InventoryModule
         public int PlacedWidth { get; private set; }
         public int PlacedHeight { get; private set; }
 
+        // TODO: Код взят из ассета
         public void SetGridProps(GridTable grid, Position position)
         {
             CurrentGrid = grid;
@@ -49,6 +54,7 @@ namespace InventoryModule
             UIUpdated?.Invoke();
         }
 
+        // TODO: Код взят из ассета
         public void RemoveItselfFromLocation()
         {
             if (CurrentGrid != null)
@@ -58,6 +64,7 @@ namespace InventoryModule
             }
         }
 
+        // TODO: Код взят из ассета
         public void Rotate()
         {
             if (CanRotate)
@@ -98,6 +105,7 @@ namespace InventoryModule
             UIUpdated?.Invoke();
         }
 
+        // TODO: Код взят из ассета
         public T GetMetadata<T>() where T : InventoryMetadata
         {
             return InventoryMetadata as T;

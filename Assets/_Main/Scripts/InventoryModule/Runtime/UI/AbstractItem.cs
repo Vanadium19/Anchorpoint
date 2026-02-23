@@ -47,14 +47,34 @@ namespace InventoryModule
 
         public virtual void SetItem(ItemTable item)
         {
+            if (Item != null)
+                Item.UIUpdated -= UpdateUI;
+
             Item = item;
             if (item != null)
             {
                 iconImage.sprite = item.ItemDataSo.Icon;
-                item.UIUpdated += UpdateUI;
                 _localIsRotated = item.IsRotated;
                 UpdateUI();
+
+                if (isActiveAndEnabled)
+                    item.UIUpdated += UpdateUI;
             }
+        }
+
+        protected virtual void OnEnable()
+        {
+            if (Item != null)
+            {
+                Item.UIUpdated += UpdateUI;
+                UpdateUI();
+            }
+        }
+
+        protected virtual void OnDisable()
+        {
+            if (Item != null)
+                Item.UIUpdated -= UpdateUI;
         }
 
         protected virtual float GetTileSize()
@@ -244,8 +264,6 @@ namespace InventoryModule
 
         protected virtual void OnDestroy()
         {
-            if (Item != null)
-                Item.UIUpdated -= UpdateUI;
         }
     }
 }

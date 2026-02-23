@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace InventoryModule
 {
+    // TODO: Код взят из ассета
     public enum GridResponse
     {
         Inserted,
@@ -22,8 +23,8 @@ namespace InventoryModule
         public int Height { get; private set; }
         public ItemTable[,] Slots { get; private set; }
 
-        public event Action<ItemTable> OnInsert;
-        public event Action<ItemTable> OnRemove;
+        public event Action<ItemTable> ItemInserted;
+        public event Action<ItemTable> ItemRemoved;
 
         public GridTable(int width, int height)
         {
@@ -51,11 +52,12 @@ namespace InventoryModule
             }
 
             item.SetGridProps(this, new Position(posX, posY));
-            OnInsert?.Invoke(item);
+            ItemInserted?.Invoke(item);
 
             return GridResponse.Inserted;
         }
 
+        // TODO: Код взят из ассета
         public bool OverlapCheck(int posX, int posY, int itemWidth, int itemHeight, ItemTable ignoreItem = null)
         {
             for (int x = 0; x < itemWidth; x++)
@@ -103,6 +105,7 @@ namespace InventoryModule
             return OverlapCheck(posX, posY, item.Width, item.Height, item);
         }
 
+        // TODO: Код взят из ассета
         public bool BoundaryCheck(int posX, int posY, int itemWidth, int itemHeight)
         {
             return posX >= 0 && posY >= 0 &&
@@ -110,6 +113,7 @@ namespace InventoryModule
                    posY + itemHeight <= Height;
         }
 
+        // TODO: Код взят из ассета
         public ItemTable GetItem(int x, int y)
         {
             try
@@ -138,7 +142,7 @@ namespace InventoryModule
             }
 
             item.SetGridProps(null, null);
-            OnRemove?.Invoke(item);
+            ItemRemoved?.Invoke(item);
         }
 
         public ItemTable PickUpItem(int x, int y)
@@ -165,6 +169,7 @@ namespace InventoryModule
             return item;
         }
 
+        // TODO: Код взят из ассета
         public Vector2Int? FindSpaceForObject(ItemTable item)
         {
             for (int y = 0; y <= Height - item.Height; y++)
@@ -180,6 +185,7 @@ namespace InventoryModule
             return null;
         }
 
+        // TODO: Код взят из ассета
         public Vector2Int? FindSpaceForObjectAnyDirection(ItemTable item)
         {
             var result = FindSpaceForObject(item);
@@ -196,6 +202,7 @@ namespace InventoryModule
             return null;
         }
 
+        // TODO: Код взят из ассета
         public ItemTable[] GetAllItems()
         {
             HashSet<ItemTable> items = new HashSet<ItemTable>();
@@ -212,6 +219,7 @@ namespace InventoryModule
             return items.ToArray();
         }
 
+        // TODO: Код взят из ассета
         public ItemTable[] GetAllContainers()
         {
             List<ItemTable> containers = new List<ItemTable>();

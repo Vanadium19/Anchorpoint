@@ -1,3 +1,4 @@
+// TODO: Код взят из ассета
 using UnityEngine;
 
 namespace InventoryModule

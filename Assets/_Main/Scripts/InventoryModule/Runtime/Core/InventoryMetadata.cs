@@ -1,3 +1,4 @@
+// TODO: Код взят из ассета
 using System;
 using UnityEngine;
 
