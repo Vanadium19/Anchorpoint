@@ -55,7 +55,11 @@ namespace BuildingModule
                 if (itemToCount.ItemData == null)
                     continue;
 
-                _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
+                bool removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
+                if (!removed)
+                {
+                    return false;
+                }
             }
 
             return true;

@@ -75,6 +75,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acff9fdc1a940a843a8d4c502959979b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryGlobalInstaller
-  itemDatabase: {fileID: 11400000, guid: 0f1fa79f1b22b344dbbe73527d7f80fa, type: 2}
-  pocketsWidth: 8
-  pocketsHeight: 8
+  dropZone: {fileID: 0}
+  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
+  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}

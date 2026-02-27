@@ -1,61 +1,35 @@
 using UnityEngine;
+using UnityEngine.UI;
+using Zenject;
 
 namespace InventoryModule
 {
     public class InventoryDropZone : MonoBehaviour
     {
-        [Header("Drop Settings")]
-        [SerializeField] private Transform playerTransform;
-        [SerializeField] private float dropDistance = 2f;
-        [SerializeField] private float dropOffsetY = 0.5f;
-
         [Header("UI")]
-        [SerializeField] private UnityEngine.UI.Image highlightImage;
+        [SerializeField] private Image highlightImage;
         [SerializeField] private Color normalColor = new Color(1, 1, 1, 0.3f);
         [SerializeField] private Color hoverColor = new Color(1, 0.5f, 0.5f, 0.5f);
 
-        public bool TryDropItem(ItemTable item)
+        private IDropService _dropService;
+
+        [Inject]
+        public void Construct(IDropService dropService)
         {
-            if (item == null) return false;
-
-            if (!item.ItemDataSo.IsDropable) return false;
-
-            LootItemView prefab = item.ItemDataSo.WorldPrefab;
-            if (prefab == null) return false;
-
-            if (item.IsContainer)
-            {
-                ContainerWindow.CloseAllWindowsForItem(item);
-            }
-
-            Vector3 dropPosition = GetDropPosition();
-
-            LootItemView lootInstance = Instantiate(prefab, dropPosition, Quaternion.identity);
-            lootInstance.SetItemTable(item);
-
-            return true;
+            _dropService = dropService;
         }
 
-        private Vector3 GetDropPosition()
+        public bool TryDropItem(ItemTable item)
         {
-            if (playerTransform == null)
+            if (_dropService == null) return false;
+
+            if (_dropService.TryDropItem(item))
             {
-                playerTransform = Camera.main?.transform;
+                item.RemoveItselfFromLocation();
+                return true;
             }
 
-            if (playerTransform == null)
-            {
-                return Vector3.zero;
-            }
-
-            Vector3 forward = playerTransform.forward;
-            forward.y = 0;
-            forward.Normalize();
-
-            Vector3 dropPos = playerTransform.position + forward * dropDistance;
-            dropPos.y += dropOffsetY;
-
-            return dropPos;
+            return false;
         }
 
         public void ShowHighlight(bool show)

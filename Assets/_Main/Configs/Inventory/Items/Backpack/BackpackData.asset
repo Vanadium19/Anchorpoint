@@ -25,3 +25,4 @@ MonoBehaviour:
   canRotate: 1
   isDropable: 1
   worldPrefab: {fileID: 2239893881193973045, guid: 25f4847c85809a248911af542e0048c5, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

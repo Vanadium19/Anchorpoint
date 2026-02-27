@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 using Zenject;
+using InventoryModule.ContextMenu;
+using InventoryModule.ContextMenu.UI;
 
 namespace InventoryModule
 {
@@ -12,6 +14,7 @@ namespace InventoryModule
         [Header("References")]
         [SerializeField] private TextMeshProUGUI stackText;
         [SerializeField] private ContainerWindow containerWindowPrefab;
+        [SerializeField] private ContextMenuPresenter contextMenuPrefab;
 
         private AbstractGrid _currentTargetGrid;
         private Vector2Int _currentGridPos;
@@ -31,23 +34,56 @@ namespace InventoryModule
         private IInventoryManager _inventoryManager;
         private IEquipmentSlotService _slotService;
         private IGridService _gridService;
+        private IUIInputHandler _uiInputHandler;
+        private ContextMenuPresenter _contextMenu;
 
         [Inject]
-        private void Construct(IInventoryManager inventoryManager, IEquipmentSlotService slotService, IGridService gridService)
+        private void Construct(
+            IInventoryManager inventoryManager,
+            IEquipmentSlotService slotService,
+            IGridService gridService,
+            IUIInputHandler uiInputHandler)
         {
             _inventoryManager = inventoryManager;
             _slotService = slotService;
             _gridService = gridService;
+            _uiInputHandler = uiInputHandler;
         }
 
         public override void OnPointerClick(PointerEventData eventData)
         {
             base.OnPointerClick(eventData);
 
-            if (eventData.clickCount == 2 && Item != null && Item.IsContainer)
+            if (Item == null) return;
+
+            if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                ShowContextMenu(eventData.position);
+            }
+            else if (eventData.clickCount == 2 && Item.IsContainer)
             {
                 OpenContainerWindow();
             }
+        }
+
+        private void ShowContextMenu(Vector2 screenPosition)
+        {
+            if (Item == null) return;
+            if (contextMenuPrefab == null) return;
+
+            var contextService = ContextMenu.ContextActionService.CachedInstance;
+            if (contextService == null) return;
+
+            if (_contextMenu == null)
+            {
+                Canvas canvas = GetComponentInParent<Canvas>();
+                if (canvas == null) return;
+
+                _contextMenu = UnityEngine.Object.Instantiate(contextMenuPrefab, canvas.transform);
+            }
+
+            _contextMenu.Initialize(contextService);
+            _contextMenu.ShowForItem(Item, screenPosition);
         }
 
         private void OpenContainerWindow()
@@ -60,7 +96,8 @@ namespace InventoryModule
             Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas == null) return;
 
-            ContainerWindow window = Instantiate(containerWindowPrefab, canvas.transform);
+            ContainerWindow window = UnityEngine.Object.Instantiate(containerWindowPrefab, canvas.transform);
+            window.transform.SetAsLastSibling();
             window.Initialize(Item, metadata, containerWindowPrefab.GridPrefab);
         }
 
@@ -75,6 +112,15 @@ namespace InventoryModule
             {
                 _stackTextOriginalPos = stackText.rectTransform.anchoredPosition;
                 _stackTextPosInitialized = true;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_contextMenu != null)
+            {
+                Destroy(_contextMenu.gameObject);
+                _contextMenu = null;
             }
         }
 
@@ -119,6 +165,12 @@ namespace InventoryModule
         {
             if (IsDragging) return;
 
+            if (_contextMenu != null)
+            {
+                Destroy(_contextMenu.gameObject);
+                _contextMenu = null;
+            }
+
             originalPosition = rectTransform.anchoredPosition;
             originalParent = transform.parent;
 
@@ -156,7 +208,7 @@ namespace InventoryModule
 
             _lastPlacementUpdate = now;
 
-            var newTargetGrid = GetGridUnderMouse();
+            var newTargetGrid = _uiInputHandler.GetGridUnderMouse(this);
 
             if (newTargetGrid != _currentTargetGrid)
             {
@@ -165,7 +217,7 @@ namespace InventoryModule
                 _currentTargetGrid = newTargetGrid;
             }
 
-            var newContainerTarget = GetContainerItemUnderMouse();
+            var newContainerTarget = _uiInputHandler.GetContainerItemUnderMouse(this);
             if (newContainerTarget != _currentContainerTarget)
             {
                 ClearContainerHighlight();
@@ -176,7 +228,7 @@ namespace InventoryModule
                 }
             }
 
-            var newStackTarget = GetStackTargetUnderMouse();
+            var newStackTarget = _uiInputHandler.GetStackTargetUnderMouse(this, Item);
             if (newStackTarget != _stackTargetItem)
             {
                 ClearStackHighlight();
@@ -220,7 +272,7 @@ namespace InventoryModule
             }
             else
             {
-                var dropZone = GetDropZoneUnderMouse();
+                var dropZone = _uiInputHandler.GetDropZoneUnderMouse(this);
 
                 if (_currentDropZone != dropZone)
                 {
@@ -269,7 +321,7 @@ namespace InventoryModule
                 return;
             }
 
-            EquipmentSlot targetSlot = GetEquipmentSlotUnderMouse();
+            EquipmentSlot targetSlot = _uiInputHandler.GetEquipmentSlotUnderMouse();
             if (targetSlot != null && targetSlot.CanEquip(Item))
             {
                 if (targetSlot.TryEquip(Item))
@@ -280,7 +332,7 @@ namespace InventoryModule
                 }
             }
 
-            InventoryItem targetContainerItem = GetContainerItemUnderMouse();
+            InventoryItem targetContainerItem = _uiInputHandler.GetContainerItemUnderMouse(this);
             if (targetContainerItem != null && targetContainerItem != this && targetContainerItem.Item != null && targetContainerItem.Item.IsContainer)
             {
                 var targetGridWindow = _currentTargetGrid?.GetComponentInParent<ContainerWindow>();
@@ -413,26 +465,6 @@ namespace InventoryModule
             return false;
         }
 
-        private EquipmentSlot GetEquipmentSlotUnderMouse()
-        {
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            foreach (RaycastResult result in results)
-            {
-                var slot = result.gameObject.GetComponent<EquipmentSlot>();
-                if (slot != null) return slot;
-            }
-
-            return null;
-        }
-
         private void ReturnToOriginal()
         {
             _localIsRotated = Item.IsRotated;
@@ -535,53 +567,6 @@ namespace InventoryModule
             rectTransform.anchoredPosition = originalPosition;
         }
 
-        private AbstractGrid GetGridUnderMouse()
-        {
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            foreach (RaycastResult result in results)
-            {
-                if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
-                    continue;
-
-                var grid = result.gameObject.GetComponentInParent<AbstractGrid>();
-                if (grid != null) return grid;
-            }
-
-            return null;
-        }
-
-        private InventoryItem GetContainerItemUnderMouse()
-        {
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            foreach (RaycastResult result in results)
-            {
-                if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
-                    continue;
-
-                var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
-                if (itemUI != null && itemUI.Item != null && itemUI.Item.IsContainer)
-                    return itemUI;
-            }
-
-            return null;
-        }
-
         protected override void UpdateGridHighlight()
         {
             UpdatePlacementPreview();
@@ -621,63 +606,6 @@ namespace InventoryModule
                 _currentContainerTarget.iconImage.color = _originalItemColor;
                 _currentContainerTarget = null;
             }
-        }
-
-        private InventoryDropZone GetDropZoneUnderMouse()
-        {
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            foreach (RaycastResult result in results)
-            {
-                if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
-                    continue;
-
-                var dropZone = result.gameObject.GetComponentInParent<InventoryDropZone>();
-                if (dropZone != null) return dropZone;
-            }
-
-            return null;
-        }
-
-        private InventoryItem GetStackTargetUnderMouse()
-        {
-            if (Item == null || !Item.IsStackable) return null;
-
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
-
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerData, results);
-
-            foreach (RaycastResult result in results)
-            {
-                if (result.gameObject == gameObject || result.gameObject.transform.IsChildOf(transform))
-                    continue;
-
-                var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
-                if (itemUI != null && itemUI != this && itemUI.Item != null)
-                {
-                    if (itemUI.Item.ItemDataSo == Item.ItemDataSo && itemUI.Item.IsStackable)
-                    {
-                        if (itemUI.Item.StackCount < itemUI.Item.MaxStack)
-                        {
-                            return itemUI;
-                        }
-                    }
-                }
-            }
-
-            return null;
         }
 
         private void HighlightStackTarget(InventoryItem target)
@@ -758,7 +686,7 @@ namespace InventoryModule
 
                 if (_extractedFromSlot != null)
                 {
-                    _extractedFromSlot.OnItemPlacedToInventory();
+                    _extractedFromSlot.Unequip();
                     _extractedFromSlot = null;
                 }
 

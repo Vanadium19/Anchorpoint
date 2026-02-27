@@ -5,6 +5,8 @@ namespace InventoryModule
         GridTable MainGrid { get; }
         bool IsInventoryOpen { get; }
         void SetMainGrid(GridTable grid);
+        void RegisterAdditionalGrid(GridTable grid);
+        void UnregisterAdditionalGrid(GridTable grid);
         bool AddItemToInventory(ItemDataSo itemData, int stackCount = 1);
         bool AddExistingItemToInventory(ItemTable existingItem);
         bool TryAutoEquipItem(ItemTable item);

@@ -1,5 +1,5 @@
-using UnityEngine;
 using Zenject;
+using InventoryModule.ContextMenu;
 
 namespace InventoryModule
 {
@@ -21,6 +21,14 @@ namespace InventoryModule
 
             Container.BindInterfacesTo<InventoryStaticDataResetHandler>()
                 .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<UIInputHandler>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<ContextActionService>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

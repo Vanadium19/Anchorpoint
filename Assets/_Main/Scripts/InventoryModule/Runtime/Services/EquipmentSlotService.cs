@@ -26,5 +26,20 @@ namespace InventoryModule
         {
             return _slots;
         }
+
+        public EquipmentSlot GetSlotForItem(ItemTable item)
+        {
+            if (item == null) return null;
+
+            foreach (var slot in _slots)
+            {
+                if (slot.GetItem() == item)
+                {
+                    return slot;
+                }
+            }
+
+            return null;
+        }
     }
 }

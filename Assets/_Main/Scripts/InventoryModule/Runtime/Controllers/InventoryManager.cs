@@ -7,7 +7,11 @@ namespace InventoryModule
 {
     public class InventoryManager : IInventoryManager, IInitializable, ITickable
     {
+        private static InventoryManager _instance;
+        public static InventoryManager Instance => _instance;
+
         private GridTable _mainGrid;
+        private List<GridTable> _additionalGrids = new List<GridTable>();
         private Dictionary<EquipmentSlotType, ItemTable> _equippedItems = new Dictionary<EquipmentSlotType, ItemTable>();
 
         private IInputMap _inputMap;
@@ -24,6 +28,7 @@ namespace InventoryModule
         public InventoryManager(IEquipmentSlotService slotService)
         {
             _slotService = slotService;
+            _instance = this;
         }
 
         public void Initialize()
@@ -39,6 +44,22 @@ namespace InventoryModule
         public void SetMainGrid(GridTable grid)
         {
             _mainGrid = grid;
+        }
+
+        public void RegisterAdditionalGrid(GridTable grid)
+        {
+            if (grid != null && !_additionalGrids.Contains(grid))
+            {
+                _additionalGrids.Add(grid);
+            }
+        }
+
+        public void UnregisterAdditionalGrid(GridTable grid)
+        {
+            if (grid != null)
+            {
+                _additionalGrids.Remove(grid);
+            }
         }
 
         public void SetInventoryUI(GameObject inventoryUI)
@@ -108,10 +129,19 @@ namespace InventoryModule
             if (itemData == null) return 0;
 
             int count = 0;
+            var processedGrids = new HashSet<GridTable>();
 
             if (_mainGrid != null)
             {
-                count += CountItemsRecursive(_mainGrid, itemData);
+                count += CountItemsRecursive(_mainGrid, itemData, processedGrids);
+            }
+
+            foreach (var additionalGrid in _additionalGrids)
+            {
+                if (!processedGrids.Contains(additionalGrid))
+                {
+                    count += CountItemsRecursive(additionalGrid, itemData, processedGrids);
+                }
             }
 
             if (_slotService != null)
@@ -120,7 +150,7 @@ namespace InventoryModule
                 {
                     if (slot.IsEquipped && slot.EquippedItem != null)
                     {
-                        count += CountInEquippedItem(slot.EquippedItem, itemData);
+                        count += CountInEquippedItem(slot.EquippedItem, itemData, processedGrids);
                     }
                 }
             }
@@ -129,14 +159,14 @@ namespace InventoryModule
             {
                 if (equipped != null)
                 {
-                    count += CountInEquippedItem(equipped, itemData);
+                    count += CountInEquippedItem(equipped, itemData, processedGrids);
                 }
             }
 
             return count;
         }
 
-        private int CountInEquippedItem(ItemTable equippedItem, ItemDataSo itemData)
+        private int CountInEquippedItem(ItemTable equippedItem, ItemDataSo itemData, HashSet<GridTable> processedGrids)
         {
             int count = 0;
 
@@ -152,7 +182,7 @@ namespace InventoryModule
                 {
                     foreach (var containerGrid in metadata.Inventories)
                     {
-                        count += CountItemsRecursive(containerGrid, itemData);
+                        count += CountItemsRecursive(containerGrid, itemData, processedGrids);
                     }
                 }
             }
@@ -160,9 +190,11 @@ namespace InventoryModule
             return count;
         }
 
-        private int CountItemsRecursive(GridTable grid, ItemDataSo itemData)
+        private int CountItemsRecursive(GridTable grid, ItemDataSo itemData, HashSet<GridTable> processedGrids)
         {
-            if (grid == null) return 0;
+            if (grid == null || processedGrids.Contains(grid)) return 0;
+
+            processedGrids.Add(grid);
 
             int count = 0;
             var items = grid.GetAllItems();
@@ -181,7 +213,7 @@ namespace InventoryModule
                     {
                         foreach (var containerGrid in metadata.Inventories)
                         {
-                            count += CountItemsRecursive(containerGrid, itemData);
+                            count += CountItemsRecursive(containerGrid, itemData, processedGrids);
                         }
                     }
                 }
@@ -193,13 +225,25 @@ namespace InventoryModule
         public bool TryRemoveItems(ItemDataSo itemData, int count)
         {
             if (itemData == null) return false;
-            if (GetItemCount(itemData) < count) return false;
+            
+            int available = GetItemCount(itemData);
+            
+            if (available < count) return false;
 
             int remaining = count;
+            var processedGrids = new HashSet<GridTable>();
 
             if (_mainGrid != null)
             {
-                RemoveItemsRecursive(_mainGrid, itemData, ref remaining);
+                RemoveItemsRecursive(_mainGrid, itemData, ref remaining, processedGrids);
+            }
+
+            foreach (var additionalGrid in _additionalGrids)
+            {
+                if (remaining > 0 && !processedGrids.Contains(additionalGrid))
+                {
+                    RemoveItemsRecursive(additionalGrid, itemData, ref remaining, processedGrids);
+                }
             }
 
             if (remaining > 0 && _slotService != null)
@@ -210,7 +254,7 @@ namespace InventoryModule
 
                     if (slot.IsEquipped && slot.EquippedItem != null)
                     {
-                        RemoveFromEquippedItem(slot.EquippedItem, itemData, ref remaining);
+                        RemoveFromEquippedItem(slot.EquippedItem, itemData, ref remaining, processedGrids);
                     }
                 }
             }
@@ -222,15 +266,15 @@ namespace InventoryModule
                     if (remaining <= 0) break;
                     if (equipped != null)
                     {
-                        RemoveFromEquippedItem(equipped, itemData, ref remaining);
+                        RemoveFromEquippedItem(equipped, itemData, ref remaining, processedGrids);
                     }
                 }
             }
 
-            return true;
+            return remaining == 0;
         }
 
-        private void RemoveFromEquippedItem(ItemTable equippedItem, ItemDataSo itemData, ref int remaining)
+        private void RemoveFromEquippedItem(ItemTable equippedItem, ItemDataSo itemData, ref int remaining, HashSet<GridTable> processedGrids)
         {
             if (equippedItem.IsContainer)
             {
@@ -241,16 +285,18 @@ namespace InventoryModule
                     {
                         if (remaining > 0)
                         {
-                            RemoveItemsRecursive(containerGrid, itemData, ref remaining);
+                            RemoveItemsRecursive(containerGrid, itemData, ref remaining, processedGrids);
                         }
                     }
                 }
             }
         }
 
-        private void RemoveItemsRecursive(GridTable grid, ItemDataSo itemData, ref int remainingCount)
+        private void RemoveItemsRecursive(GridTable grid, ItemDataSo itemData, ref int remainingCount, HashSet<GridTable> processedGrids)
         {
-            if (grid == null || remainingCount <= 0) return;
+            if (grid == null || remainingCount <= 0 || processedGrids.Contains(grid)) return;
+
+            processedGrids.Add(grid);
 
             var items = grid.GetAllItems();
             var itemsToRemove = new List<ItemTable>();
@@ -294,7 +340,7 @@ namespace InventoryModule
                             {
                                 if (remainingCount > 0)
                                 {
-                                    RemoveItemsRecursive(containerGrid, itemData, ref remainingCount);
+                                    RemoveItemsRecursive(containerGrid, itemData, ref remainingCount, processedGrids);
                                 }
                             }
                         }

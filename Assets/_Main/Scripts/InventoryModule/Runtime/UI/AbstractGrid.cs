@@ -34,6 +34,8 @@ namespace InventoryModule
         protected Image highlightImage;
         protected List<AbstractItem> itemUIs = new List<AbstractItem>();
 
+        public IReadOnlyList<AbstractItem> ItemUIs => itemUIs;
+
         private bool _gridDrawn;
         private int _lastItemsHash;
         private float _lastRefreshTime;

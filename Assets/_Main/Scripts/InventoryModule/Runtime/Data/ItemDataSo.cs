@@ -1,4 +1,5 @@
 using UnityEngine;
+using InventoryModule.ContextMenu.Presets;
 
 namespace InventoryModule
 {
@@ -28,6 +29,9 @@ namespace InventoryModule
         [SerializeField] private bool isDropable = true;
         [SerializeField] private LootItemView worldPrefab;
 
+        [Header("Context Menu")]
+        [SerializeField] private ContextActionPreset contextActionPreset;
+
         public string DisplayName => displayName;
         public string Description => description;
         public Sprite Icon => icon;
@@ -41,6 +45,7 @@ namespace InventoryModule
         public bool CanRotate => canRotate;
         public bool IsDropable => isDropable;
         public LootItemView WorldPrefab => worldPrefab;
+        public ContextActionPreset ContextActionPreset => contextActionPreset;
 
         public int Width => dimensionsSo != null ? dimensionsSo.Width : 1;
         public int Height => dimensionsSo != null ? dimensionsSo.Height : 1;

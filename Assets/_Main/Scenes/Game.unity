@@ -1384,9 +1384,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6fe43776caf89e4ca34e8edd4290c36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryDropZone
-  playerTransform: {fileID: 1341279382}
-  dropDistance: 2
-  dropOffsetY: 0.5
   highlightImage: {fileID: 413331086}
   normalColor: {r: 0, g: 0, b: 0, a: 0.5882353}
   hoverColor: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 0.5882353}
@@ -1906,7 +1903,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: InventoryModule::InventoryModule.InventorySceneInstaller
   inventoryUI: {fileID: 574066419}
   characterInventory: {fileID: 1341279375}
-  mainCanvas: {fileID: 0}
+  mainCanvas: {fileID: 1609579821}
+  playerTransform: {fileID: 1341279382}
+  dropDistance: 2
+  dropOffsetY: 0.5
+  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
+  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
 --- !u!1 &491514575 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100018, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}

@@ -60,6 +60,11 @@ namespace InventoryModule
                 ContainerGrid = metadata.Inventories[0];
             }
 
+            if (ContainerGrid != null)
+            {
+                InventoryManager.Instance?.RegisterAdditionalGrid(ContainerGrid);
+            }
+
             if (titleText != null)
             {
                 titleText.text = itemTable.ItemDataSo.DisplayName;
@@ -561,6 +566,11 @@ namespace InventoryModule
 
         public void Close()
         {
+            if (ContainerGrid != null)
+            {
+                InventoryManager.Instance?.UnregisterAdditionalGrid(ContainerGrid);
+            }
+
             if (_contentGrids != null)
             {
                 foreach (var grid in _contentGrids)

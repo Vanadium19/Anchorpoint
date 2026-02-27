@@ -1,0 +1,228 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
+using Zenject;
+using InventoryModule.ContextMenu;
+using InventoryModule.ContextMenu.UI;
+
+namespace InventoryModule
+{
+    public class UIInputHandler : IUIInputHandler
+    {
+        private readonly IInventoryManager _inventoryManager;
+        private readonly IEquipmentSlotService _slotService;
+        private readonly IGridService _gridService;
+
+        public UIInputHandler(
+            IInventoryManager inventoryManager,
+            IEquipmentSlotService slotService,
+            IGridService gridService)
+        {
+            _inventoryManager = inventoryManager;
+            _slotService = slotService;
+            _gridService = gridService;
+        }
+
+        public void HandleClick(PointerEventData eventData, ItemTable item, AbstractItem itemUI)
+        {
+        }
+
+        public void HandleDoubleClick(PointerEventData eventData, ItemTable item)
+        {
+        }
+
+        public void HandleRightClick(PointerEventData eventData, ItemTable item)
+        {
+        }
+
+        public void HandleDragBegin(PointerEventData eventData, ItemTable item, AbstractItem itemUI)
+        {
+        }
+
+        public void HandleDrag(PointerEventData eventData, AbstractItem itemUI)
+        {
+        }
+
+        public void HandleDragEnd(PointerEventData eventData, AbstractItem itemUI)
+        {
+        }
+
+        public InventoryItem GetInventoryItemUnderMouse()
+        {
+            return GetItemUnderMouse(null);
+        }
+
+        public InventoryItem GetInventoryItemUnderMouse(AbstractItem excludeItem)
+        {
+            return GetItemUnderMouse(excludeItem);
+        }
+
+        public EquipmentSlot GetEquipmentSlotUnderMouse()
+        {
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                var slot = result.gameObject.GetComponent<EquipmentSlot>();
+                if (slot != null) return slot;
+            }
+
+            return null;
+        }
+
+        public InventoryDropZone GetDropZoneUnderMouse()
+        {
+            return GetDropZoneUnderMouse(null);
+        }
+
+        public InventoryDropZone GetDropZoneUnderMouse(AbstractItem excludeItem)
+        {
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (excludeItem != null && (result.gameObject == excludeItem.gameObject || result.gameObject.transform.IsChildOf(excludeItem.transform)))
+                    continue;
+
+                var dropZone = result.gameObject.GetComponentInParent<InventoryDropZone>();
+                if (dropZone != null) return dropZone;
+            }
+
+            return null;
+        }
+
+        public AbstractGrid GetGridUnderMouse()
+        {
+            return GetGridUnderMouse(null);
+        }
+
+        public AbstractGrid GetGridUnderMouse(AbstractItem excludeItem)
+        {
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (excludeItem != null && (result.gameObject == excludeItem.gameObject || result.gameObject.transform.IsChildOf(excludeItem.transform)))
+                    continue;
+
+                var grid = result.gameObject.GetComponentInParent<AbstractGrid>();
+                if (grid != null) return grid;
+            }
+
+            return null;
+        }
+
+        public InventoryItem GetContainerItemUnderMouse()
+        {
+            return GetContainerItemUnderMouse(null);
+        }
+
+        public InventoryItem GetContainerItemUnderMouse(AbstractItem excludeItem)
+        {
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (excludeItem != null && (result.gameObject == excludeItem.gameObject || result.gameObject.transform.IsChildOf(excludeItem.transform)))
+                    continue;
+
+                var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
+                if (itemUI != null && itemUI.Item != null && itemUI.Item.IsContainer)
+                    return itemUI;
+            }
+
+            return null;
+        }
+
+        public InventoryItem GetStackTargetUnderMouse(ItemTable currentItem)
+        {
+            return GetStackTargetUnderMouse(null, currentItem);
+        }
+
+        public InventoryItem GetStackTargetUnderMouse(AbstractItem excludeItem, ItemTable currentItem)
+        {
+            if (currentItem == null || !currentItem.IsStackable) return null;
+
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (excludeItem != null && (result.gameObject == excludeItem.gameObject || result.gameObject.transform.IsChildOf(excludeItem.transform)))
+                    continue;
+
+                var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
+                if (itemUI != null && itemUI != excludeItem && itemUI.Item != null)
+                {
+                    if (itemUI.Item.ItemDataSo == currentItem.ItemDataSo && itemUI.Item.IsStackable)
+                    {
+                        if (itemUI.Item.StackCount < itemUI.Item.MaxStack)
+                        {
+                            return itemUI;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private InventoryItem GetItemUnderMouse(AbstractItem excludeItem)
+        {
+            Vector2 mousePos = Input.mousePosition;
+            PointerEventData pointerData = new PointerEventData(EventSystem.current)
+            {
+                position = mousePos
+            };
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (RaycastResult result in results)
+            {
+                if (excludeItem != null && (result.gameObject == excludeItem.gameObject || result.gameObject.transform.IsChildOf(excludeItem.transform)))
+                    continue;
+
+                var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
+                if (itemUI != null) return itemUI;
+            }
+
+            return null;
+        }
+    }
+}
