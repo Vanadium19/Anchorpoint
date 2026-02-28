@@ -6,16 +6,19 @@ namespace EvacuationModule
     public class EvacuationInstaller : MonoInstaller
     {
         [SerializeField] private EvacuationConfig config;
-        [SerializeField] private EvacuationZoneView zoneView;
-        [SerializeField] private EvacuationHUDView hudView;
+        [SerializeField] private EvacuationController controller;
+        [SerializeField] private EvacuationView view;
 
         public override void InstallBindings()
         {
             Container.BindInstance(config).AsSingle();
-            Container.BindInstance(zoneView).AsSingle();
-            Container.BindInstance(hudView).AsSingle();
+            Container.BindInstance(controller).AsSingle();
+            Container.BindInstance(view).AsSingle();
 
-            Container.BindInterfacesAndSelfTo<EvacuationController>().AsSingle();
+            Container.Bind<EndEvacuationCommand>().AsSingle().NonLazy();
+
+            Container.BindInterfacesTo<EvacuationService>().AsSingle();
+            Container.BindInterfacesTo<EvacuationPresenter>().AsSingle().NonLazy();
         }
     }
 }

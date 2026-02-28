@@ -2,12 +2,6 @@ using UnityEngine;
 
 namespace EvacuationModule
 {
-    public enum EvacuationCompleteMode
-    {
-        LoadScene = 0,
-        ShowSuccessScreen = 1
-    }
-
     [CreateAssetMenu(fileName = "EvacuationConfig", menuName = "Configs/Evacuation/EvacuationConfig")]
     public class EvacuationConfig : ScriptableObject
     {
@@ -17,7 +11,6 @@ namespace EvacuationModule
         public EvacuationCompleteMode CompleteMode = EvacuationCompleteMode.ShowSuccessScreen;
 
         public string TargetSceneName = "MainLevel";
-
         public string BaseSceneName = "BaseScene";
     }
 }
