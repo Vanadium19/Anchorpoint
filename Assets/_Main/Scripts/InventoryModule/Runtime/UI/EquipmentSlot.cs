@@ -37,18 +37,23 @@ namespace InventoryModule
 
         private IInventoryManager _inventoryManager;
         private IEquipmentSlotService _slotService;
+        private DiContainer _diContainer;
 
         [Inject]
-        private void Construct(IInventoryManager inventoryManager, IEquipmentSlotService slotService)
+        private void Construct(IInventoryManager inventoryManager, IEquipmentSlotService slotService, DiContainer diContainer)
         {
             _inventoryManager = inventoryManager;
             _slotService = slotService;
+            _diContainer = diContainer;
         }
 
         private void Awake()
         {
-            if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
-            if (slotImage == null) slotImage = GetComponent<Image>();
+            if (rectTransform == null) 
+                rectTransform = GetComponent<RectTransform>();
+
+            if (slotImage == null) 
+                slotImage = GetComponent<Image>();
 
             rectTransform.anchorMin = new Vector2(0, 1);
             rectTransform.anchorMax = new Vector2(0, 1);
@@ -57,16 +62,13 @@ namespace InventoryModule
             if (slotImage != null)
             {
                 if (slotIcon != null)
-                {
                     slotImage.sprite = slotIcon;
-                }
+
                 slotImage.color = Color.white;
             }
 
             UpdateVisuals();
-
             RestoreEquippedItem();
-
             _slotService?.RegisterSlot(this);
         }
 
@@ -78,9 +80,11 @@ namespace InventoryModule
 
         private void RestoreEquippedItem()
         {
-            if (_inventoryManager == null) return;
+            if (_inventoryManager == null) 
+                return;
 
             var savedItem = _inventoryManager.GetEquippedItem(slotType);
+
             if (savedItem != null && !IsEquipped)
             {
                 _isRestoring = true;
@@ -91,43 +95,43 @@ namespace InventoryModule
 
         private void SaveEquippedItem()
         {
-            if (_inventoryManager == null) return;
+            if (_inventoryManager == null) 
+                return;
 
             if (IsEquipped)
-            {
                 _inventoryManager.SaveEquippedItem(slotType, EquippedItem);
-            }
         }
 
         public bool CanEquip(ItemTable item)
         {
-            if (item == null) return false;
-            if (IsEquipped) return false;
-            if (!item.ItemDataSo.IsEquippable) return false;
+            if (item == null) 
+                return false;
+
+            if (IsEquipped) 
+                return false;
+
+            if (!item.ItemDataSo.IsEquippable) 
+                return false;
 
             return item.ItemDataSo.EquipmentSlotType == slotType;
         }
 
         public bool TryEquip(ItemTable item)
         {
-            if (!CanEquip(item)) return false;
+            if (!CanEquip(item)) 
+                return false;
 
             if (item.IsRotated)
-            {
                 item.Rotate();
-            }
 
             EquippedItem = item;
 
             if (!_isRestoring)
-            {
                 _inventoryManager?.SaveEquippedItem(slotType, item);
-            }
 
             if (itemPrefab != null)
             {
-                var container = ProjectContext.Instance.Container;
-                EquippedItemUI = container.InstantiatePrefabForComponent<InventoryItem>(itemPrefab, transform);
+                EquippedItemUI = _diContainer.InstantiatePrefabForComponent<InventoryItem>(itemPrefab, transform);
                 EquippedItemUI.SetItem(item);
 
                 RectTransform itemRect = EquippedItemUI.GetComponent<RectTransform>();
@@ -137,15 +141,11 @@ namespace InventoryModule
                 itemRect.anchoredPosition = Vector2.zero;
 
                 if (useAspectRatioScaling)
-                {
                     ScaleItemToFitSlot(itemRect);
-                }
             }
 
             if (item.IsContainer && LinkedSection == null)
-            {
                 CreateContainerSection(item);
-            }
 
             UpdateVisuals();
 
@@ -155,22 +155,18 @@ namespace InventoryModule
         private void CreateContainerSection(ItemTable item)
         {
             if (inventoryPanel == null || containerGridPrefab == null)
-            {
                 return;
-            }
 
             var metadata = item.GetMetadata<ContainerMetadata>();
+
             if (metadata == null)
-            {
                 return;
-            }
 
             metadata.InitializeInventories();
 
             LinkedSection = Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
             inventoryPanel.EnsureSectionHasLayoutElement(LinkedSection);
             LinkedSection.InitializeContainer(item, metadata, containerGridPrefab);
-
             inventoryPanel.AddContainerSection(LinkedSection);
         }
 
@@ -179,9 +175,8 @@ namespace InventoryModule
             if (LinkedSection != null)
             {
                 if (inventoryPanel != null)
-                {
                     inventoryPanel.RemoveContainerSection(LinkedSection);
-                }
+
                 LinkedSection.Close();
                 LinkedSection = null;
             }
@@ -199,14 +194,11 @@ namespace InventoryModule
             float itemAspect = itemSize.x / itemSize.y;
 
             float scaleFactor;
+
             if (itemAspect > slotAspect)
-            {
                 scaleFactor = slotSize.x / itemSize.x;
-            }
             else
-            {
                 scaleFactor = slotSize.y / itemSize.y;
-            }
 
             scaleFactor = Mathf.Min(scaleFactor, 1f);
 
@@ -215,30 +207,17 @@ namespace InventoryModule
             _originalItemScale = itemRect.localScale;
         }
 
-        public void RestoreItemScale()
-        {
-            if (EquippedItemUI != null)
-            {
-                RectTransform itemRect = EquippedItemUI.GetComponent<RectTransform>();
-                if (_originalItemScale.sqrMagnitude > 0.001f)
-                {
-                    itemRect.localScale = _originalItemScale;
-                }
-            }
-        }
-
         public void Unequip()
         {
-            if (EquippedItem == null) return;
+            if (EquippedItem == null) 
+                return;
 
             RemoveContainerSection();
 
             EquippedItem = null;
 
             if (!_isRestoring)
-            {
                 _inventoryManager?.RemoveEquippedItem(slotType);
-            }
 
             if (EquippedItemUI != null && EquippedItemUI.gameObject != null && EquippedItemUI.gameObject != gameObject)
             {
@@ -275,20 +254,6 @@ namespace InventoryModule
             RemoveContainerSection();
         }
 
-        public void ReturnItemToSlot(ItemTable item)
-        {
-            EquippedItem = item;
-
-            _inventoryManager?.SaveEquippedItem(slotType, item);
-
-            if (item.IsContainer)
-            {
-                CreateContainerSection(item);
-            }
-
-            UpdateVisuals();
-        }
-
         public void ReturnItemToSlotWithUI(ItemTable item, InventoryItem existingUI)
         {
             EquippedItem = item;
@@ -297,9 +262,7 @@ namespace InventoryModule
             _inventoryManager?.SaveEquippedItem(slotType, item);
 
             if (item.IsContainer)
-            {
                 CreateContainerSection(item);
-            }
 
             UpdateVisuals();
         }
@@ -307,14 +270,13 @@ namespace InventoryModule
         private void UpdateVisuals()
         {
             if (slotImage != null)
-            {
                 slotImage.color = Color.white;
-            }
         }
 
         public void OnDrop(PointerEventData eventData)
         {
             var draggedItem = eventData.pointerDrag?.GetComponent<AbstractItem>();
+
             if (draggedItem != null && draggedItem.Item != null)
             {
                 if (TryEquip(draggedItem.Item))
@@ -322,9 +284,7 @@ namespace InventoryModule
                     draggedItem.Item.RemoveItselfFromLocation();
 
                     if (draggedItem.gameObject != gameObject && (EquippedItemUI == null || draggedItem.gameObject != EquippedItemUI.gameObject))
-                    {
                         Destroy(draggedItem.gameObject);
-                    }
                 }
             }
         }

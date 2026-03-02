@@ -24,51 +24,7 @@ namespace InventoryModule
 
         public AbstractGrid GridPrefab => gridPrefab;
 
-        private static readonly HashSet<ItemTable> _openContainers = new HashSet<ItemTable>();
-        private static readonly List<ContainerWindow> _openWindows = new List<ContainerWindow>();
-
-        public static bool IsContainerOpen(ItemTable item)
-        {
-            return _openContainers.Contains(item);
-        }
-
-        public static void CloseAllWindowsForItem(ItemTable item)
-        {
-            if (item == null) return;
-
-            for (int i = _openWindows.Count - 1; i >= 0; i--)
-            {
-                var window = _openWindows[i];
-                if (window != null && window._containerItem == item)
-                {
-                    window.Close();
-                }
-            }
-
-            if (item.IsContainer)
-            {
-                var metadata = item.GetMetadata<ContainerMetadata>();
-                if (metadata?.Inventories != null)
-                {
-                    foreach (var grid in metadata.Inventories)
-                    {
-                        var items = grid.GetAllItems();
-                        foreach (var nestedItem in items)
-                        {
-                            if (nestedItem.IsContainer)
-                            {
-                                CloseAllWindowsForItem(nestedItem);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void CloseAllWindowsForItemRecursive(ItemTable item)
-        {
-            CloseAllWindowsForItem(item);
-        }
+        private IContainerWindowService _windowService;
 
         private List<AbstractGrid> _contentGrids = new List<AbstractGrid>();
         private GameObject _panelInstance;
@@ -76,34 +32,30 @@ namespace InventoryModule
         private ContainerMetadata _metadata;
         private Canvas _canvas;
 
+        public ItemTable ContainerItem => _containerItem;
+
         public event Action<ContainerWindow> WindowClosed;
 
         private void Awake()
         {
             if (closeButton != null)
-            {
                 closeButton.onClick.AddListener(Close);
-            }
         }
 
-        public void Initialize(ItemTable containerItem, ContainerMetadata metadata, AbstractGrid gridPrefab)
+        public void Initialize(ItemTable containerItem, ContainerMetadata metadata, AbstractGrid gridPrefab, IContainerWindowService windowService = null)
         {
             _containerItem = containerItem;
             _metadata = metadata;
             this.gridPrefab = gridPrefab;
+            _windowService = windowService;
 
-            _openContainers.Add(containerItem);
-            _openWindows.Add(this);
+            _windowService?.RegisterWindow(containerItem, this);
 
             if (titleText != null)
-            {
                 titleText.text = containerItem.ItemDataSo.DisplayName;
-            }
 
             if (contentContainer != null && metadata?.Inventories?.Count > 0)
-            {
                 CreateContentGrids(containerItem, metadata, gridPrefab);
-            }
 
             _canvas = GetComponentInParent<Canvas>();
         }
@@ -115,19 +67,14 @@ namespace InventoryModule
             if (containerGrids != null)
             {
                 var panelPrefab = containerGrids.ContainerPanelPrefab;
+
                 if (panelPrefab != null)
-                {
                     CreateGridsFromPanel(panelPrefab, metadata, contentContainer);
-                }
                 else
-                {
                     CreateGridsFromArray(containerGrids, metadata, gridPrefab, contentContainer);
-                }
             }
             else
-            {
                 CreateSingleGrid(metadata.Inventories[0], gridPrefab, contentContainer);
-            }
 
             CalculateWindowSizeFromGrids();
         }
@@ -176,9 +123,7 @@ namespace InventoryModule
                 }
             }
             else if (gridPrefab != null && metadata.Inventories.Count > 0)
-            {
                 CreateSingleGrid(metadata.Inventories[0], gridPrefab, parent);
-            }
         }
 
         private void CreateSingleGrid(GridTable gridTable, AbstractGrid gridPrefab, RectTransform parent)
@@ -194,7 +139,8 @@ namespace InventoryModule
 
         private void CalculateWindowSizeFromGrids()
         {
-            if (windowRect == null || _contentGrids.Count == 0) return;
+            if (windowRect == null || _contentGrids.Count == 0) 
+                return;
 
             float minX = float.MaxValue;
             float minY = float.MaxValue;
@@ -204,10 +150,13 @@ namespace InventoryModule
 
             foreach (var grid in _contentGrids)
             {
-                if (grid == null) continue;
+                if (grid == null) 
+                    continue;
 
                 var gridRect = grid.GetComponent<RectTransform>();
-                if (gridRect == null) continue;
+
+                if (gridRect == null) 
+                    continue;
 
                 tileSize = grid.TileSize;
 
@@ -237,6 +186,7 @@ namespace InventoryModule
             if (contentContainer != null)
             {
                 var contentRect = contentContainer.GetComponent<RectTransform>();
+
                 if (contentRect != null)
                 {
                     contentRect.anchorMin = Vector2.zero;
@@ -249,6 +199,7 @@ namespace InventoryModule
             if (_panelInstance != null)
             {
                 var panelRect = _panelInstance.GetComponent<RectTransform>();
+
                 if (panelRect != null)
                 {
                     float prefabHeight = panelRect.sizeDelta.y;
@@ -277,7 +228,8 @@ namespace InventoryModule
 
         private void CenterContentIfNeeded(float minX, float maxX, float minY, float maxY)
         {
-            if (contentContainer == null) return;
+            if (contentContainer == null) 
+                return;
 
             float contentWidth = maxX - minX;
             float contentHeight = maxY - minY;
@@ -293,13 +245,13 @@ namespace InventoryModule
 
                 foreach (var grid in _contentGrids)
                 {
-                    if (grid == null) continue;
+                    if (grid == null) 
+                        continue;
 
                     var gridRect = grid.GetComponent<RectTransform>();
+
                     if (gridRect != null)
-                    {
                         gridRect.localPosition += new Vector3(offsetX, offsetY, 0);
-                    }
                 }
             }
         }
@@ -307,37 +259,26 @@ namespace InventoryModule
         public void OnPointerDown(PointerEventData eventData)
         {
             if (windowRect != null)
-            {
                 windowRect.SetAsLastSibling();
-            }
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             if (windowRect != null && _canvas != null)
-            {
                 windowRect.anchoredPosition += eventData.delta / _canvas.scaleFactor;
-            }
         }
 
         public void Close()
         {
-            if (_containerItem != null)
-            {
-                _openContainers.Remove(_containerItem);
-            }
-
-            _openWindows.Remove(this);
+            _windowService?.UnregisterWindow(_containerItem, this);
 
             foreach (var grid in _contentGrids)
             {
                 if (grid != null)
-                {
                     Destroy(grid.gameObject);
-                }
             }
-            _contentGrids.Clear();
 
+            _contentGrids.Clear();
             _panelInstance = null;
 
             WindowClosed?.Invoke(this);
@@ -346,18 +287,7 @@ namespace InventoryModule
 
         private void OnDestroy()
         {
-            if (_containerItem != null)
-            {
-                _openContainers.Remove(_containerItem);
-            }
-
-            _openWindows.Remove(this);
-        }
-
-        public static void ClearAllStaticData()
-        {
-            _openContainers.Clear();
-            _openWindows.Clear();
+            _windowService?.UnregisterWindow(_containerItem, this);
         }
     }
 }

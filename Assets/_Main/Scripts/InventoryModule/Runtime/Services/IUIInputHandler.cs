@@ -1,16 +1,7 @@
-using UnityEngine.EventSystems;
-
 namespace InventoryModule
 {
     public interface IUIInputHandler
     {
-        void HandleClick(PointerEventData eventData, ItemTable item, AbstractItem itemUI);
-        void HandleDoubleClick(PointerEventData eventData, ItemTable item);
-        void HandleRightClick(PointerEventData eventData, ItemTable item);
-        void HandleDragBegin(PointerEventData eventData, ItemTable item, AbstractItem itemUI);
-        void HandleDrag(PointerEventData eventData, AbstractItem itemUI);
-        void HandleDragEnd(PointerEventData eventData, AbstractItem itemUI);
-
         InventoryItem GetInventoryItemUnderMouse();
         InventoryItem GetInventoryItemUnderMouse(AbstractItem excludeItem);
         EquipmentSlot GetEquipmentSlotUnderMouse();

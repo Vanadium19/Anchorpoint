@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Cysharp.Threading.Tasks;
+using Zenject;
 
 namespace InventoryModule
 {
@@ -25,9 +26,17 @@ namespace InventoryModule
         public GridTable ContainerGrid { get; private set; }
         public bool IsExpanded { get; private set; } = true;
 
+        private IInventoryManager _inventoryManager;
+
         private List<AbstractGrid> _contentGrids = new List<AbstractGrid>();
         private RectTransform _rectTransform;
         private LayoutElement _layoutElement;
+
+        [Inject]
+        public void Construct(IInventoryManager inventoryManager)
+        {
+            _inventoryManager = inventoryManager;
+        }
 
         private bool _pendingLayoutUpdate;
         private float _lastRefreshTime;
@@ -43,9 +52,7 @@ namespace InventoryModule
             ContainerGrid = grid;
 
             if (titleText != null)
-            {
                 titleText.text = itemTable.ItemDataSo.DisplayName;
-            }
 
             RefreshVisuals();
         }
@@ -56,23 +63,18 @@ namespace InventoryModule
             ContainerMetadata = metadata;
 
             if (metadata?.Inventories?.Count > 0)
-            {
                 ContainerGrid = metadata.Inventories[0];
-            }
 
-            if (ContainerGrid != null)
-            {
-                InventoryManager.Instance?.RegisterAdditionalGrid(ContainerGrid);
-            }
+        if (ContainerGrid != null)
+            _inventoryManager?.RegisterAdditionalGrid(ContainerGrid);
 
             if (titleText != null)
-            {
                 titleText.text = itemTable.ItemDataSo.DisplayName;
-            }
 
             if (contentContainer != null)
             {
                 var containerGrids = itemTable.ItemDataSo.ContainerGrids;
+
                 if (containerGrids != null)
                 {
                     var panelPrefab = containerGrids.ContainerPanelPrefab;
@@ -82,10 +84,10 @@ namespace InventoryModule
                         GameObject panelInstance = Instantiate(panelPrefab, contentContainer);
 
                         var layoutElement = panelInstance.GetComponent<LayoutElement>();
+
                         if (layoutElement == null)
-                        {
                             layoutElement = panelInstance.AddComponent<LayoutElement>();
-                        }
+
                         layoutElement.ignoreLayout = true;
 
                         var panelGrids = containerGrids.GetGridsFromPanel(panelInstance);
@@ -149,6 +151,7 @@ namespace InventoryModule
             RefreshVisuals();
 
             float contentHeight = CalculateContentHeight();
+
             if (contentHeight <= 0)
             {
                 _needsLateRefresh = true;
@@ -162,9 +165,7 @@ namespace InventoryModule
             ContainerGrid = grid;
 
             if (titleText != null)
-            {
                 titleText.text = sectionName;
-            }
 
             if (contentContainer != null && gridPrefab != null)
             {
@@ -179,6 +180,7 @@ namespace InventoryModule
             RefreshVisuals();
 
             float contentHeight = CalculateContentHeight();
+
             if (contentHeight <= 0)
             {
                 _needsLateRefresh = true;
@@ -197,9 +199,7 @@ namespace InventoryModule
             ContainerGrid = existingGrid;
 
             if (titleText != null)
-            {
                 titleText.text = sectionName;
-            }
 
             if (contentContainer != null && containerPanelPrefab != null)
             {
@@ -210,10 +210,10 @@ namespace InventoryModule
                     GameObject panelInstance = Instantiate(panelPrefab, contentContainer);
 
                     var layoutElement = panelInstance.GetComponent<LayoutElement>();
+
                     if (layoutElement == null)
-                    {
                         layoutElement = panelInstance.AddComponent<LayoutElement>();
-                    }
+
                     layoutElement.ignoreLayout = true;
 
                     var panelGrids = panelInstance.GetComponentsInChildren<AbstractGrid>();
@@ -225,17 +225,15 @@ namespace InventoryModule
                             if (grid != null)
                             {
                                 GridTable gridTable;
+
                                 if (existingGrid != null)
-                                {
                                     gridTable = existingGrid;
-                                }
                                 else
                                 {
                                     gridTable = new GridTable(grid.GridWidth, grid.GridHeight);
+
                                     if (ContainerGrid == null)
-                                    {
                                         ContainerGrid = gridTable;
-                                    }
                                 }
 
                                 grid.SetGridTableOnly(gridTable);
@@ -259,17 +257,15 @@ namespace InventoryModule
                                 grid.transform.localPosition = prefabGrid.transform.localPosition;
 
                                 GridTable gridTable;
+
                                 if (existingGrid != null)
-                                {
                                     gridTable = existingGrid;
-                                }
                                 else
                                 {
                                     gridTable = new GridTable(prefabGrid.GridWidth, prefabGrid.GridHeight);
+
                                     if (ContainerGrid == null)
-                                    {
                                         ContainerGrid = gridTable;
-                                    }
                                 }
 
                                 grid.RefreshGridFromTable(gridTable);
@@ -301,16 +297,12 @@ namespace InventoryModule
             RefreshVisuals();
 
             float contentHeight = CalculateContentHeight();
+
             if (contentHeight <= 0)
             {
                 _needsLateRefresh = true;
                 _refreshAttempts = 0;
             }
-        }
-
-        private void OnContentGridReady()
-        {
-            RefreshVisuals();
         }
 
         private void Awake()
@@ -319,22 +311,16 @@ namespace InventoryModule
             _layoutElement = GetComponent<LayoutElement>();
 
             if (_layoutElement == null)
-            {
                 _layoutElement = gameObject.AddComponent<LayoutElement>();
-            }
 
             if (toggleButton != null)
-            {
                 toggleButton.onClick.AddListener(OnToggleClicked);
-            }
         }
 
         private void OnDestroy()
         {
             if (toggleButton != null)
-            {
                 toggleButton.onClick.RemoveListener(OnToggleClicked);
-            }
         }
 
         private void LateUpdate()
@@ -344,6 +330,7 @@ namespace InventoryModule
                 _refreshAttempts++;
 
                 float contentHeight = CalculateContentHeight();
+
                 if (contentHeight > 0 || _refreshAttempts >= MaxRefreshAttempts)
                 {
                     RefreshVisuals();
@@ -362,23 +349,15 @@ namespace InventoryModule
             IsExpanded = expand;
 
             if (contentContainer != null)
-            {
                 contentContainer.gameObject.SetActive(IsExpanded);
-            }
 
             if (expandIcon != null)
-            {
                 expandIcon.sprite = IsExpanded ? expandedIcon : collapsedIcon;
-            }
 
             if (gameObject.activeInHierarchy)
-            {
                 RefreshAfterFrame().Forget();
-            }
             else
-            {
                 RefreshVisuals();
-            }
         }
 
         private async UniTaskVoid RefreshAfterFrame()
@@ -392,12 +371,11 @@ namespace InventoryModule
 
         private void RefreshVisuals()
         {
-            if (_rectTransform == null || _layoutElement == null) return;
+            if (_rectTransform == null || _layoutElement == null) 
+                return;
 
             if (!IsExpanded)
-            {
                 _layoutElement.preferredHeight = collapsedHeight;
-            }
             else
             {
                 float contentHeight = CalculateContentHeight();
@@ -409,10 +387,13 @@ namespace InventoryModule
 
         private void ForceUpdateParentLayout()
         {
-            if (_pendingLayoutUpdate) return;
+            if (_pendingLayoutUpdate) 
+                return;
 
             float now = Time.unscaledTime;
-            if (now - _lastRefreshTime < MinRefreshInterval) return;
+
+            if (now - _lastRefreshTime < MinRefreshInterval) 
+                return;
 
             _pendingLayoutUpdate = true;
             _lastRefreshTime = now;
@@ -425,9 +406,11 @@ namespace InventoryModule
             await UniTask.DelayFrame(1);
 
             var parent = transform.parent as RectTransform;
+
             if (parent != null)
             {
                 var vlg = parent.GetComponent<VerticalLayoutGroup>();
+
                 if (vlg != null)
                 {
                     vlg.SetLayoutHorizontal();
@@ -435,6 +418,7 @@ namespace InventoryModule
                 }
 
                 var csf = parent.GetComponent<ContentSizeFitter>();
+
                 if (csf != null)
                 {
                     csf.SetLayoutHorizontal();
@@ -447,7 +431,8 @@ namespace InventoryModule
 
         private float CalculateContentHeight()
         {
-            if (_contentGrids == null || _contentGrids.Count == 0) return 0f;
+            if (_contentGrids == null || _contentGrids.Count == 0) 
+                return 0f;
 
             float maxHeight = 0f;
             foreach (var grid in _contentGrids)
@@ -455,6 +440,7 @@ namespace InventoryModule
                 if (grid != null)
                 {
                     var gridRect = grid.GetRectTransform();
+
                     if (gridRect != null)
                     {
                         float gridHeight = Mathf.Abs(gridRect.anchoredPosition.y) + gridRect.sizeDelta.y;
@@ -475,10 +461,9 @@ namespace InventoryModule
                 {
                     var grid = _contentGrids[i];
                     var gridTable = ContainerMetadata.Inventories[i];
+
                     if (grid != null && gridTable != null)
-                    {
                         grid.RefreshGridFromTable(gridTable);
-                    }
                 }
                 RefreshVisuals();
             }
@@ -493,12 +478,12 @@ namespace InventoryModule
             }
 
             float now = Time.unscaledTime;
+
             if (now - _lastRefreshTime < MinRefreshInterval)
             {
                 if (!_pendingLayoutUpdate)
-                {
                     DelayedRefreshAsync().Forget();
-                }
+
                 return;
             }
 
@@ -515,12 +500,12 @@ namespace InventoryModule
             }
 
             float now = Time.unscaledTime;
+
             if (now - _lastRefreshTime < MinRefreshInterval)
             {
                 if (!_pendingLayoutUpdate)
-                {
                     DelayedVisualRefreshAsync().Forget();
-                }
+
                 return;
             }
 
@@ -545,6 +530,7 @@ namespace InventoryModule
         public void SetContentGrid(AbstractGrid grid)
         {
             _contentGrids.Clear();
+
             if (grid != null)
                 _contentGrids.Add(grid);
         }
@@ -566,10 +552,8 @@ namespace InventoryModule
 
         public void Close()
         {
-            if (ContainerGrid != null)
-            {
-                InventoryManager.Instance?.UnregisterAdditionalGrid(ContainerGrid);
-            }
+        if (ContainerGrid != null)
+            _inventoryManager?.UnregisterAdditionalGrid(ContainerGrid);
 
             if (_contentGrids != null)
             {
@@ -578,6 +562,7 @@ namespace InventoryModule
                     if (grid != null)
                         Destroy(grid.gameObject);
                 }
+
                 _contentGrids.Clear();
             }
             Destroy(gameObject);

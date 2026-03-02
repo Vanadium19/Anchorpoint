@@ -29,14 +29,10 @@ namespace InventoryModule
         public void PlayCollectEffects()
         {
             if (collectEffect != null)
-            {
                 Instantiate(collectEffect, transform.position, Quaternion.identity);
-            }
 
             if (collectSound != null && collectSound.clip != null)
-            {
                 AudioSource.PlayClipAtPoint(collectSound.clip, transform.position);
-            }
         }
 
         public void SetAmount(int count)

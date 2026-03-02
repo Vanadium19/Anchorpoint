@@ -9,17 +9,13 @@ namespace InventoryModule
         public void RegisterGrid(AbstractGrid grid)
         {
             if (grid != null && !_grids.Contains(grid))
-            {
                 _grids.Add(grid);
-            }
         }
 
         public void UnregisterGrid(AbstractGrid grid)
         {
             if (grid != null)
-            {
                 _grids.Remove(grid);
-            }
         }
 
         public IReadOnlyList<AbstractGrid> GetAllGrids()

@@ -1,5 +1,6 @@
 using Zenject;
 using InventoryModule.ContextMenu;
+using InventoryModule.ContextMenu.UI;
 
 namespace InventoryModule
 {
@@ -19,6 +20,18 @@ namespace InventoryModule
                 .AsSingle()
                 .NonLazy();
 
+            Container.Bind<IContainerWindowService>()
+                .To<ContainerWindowService>()
+                .AsSingle();
+
+            Container.Bind<IDragStateService>()
+                .To<DragStateService>()
+                .AsSingle();
+
+            Container.Bind<IContextMenuStateService>()
+                .To<ContextMenuStateService>()
+                .AsSingle();
+
             Container.BindInterfacesTo<InventoryStaticDataResetHandler>()
                 .AsSingle();
 
@@ -26,9 +39,9 @@ namespace InventoryModule
                 .AsSingle()
                 .NonLazy();
 
-            Container.BindInterfacesAndSelfTo<ContextActionService>()
-                .AsSingle()
-                .NonLazy();
+            Container.Bind<IContextActionService>()
+                .To<ContextActionService>()
+                .AsSingle();
         }
     }
 }

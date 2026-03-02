@@ -16,6 +16,9 @@ namespace InventoryModule
         [Inject]
         protected IInputMap InputMap { get; set; }
 
+        [Inject]
+        protected IDragStateService DragStateService { get; set; }
+
         public ItemTable Item { get; protected set; }
         public bool IsDragging { get; protected set; }
 
@@ -23,7 +26,6 @@ namespace InventoryModule
 
         protected Vector2 originalPosition;
         protected Transform originalParent;
-        protected static AbstractItem currentlyDraggedItem;
         protected Vector2 _lastMousePosition;
 
         private Canvas _parentCanvas;
@@ -33,14 +35,14 @@ namespace InventoryModule
         {
             if (rectTransform == null)
                 rectTransform = GetComponent<RectTransform>();
+
             if (iconImage == null)
                 iconImage = GetComponent<Image>();
 
             _canvasGroup = GetComponent<CanvasGroup>();
+
             if (_canvasGroup == null)
-            {
                 _canvasGroup = gameObject.AddComponent<CanvasGroup>();
-            }
 
             _parentCanvas = GetComponentInParent<Canvas>();
         }
@@ -51,6 +53,7 @@ namespace InventoryModule
                 Item.UIUpdated -= UpdateUI;
 
             Item = item;
+
             if (item != null)
             {
                 iconImage.sprite = item.ItemDataSo.Icon;
@@ -85,7 +88,8 @@ namespace InventoryModule
 
         protected virtual void UpdateUI()
         {
-            if (Item == null) return;
+            if (Item == null) 
+                return;
 
             float tileSize = GetTileSize();
             int originalW = Item.ItemDataSo.Width;
@@ -105,6 +109,7 @@ namespace InventoryModule
             if (iconImage != null && iconImage.gameObject != gameObject)
             {
                 var iconRT = iconImage.GetComponent<RectTransform>();
+
                 if (iconRT != null)
                 {
                     iconRT.anchorMin = Vector2.zero;
@@ -119,16 +124,19 @@ namespace InventoryModule
 
         public virtual void OnBeginDrag(PointerEventData eventData)
         {
-            if (Item == null) return;
+            if (Item == null)
+                return;
 
-            if (IsDragging) return;
+            if (IsDragging)
+                return;
 
             IsDragging = true;
-            currentlyDraggedItem = this;
+            DragStateService.CurrentlyDraggedItem = this;
             originalPosition = rectTransform.anchoredPosition;
             originalParent = transform.parent;
 
             var canvas = GetDragCanvas();
+
             if (canvas != null)
             {
                 transform.SetParent(canvas.transform, true);
@@ -141,7 +149,8 @@ namespace InventoryModule
 
         public virtual void OnDrag(PointerEventData eventData)
         {
-            if (!IsDragging) return;
+            if (!IsDragging) 
+                return;
 
             _lastMousePosition = eventData.position;
             transform.position = (Vector3)_lastMousePosition;
@@ -152,7 +161,7 @@ namespace InventoryModule
         public virtual void OnEndDrag(PointerEventData eventData)
         {
             IsDragging = false;
-            currentlyDraggedItem = null;
+            DragStateService.CurrentlyDraggedItem = null;
 
             _canvasGroup.blocksRaycasts = true;
             _canvasGroup.alpha = 1f;
@@ -169,26 +178,24 @@ namespace InventoryModule
         protected virtual void Update()
         {
             if (IsDragging && InputMap != null && InputMap.IsRotatePressed)
-            {
                 RotateItem();
-            }
 
             if (IsDragging)
-            {
                 HandleScrollDuringDrag();
-            }
         }
 
         protected virtual void HandleScrollDuringDrag()
         {
             float scrollDelta = Input.mouseScrollDelta.y;
+
             if (Mathf.Abs(scrollDelta) > 0.01f)
             {
                 ScrollRect scrollRect = GetScrollRectUnderMouse();
+
                 if (scrollRect != null)
                 {
                     PointerEventData pointerData = new PointerEventData(EventSystem.current);
-                    pointerData.scrollDelta = new Vector2(0, scrollDelta * InventoryPanel.ScrollMultiplier);
+                    pointerData.scrollDelta = new Vector2(0, scrollDelta);
                     scrollRect.OnScroll(pointerData);
                 }
             }
@@ -211,15 +218,12 @@ namespace InventoryModule
                     continue;
 
                 var scrollRect = result.gameObject.GetComponent<ScrollRect>();
+
                 if (scrollRect == null)
-                {
                     scrollRect = result.gameObject.GetComponentInParent<ScrollRect>();
-                }
 
                 if (scrollRect != null && scrollRect.vertical)
-                {
                     return scrollRect;
-                }
             }
 
             return null;

@@ -10,8 +10,7 @@ namespace InventoryModule
 
         protected override AbstractItem InstantiateItemPrefab()
         {
-            var container = ProjectContext.Instance.Container;
-            return container.InstantiatePrefabForComponent<InventoryItem>(itemPrefab);
+            return DiContainer.InstantiatePrefabForComponent<InventoryItem>(itemPrefab);
         }
     }
 }

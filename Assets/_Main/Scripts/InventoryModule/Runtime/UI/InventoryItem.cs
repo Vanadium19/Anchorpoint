@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
@@ -35,6 +33,9 @@ namespace InventoryModule
         private IEquipmentSlotService _slotService;
         private IGridService _gridService;
         private IUIInputHandler _uiInputHandler;
+        private IContextActionService _contextActionService;
+        private IContainerWindowService _windowService;
+        private IContextMenuStateService _menuStateService;
         private ContextMenuPresenter _contextMenu;
 
         [Inject]
@@ -42,63 +43,78 @@ namespace InventoryModule
             IInventoryManager inventoryManager,
             IEquipmentSlotService slotService,
             IGridService gridService,
-            IUIInputHandler uiInputHandler)
+            IUIInputHandler uiInputHandler,
+            IContextActionService contextActionService,
+            IContainerWindowService windowService,
+            IContextMenuStateService menuStateService)
         {
             _inventoryManager = inventoryManager;
             _slotService = slotService;
             _gridService = gridService;
             _uiInputHandler = uiInputHandler;
+            _contextActionService = contextActionService;
+            _windowService = windowService;
+            _menuStateService = menuStateService;
         }
 
         public override void OnPointerClick(PointerEventData eventData)
         {
             base.OnPointerClick(eventData);
 
-            if (Item == null) return;
+            if (Item == null)
+                return;
 
             if (eventData.button == PointerEventData.InputButton.Right)
-            {
                 ShowContextMenu(eventData.position);
-            }
             else if (eventData.clickCount == 2 && Item.IsContainer)
-            {
                 OpenContainerWindow();
-            }
         }
 
         private void ShowContextMenu(Vector2 screenPosition)
         {
-            if (Item == null) return;
-            if (contextMenuPrefab == null) return;
+            if (Item == null)
+                return;
 
-            var contextService = ContextMenu.ContextActionService.CachedInstance;
-            if (contextService == null) return;
+            if (contextMenuPrefab == null)
+                return;
+
+            var contextService = _contextActionService;
+
+            if (contextService == null || !contextService.IsInitialized)
+                return;
 
             if (_contextMenu == null)
             {
                 Canvas canvas = GetComponentInParent<Canvas>();
-                if (canvas == null) return;
+
+                if (canvas == null)
+                    return;
 
                 _contextMenu = UnityEngine.Object.Instantiate(contextMenuPrefab, canvas.transform);
             }
 
-            _contextMenu.Initialize(contextService);
+            _contextMenu.Initialize(contextService, _menuStateService);
             _contextMenu.ShowForItem(Item, screenPosition);
         }
 
         private void OpenContainerWindow()
         {
             var metadata = Item.GetMetadata<ContainerMetadata>();
-            if (metadata == null || containerWindowPrefab == null) return;
 
-            if (ContainerWindow.IsContainerOpen(Item)) return;
+            if (metadata == null || containerWindowPrefab == null)
+                return;
+
+            if (_windowService.IsContainerOpen(Item))
+                return;
 
             Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) return;
+
+            if (canvas == null)
+                return;
 
             ContainerWindow window = UnityEngine.Object.Instantiate(containerWindowPrefab, canvas.transform);
             window.transform.SetAsLastSibling();
-            window.Initialize(Item, metadata, containerWindowPrefab.GridPrefab);
+            window.Initialize(Item, metadata, containerWindowPrefab.GridPrefab, _windowService);
         }
 
         private Vector2 _stackTextOriginalPos;
@@ -127,6 +143,7 @@ namespace InventoryModule
         protected override void UpdateUI()
         {
             base.UpdateUI();
+
             if (stackText != null && Item != null)
             {
                 if (Item.IsStackable)
@@ -136,15 +153,14 @@ namespace InventoryModule
                     UpdateStackTextTransform();
                 }
                 else
-                {
                     stackText.gameObject.SetActive(false);
-                }
             }
         }
 
         private void UpdateStackTextTransform()
         {
-            if (stackText == null) return;
+            if (stackText == null)
+                return;
 
             var textRT = stackText.rectTransform;
 
@@ -163,7 +179,8 @@ namespace InventoryModule
 
         public override void OnBeginDrag(PointerEventData eventData)
         {
-            if (IsDragging) return;
+            if (IsDragging)
+                return;
 
             if (_contextMenu != null)
             {
@@ -177,22 +194,19 @@ namespace InventoryModule
             base.OnBeginDrag(eventData);
 
             var equipmentSlot = originalParent?.GetComponent<EquipmentSlot>();
+
             if (equipmentSlot != null && !equipmentSlot.Equals(null) && equipmentSlot.IsEquipped)
-            {
                 equipmentSlot.ExtractItem(out _extractedFromSlot);
-            }
             else
-            {
                 _extractedFromSlot = null;
-            }
         }
 
         public override void OnDrag(PointerEventData eventData)
         {
-            if (!IsDragging) return;
+            if (!IsDragging)
+                return;
 
             base.OnDrag(eventData);
-
             UpdatePlacementPreview();
         }
 
@@ -204,7 +218,9 @@ namespace InventoryModule
         private void UpdatePlacementPreview()
         {
             float now = Time.unscaledTime;
-            if (now - _lastPlacementUpdate < PlacementUpdateInterval) return;
+
+            if (now - _lastPlacementUpdate < PlacementUpdateInterval)
+                return;
 
             _lastPlacementUpdate = now;
 
@@ -214,29 +230,30 @@ namespace InventoryModule
             {
                 if (_currentTargetGrid != null)
                     _currentTargetGrid.HideHighlight();
+
                 _currentTargetGrid = newTargetGrid;
             }
 
             var newContainerTarget = _uiInputHandler.GetContainerItemUnderMouse(this);
+
             if (newContainerTarget != _currentContainerTarget)
             {
                 ClearContainerHighlight();
                 _currentContainerTarget = newContainerTarget;
+
                 if (_currentContainerTarget != null && _currentContainerTarget != this)
-                {
                     HighlightContainer(_currentContainerTarget);
-                }
             }
 
             var newStackTarget = _uiInputHandler.GetStackTargetUnderMouse(this, Item);
+
             if (newStackTarget != _stackTargetItem)
             {
                 ClearStackHighlight();
                 _stackTargetItem = newStackTarget;
+
                 if (_stackTargetItem != null && _stackTargetItem != this)
-                {
                     HighlightStackTarget(_stackTargetItem);
-                }
             }
 
             if (_currentTargetGrid != null)
@@ -293,15 +310,14 @@ namespace InventoryModule
 
         private (int width, int height) GetCurrentDimensions()
         {
-            if (Item == null) return (1, 1);
+            if (Item == null) 
+                return (1, 1);
 
             int originalW = Item.ItemDataSo.Width;
             int originalH = Item.ItemDataSo.Height;
 
             if (_localIsRotated)
-            {
                 return (originalH, originalW);
-            }
 
             return (originalW, originalH);
         }
@@ -311,9 +327,7 @@ namespace InventoryModule
             HideAllHighlights();
 
             if (_stackTargetItem != null && Item != null && Item.IsStackable)
-            {
                 if (TryStackToTarget()) return;
-            }
 
             if (IsOverDropZone())
             {
@@ -322,6 +336,7 @@ namespace InventoryModule
             }
 
             EquipmentSlot targetSlot = _uiInputHandler.GetEquipmentSlotUnderMouse();
+
             if (targetSlot != null && targetSlot.CanEquip(Item))
             {
                 if (targetSlot.TryEquip(Item))
@@ -344,6 +359,7 @@ namespace InventoryModule
                     {
                         var draggedMetadata = Item.GetMetadata<ContainerMetadata>();
                         var targetMetadata = targetContainerItem.Item.GetMetadata<ContainerMetadata>();
+
                         if (draggedMetadata != null && targetMetadata != null && draggedMetadata.IsInsertingInsideYourself(targetMetadata.Inventories.Count > 0 ? targetMetadata.Inventories[0] : null))
                         {
                             ReturnToOriginal();
@@ -352,6 +368,7 @@ namespace InventoryModule
                     }
 
                     var containerMetadata = targetContainerItem.Item.GetMetadata<ContainerMetadata>();
+
                     if (containerMetadata != null)
                     {
                         _previousGrid = Item.CurrentGrid;
@@ -385,6 +402,7 @@ namespace InventoryModule
                 if (Item.IsContainer)
                 {
                     var metadata = Item.GetMetadata<ContainerMetadata>();
+
                     if (metadata != null && metadata.IsInsertingInsideYourself(_currentTargetGrid.Grid))
                     {
                         ReturnToOriginal();
@@ -396,9 +414,7 @@ namespace InventoryModule
                     Item.UIUpdated -= UpdateUI;
 
                 if (Item.IsRotated != _localIsRotated)
-                {
                     Item.Rotate();
-                }
 
                 transform.SetParent(_currentTargetGrid.transform, false);
 
@@ -437,7 +453,8 @@ namespace InventoryModule
 
         public bool PlaceInInventory()
         {
-            if (_inventoryManager == null) return false;
+            if (_inventoryManager == null) 
+                return false;
 
             bool success = _inventoryManager.AddExistingItemToInventory(Item);
 
@@ -487,6 +504,7 @@ namespace InventoryModule
             if (originalParent == null)
             {
                 var slots = _slotService.GetAllSlots();
+
                 foreach (var slot in slots)
                 {
                     if (slot.CanEquip(Item))
@@ -517,6 +535,7 @@ namespace InventoryModule
                 _previousGrid.PlaceItem(Item, _previousPosition.X, _previousPosition.Y);
 
                 var grid = originalParent?.GetComponent<AbstractGrid>();
+
                 if (grid != null)
                 {
                     grid.UpdateItemPosition(this);
@@ -527,6 +546,7 @@ namespace InventoryModule
             if (Item.CurrentGrid != null && Item.Position != null)
             {
                 var grid = originalParent?.GetComponent<AbstractGrid>();
+
                 if (grid != null)
                 {
                     grid.UpdateItemPosition(this);
@@ -535,6 +555,7 @@ namespace InventoryModule
             }
 
             var equipmentSlot = originalParent?.GetComponent<EquipmentSlot>();
+
             if (equipmentSlot != null)
             {
                 if (!equipmentSlot.IsEquipped)
@@ -579,18 +600,18 @@ namespace InventoryModule
                 var grids = _gridService.GetAllGrids();
                 foreach (var grid in grids) grid.HideHighlight();
             }
+
             ClearContainerHighlight();
             ClearStackHighlight();
 
             if (_currentDropZone != null)
-            {
                 _currentDropZone.ShowHighlight(false);
-            }
         }
 
         private void HighlightContainer(InventoryItem containerItem)
         {
-            if (containerItem?.iconImage == null) return;
+            if (containerItem?.iconImage == null) 
+                return;
 
             _originalItemColor = containerItem.iconImage.color;
             Color highlightColor = _originalItemColor;
@@ -610,7 +631,8 @@ namespace InventoryModule
 
         private void HighlightStackTarget(InventoryItem target)
         {
-            if (target?.iconImage == null) return;
+            if (target?.iconImage == null) 
+                return;
 
             _originalItemColor = target.iconImage.color;
             Color highlightColor = new Color(0.5f, 1f, 0.5f, 1f);
@@ -620,14 +642,13 @@ namespace InventoryModule
         private void ClearStackHighlight()
         {
             if (_stackTargetItem != null && _stackTargetItem.iconImage != null)
-            {
                 _stackTargetItem.iconImage.color = _originalItemColor;
-            }
         }
 
         private bool TryStackToTarget()
         {
-            if (_stackTargetItem == null || Item == null) return false;
+            if (_stackTargetItem == null || Item == null) 
+                return false;
 
             int toAdd = Item.StackCount;
             int remaining = _stackTargetItem.Item.TryAddToStack(toAdd);

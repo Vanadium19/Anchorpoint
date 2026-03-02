@@ -19,9 +19,9 @@ namespace InventoryModule
     [Serializable]
     public class GridTable
     {
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-        public ItemTable[,] Slots { get; private set; }
+        public int Width { get; }
+        public int Height { get; }
+        public ItemTable[,] Slots { get; }
 
         public event Action<ItemTable> ItemInserted;
         public event Action<ItemTable> ItemRemoved;
@@ -71,6 +71,7 @@ namespace InventoryModule
                         return false;
 
                     ItemTable existingItem = Slots[checkX, checkY];
+
                     if (existingItem != null && existingItem != ignoreItem)
                         return false;
                 }
@@ -89,6 +90,7 @@ namespace InventoryModule
             if (item.IsContainer)
             {
                 var metadata = item.GetMetadata<ContainerMetadata>();
+
                 if (metadata != null && metadata.IsInsertingInsideYourself(this))
                 {
                     return false;
@@ -102,6 +104,7 @@ namespace InventoryModule
         {
             if (!BoundaryCheck(posX, posY, item.Width, item.Height))
                 return false;
+
             return OverlapCheck(posX, posY, item.Width, item.Height, item);
         }
 
@@ -128,16 +131,15 @@ namespace InventoryModule
 
         public void RemoveItem(ItemTable item)
         {
-            if (item == null) return;
+            if (item == null) 
+                return;
 
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
                     if (Slots[x, y] == item)
-                    {
                         Slots[x, y] = null;
-                    }
                 }
             }
 
@@ -148,7 +150,9 @@ namespace InventoryModule
         public ItemTable PickUpItem(int x, int y)
         {
             ItemTable item = GetItem(x, y);
-            if (item == null) return null;
+
+            if (item == null) 
+                return null;
 
             int width = item.PlacedWidth > 0 ? item.PlacedWidth : item.Width;
             int height = item.PlacedHeight > 0 ? item.PlacedHeight : item.Height;
@@ -159,10 +163,9 @@ namespace InventoryModule
                 {
                     int slotX = item.Position.X + i;
                     int slotY = item.Position.Y + j;
+
                     if (slotX >= 0 && slotX < Width && slotY >= 0 && slotY < Height)
-                    {
                         Slots[slotX, slotY] = null;
-                    }
                 }
             }
 
@@ -177,9 +180,7 @@ namespace InventoryModule
                 for (int x = 0; x <= Width - item.Width; x++)
                 {
                     if (OverlapCheck(x, y, item.Width, item.Height, item))
-                    {
                         return new Vector2Int(x, y);
-                    }
                 }
             }
             return null;
@@ -189,13 +190,18 @@ namespace InventoryModule
         public Vector2Int? FindSpaceForObjectAnyDirection(ItemTable item)
         {
             var result = FindSpaceForObject(item);
-            if (result != null) return result;
+
+            if (result != null) 
+                return result;
 
             if (item.CanRotate && item.ItemDataSo.CanRotate)
             {
                 item.Rotate();
                 result = FindSpaceForObject(item);
-                if (result != null) return result;
+
+                if (result != null) 
+                    return result;
+
                 item.Rotate();
             }
 

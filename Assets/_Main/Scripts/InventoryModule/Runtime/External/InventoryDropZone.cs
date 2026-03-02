@@ -21,7 +21,8 @@ namespace InventoryModule
 
         public bool TryDropItem(ItemTable item)
         {
-            if (_dropService == null) return false;
+            if (_dropService == null) 
+                return false;
 
             if (_dropService.TryDropItem(item))
             {
@@ -35,9 +36,7 @@ namespace InventoryModule
         public void ShowHighlight(bool show)
         {
             if (highlightImage != null)
-            {
                 highlightImage.color = show ? hoverColor : normalColor;
-            }
         }
     }
 }

@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: InventoryModule::InventoryModule.ContextMenu.ContextActionPreset
   presetName: 
   actionConfigs:
-  - rid: 7132730415434956897
   - rid: 7132730415434956899
   - rid: 7132730415434956896
-  - rid: 7132730415434956909
+  - rid: 7132730487505944659
   references:
     version: 2
     RefIds:
@@ -25,15 +24,11 @@ MonoBehaviour:
       type: {class: EquipActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
         displayName: Equip
-    - rid: 7132730415434956897
-      type: {class: InspectActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
-      data:
-        displayName: Inspect
     - rid: 7132730415434956899
       type: {class: OpenActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
         displayName: Open
-    - rid: 7132730415434956909
+    - rid: 7132730487505944659
       type: {class: DropActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
         displayName: Drop

@@ -24,9 +24,7 @@ namespace InventoryModule
         public override void InstallBindings()
         {
             if (mainCanvas != null)
-            {
                 Container.Bind<Canvas>().FromInstance(mainCanvas).AsSingle();
-            }
 
             Container.Bind<IItemDragGhostService>().To<ItemDragGhostService>().AsSingle();
 
@@ -36,49 +34,35 @@ namespace InventoryModule
                 .WithArguments(playerTransform, dropDistance, dropOffsetY);
 
             if (containerWindowPrefab != null)
-            {
                 Container.Bind<ContainerWindow>()
                     .FromInstance(containerWindowPrefab)
                     .AsSingle();
-            }
 
             if (gridPrefab != null)
-            {
                 Container.Bind<AbstractGrid>()
                     .FromInstance(gridPrefab)
                     .AsSingle();
-            }
-
-            var contextActionService = Container.TryResolve<ContextActionService>();
-            if (contextActionService != null)
-            {
-                contextActionService.Initialize(
-                    Container.TryResolve<IDropService>(),
-                    containerWindowPrefab,
-                    gridPrefab,
-                    mainCanvas);
-            }
-        }
-
-        public void Start()
-        {
-            var manager = Container.TryResolve<InventoryManager>();
-            if (manager == null) return;
-
-            var inputMap = Container.TryResolve<IInputMap>();
-            var inputService = Container.TryResolve<IInputService>();
-
-            manager.SetInput(inputMap, inputService);
-
-            if (inventoryUI != null)
-            {
-                manager.SetInventoryUI(inventoryUI);
-            }
 
             if (characterInventory != null)
-            {
-                characterInventory.Initialize(manager);
-            }
+                Container.Bind<CharacterInventory>()
+                    .FromInstance(characterInventory)
+                    .AsSingle();
+
+            if (inventoryUI != null)
+                Container.Bind<GameObject>()
+                    .WithId("InventoryUI")
+                    .FromInstance(inventoryUI);
+
+            Container.BindInterfacesTo<InventoryStartup>()
+                .AsSingle();
+        }
+
+        public override void Start()
+        {
+            var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
+
+            if (contextActionService != null)
+                contextActionService.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
         }
     }
 }

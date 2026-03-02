@@ -16,7 +16,8 @@ namespace InventoryModule
 
         public void Initialize()
         {
-            if (_ghost != null) return;
+            if (_ghost != null) 
+                return;
 
             GameObject obj = new GameObject("ItemDragGhost", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
             obj.transform.SetParent(_canvas.transform, false);
@@ -27,7 +28,9 @@ namespace InventoryModule
 
         public void Show(ItemTable item, Vector2 position, Vector2 size)
         {
-            if (_ghost == null) Initialize();
+            if (_ghost == null) 
+                Initialize();
+
             _ghost.Show(item, position, size);
         }
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Zenject;
 
@@ -42,10 +41,13 @@ namespace InventoryModule
         private const float MinRefreshInterval = 0.01f;
 
         private IGridService _gridService;
+        private DiContainer _diContainer;
+
+        protected DiContainer DiContainer => _diContainer ?? ProjectContext.Instance.Container;
 
         protected virtual void Awake()
         {
-            _gridService = ProjectContext.Instance.Container.Resolve<IGridService>();
+            _gridService = DiContainer.Resolve<IGridService>();
             _gridService?.RegisterGrid(this);
 
             rectTransform = GetComponent<RectTransform>();
@@ -65,15 +67,11 @@ namespace InventoryModule
         protected virtual void Start()
         {
             if (Grid == null)
-            {
                 InitializeGrid();
-            }
             else
-            {
                 DrawGrid();
-            }
-            CreateHighlightImage();
 
+            CreateHighlightImage();
             GridReady?.Invoke();
         }
 
@@ -89,16 +87,13 @@ namespace InventoryModule
 
             rectTransform.sizeDelta = new Vector2(gridWidth * tileSize, gridHeight * tileSize);
             rectTransform.anchoredPosition = Vector2.zero;
-
             DrawGrid();
         }
 
         protected virtual void DrawGrid()
         {
             if (transform.Find("GridBackground") != null)
-            {
                 return;
-            }
 
             GameObject bgObj = new GameObject("GridBackground", typeof(RectTransform), typeof(Image));
             bgObj.transform.SetParent(transform, false);
@@ -142,8 +137,11 @@ namespace InventoryModule
             float width = Mathf.Abs(endPos.x - startPos.x);
             float height = Mathf.Abs(endPos.y - startPos.y);
 
-            if (width < lineThickness) width = lineThickness;
-            if (height < lineThickness) height = lineThickness;
+            if (width < lineThickness) 
+                width = lineThickness;
+
+            if (height < lineThickness) 
+                height = lineThickness;
 
             lineRect.anchoredPosition = new Vector2(Mathf.Min(startPos.x, endPos.x), Mathf.Max(startPos.y, endPos.y));
             lineRect.sizeDelta = new Vector2(width, height);
@@ -226,6 +224,7 @@ namespace InventoryModule
         protected virtual void RemoveItemUI(ItemTable item)
         {
             AbstractItem itemUI = itemUIs.Find(ui => ui.Item == item);
+
             if (itemUI != null)
             {
                 itemUIs.Remove(itemUI);
@@ -237,7 +236,8 @@ namespace InventoryModule
 
         public virtual void UpdateItemPosition(AbstractItem itemUI)
         {
-            if (itemUI?.Item?.Position == null) return;
+            if (itemUI?.Item?.Position == null) 
+                return;
 
             RectTransform itemRect = itemUI.GetComponent<RectTransform>();
 
@@ -268,7 +268,8 @@ namespace InventoryModule
 
         public void ShowHighlight(int x, int y, int width, int height, bool isValid)
         {
-            if (highlightImage == null) return;
+            if (highlightImage == null) 
+                return;
 
             highlightImage.gameObject.SetActive(true);
             highlightImage.color = isValid ? highlightColor : errorColor;
@@ -319,10 +320,10 @@ namespace InventoryModule
         public void RefreshGridFromTable(GridTable newTable)
         {
             float now = Time.unscaledTime;
+
             if (now - _lastRefreshTime < MinRefreshInterval)
-            {
                 return;
-            }
+
             _lastRefreshTime = now;
 
             InternalRefreshGridFromTable(newTable, true);
@@ -335,7 +336,8 @@ namespace InventoryModule
 
         private void InternalRefreshGridFromTable(GridTable newTable, bool fullRebuild)
         {
-            if (newTable == null || rectTransform == null) return;
+            if (newTable == null || rectTransform == null) 
+                return;
 
             if (Grid != null && isActiveAndEnabled)
             {
@@ -367,7 +369,8 @@ namespace InventoryModule
 
         public void SetGridTableOnly(GridTable newTable)
         {
-            if (newTable == null) return;
+            if (newTable == null) 
+                return;
 
             if (Grid != null && isActiveAndEnabled)
             {
@@ -415,15 +418,14 @@ namespace InventoryModule
             var currentItems = Grid.GetAllItems();
             int currentHash = GetItemsHash(currentItems);
 
-            if (currentHash == _lastItemsHash && itemUIs.Count > 0)
+            if (currentHash == _lastItemsHash && itemUIs.Count == currentItems.Length && itemUIs.Count > 0)
             {
                 foreach (var ui in itemUIs)
                 {
                     if (ui != null && ui.Item != null)
-                    {
                         UpdateItemPosition(ui);
-                    }
                 }
+
                 _lastItemsHash = currentHash;
                 return;
             }
@@ -436,9 +438,7 @@ namespace InventoryModule
             foreach (var ui in itemUIs)
             {
                 if (ui == null || ui.Item == null || !currentItemsSet.Contains(ui.Item))
-                {
                     itemsToRemove.Add(ui);
-                }
             }
 
             foreach (var ui in itemsToRemove)
@@ -453,6 +453,7 @@ namespace InventoryModule
             foreach (var item in currentItems)
             {
                 bool found = false;
+
                 foreach (var ui in itemUIs)
                 {
                     if (ui != null && ui.Item == item)
@@ -464,17 +465,17 @@ namespace InventoryModule
                 }
 
                 if (!found)
-                {
                     CreateItemUI(item);
-                }
             }
         }
 
         private int GetItemsHash(ItemTable[] items)
         {
-            if (items == null || items.Length == 0) return 0;
+            if (items == null || items.Length == 0) 
+                return 0;
 
             int hash = 17;
+
             foreach (var item in items)
             {
                 if (item != null && item.Position != null)
@@ -484,22 +485,8 @@ namespace InventoryModule
                     hash = hash * 31 + item.Position.Y;
                 }
             }
+
             return hash;
-        }
-
-        private void RebuildGridUI()
-        {
-            foreach (var ui in itemUIs)
-            {
-                if (ui != null) Destroy(ui.gameObject);
-            }
-            itemUIs.Clear();
-
-            var items = Grid.GetAllItems();
-            foreach (var item in items)
-            {
-                CreateItemUI(item);
-            }
         }
     }
 }

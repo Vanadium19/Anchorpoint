@@ -1,4 +1,4 @@
- using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 using InventoryModule.ContextMenu.Configs;
@@ -7,118 +7,108 @@ using InventoryModule.ContextMenu.Presets;
 
 namespace InventoryModule.ContextMenu
 {
-    public interface IContextActionService
-    {
-        IReadOnlyList<IContextAction> GetActions(ItemTable item);
-        void Initialize(IDropService dropService, ContainerWindow containerWindowPrefab, AbstractGrid gridPrefab, Canvas canvas);
-    }
-
     public class ContextActionService : IContextActionService
     {
-        private static IContextActionService _cachedInstance;
-        private static bool _isInitialized;
-
-        public static IContextActionService CachedInstance
-        {
-            get => _cachedInstance;
-        }
-
-        public static bool IsInitialized => _isInitialized;
-
-        public static void SetInitialized()
-        {
-            _isInitialized = true;
-        }
-
         private readonly IEquipmentSlotService _slotService;
-        private IDropService _dropService;
-        private ContainerWindow _containerWindowPrefab;
+        private DiContainer _container;
+
+        private ContainerWindow _windowPrefab;
         private AbstractGrid _gridPrefab;
         private Canvas _canvas;
+        private bool _prefabsResolved;
 
-        public ContextActionService(
-            IEquipmentSlotService slotService)
+        public ContextActionService(IEquipmentSlotService slotService)
         {
             _slotService = slotService;
         }
 
-        public void Initialize(
-            IDropService dropService,
-            ContainerWindow containerWindowPrefab,
-            AbstractGrid gridPrefab,
-            Canvas canvas)
+        public void SetPrefabs(DiContainer sceneContainer, ContainerWindow windowPrefab, AbstractGrid gridPrefab, Canvas canvas)
         {
-            _dropService = dropService;
-            _containerWindowPrefab = containerWindowPrefab;
+            _container = sceneContainer;
+            _windowPrefab = windowPrefab;
             _gridPrefab = gridPrefab;
             _canvas = canvas;
+            _prefabsResolved = true;
+        }
 
-            _cachedInstance = this;
-            _isInitialized = true;
+        private void TryResolvePrefabs()
+        {
+            if (_prefabsResolved)
+                return;
+
+            if (_container == null)
+                return;
+
+            _windowPrefab = _container.TryResolve<ContainerWindow>();
+            _gridPrefab = _container.TryResolve<AbstractGrid>();
+            _canvas = _container.TryResolve<Canvas>();
+            _prefabsResolved = true;
+        }
+
+        public ContainerWindow ContainerWindowPrefab
+        {
+            get
+            {
+                TryResolvePrefabs();
+                return _windowPrefab;
+            }
+        }
+
+        public AbstractGrid GridPrefab
+        {
+            get
+            {
+                TryResolvePrefabs();
+                return _gridPrefab;
+            }
+        }
+
+        public Canvas Canvas
+        {
+            get
+            {
+                TryResolvePrefabs();
+                return _canvas;
+            }
+        }
+
+        public bool IsInitialized
+        {
+            get
+            {
+                TryResolvePrefabs();
+                return _windowPrefab != null && _gridPrefab != null;
+            }
         }
 
         public IReadOnlyList<IContextAction> GetActions(ItemTable item)
         {
+            if (!IsInitialized)
+                return new List<IContextAction>();
+
             var actions = new List<IContextAction>();
 
             var preset = item.ItemDataSo.ContextActionPreset;
+
             if (preset == null)
-            {
                 return actions;
-            }
 
             var sortedConfigs = preset.GetSortedConfigs();
 
             foreach (var config in sortedConfigs)
             {
-                var action = CreateActionFromConfig(config, item);
+                var action = config.Create(_container, item);
+
                 if (action == null)
-                {
                     continue;
-                }
 
                 if (!action.IsAvailable)
-                {
                     continue;
-                }
 
                 actions.Add(action);
             }
 
             return actions;
-        }
-
-        private IContextAction CreateActionFromConfig(ActionConfigBase config, ItemTable item)
-        {
-            var displayName = config.GetDisplayName();
-
-            switch (config)
-            {
-                case EquipActionConfig _:
-                    return new EquipAction(item, displayName, _slotService);
-
-                case DropActionConfig _:
-                    if (!item.ItemDataSo.IsDropable)
-                        return null;
-                    return new DropAction(item, displayName, _dropService, _slotService);
-
-                case OpenActionConfig _:
-                    return new OpenAction(item, displayName, _containerWindowPrefab, _gridPrefab, _canvas);
-
-                case SplitActionConfig splitConfig:
-                    if (!item.IsStackable || item.StackCount < splitConfig.MinStackCount)
-                        return null;
-                    return new SplitAction(item, displayName);
-
-                case UseActionConfig _:
-                    return new UseAction(item, displayName);
-
-                case InspectActionConfig _:
-                    return new InspectAction(item, displayName);
-
-                default:
-                    return null;
-            }
         }
     }
 }

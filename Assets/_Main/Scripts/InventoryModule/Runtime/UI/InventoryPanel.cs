@@ -13,11 +13,6 @@ namespace InventoryModule
         [Header("Settings")]
         [SerializeField] private float sectionSpacing = 5f;
 
-        [Header("Scroll Settings")]
-        [SerializeField] private float scrollMultiplier = 1f;
-
-        public static float ScrollMultiplier { get; private set; } = 1f;
-
         public RectTransform SectionsContainer => sectionsContainer;
         public ContainerSection SectionPrefab => sectionPrefab;
 
@@ -31,40 +26,33 @@ namespace InventoryModule
         public void Initialize()
         {
             SetupSectionsContainer();
-            ScrollMultiplier = scrollMultiplier;
-        }
-
-        private void OnValidate()
-        {
-            ScrollMultiplier = scrollMultiplier;
         }
 
         private void SetupSectionsContainer()
         {
-            if (sectionsContainer == null) return;
+            if (sectionsContainer == null) 
+                return;
 
             var vlg = sectionsContainer.GetComponent<VerticalLayoutGroup>();
+
             if (vlg == null)
-            {
                 vlg = sectionsContainer.gameObject.AddComponent<VerticalLayoutGroup>();
-            }
 
             var csf = sectionsContainer.GetComponent<ContentSizeFitter>();
+
             if (csf == null)
-            {
                 csf = sectionsContainer.gameObject.AddComponent<ContentSizeFitter>();
-            }
         }
 
         public void EnsureSectionHasLayoutElement(ContainerSection section)
         {
-            if (section == null) return;
+            if (section == null) 
+                return;
 
             var layoutElement = section.GetComponent<LayoutElement>();
+
             if (layoutElement == null)
-            {
                 layoutElement = section.gameObject.AddComponent<LayoutElement>();
-            }
 
             layoutElement.minHeight = 40f;
             layoutElement.preferredHeight = -1;
@@ -73,91 +61,59 @@ namespace InventoryModule
 
         public void AddContainerSection(ContainerSection section)
         {
-            if (section == null) return;
+            if (section == null) 
+                return;
 
             _sections.Add(section);
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-            {
                 _sectionsByItemId[section.ContainerItem.ItemDataSo.DisplayName] = section;
-            }
 
             if (section.ContainerItem != null)
-            {
                 section.RefreshGridUISafe();
-            }
             else
-            {
                 section.RefreshVisualsSafe();
-            }
 
             RefreshLayout();
         }
 
         public void AddSectionFirst(ContainerSection section)
         {
-            if (section == null) return;
+            if (section == null) 
+                return;
 
             _sections.Insert(0, section);
             section.transform.SetAsFirstSibling();
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-            {
                 _sectionsByItemId[section.ContainerItem.ItemDataSo.DisplayName] = section;
-            }
 
             if (section.ContainerItem != null)
-            {
                 section.RefreshGridUISafe();
-            }
             else
-            {
                 section.RefreshVisualsSafe();
-            }
-
-            RefreshLayout();
-        }
-
-        public void MoveSectionToTop(ContainerSection section)
-        {
-            if (section == null || !_sections.Contains(section)) return;
-
-            _sections.Remove(section);
-            _sections.Insert(0, section);
-            section.transform.SetAsFirstSibling();
 
             RefreshLayout();
         }
 
         public void RemoveContainerSection(ContainerSection section)
         {
-            if (section == null) return;
+            if (section == null) 
+                return;
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-            {
                 if (_sectionsByItemId.ContainsKey(section.ContainerItem.ItemDataSo.DisplayName))
-                {
                     _sectionsByItemId.Remove(section.ContainerItem.ItemDataSo.DisplayName);
-                }
-            }
 
             _sections.Remove(section);
 
             RefreshLayout();
         }
 
-        public ContainerSection GetSection(string itemName)
-        {
-            if (_sectionsByItemId.TryGetValue(itemName, out var section))
-            {
-                return section;
-            }
-            return null;
-        }
-
         public void RefreshAllSections()
         {
             float now = Time.unscaledTime;
+
             if (now - _lastRefreshTime < MinRefreshInterval)
             {
                 if (!_pendingRefresh)
@@ -165,6 +121,7 @@ namespace InventoryModule
                     _pendingRefresh = true;
                     Invoke(nameof(DelayedRefreshAllSections), MinRefreshInterval);
                 }
+
                 return;
             }
 
@@ -182,40 +139,16 @@ namespace InventoryModule
         private void DoRefreshAllSections()
         {
             foreach (var section in _sections)
-            {
                 section?.RefreshGridUI();
-            }
         }
 
         public void CloseAllSections()
         {
             foreach (var section in _sections.ToArray())
-            {
                 section?.Close();
-            }
+
             _sections.Clear();
             _sectionsByItemId.Clear();
-        }
-
-        public void RequestLayoutRefresh()
-        {
-            if (_pendingRefresh) return;
-
-            float now = Time.unscaledTime;
-            if (now - _lastRefreshTime < MinRefreshInterval)
-            {
-                _pendingRefresh = true;
-                Invoke(nameof(DelayedRefreshLayout), MinRefreshInterval);
-                return;
-            }
-
-            RefreshLayout();
-        }
-
-        private void DelayedRefreshLayout()
-        {
-            _pendingRefresh = false;
-            RefreshLayout();
         }
 
         private void RefreshLayout()
@@ -225,6 +158,7 @@ namespace InventoryModule
             Canvas.ForceUpdateCanvases();
 
             var vlg = sectionsContainer.GetComponent<VerticalLayoutGroup>();
+
             if (vlg != null)
             {
                 vlg.SetLayoutHorizontal();
@@ -232,6 +166,7 @@ namespace InventoryModule
             }
 
             var csf = sectionsContainer.GetComponent<ContentSizeFitter>();
+
             if (csf != null)
             {
                 csf.SetLayoutHorizontal();

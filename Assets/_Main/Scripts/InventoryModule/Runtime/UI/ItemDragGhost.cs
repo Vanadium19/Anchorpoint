@@ -17,10 +17,12 @@ namespace InventoryModule
             
             if (rectTransform == null)
                 rectTransform = GetComponent<RectTransform>();
+
             if (ghostImage == null)
                 ghostImage = GetComponent<Image>();
 
             var canvasGroup = GetComponent<CanvasGroup>();
+
             if (canvasGroup == null)
                 canvasGroup = gameObject.AddComponent<CanvasGroup>();
 
@@ -54,13 +56,9 @@ namespace InventoryModule
         public void SetValid(bool isValid)
         {
             if (isValid)
-            {
                 ghostImage.color = new Color(0.5f, 1f, 0.5f, 0.5f);
-            }
             else
-            {
                 ghostImage.color = new Color(1f, 0.5f, 0.5f, 0.5f);
-            }
         }
 
         public class Factory : PlaceholderFactory<ItemDragGhost>

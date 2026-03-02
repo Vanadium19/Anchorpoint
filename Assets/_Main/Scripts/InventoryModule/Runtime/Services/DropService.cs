@@ -7,32 +7,43 @@ namespace InventoryModule
         private readonly Transform _playerTransform;
         private readonly float _dropDistance;
         private readonly float _dropOffsetY;
+        private readonly IContainerWindowService _windowService;
 
-        public DropService(Transform playerTransform, float dropDistance = 2f, float dropOffsetY = 0.5f)
+        public DropService(
+            Transform playerTransform,
+            IContainerWindowService windowService,
+            float dropDistance = 2f,
+            float dropOffsetY = 0.5f)
         {
             _playerTransform = playerTransform;
+            _windowService = windowService;
             _dropDistance = dropDistance;
             _dropOffsetY = dropOffsetY;
         }
 
         public bool CanDrop(ItemTable item)
         {
-            if (item == null) return false;
-            if (item.ItemDataSo == null) return false;
+            if (item == null)
+                return false;
+
+            if (item.ItemDataSo == null)
+                return false;
+
             return item.ItemDataSo.IsDropable;
         }
 
         public bool TryDropItem(ItemTable item)
         {
-            if (!CanDrop(item)) return false;
+            if (!CanDrop(item))
+                return false;
 
             LootItemView prefab = item.ItemDataSo.WorldPrefab;
-            if (prefab == null) return false;
+
+            if (prefab == null)
+                return false;
 
             if (item.IsContainer)
-            {
-                ContainerWindow.CloseAllWindowsForItem(item);
-            }
+                _windowService.CloseAllWindowsForItem(item);
 
             Vector3 dropPosition = GetDropPosition();
 
@@ -47,10 +58,10 @@ namespace InventoryModule
             if (_playerTransform == null)
             {
                 var camera = Camera.main;
+
                 if (camera != null)
-                {
                     return camera.transform.position + camera.transform.forward * _dropDistance;
-                }
+
                 return Vector3.zero;
             }
 

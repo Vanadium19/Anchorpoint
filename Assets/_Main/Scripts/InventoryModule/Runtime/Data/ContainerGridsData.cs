@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace InventoryModule
@@ -19,15 +18,14 @@ namespace InventoryModule
         public void InitializeGrids()
         {
             if (grids == null || grids.Length == 0)
-            {
                 grids = GetComponentsInChildren<AbstractGrid>();
-            }
         }
 
         public AbstractGrid GetGrid(int index)
         {
             if (grids == null || index < 0 || index >= grids.Length)
                 return null;
+
             return grids[index];
         }
 

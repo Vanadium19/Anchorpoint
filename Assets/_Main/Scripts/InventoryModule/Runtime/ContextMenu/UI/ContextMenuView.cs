@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace InventoryModule.ContextMenu.UI
 {
     public class ContextMenuView : MonoBehaviour
     {
-        private static ContextMenuView _activeMenu;
-        private static GameObject _sharedBlockerInstance;
-
         [Header("References")]
         [SerializeField] private RectTransform rectTransform;
         [SerializeField] private Transform itemsContainer;
@@ -18,17 +16,22 @@ namespace InventoryModule.ContextMenu.UI
         [Header("Blocker")]
         [SerializeField] private GameObject blockerPrefab;
 
+        private IContextMenuStateService _stateService;
+
         private readonly List<ContextMenuItemView> _items = new List<ContextMenuItemView>();
         private Action _onHide;
 
+        public void Initialize(IContextMenuStateService stateService)
+        {
+            _stateService = stateService;
+        }
+
         public void Show(Vector2 screenPosition, IReadOnlyList<IContextAction> actions, Action onHide)
         {
-            if (_activeMenu != null && _activeMenu != this)
-            {
-                _activeMenu.Hide();
-            }
+            if (_stateService.ActiveMenu != null && _stateService.ActiveMenu != this)
+                _stateService.ActiveMenu.Hide();
 
-            _activeMenu = this;
+            _stateService.ActiveMenu = this;
             _onHide = onHide;
             ClearItems();
             gameObject.SetActive(true);
@@ -52,13 +55,11 @@ namespace InventoryModule.ContextMenu.UI
             ClearItems();
             gameObject.SetActive(false);
 
-            if (_activeMenu == this)
+            if (_stateService.ActiveMenu == this)
             {
-                _activeMenu = null;
-                if (_sharedBlockerInstance != null)
-                {
-                    _sharedBlockerInstance.SetActive(false);
-                }
+                _stateService.ActiveMenu = null;
+                if (_stateService.BlockerInstance != null)
+                    _stateService.BlockerInstance.SetActive(false);
             }
 
             _onHide?.Invoke();
@@ -76,28 +77,28 @@ namespace InventoryModule.ContextMenu.UI
             foreach (var item in _items)
             {
                 if (item != null)
-                {
                     Destroy(item.gameObject);
-                }
             }
             _items.Clear();
         }
 
         private void EnsureBlockerExists()
         {
-            if (blockerPrefab == null) return;
+            if (blockerPrefab == null)
+                return;
 
             Canvas canvas = GetComponentInParent<Canvas>();
-            if (canvas == null) return;
 
-            if (_sharedBlockerInstance == null)
-            {
-                _sharedBlockerInstance = Instantiate(blockerPrefab, canvas.transform);
-            }
+            if (canvas == null)
+                return;
 
-            _sharedBlockerInstance.SetActive(true);
+            if (_stateService.BlockerInstance == null)
+                _stateService.BlockerInstance = Instantiate(blockerPrefab, canvas.transform);
 
-            var button = _sharedBlockerInstance.GetComponent<Button>();
+            _stateService.BlockerInstance.SetActive(true);
+
+            var button = _stateService.BlockerInstance.GetComponent<Button>();
+
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
@@ -107,10 +108,11 @@ namespace InventoryModule.ContextMenu.UI
 
         private void UpdateBlockerSibling()
         {
-            if (_sharedBlockerInstance == null) return;
+            if (_stateService.BlockerInstance == null)
+                return;
 
             transform.SetAsLastSibling();
-            _sharedBlockerInstance.transform.SetSiblingIndex(transform.GetSiblingIndex() - 1);
+            _stateService.BlockerInstance.transform.SetSiblingIndex(transform.GetSiblingIndex() - 1);
         }
     }
 }

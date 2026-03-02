@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Zenject;
 
 namespace InventoryModule.ContextMenu
 {
@@ -11,6 +12,8 @@ namespace InventoryModule.ContextMenu
         public string DisplayName => displayName;
 
         public abstract string ActionType { get; }
+
+        public abstract IContextAction Create(DiContainer container, ItemTable item);
 
         public string GetDisplayName()
         {

@@ -9,17 +9,13 @@ namespace InventoryModule
         public void RegisterSlot(EquipmentSlot slot)
         {
             if (slot != null && !_slots.Contains(slot))
-            {
                 _slots.Add(slot);
-            }
         }
 
         public void UnregisterSlot(EquipmentSlot slot)
         {
             if (slot != null)
-            {
                 _slots.Remove(slot);
-            }
         }
 
         public IReadOnlyList<EquipmentSlot> GetAllSlots()
@@ -29,14 +25,13 @@ namespace InventoryModule
 
         public EquipmentSlot GetSlotForItem(ItemTable item)
         {
-            if (item == null) return null;
+            if (item == null) 
+                return null;
 
             foreach (var slot in _slots)
             {
                 if (slot.GetItem() == item)
-                {
                     return slot;
-                }
             }
 
             return null;

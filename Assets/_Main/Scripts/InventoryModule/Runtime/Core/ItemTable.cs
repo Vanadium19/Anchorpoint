@@ -6,7 +6,7 @@ namespace InventoryModule
     [Serializable]
     public class ItemTable
     {
-        public ItemDataSo ItemDataSo { get; private set; }
+        public ItemDataSo ItemDataSo { get; }
         public bool IsRotated { get; private set; }
         public Position Position { get; private set; }
         public GridTable CurrentGrid { get; private set; }
@@ -14,12 +14,11 @@ namespace InventoryModule
         public int Amount { get => StackCount; set => StackCount = value; }
         public string Id => ItemDataSo?.DisplayName?.ToLower().Replace(" ", "_") ?? string.Empty;
 
-        public InventoryMetadata InventoryMetadata { get; private set; }
+        public InventoryMetadata InventoryMetadata { get; }
 
         // TODO: Код взят из ассета
         public int Width => IsRotated ? ItemDataSo.Height : ItemDataSo.Width;
 
-        // TODO: Код взят из ассета
         public int Height => IsRotated ? ItemDataSo.Width : ItemDataSo.Height;
 
         public bool CanRotate => ItemDataSo.CanRotate;
@@ -70,26 +69,35 @@ namespace InventoryModule
             if (CanRotate)
             {
                 IsRotated = !IsRotated;
+
                 if (CurrentGrid != null)
                 {
                     PlacedWidth = Width;
                     PlacedHeight = Height;
                 }
+
                 UIUpdated?.Invoke();
             }
         }
 
         public bool CanStackWith(ItemTable other)
         {
-            if (!IsStackable || !other.IsStackable) return false;
-            if (ItemDataSo != other.ItemDataSo) return false;
-            if (StackCount >= MaxStack) return false;
+            if (!IsStackable || !other.IsStackable) 
+                return false;
+
+            if (ItemDataSo != other.ItemDataSo) 
+                return false;
+
+            if (StackCount >= MaxStack) 
+                return false;
+
             return true;
         }
 
         public int TryAddToStack(int amount)
         {
-            if (!IsStackable) return amount;
+            if (!IsStackable) 
+                return amount;
 
             int spaceAvailable = MaxStack - StackCount;
             int toAdd = Mathf.Min(amount, spaceAvailable);
@@ -118,23 +126,6 @@ namespace InventoryModule
                 var metadata = GetMetadata<ContainerMetadata>();
                 return metadata?.Inventories?.Count > 0 ? metadata.Inventories[0] : null;
             }
-        }
-
-        public void CreateContainerGrid()
-        {
-            if (!IsContainer) return;
-            var metadata = GetMetadata<ContainerMetadata>();
-            if (metadata != null)
-            {
-                metadata.InitializeInventories();
-            }
-        }
-
-        public int GetContainerItemCount()
-        {
-            var metadata = GetMetadata<ContainerMetadata>();
-            if (metadata == null) return 0;
-            return metadata.GetAllItems().Count;
         }
 
         public override string ToString()

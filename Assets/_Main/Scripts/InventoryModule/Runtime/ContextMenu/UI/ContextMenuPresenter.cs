@@ -9,20 +9,13 @@ namespace InventoryModule.ContextMenu.UI
         [SerializeField] private ContextMenuView view;
 
         private IContextActionService _actionService;
+        private IContextMenuStateService _stateService;
 
-        [Inject]
-        private void Construct(IContextActionService actionService)
+        public void Initialize(IContextActionService actionService, IContextMenuStateService stateService)
         {
             _actionService = actionService;
-        }
-
-        public void Initialize(IContextActionService actionService)
-        {
-            _actionService = actionService;
-        }
-
-        private void Awake()
-        {
+            _stateService = stateService;
+            view.Initialize(_stateService);
         }
 
         public void ShowForItem(ItemTable item, Vector2 screenPosition)

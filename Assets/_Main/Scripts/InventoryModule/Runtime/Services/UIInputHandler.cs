@@ -1,10 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
-using Zenject;
-using InventoryModule.ContextMenu;
-using InventoryModule.ContextMenu.UI;
 
 namespace InventoryModule
 {
@@ -22,30 +18,6 @@ namespace InventoryModule
             _inventoryManager = inventoryManager;
             _slotService = slotService;
             _gridService = gridService;
-        }
-
-        public void HandleClick(PointerEventData eventData, ItemTable item, AbstractItem itemUI)
-        {
-        }
-
-        public void HandleDoubleClick(PointerEventData eventData, ItemTable item)
-        {
-        }
-
-        public void HandleRightClick(PointerEventData eventData, ItemTable item)
-        {
-        }
-
-        public void HandleDragBegin(PointerEventData eventData, ItemTable item, AbstractItem itemUI)
-        {
-        }
-
-        public void HandleDrag(PointerEventData eventData, AbstractItem itemUI)
-        {
-        }
-
-        public void HandleDragEnd(PointerEventData eventData, AbstractItem itemUI)
-        {
         }
 
         public InventoryItem GetInventoryItemUnderMouse()
@@ -72,7 +44,9 @@ namespace InventoryModule
             foreach (RaycastResult result in results)
             {
                 var slot = result.gameObject.GetComponent<EquipmentSlot>();
-                if (slot != null) return slot;
+
+                if (slot != null) 
+                    return slot;
             }
 
             return null;
@@ -100,7 +74,9 @@ namespace InventoryModule
                     continue;
 
                 var dropZone = result.gameObject.GetComponentInParent<InventoryDropZone>();
-                if (dropZone != null) return dropZone;
+
+                if (dropZone != null) 
+                    return dropZone;
             }
 
             return null;
@@ -128,7 +104,9 @@ namespace InventoryModule
                     continue;
 
                 var grid = result.gameObject.GetComponentInParent<AbstractGrid>();
-                if (grid != null) return grid;
+
+                if (grid != null) 
+                    return grid;
             }
 
             return null;
@@ -156,6 +134,7 @@ namespace InventoryModule
                     continue;
 
                 var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
+
                 if (itemUI != null && itemUI.Item != null && itemUI.Item.IsContainer)
                     return itemUI;
             }
@@ -170,7 +149,8 @@ namespace InventoryModule
 
         public InventoryItem GetStackTargetUnderMouse(AbstractItem excludeItem, ItemTable currentItem)
         {
-            if (currentItem == null || !currentItem.IsStackable) return null;
+            if (currentItem == null || !currentItem.IsStackable) 
+                return null;
 
             Vector2 mousePos = Input.mousePosition;
             PointerEventData pointerData = new PointerEventData(EventSystem.current)
@@ -187,16 +167,11 @@ namespace InventoryModule
                     continue;
 
                 var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
+
                 if (itemUI != null && itemUI != excludeItem && itemUI.Item != null)
-                {
                     if (itemUI.Item.ItemDataSo == currentItem.ItemDataSo && itemUI.Item.IsStackable)
-                    {
                         if (itemUI.Item.StackCount < itemUI.Item.MaxStack)
-                        {
                             return itemUI;
-                        }
-                    }
-                }
             }
 
             return null;
@@ -219,7 +194,9 @@ namespace InventoryModule
                     continue;
 
                 var itemUI = result.gameObject.GetComponentInParent<InventoryItem>();
-                if (itemUI != null) return itemUI;
+
+                if (itemUI != null) 
+                    return itemUI;
             }
 
             return null;
