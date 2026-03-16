@@ -14,7 +14,9 @@ namespace EvacuationModule
         private void Awake()
         {
             timerContainer?.SetActive(false);
-            successPanel?.SetActive(false);
+
+            if (successPanel)
+                successPanel.SetActive(false);
         }
 
         public void ShowTimer(string time)
