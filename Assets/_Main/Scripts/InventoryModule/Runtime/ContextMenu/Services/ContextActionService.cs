@@ -1,49 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
-using InventoryModule.ContextMenu.Configs;
-using InventoryModule.ContextMenu.Actions;
-using InventoryModule.ContextMenu.Presets;
 
 namespace InventoryModule.ContextMenu
 {
     public class ContextActionService : IContextActionService
     {
-        private readonly IEquipmentSlotService _slotService;
         private DiContainer _container;
 
         private ContainerWindow _windowPrefab;
         private AbstractGrid _gridPrefab;
         private Canvas _canvas;
         private bool _prefabsResolved;
-
-        public ContextActionService(IEquipmentSlotService slotService)
-        {
-            _slotService = slotService;
-        }
-
-        public void SetPrefabs(DiContainer sceneContainer, ContainerWindow windowPrefab, AbstractGrid gridPrefab, Canvas canvas)
-        {
-            _container = sceneContainer;
-            _windowPrefab = windowPrefab;
-            _gridPrefab = gridPrefab;
-            _canvas = canvas;
-            _prefabsResolved = true;
-        }
-
-        private void TryResolvePrefabs()
-        {
-            if (_prefabsResolved)
-                return;
-
-            if (_container == null)
-                return;
-
-            _windowPrefab = _container.TryResolve<ContainerWindow>();
-            _gridPrefab = _container.TryResolve<AbstractGrid>();
-            _canvas = _container.TryResolve<Canvas>();
-            _prefabsResolved = true;
-        }
 
         public ContainerWindow ContainerWindowPrefab
         {
@@ -79,6 +47,30 @@ namespace InventoryModule.ContextMenu
                 TryResolvePrefabs();
                 return _windowPrefab != null && _gridPrefab != null;
             }
+        }
+
+
+        public void SetPrefabs(DiContainer sceneContainer, ContainerWindow windowPrefab, AbstractGrid gridPrefab, Canvas canvas)
+        {
+            _container = sceneContainer;
+            _windowPrefab = windowPrefab;
+            _gridPrefab = gridPrefab;
+            _canvas = canvas;
+            _prefabsResolved = true;
+        }
+
+        private void TryResolvePrefabs()
+        {
+            if (_prefabsResolved)
+                return;
+
+            if (_container == null)
+                return;
+
+            _windowPrefab = _container.TryResolve<ContainerWindow>();
+            _gridPrefab = _container.TryResolve<AbstractGrid>();
+            _canvas = _container.TryResolve<Canvas>();
+            _prefabsResolved = true;
         }
 
         public IReadOnlyList<IContextAction> GetActions(ItemTable item)

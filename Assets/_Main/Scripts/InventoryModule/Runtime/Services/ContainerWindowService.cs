@@ -4,13 +4,10 @@ namespace InventoryModule
 {
     public sealed class ContainerWindowService : IContainerWindowService
     {
-        private readonly HashSet<ItemTable> _openContainers = new HashSet<ItemTable>();
-        private readonly List<ContainerWindow> _openWindows = new List<ContainerWindow>();
+        private readonly HashSet<ItemTable> _openContainers = new();
+        private readonly List<ContainerWindow> _openWindows = new();
 
-        public bool IsContainerOpen(ItemTable item)
-        {
-            return _openContainers.Contains(item);
-        }
+        public bool IsContainerOpen(ItemTable item) => _openContainers.Contains(item);
 
         public void CloseAllWindowsForItem(ItemTable item)
         {
@@ -25,22 +22,22 @@ namespace InventoryModule
                     window.Close();
             }
 
-            if (item.IsContainer)
+            if (!item.IsContainer)
+                return;
+            
+            var metadata = item.GetMetadata<ContainerMetadata>();
+
+            if (metadata?.Inventories == null)
+                return;
+
+            foreach (var grid in metadata.Inventories)
             {
-                var metadata = item.GetMetadata<ContainerMetadata>();
+                var items = grid.GetAllItems();
 
-                if (metadata?.Inventories != null)
+                foreach (var nestedItem in items)
                 {
-                    foreach (var grid in metadata.Inventories)
-                    {
-                        var items = grid.GetAllItems();
-
-                        foreach (var nestedItem in items)
-                        {
-                            if (nestedItem.IsContainer)
-                                CloseAllWindowsForItem(nestedItem);
-                        }
-                    }
+                    if (nestedItem.IsContainer)
+                        CloseAllWindowsForItem(nestedItem);
                 }
             }
         }

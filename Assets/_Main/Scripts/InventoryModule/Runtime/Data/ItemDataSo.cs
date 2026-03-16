@@ -33,9 +33,7 @@ namespace InventoryModule
         [SerializeField] private ContextActionPreset contextActionPreset;
 
         public string DisplayName => displayName;
-        public string Description => description;
         public Sprite Icon => icon;
-        public DimensionsSo DimensionsSo => dimensionsSo;
         public EquipmentSlotType EquipmentSlotType => equipmentSlotType;
         public bool IsEquippable => isEquippable;
         public bool IsStackable => isStackable;

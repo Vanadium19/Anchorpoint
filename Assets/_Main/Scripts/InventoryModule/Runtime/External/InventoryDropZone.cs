@@ -8,8 +8,8 @@ namespace InventoryModule
     {
         [Header("UI")]
         [SerializeField] private Image highlightImage;
-        [SerializeField] private Color normalColor = new Color(1, 1, 1, 0.3f);
-        [SerializeField] private Color hoverColor = new Color(1, 0.5f, 0.5f, 0.5f);
+        [SerializeField] private Color normalColor = new(1, 1, 1, 0.3f);
+        [SerializeField] private Color hoverColor = new(1, 0.5f, 0.5f, 0.5f);
 
         private IDropService _dropService;
 
@@ -21,16 +21,14 @@ namespace InventoryModule
 
         public bool TryDropItem(ItemTable item)
         {
-            if (_dropService == null) 
+            if (_dropService == null)
                 return false;
 
-            if (_dropService.TryDropItem(item))
-            {
-                item.RemoveItselfFromLocation();
-                return true;
-            }
+            if (!_dropService.TryDropItem(item))
+                return false;
 
-            return false;
+            item.RemoveItselfFromLocation();
+            return true;
         }
 
         public void ShowHighlight(bool show)

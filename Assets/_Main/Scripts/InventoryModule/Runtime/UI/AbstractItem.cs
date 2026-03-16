@@ -9,27 +9,24 @@ namespace InventoryModule
 {
     public abstract class AbstractItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
-        [Header("UI Components")]
+        // [Header("UI Components")]
         [SerializeField] protected Image iconImage;
         [SerializeField] protected RectTransform rectTransform;
 
-        [Inject]
-        protected IInputMap InputMap { get; set; }
+        protected bool localIsRotated;
 
-        [Inject]
-        protected IDragStateService DragStateService { get; set; }
+        protected Vector2 OriginalPosition;
+        protected Transform OriginalParent;
 
-        public ItemTable Item { get; protected set; }
-        public bool IsDragging { get; protected set; }
-
-        protected bool _localIsRotated;
-
-        protected Vector2 originalPosition;
-        protected Transform originalParent;
-        protected Vector2 _lastMousePosition;
+        private Vector2 _lastMousePosition;
 
         private Canvas _parentCanvas;
         private CanvasGroup _canvasGroup;
+
+        public ItemTable Item { get; private set; }
+
+        [Inject] protected IInputMap InputMap { get; set; }
+        protected bool IsDragging { get; private set; }
 
         protected virtual void Awake()
         {
@@ -47,24 +44,6 @@ namespace InventoryModule
             _parentCanvas = GetComponentInParent<Canvas>();
         }
 
-        public virtual void SetItem(ItemTable item)
-        {
-            if (Item != null)
-                Item.UIUpdated -= UpdateUI;
-
-            Item = item;
-
-            if (item != null)
-            {
-                iconImage.sprite = item.ItemDataSo.Icon;
-                _localIsRotated = item.IsRotated;
-                UpdateUI();
-
-                if (isActiveAndEnabled)
-                    item.UIUpdated += UpdateUI;
-            }
-        }
-
         protected virtual void OnEnable()
         {
             if (Item != null)
@@ -74,51 +53,36 @@ namespace InventoryModule
             }
         }
 
+        protected virtual void Update()
+        {
+            if (IsDragging && InputMap != null && InputMap.IsRotatePressed)
+                RotateItem();
+
+            if (IsDragging)
+                HandleScrollDuringDrag();
+        }
+
         protected virtual void OnDisable()
         {
             if (Item != null)
                 Item.UIUpdated -= UpdateUI;
         }
 
-        protected virtual float GetTileSize()
+        public void SetItem(ItemTable item)
         {
-            var grid = GetComponentInParent<AbstractGrid>();
-            return grid != null ? grid.TileSize : 50f;
-        }
+            if (Item != null)
+                Item.UIUpdated -= UpdateUI;
 
-        protected virtual void UpdateUI()
-        {
-            if (Item == null) 
-                return;
+            Item = item;
 
-            float tileSize = GetTileSize();
-            int originalW = Item.ItemDataSo.Width;
-            int originalH = Item.ItemDataSo.Height;
-
-            float width = originalW * tileSize;
-            float height = originalH * tileSize;
-            rectTransform.sizeDelta = new Vector2(width, height);
-
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-
-            float angle = _localIsRotated ? -90f : 0f;
-            rectTransform.rotation = Quaternion.Euler(0, 0, angle);
-
-            if (iconImage != null && iconImage.gameObject != gameObject)
+            if (item != null)
             {
-                var iconRT = iconImage.GetComponent<RectTransform>();
+                iconImage.sprite = item.ItemDataSo.Icon;
+                localIsRotated = item.IsRotated;
+                UpdateUI();
 
-                if (iconRT != null)
-                {
-                    iconRT.anchorMin = Vector2.zero;
-                    iconRT.anchorMax = Vector2.one;
-                    iconRT.anchoredPosition = Vector2.zero;
-                    iconRT.sizeDelta = Vector2.zero;
-                    iconRT.localPosition = Vector3.zero;
-                    iconRT.localRotation = Quaternion.identity;
-                }
+                if (isActiveAndEnabled)
+                    item.UIUpdated += UpdateUI;
             }
         }
 
@@ -131,9 +95,8 @@ namespace InventoryModule
                 return;
 
             IsDragging = true;
-            DragStateService.CurrentlyDraggedItem = this;
-            originalPosition = rectTransform.anchoredPosition;
-            originalParent = transform.parent;
+            OriginalPosition = rectTransform.anchoredPosition;
+            OriginalParent = transform.parent;
 
             var canvas = GetDragCanvas();
 
@@ -149,7 +112,7 @@ namespace InventoryModule
 
         public virtual void OnDrag(PointerEventData eventData)
         {
-            if (!IsDragging) 
+            if (!IsDragging)
                 return;
 
             _lastMousePosition = eventData.position;
@@ -161,7 +124,6 @@ namespace InventoryModule
         public virtual void OnEndDrag(PointerEventData eventData)
         {
             IsDragging = false;
-            DragStateService.CurrentlyDraggedItem = null;
 
             _canvasGroup.blocksRaycasts = true;
             _canvasGroup.alpha = 1f;
@@ -175,41 +137,66 @@ namespace InventoryModule
         {
         }
 
-        protected virtual void Update()
+        protected virtual void UpdateUI()
         {
-            if (IsDragging && InputMap != null && InputMap.IsRotatePressed)
-                RotateItem();
+            if (Item == null)
+                return;
 
-            if (IsDragging)
-                HandleScrollDuringDrag();
+            var tileSize = GetTileSize();
+            var originalW = Item.ItemDataSo.Width;
+            var originalH = Item.ItemDataSo.Height;
+
+            var width = originalW * tileSize;
+            var height = originalH * tileSize;
+            rectTransform.sizeDelta = new Vector2(width, height);
+
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+
+            var angle = localIsRotated ? -90f : 0f;
+            rectTransform.rotation = Quaternion.Euler(0, 0, angle);
+
+            if (iconImage == null || iconImage.gameObject == gameObject)
+                return;
+
+            var iconRT = iconImage.GetComponent<RectTransform>();
+
+            if (iconRT == null)
+                return;
+
+            iconRT.anchorMin = Vector2.zero;
+            iconRT.anchorMax = Vector2.one;
+            iconRT.anchoredPosition = Vector2.zero;
+            iconRT.sizeDelta = Vector2.zero;
+            iconRT.localPosition = Vector3.zero;
+            iconRT.localRotation = Quaternion.identity;
         }
 
-        protected virtual void HandleScrollDuringDrag()
+        protected virtual void UpdateGridHighlight()
         {
-            float scrollDelta = Input.mouseScrollDelta.y;
-
-            if (Mathf.Abs(scrollDelta) > 0.01f)
-            {
-                ScrollRect scrollRect = GetScrollRectUnderMouse();
-
-                if (scrollRect != null)
-                {
-                    PointerEventData pointerData = new PointerEventData(EventSystem.current);
-                    pointerData.scrollDelta = new Vector2(0, scrollDelta);
-                    scrollRect.OnScroll(pointerData);
-                }
-            }
         }
 
-        protected ScrollRect GetScrollRectUnderMouse()
+        protected virtual void HideAllHighlights()
         {
-            Vector2 mousePos = Input.mousePosition;
-            PointerEventData pointerData = new PointerEventData(EventSystem.current)
-            {
-                position = mousePos
-            };
+        }
 
-            List<RaycastResult> results = new List<RaycastResult>();
+        protected virtual void TryPlaceItem()
+        {
+        }
+
+        private float GetTileSize()
+        {
+            var grid = GetComponentInParent<AbstractGrid>();
+            return grid != null ? grid.TileSize : 50f;
+        }
+
+        private ScrollRect GetScrollRectUnderMouse()
+        {
+            Vector2 mousePosition = Input.mousePosition;
+            var pointerData = new PointerEventData(EventSystem.current) { position = mousePosition, };
+
+            var results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
 
             foreach (RaycastResult result in results)
@@ -229,35 +216,7 @@ namespace InventoryModule
             return null;
         }
 
-        protected virtual void RotateItem()
-        {
-            if (Item != null && Item.CanRotate)
-            {
-                _localIsRotated = !_localIsRotated;
-
-                UpdateUI();
-
-                transform.position = (Vector3)_lastMousePosition;
-
-                UpdateGridHighlight();
-            }
-        }
-
-        public bool LocalIsRotated => _localIsRotated;
-
-        protected virtual void UpdateGridHighlight()
-        {
-        }
-
-        protected virtual void HideAllHighlights()
-        {
-        }
-
-        protected virtual void TryPlaceItem()
-        {
-        }
-
-        protected Canvas GetDragCanvas()
+        private Canvas GetDragCanvas()
         {
             if (_parentCanvas != null)
                 return _parentCanvas;
@@ -266,8 +225,34 @@ namespace InventoryModule
             return _parentCanvas;
         }
 
-        protected virtual void OnDestroy()
+        private void RotateItem()
         {
+            if (Item is not { CanRotate: true, })
+                return;
+
+            localIsRotated = !localIsRotated;
+
+            UpdateUI();
+
+            transform.position = _lastMousePosition;
+
+            UpdateGridHighlight();
+        }
+
+        private void HandleScrollDuringDrag()
+        {
+            var scrollDelta = Input.mouseScrollDelta.y;
+
+            if (!(Mathf.Abs(scrollDelta) > 0.01f))
+                return;
+
+            var scrollRect = GetScrollRectUnderMouse();
+
+            if (scrollRect == null)
+                return;
+
+            var pointerData = new PointerEventData(EventSystem.current) { scrollDelta = new(0, scrollDelta), };
+            scrollRect.OnScroll(pointerData);
         }
     }
 }

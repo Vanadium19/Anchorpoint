@@ -1,6 +1,5 @@
 using UnityEngine;
 using Zenject;
-using InputModule;
 using InventoryModule.ContextMenu;
 
 namespace InventoryModule
@@ -26,8 +25,6 @@ namespace InventoryModule
             if (mainCanvas != null)
                 Container.Bind<Canvas>().FromInstance(mainCanvas).AsSingle();
 
-            Container.Bind<IItemDragGhostService>().To<ItemDragGhostService>().AsSingle();
-
             Container.Bind<IDropService>()
                 .To<DropService>()
                 .AsSingle()
@@ -49,9 +46,11 @@ namespace InventoryModule
                     .AsSingle();
 
             if (inventoryUI != null)
+            {
                 Container.Bind<GameObject>()
                     .WithId("InventoryUI")
                     .FromInstance(inventoryUI);
+            }
 
             Container.BindInterfacesTo<InventoryStartup>()
                 .AsSingle();
@@ -60,9 +59,7 @@ namespace InventoryModule
         public override void Start()
         {
             var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
-
-            if (contextActionService != null)
-                contextActionService.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
+            contextActionService?.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
         }
     }
 }

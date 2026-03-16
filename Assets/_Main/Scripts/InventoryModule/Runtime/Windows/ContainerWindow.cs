@@ -22,19 +22,15 @@ namespace InventoryModule
         [SerializeField] private float minWindowWidth = 200f;
         [SerializeField] private float minWindowHeight = 150f;
 
-        public AbstractGrid GridPrefab => gridPrefab;
-
-        private IContainerWindowService _windowService;
-
-        private List<AbstractGrid> _contentGrids = new List<AbstractGrid>();
+        private readonly List<AbstractGrid> _contentGrids = new();
+        
         private GameObject _panelInstance;
         private ItemTable _containerItem;
-        private ContainerMetadata _metadata;
         private Canvas _canvas;
 
         public ItemTable ContainerItem => _containerItem;
-
-        public event Action<ContainerWindow> WindowClosed;
+        public AbstractGrid GridPrefab => gridPrefab;
+        private IContainerWindowService _windowService;
 
         private void Awake()
         {
@@ -42,10 +38,14 @@ namespace InventoryModule
                 closeButton.onClick.AddListener(Close);
         }
 
+        private void OnDestroy()
+        {
+            _windowService?.UnregisterWindow(_containerItem, this);
+        }
+
         public void Initialize(ItemTable containerItem, ContainerMetadata metadata, AbstractGrid gridPrefab, IContainerWindowService windowService = null)
         {
             _containerItem = containerItem;
-            _metadata = metadata;
             this.gridPrefab = gridPrefab;
             _windowService = windowService;
 
@@ -281,13 +281,7 @@ namespace InventoryModule
             _contentGrids.Clear();
             _panelInstance = null;
 
-            WindowClosed?.Invoke(this);
             Destroy(gameObject);
-        }
-
-        private void OnDestroy()
-        {
-            _windowService?.UnregisterWindow(_containerItem, this);
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace InventoryModule.ContextMenu.UI
@@ -7,7 +6,5 @@ namespace InventoryModule.ContextMenu.UI
     {
         ContextMenuView ActiveMenu { get; set; }
         GameObject BlockerInstance { get; set; }
-        bool HasActiveMenu { get; }
-        void HideActiveMenu();
     }
 }

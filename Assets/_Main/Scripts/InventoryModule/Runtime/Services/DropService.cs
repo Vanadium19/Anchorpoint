@@ -9,8 +9,7 @@ namespace InventoryModule
         private readonly float _dropOffsetY;
         private readonly IContainerWindowService _windowService;
 
-        public DropService(
-            Transform playerTransform,
+        public DropService(Transform playerTransform,
             IContainerWindowService windowService,
             float dropDistance = 2f,
             float dropOffsetY = 0.5f)
@@ -26,10 +25,7 @@ namespace InventoryModule
             if (item == null)
                 return false;
 
-            if (item.ItemDataSo == null)
-                return false;
-
-            return item.ItemDataSo.IsDropable;
+            return item.ItemDataSo != null && item.ItemDataSo.IsDropable;
         }
 
         public bool TryDropItem(ItemTable item)
@@ -37,7 +33,7 @@ namespace InventoryModule
             if (!CanDrop(item))
                 return false;
 
-            LootItemView prefab = item.ItemDataSo.WorldPrefab;
+            var prefab = item.ItemDataSo.WorldPrefab;
 
             if (prefab == null)
                 return false;
@@ -45,9 +41,9 @@ namespace InventoryModule
             if (item.IsContainer)
                 _windowService.CloseAllWindowsForItem(item);
 
-            Vector3 dropPosition = GetDropPosition();
+            var dropPosition = GetDropPosition();
 
-            LootItemView lootInstance = Object.Instantiate(prefab, dropPosition, Quaternion.identity);
+            var lootInstance = Object.Instantiate(prefab, dropPosition, Quaternion.identity);
             lootInstance.SetItemTable(item);
 
             return true;
@@ -65,14 +61,14 @@ namespace InventoryModule
                 return Vector3.zero;
             }
 
-            Vector3 forward = _playerTransform.forward;
+            var forward = _playerTransform.forward;
             forward.y = 0;
             forward.Normalize();
 
-            Vector3 dropPos = _playerTransform.position + forward * _dropDistance;
-            dropPos.y += _dropOffsetY;
+            var dropPosition = _playerTransform.position + forward * _dropDistance;
+            dropPosition.y += _dropOffsetY;
 
-            return dropPos;
+            return dropPosition;
         }
     }
 }

@@ -5,11 +5,7 @@ namespace InventoryModule.ContextMenu.Actions
         private readonly IEquipmentSlotService _slotService;
         private readonly IDropService _dropService;
 
-        public override string DisplayName => DisplayNameOverride ?? "Drop";
-        public override bool IsAvailable => Item?.ItemDataSo?.IsDropable ?? false;
-
-        public DropAction(
-            ItemTable item,
+        public DropAction(ItemTable item,
             string displayName,
             IDropService dropService,
             IEquipmentSlotService slotService = null)
@@ -18,6 +14,9 @@ namespace InventoryModule.ContextMenu.Actions
             _dropService = dropService;
             _slotService = slotService;
         }
+
+        public override string DisplayName => DisplayNameOverride ?? "Drop";
+        public override bool IsAvailable => Item?.ItemDataSo?.IsDropable ?? false;
 
         public override void Execute()
         {

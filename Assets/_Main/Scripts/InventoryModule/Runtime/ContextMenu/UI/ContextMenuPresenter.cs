@@ -1,6 +1,4 @@
 using UnityEngine;
-using Zenject;
-using InventoryModule.ContextMenu;
 
 namespace InventoryModule.ContextMenu.UI
 {
@@ -15,6 +13,7 @@ namespace InventoryModule.ContextMenu.UI
         {
             _actionService = actionService;
             _stateService = stateService;
+
             view.Initialize(_stateService);
         }
 
@@ -26,11 +25,6 @@ namespace InventoryModule.ContextMenu.UI
                 return;
 
             view.Show(screenPosition, actions, null);
-        }
-
-        public void Hide()
-        {
-            view.Hide();
         }
     }
 }

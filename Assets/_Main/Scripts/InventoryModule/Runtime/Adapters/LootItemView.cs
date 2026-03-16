@@ -9,19 +9,15 @@ namespace InventoryModule
         [SerializeField] private GameObject collectEffect;
         [SerializeField] private AudioSource collectSound;
 
+        private ItemTable _itemTable;
+
         public ItemDataSo ItemData => itemData;
         public int Amount => amount;
-        public ItemTable ItemTable { get; private set; }
-
-        public void Initialize(ItemDataSo data, int count)
-        {
-            itemData = data;
-            amount = count;
-        }
+        public ItemTable ItemTable => _itemTable;
 
         public void SetItemTable(ItemTable item)
         {
-            ItemTable = item;
+            _itemTable = item;
             itemData = item.ItemDataSo;
             amount = item.StackCount;
         }
@@ -33,11 +29,6 @@ namespace InventoryModule
 
             if (collectSound != null && collectSound.clip != null)
                 AudioSource.PlayClipAtPoint(collectSound.clip, transform.position);
-        }
-
-        public void SetAmount(int count)
-        {
-            amount = count;
         }
     }
 }

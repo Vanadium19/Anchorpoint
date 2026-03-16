@@ -4,6 +4,7 @@ namespace InventoryModule.ContextMenu
     {
         string DisplayName { get; }
         bool IsAvailable { get; }
+
         void Execute();
     }
 }

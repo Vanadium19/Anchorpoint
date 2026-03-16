@@ -4,7 +4,7 @@ namespace InventoryModule
 {
     public sealed class GridService : IGridService
     {
-        private readonly List<AbstractGrid> _grids = new List<AbstractGrid>();
+        private readonly List<AbstractGrid> _grids = new();
 
         public void RegisterGrid(AbstractGrid grid)
         {
@@ -18,9 +18,6 @@ namespace InventoryModule
                 _grids.Remove(grid);
         }
 
-        public IReadOnlyList<AbstractGrid> GetAllGrids()
-        {
-            return _grids;
-        }
+        public IReadOnlyList<AbstractGrid> GetAllGrids() => _grids;
     }
 }

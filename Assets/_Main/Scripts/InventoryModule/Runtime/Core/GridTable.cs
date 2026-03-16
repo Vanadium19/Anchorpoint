@@ -13,16 +13,12 @@ namespace InventoryModule
         Overlapping,
         InventoryFull,
         InsertInsideYourself,
-        AlreadyInserted
+        AlreadyInserted,
     }
 
     [Serializable]
     public class GridTable
     {
-        public int Width { get; }
-        public int Height { get; }
-        public ItemTable[,] Slots { get; }
-
         public event Action<ItemTable> ItemInserted;
         public event Action<ItemTable> ItemRemoved;
 
@@ -32,6 +28,10 @@ namespace InventoryModule
             Height = height;
             Slots = new ItemTable[Width, Height];
         }
+
+        public int Width { get; }
+        public int Height { get; }
+        public ItemTable[,] Slots { get; }
 
         public GridResponse PlaceItem(ItemTable item, int posX, int posY, ItemTable ignoreItem = null)
         {
@@ -51,7 +51,7 @@ namespace InventoryModule
                 }
             }
 
-            item.SetGridProps(this, new Position(posX, posY));
+            item.SetGridProps(this, new(posX, posY));
             ItemInserted?.Invoke(item);
 
             return GridResponse.Inserted;
@@ -64,18 +64,19 @@ namespace InventoryModule
             {
                 for (int y = 0; y < itemHeight; y++)
                 {
-                    int checkX = posX + x;
-                    int checkY = posY + y;
+                    var checkX = posX + x;
+                    var checkY = posY + y;
 
                     if (checkX < 0 || checkX >= Width || checkY < 0 || checkY >= Height)
                         return false;
 
-                    ItemTable existingItem = Slots[checkX, checkY];
+                    var existingItem = Slots[checkX, checkY];
 
                     if (existingItem != null && existingItem != ignoreItem)
                         return false;
                 }
             }
+
             return true;
         }
 
@@ -111,9 +112,7 @@ namespace InventoryModule
         // TODO: Код взят из ассета
         public bool BoundaryCheck(int posX, int posY, int itemWidth, int itemHeight)
         {
-            return posX >= 0 && posY >= 0 &&
-                   posX + itemWidth <= Width &&
-                   posY + itemHeight <= Height;
+            return posX >= 0 && posY >= 0 && posX + itemWidth <= Width && posY + itemHeight <= Height;
         }
 
         // TODO: Код взят из ассета
@@ -131,7 +130,7 @@ namespace InventoryModule
 
         public void RemoveItem(ItemTable item)
         {
-            if (item == null) 
+            if (item == null)
                 return;
 
             for (int x = 0; x < Width; x++)
@@ -149,13 +148,13 @@ namespace InventoryModule
 
         public ItemTable PickUpItem(int x, int y)
         {
-            ItemTable item = GetItem(x, y);
+            var item = GetItem(x, y);
 
-            if (item == null) 
+            if (item == null)
                 return null;
 
-            int width = item.PlacedWidth > 0 ? item.PlacedWidth : item.Width;
-            int height = item.PlacedHeight > 0 ? item.PlacedHeight : item.Height;
+            var width = item.PlacedWidth > 0 ? item.PlacedWidth : item.Width;
+            var height = item.PlacedHeight > 0 ? item.PlacedHeight : item.Height;
 
             for (int i = 0; i < width; i++)
             {
@@ -183,6 +182,7 @@ namespace InventoryModule
                         return new Vector2Int(x, y);
                 }
             }
+
             return null;
         }
 
@@ -191,7 +191,7 @@ namespace InventoryModule
         {
             var result = FindSpaceForObject(item);
 
-            if (result != null) 
+            if (result != null)
                 return result;
 
             if (item.CanRotate && item.ItemDataSo.CanRotate)
@@ -199,7 +199,7 @@ namespace InventoryModule
                 item.Rotate();
                 result = FindSpaceForObject(item);
 
-                if (result != null) 
+                if (result != null)
                     return result;
 
                 item.Rotate();
@@ -211,7 +211,7 @@ namespace InventoryModule
         // TODO: Код взят из ассета
         public ItemTable[] GetAllItems()
         {
-            HashSet<ItemTable> items = new HashSet<ItemTable>();
+            var items = new HashSet<ItemTable>();
 
             for (int x = 0; x < Width; x++)
             {
@@ -228,7 +228,7 @@ namespace InventoryModule
         // TODO: Код взят из ассета
         public ItemTable[] GetAllContainers()
         {
-            List<ItemTable> containers = new List<ItemTable>();
+            var containers = new List<ItemTable>();
 
             for (int x = 0; x < Width; x++)
             {

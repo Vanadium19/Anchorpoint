@@ -1,6 +1,4 @@
-using UnityEngine;
 using Zenject;
-using InventoryModule;
 
 namespace InventoryModule.ContextMenu.Configs
 {
@@ -17,8 +15,7 @@ namespace InventoryModule.ContextMenu.Configs
             if (contextService == null || windowService == null)
                 return null;
 
-            return new Actions.OpenAction(
-                item,
+            return new Actions.OpenAction(item,
                 GetDisplayName(),
                 contextService.ContainerWindowPrefab,
                 contextService.GridPrefab,

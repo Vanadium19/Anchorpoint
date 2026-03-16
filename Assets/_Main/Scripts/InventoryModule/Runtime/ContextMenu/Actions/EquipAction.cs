@@ -4,21 +4,20 @@ namespace InventoryModule.ContextMenu.Actions
     {
         private readonly IEquipmentSlotService _slotService;
 
-        public override string DisplayName => DisplayNameOverride ?? "Equip";
-        public override bool IsAvailable => HasAvailableSlot();
-
-        public EquipAction(
-            ItemTable item, 
-            string displayName, 
-            IEquipmentSlotService slotService) 
+        public EquipAction(ItemTable item,
+            string displayName,
+            IEquipmentSlotService slotService)
             : base(item, displayName)
         {
             _slotService = slotService;
         }
 
+        public override string DisplayName => DisplayNameOverride ?? "Equip";
+        public override bool IsAvailable => HasAvailableSlot();
+
         public override void Execute()
         {
-            if (_slotService == null) 
+            if (_slotService == null)
                 return;
 
             foreach (var slot in _slotService.GetAllSlots())
@@ -34,7 +33,7 @@ namespace InventoryModule.ContextMenu.Actions
 
         private bool HasAvailableSlot()
         {
-            if (_slotService == null) 
+            if (_slotService == null)
                 return false;
 
             foreach (var slot in _slotService.GetAllSlots())
@@ -42,6 +41,7 @@ namespace InventoryModule.ContextMenu.Actions
                 if (slot.CanEquip(Item))
                     return true;
             }
+
             return false;
         }
     }

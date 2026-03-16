@@ -1,4 +1,3 @@
-using UnityEngine;
 using Zenject;
 
 namespace InventoryModule.ContextMenu.Configs

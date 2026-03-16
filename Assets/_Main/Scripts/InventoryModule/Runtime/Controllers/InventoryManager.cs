@@ -5,15 +5,17 @@ using InputModule;
 
 namespace InventoryModule
 {
-    public class InventoryManager : IInventoryManager, IInitializable, ITickable
+    public class InventoryManager : IInventoryManager, ITickable
     {
+        private readonly List<GridTable> _additionalGrids = new();
+        private readonly Dictionary<EquipmentSlotType, ItemTable> _equippedItems = new();
+
+        private readonly IEquipmentSlotService _slotService;
+
         private GridTable _mainGrid;
-        private List<GridTable> _additionalGrids = new List<GridTable>();
-        private Dictionary<EquipmentSlotType, ItemTable> _equippedItems = new Dictionary<EquipmentSlotType, ItemTable>();
 
         private IInputMap _inputMap;
         private IInputService _inputService;
-        private IEquipmentSlotService _slotService;
 
         private GameObject _inventoryUI;
 
@@ -27,20 +29,13 @@ namespace InventoryModule
             _slotService = slotService;
         }
 
-        public void Initialize()
-        {
-        }
-
         public void SetInput(IInputMap inputMap, IInputService inputService)
         {
             _inputMap = inputMap;
             _inputService = inputService;
         }
 
-        public void SetMainGrid(GridTable grid)
-        {
-            _mainGrid = grid;
-        }
+        public void SetMainGrid(GridTable grid) => _mainGrid = grid;
 
         public void RegisterAdditionalGrid(GridTable grid)
         {
@@ -64,7 +59,7 @@ namespace InventoryModule
 
         public void Tick()
         {
-            if (_inputMap != null && _inputMap.IsInventoryPressed)
+            if (_inputMap is { IsInventoryPressed: true })
                 ToggleInventory();
         }
 
@@ -104,17 +99,14 @@ namespace InventoryModule
             return item;
         }
 
-        public void RemoveEquippedItem(EquipmentSlotType slotType)
-        {
-            _equippedItems.Remove(slotType);
-        }
+        public void RemoveEquippedItem(EquipmentSlotType slotType) => _equippedItems.Remove(slotType);
 
         public int GetItemCount(ItemDataSo itemData)
         {
-            if (itemData == null) 
+            if (itemData == null)
                 return 0;
 
-            int count = 0;
+            var count = 0;
             var processedGrids = new HashSet<GridTable>();
 
             if (_mainGrid != null)
@@ -144,71 +136,17 @@ namespace InventoryModule
             return count;
         }
 
-        private int CountInEquippedItem(ItemTable equippedItem, ItemDataSo itemData, HashSet<GridTable> processedGrids)
-        {
-            int count = 0;
-
-            if (equippedItem.ItemDataSo == itemData)
-                count += equippedItem.StackCount;
-
-            if (equippedItem.IsContainer)
-            {
-                var metadata = equippedItem.GetMetadata<ContainerMetadata>();
-
-                if (metadata?.Inventories != null)
-                    foreach (var containerGrid in metadata.Inventories)
-                    {
-                        count += CountItemsRecursive(containerGrid, itemData, processedGrids);
-                    }
-                        
-
-            }
-
-            return count;
-        }
-
-        private int CountItemsRecursive(GridTable grid, ItemDataSo itemData, HashSet<GridTable> processedGrids)
-        {
-            if (grid == null || processedGrids.Contains(grid)) 
-                return 0;
-
-            processedGrids.Add(grid);
-
-            int count = 0;
-            var items = grid.GetAllItems();
-
-            foreach (var item in items)
-            {
-                if (item.ItemDataSo == itemData)
-                    count += item.StackCount;
-
-                if (item.IsContainer)
-                {
-                    var metadata = item.GetMetadata<ContainerMetadata>();
-
-                    if (metadata?.Inventories != null)
-                        foreach (var containerGrid in metadata.Inventories)
-                        {
-                            count += CountItemsRecursive(containerGrid, itemData, processedGrids);
-                        }
-                            
-                }
-            }
-
-            return count;
-        }
-
         public bool TryRemoveItems(ItemDataSo itemData, int count)
         {
-            if (itemData == null) 
+            if (itemData == null)
                 return false;
 
-            int available = GetItemCount(itemData);
+            var available = GetItemCount(itemData);
 
-            if (available < count) 
+            if (available < count)
                 return false;
 
-            int remaining = count;
+            var remaining = count;
             var processedGrids = new HashSet<GridTable>();
 
             if (_mainGrid != null)
@@ -224,7 +162,7 @@ namespace InventoryModule
             {
                 foreach (var slot in _slotService.GetAllSlots())
                 {
-                    if (remaining <= 0) 
+                    if (remaining <= 0)
                         break;
 
                     if (slot.IsEquipped && slot.EquippedItem != null)
@@ -232,98 +170,24 @@ namespace InventoryModule
                 }
             }
 
-            if (remaining > 0)
-            {
-                foreach (var equipped in _equippedItems.Values)
-                {
-                    if (remaining <= 0) 
-                        break;
+            if (remaining <= 0)
+                return remaining == 0;
 
-                    if (equipped != null)
-                        RemoveFromEquippedItem(equipped, itemData, ref remaining, processedGrids);
-                }
+            foreach (var equipped in _equippedItems.Values)
+            {
+                if (remaining <= 0)
+                    break;
+
+                if (equipped != null)
+                    RemoveFromEquippedItem(equipped, itemData, ref remaining, processedGrids);
             }
 
             return remaining == 0;
         }
 
-        private void RemoveFromEquippedItem(ItemTable equippedItem, ItemDataSo itemData, ref int remaining, HashSet<GridTable> processedGrids)
-        {
-            if (equippedItem.IsContainer)
-            {
-                var metadata = equippedItem.GetMetadata<ContainerMetadata>();
-
-                if (metadata?.Inventories != null)
-                    foreach (var containerGrid in metadata.Inventories)
-                    {
-                        if (remaining > 0)
-                            RemoveItemsRecursive(containerGrid, itemData, ref remaining, processedGrids);
-                    }
-
-            }
-        }
-
-        private void RemoveItemsRecursive(GridTable grid, ItemDataSo itemData, ref int remainingCount, HashSet<GridTable> processedGrids)
-        {
-            if (grid == null || remainingCount <= 0 || processedGrids.Contains(grid)) 
-                return;
-
-            processedGrids.Add(grid);
-
-            var items = grid.GetAllItems();
-            var itemsToRemove = new List<ItemTable>();
-
-            foreach (var item in items)
-            {
-                if (remainingCount <= 0) 
-                    break;
-
-                if (item.ItemDataSo == itemData)
-                    if (item.StackCount <= remainingCount)
-                    {
-                        remainingCount -= item.StackCount;
-                        itemsToRemove.Add(item);
-                    }
-                    else
-                    {
-                        item.AddAmount(-remainingCount);
-                        remainingCount = 0;
-                    }
-            }
-
-            foreach (var item in itemsToRemove)
-            {
-                grid.RemoveItem(item);
-            }
-                
-
-            if (remainingCount > 0)
-            {
-                foreach (var item in items)
-                {
-                    if (remainingCount <= 0) 
-                        break;
-
-                    if (item.IsContainer)
-                    {
-                        var metadata = item.GetMetadata<ContainerMetadata>();
-
-                        if (metadata?.Inventories != null)
-                        {
-                            foreach (var containerGrid in metadata.Inventories)
-                            {
-                                if (remainingCount > 0)
-                                    RemoveItemsRecursive(containerGrid, itemData, ref remainingCount, processedGrids);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         public bool AddItemToInventory(ItemDataSo itemData, int stackCount = 1)
         {
-            if (itemData == null) 
+            if (itemData == null)
                 return false;
 
             if (_mainGrid != null)
@@ -331,17 +195,18 @@ namespace InventoryModule
                 if (itemData.IsStackable)
                 {
                     var items = _mainGrid.GetAllItems();
+
                     foreach (var item in items)
                     {
-                        if (item.ItemDataSo == itemData && item.StackCount < item.MaxStack)
-                        {
-                            int remaining = item.TryAddToStack(stackCount);
+                        if (item.ItemDataSo != itemData || item.StackCount >= item.MaxStack)
+                            continue;
 
-                            if (remaining == 0)
-                                return true;
+                        var remaining = item.TryAddToStack(stackCount);
 
-                            stackCount = remaining;
-                        }
+                        if (remaining == 0)
+                            return true;
+
+                        stackCount = remaining;
                     }
                 }
 
@@ -369,26 +234,166 @@ namespace InventoryModule
 
         public bool AddExistingItemToInventory(ItemTable existingItem)
         {
-            if (existingItem == null) 
+            if (existingItem == null)
                 return false;
 
             existingItem.RemoveItselfFromLocation();
 
-            if (_mainGrid != null)
-            {
-                var pos = _mainGrid.FindSpaceForObjectAnyDirection(existingItem);
+            var position = _mainGrid?.FindSpaceForObjectAnyDirection(existingItem);
 
-                if (pos != null)
-                {
-                    _mainGrid.PlaceItem(existingItem, pos.Value.x, pos.Value.y);
+            if (position == null)
+                return TryAddExistingToContainers(existingItem);
+
+            _mainGrid.PlaceItem(existingItem, position.Value.x, position.Value.y);
+            return true;
+        }
+
+        public bool TryAutoEquipItem(ItemTable item)
+        {
+            if (item == null)
+                return false;
+
+            if (!item.ItemDataSo.IsEquippable)
+                return false;
+
+            if (_slotService == null)
+                return false;
+
+            foreach (var slot in _slotService.GetAllSlots())
+            {
+                if (slot.IsEquipped || !slot.CanEquip(item))
+                    continue;
+
+                if (slot.TryEquip(item))
                     return true;
+            }
+
+            return false;
+        }
+
+        private int CountInEquippedItem(ItemTable equippedItem, ItemDataSo itemData, HashSet<GridTable> processedGrids)
+        {
+            var count = 0;
+
+            if (equippedItem.ItemDataSo == itemData)
+                count += equippedItem.StackCount;
+
+            if (!equippedItem.IsContainer)
+                return count;
+
+            var metadata = equippedItem.GetMetadata<ContainerMetadata>();
+
+            if (metadata?.Inventories == null)
+                return count;
+
+            foreach (var containerGrid in metadata.Inventories)
+                count += CountItemsRecursive(containerGrid, itemData, processedGrids);
+
+            return count;
+        }
+
+        private void RemoveFromEquippedItem(ItemTable equippedItem, ItemDataSo itemData, ref int remaining, HashSet<GridTable> processedGrids)
+        {
+            if (!equippedItem.IsContainer)
+                return;
+
+            var metadata = equippedItem.GetMetadata<ContainerMetadata>();
+
+            if (metadata?.Inventories == null)
+                return;
+
+            foreach (var containerGrid in metadata.Inventories)
+            {
+                if (remaining > 0)
+                {
+                    RemoveItemsRecursive(containerGrid, itemData, ref remaining, processedGrids);
+                }
+            }
+        }
+
+        private int CountItemsRecursive(GridTable grid, ItemDataSo itemData, HashSet<GridTable> processedGrids)
+        {
+            if (grid == null || processedGrids.Contains(grid))
+                return 0;
+
+            processedGrids.Add(grid);
+
+            var count = 0;
+            var items = grid.GetAllItems();
+
+            foreach (var item in items)
+            {
+                if (item.ItemDataSo == itemData)
+                    count += item.StackCount;
+
+                if (!item.IsContainer)
+                    continue;
+
+                var metadata = item.GetMetadata<ContainerMetadata>();
+
+                if (metadata?.Inventories == null)
+                    continue;
+
+                foreach (var containerGrid in metadata.Inventories)
+                    count += CountItemsRecursive(containerGrid, itemData, processedGrids);
+            }
+
+            return count;
+        }
+
+        private void RemoveItemsRecursive(GridTable grid, ItemDataSo itemData, ref int remainingCount, HashSet<GridTable> processedGrids)
+        {
+            if (grid == null || remainingCount <= 0 || !processedGrids.Add(grid))
+                return;
+
+            var items = grid.GetAllItems();
+            var itemsToRemove = new List<ItemTable>();
+
+            foreach (var item in items)
+            {
+                if (remainingCount <= 0)
+                    break;
+
+                if (item.ItemDataSo != itemData)
+                    continue;
+
+                if (item.StackCount <= remainingCount)
+                {
+                    remainingCount -= item.StackCount;
+                    itemsToRemove.Add(item);
+                }
+                else
+                {
+                    item.AddAmount(-remainingCount);
+                    remainingCount = 0;
                 }
             }
 
-            if (TryAddExistingToContainers(existingItem))
-                return true;
+            foreach (var item in itemsToRemove)
+                grid.RemoveItem(item);
 
-            return false;
+            if (remainingCount <= 0)
+                return;
+
+            foreach (var item in items)
+            {
+                if (remainingCount <= 0)
+                    break;
+
+                if (!item.IsContainer)
+                    continue;
+
+                var metadata = item.GetMetadata<ContainerMetadata>();
+
+                if (metadata?.Inventories == null)
+                    continue;
+
+                foreach (var containerGrid in metadata.Inventories)
+                {
+                    if (remainingCount > 0)
+                        RemoveItemsRecursive(containerGrid, itemData, ref remainingCount, processedGrids);
+                }
+            }
         }
 
         private int TryAddToContainers(ItemDataSo itemData, int stackCount)
@@ -396,16 +401,16 @@ namespace InventoryModule
             if (_mainGrid != null)
                 stackCount = TryAddToContainersInGrid(_mainGrid, itemData, stackCount);
 
-            if (stackCount > 0 && _slotService != null)
-            {
-                foreach (var slot in _slotService.GetAllSlots())
-                {
-                    if (stackCount <= 0) 
-                        break;
+            if (stackCount <= 0 || _slotService == null)
+                return stackCount;
 
-                    if (slot.IsEquipped && slot.EquippedItem != null && slot.EquippedItem.IsContainer)
-                        stackCount = TryAddToContainerItem(slot.EquippedItem, itemData, stackCount);
-                }
+            foreach (var slot in _slotService.GetAllSlots())
+            {
+                if (stackCount <= 0)
+                    break;
+
+                if (slot.IsEquipped && slot.EquippedItem != null && slot.EquippedItem.IsContainer)
+                    stackCount = TryAddToContainerItem(slot.EquippedItem, itemData, stackCount);
             }
 
             return stackCount;
@@ -417,7 +422,7 @@ namespace InventoryModule
 
             foreach (var item in items)
             {
-                if (stackCount <= 0) 
+                if (stackCount <= 0)
                     break;
 
                 if (item.IsContainer)
@@ -431,12 +436,12 @@ namespace InventoryModule
         {
             var metadata = containerItem.GetMetadata<ContainerMetadata>();
 
-            if (metadata?.Inventories == null) 
+            if (metadata?.Inventories == null)
                 return stackCount;
 
             foreach (var containerGrid in metadata.Inventories)
             {
-                if (stackCount <= 0) 
+                if (stackCount <= 0)
                     break;
 
                 if (itemData.IsStackable)
@@ -445,26 +450,26 @@ namespace InventoryModule
 
                     foreach (var item in items)
                     {
-                        if (item.ItemDataSo == itemData && item.StackCount < item.MaxStack)
-                        {
-                            int remaining = item.TryAddToStack(stackCount);
-                            stackCount = remaining;
+                        if (item.ItemDataSo != itemData || item.StackCount >= item.MaxStack)
+                            continue;
 
-                            if (stackCount == 0) 
-                                break;
-                        }
+                        var remaining = item.TryAddToStack(stackCount);
+                        stackCount = remaining;
+
+                        if (stackCount == 0)
+                            break;
                     }
                 }
 
                 while (stackCount > 0)
                 {
                     var itemTable = new ItemTable(itemData);
-                    int toAdd = Mathf.Min(stackCount, itemData.MaxStackSize);
+                    var toAdd = Mathf.Min(stackCount, itemData.MaxStackSize);
                     itemTable.StackCount = toAdd;
 
                     var pos = containerGrid.FindSpaceForObjectAnyDirection(itemTable);
 
-                    if (pos == null) 
+                    if (pos == null)
                         break;
 
                     containerGrid.PlaceItem(itemTable, pos.Value.x, pos.Value.y);
@@ -481,26 +486,28 @@ namespace InventoryModule
                 if (TryAddExistingToContainersInGrid(_mainGrid, existingItem))
                     return true;
 
-            if (_slotService != null)
+            if (_slotService == null)
+                return false;
+
+            foreach (var slot in _slotService.GetAllSlots())
             {
-                foreach (var slot in _slotService.GetAllSlots())
+                if (!slot.IsEquipped || slot.EquippedItem is not { IsContainer: true })
+                    continue;
+
+                var metadata = slot.EquippedItem.GetMetadata<ContainerMetadata>();
+
+                if (metadata?.Inventories == null)
+                    continue;
+
+                foreach (var containerGrid in metadata.Inventories)
                 {
-                    if (slot.IsEquipped && slot.EquippedItem != null && slot.EquippedItem.IsContainer)
-                    {
-                        var metadata = slot.EquippedItem.GetMetadata<ContainerMetadata>();
+                    var pos = containerGrid.FindSpaceForObjectAnyDirection(existingItem);
 
-                        if (metadata?.Inventories != null)
-                            foreach (var containerGrid in metadata.Inventories)
-                            {
-                                var pos = containerGrid.FindSpaceForObjectAnyDirection(existingItem);
+                    if (pos == null)
+                        continue;
 
-                                if (pos != null)
-                                {
-                                    containerGrid.PlaceItem(existingItem, pos.Value.x, pos.Value.y);
-                                    return true;
-                                }
-                            }
-                    }
+                    containerGrid.PlaceItem(existingItem, pos.Value.x, pos.Value.y);
+                    return true;
                 }
             }
 
@@ -513,44 +520,25 @@ namespace InventoryModule
 
             foreach (var item in items)
             {
-                if (item.IsContainer)
+                if (!item.IsContainer)
+                    continue;
+
+                var metadata = item.GetMetadata<ContainerMetadata>();
+
+                if (metadata?.Inventories == null)
+                    continue;
+
+                foreach (var containerGrid in metadata.Inventories)
                 {
-                    var metadata = item.GetMetadata<ContainerMetadata>();
+                    var position = containerGrid.FindSpaceForObjectAnyDirection(existingItem);
 
-                    if (metadata?.Inventories != null)
-                    {
-                        foreach (var containerGrid in metadata.Inventories)
-                        {
-                            var pos = containerGrid.FindSpaceForObjectAnyDirection(existingItem);
+                    if (position == null)
+                        continue;
 
-                            if (pos != null)
-                            {
-                                containerGrid.PlaceItem(existingItem, pos.Value.x, pos.Value.y);
-                                return true;
-                            }
-                        }
-                    }
+                    containerGrid.PlaceItem(existingItem, position.Value.x, position.Value.y);
+                    return true;
                 }
             }
-
-            return false;
-        }
-
-        public bool TryAutoEquipItem(ItemTable item)
-        {
-            if (item == null) 
-                return false;
-
-            if (!item.ItemDataSo.IsEquippable) 
-                return false;
-
-            if (_slotService != null)
-                foreach (var slot in _slotService.GetAllSlots())
-                {
-                    if (!slot.IsEquipped && slot.CanEquip(item))
-                        if (slot.TryEquip(item))
-                            return true;
-                }
 
             return false;
         }

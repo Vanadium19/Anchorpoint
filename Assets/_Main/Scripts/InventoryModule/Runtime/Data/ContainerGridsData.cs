@@ -13,28 +13,13 @@ namespace InventoryModule
         public GameObject ContainerPanelPrefab => containerPanelPrefab;
         public AbstractGrid[] Grids => grids;
 
-        public int PocketCount => grids != null ? grids.Length : 0;
-
         public void InitializeGrids()
         {
             if (grids == null || grids.Length == 0)
                 grids = GetComponentsInChildren<AbstractGrid>();
         }
 
-        public AbstractGrid GetGrid(int index)
-        {
-            if (grids == null || index < 0 || index >= grids.Length)
-                return null;
-
-            return grids[index];
-        }
-
         public AbstractGrid[] GetGridsFromPanel(GameObject panelInstance)
-        {
-            if (panelInstance == null)
-                return null;
-
-            return panelInstance.GetComponentsInChildren<AbstractGrid>();
-        }
+            => panelInstance == null ? null : panelInstance.GetComponentsInChildren<AbstractGrid>();
     }
 }

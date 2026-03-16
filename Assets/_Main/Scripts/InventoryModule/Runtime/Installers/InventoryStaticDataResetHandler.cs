@@ -13,19 +13,10 @@ namespace InventoryModule
             _windowService = windowService;
         }
 
-        public void Initialize()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
+        public void Initialize() => SceneManager.sceneLoaded += OnSceneLoaded;
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            _windowService.Clear();
-        }
+        public void Dispose() => SceneManager.sceneLoaded -= OnSceneLoaded;
 
-        public void Dispose()
-        {
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) => _windowService.Clear();
     }
 }

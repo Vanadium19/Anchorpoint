@@ -22,10 +22,7 @@ namespace InventoryModule
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return X.GetHashCode() * 31 + Y.GetHashCode();
-        }
+        public override int GetHashCode() => X.GetHashCode() * 31 + Y.GetHashCode();
 
         public override string ToString() => $"({X}, {Y})";
     }

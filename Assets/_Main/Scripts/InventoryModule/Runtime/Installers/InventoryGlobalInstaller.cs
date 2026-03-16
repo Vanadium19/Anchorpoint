@@ -24,10 +24,6 @@ namespace InventoryModule
                 .To<ContainerWindowService>()
                 .AsSingle();
 
-            Container.Bind<IDragStateService>()
-                .To<DragStateService>()
-                .AsSingle();
-
             Container.Bind<IContextMenuStateService>()
                 .To<ContextMenuStateService>()
                 .AsSingle();

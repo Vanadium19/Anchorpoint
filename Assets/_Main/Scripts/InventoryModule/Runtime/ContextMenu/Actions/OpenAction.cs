@@ -1,5 +1,4 @@
 using UnityEngine;
-using InventoryModule;
 
 namespace InventoryModule.ContextMenu.Actions
 {
@@ -10,11 +9,7 @@ namespace InventoryModule.ContextMenu.Actions
         private readonly Canvas _canvas;
         private readonly IContainerWindowService _windowService;
 
-        public override string DisplayName => DisplayNameOverride ?? "Open";
-        public override bool IsAvailable => Item.IsContainer && !_windowService.IsContainerOpen(Item);
-
-        public OpenAction(
-            ItemTable item,
+        public OpenAction(ItemTable item,
             string displayName,
             ContainerWindow containerWindowPrefab,
             AbstractGrid gridPrefab,
@@ -28,13 +23,18 @@ namespace InventoryModule.ContextMenu.Actions
             _windowService = windowService;
         }
 
+        public override string DisplayName => DisplayNameOverride ?? "Open";
+        public override bool IsAvailable => Item.IsContainer && !_windowService.IsContainerOpen(Item);
+
         public override void Execute()
         {
             if (_containerWindowPrefab == null || _gridPrefab == null || _canvas == null)
                 return;
 
             var metadata = Item.GetMetadata<ContainerMetadata>();
-            if (metadata == null) return;
+
+            if (metadata == null)
+                return;
 
             ContainerWindow window = Object.Instantiate(_containerWindowPrefab, _canvas.transform);
             window.transform.SetAsLastSibling();

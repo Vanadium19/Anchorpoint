@@ -4,7 +4,7 @@ namespace InventoryModule
 {
     public sealed class EquipmentSlotService : IEquipmentSlotService
     {
-        private readonly List<EquipmentSlot> _slots = new List<EquipmentSlot>();
+        private readonly List<EquipmentSlot> _slots = new();
 
         public void RegisterSlot(EquipmentSlot slot)
         {
@@ -18,10 +18,7 @@ namespace InventoryModule
                 _slots.Remove(slot);
         }
 
-        public IReadOnlyList<EquipmentSlot> GetAllSlots()
-        {
-            return _slots;
-        }
+        public IReadOnlyList<EquipmentSlot> GetAllSlots() => _slots;
 
         public EquipmentSlot GetSlotForItem(ItemTable item)
         {

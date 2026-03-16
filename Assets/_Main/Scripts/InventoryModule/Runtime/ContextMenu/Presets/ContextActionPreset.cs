@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using InventoryModule.ContextMenu.Configs;
 
 namespace InventoryModule.ContextMenu.Presets
 {
@@ -11,14 +9,8 @@ namespace InventoryModule.ContextMenu.Presets
         [SerializeField] private string presetName;
 
         [SerializeReference]
-        [SerializeField] private List<ActionConfigBase> actionConfigs = new List<ActionConfigBase>();
+        [SerializeField] private List<ActionConfigBase> actionConfigs = new();
 
-        public string PresetName => presetName;
-        public IReadOnlyList<ActionConfigBase> ActionConfigs => actionConfigs;
-
-        public List<ActionConfigBase> GetSortedConfigs()
-        {
-            return actionConfigs;
-        }
+        public List<ActionConfigBase> GetSortedConfigs() => actionConfigs;
     }
 }

@@ -37,10 +37,12 @@ namespace InventoryModule
         private IContainerWindowService _windowService;
         private IContextMenuStateService _menuStateService;
         private ContextMenuPresenter _contextMenu;
+        
+        private Vector2 _stackTextOriginalPos;
+        private bool _stackTextPosInitialized;
 
         [Inject]
-        private void Construct(
-            IInventoryManager inventoryManager,
+        private void Construct(IInventoryManager inventoryManager,
             IEquipmentSlotService slotService,
             IGridService gridService,
             IUIInputHandler uiInputHandler,
@@ -57,6 +59,26 @@ namespace InventoryModule
             _menuStateService = menuStateService;
         }
 
+        protected override void Awake()
+        {
+            base.Awake();
+
+            if (stackText == null || _stackTextPosInitialized)
+                return;
+
+            _stackTextOriginalPos = stackText.rectTransform.anchoredPosition;
+            _stackTextPosInitialized = true;
+        }
+
+        private void OnDestroy()
+        {
+            if (_contextMenu == null)
+                return;
+
+            Destroy(_contextMenu.gameObject);
+            _contextMenu = null;
+        }
+
         public override void OnPointerClick(PointerEventData eventData)
         {
             base.OnPointerClick(eventData);
@@ -68,6 +90,25 @@ namespace InventoryModule
                 ShowContextMenu(eventData.position);
             else if (eventData.clickCount == 2 && Item.IsContainer)
                 OpenContainerWindow();
+        }
+
+        protected override void UpdateUI()
+        {
+            base.UpdateUI();
+
+            if (stackText == null || Item == null)
+                return;
+
+            if (Item.IsStackable)
+            {
+                stackText.text = Item.StackCount.ToString();
+                stackText.gameObject.SetActive(true);
+                UpdateStackTextTransform();
+            }
+            else
+            {
+                stackText.gameObject.SetActive(false);
+            }
         }
 
         private void ShowContextMenu(Vector2 screenPosition)
@@ -90,7 +131,7 @@ namespace InventoryModule
                 if (canvas == null)
                     return;
 
-                _contextMenu = UnityEngine.Object.Instantiate(contextMenuPrefab, canvas.transform);
+                _contextMenu = Instantiate(contextMenuPrefab, canvas.transform);
             }
 
             _contextMenu.Initialize(contextService, _menuStateService);
@@ -107,54 +148,14 @@ namespace InventoryModule
             if (_windowService.IsContainerOpen(Item))
                 return;
 
-            Canvas canvas = GetComponentInParent<Canvas>();
+            var canvas = GetComponentInParent<Canvas>();
 
             if (canvas == null)
                 return;
 
-            ContainerWindow window = UnityEngine.Object.Instantiate(containerWindowPrefab, canvas.transform);
+            var window = Instantiate(containerWindowPrefab, canvas.transform);
             window.transform.SetAsLastSibling();
             window.Initialize(Item, metadata, containerWindowPrefab.GridPrefab, _windowService);
-        }
-
-        private Vector2 _stackTextOriginalPos;
-        private bool _stackTextPosInitialized;
-
-        protected override void Awake()
-        {
-            base.Awake();
-
-            if (stackText != null && !_stackTextPosInitialized)
-            {
-                _stackTextOriginalPos = stackText.rectTransform.anchoredPosition;
-                _stackTextPosInitialized = true;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (_contextMenu != null)
-            {
-                Destroy(_contextMenu.gameObject);
-                _contextMenu = null;
-            }
-        }
-
-        protected override void UpdateUI()
-        {
-            base.UpdateUI();
-
-            if (stackText != null && Item != null)
-            {
-                if (Item.IsStackable)
-                {
-                    stackText.text = Item.StackCount.ToString();
-                    stackText.gameObject.SetActive(true);
-                    UpdateStackTextTransform();
-                }
-                else
-                    stackText.gameObject.SetActive(false);
-            }
         }
 
         private void UpdateStackTextTransform()
@@ -164,7 +165,7 @@ namespace InventoryModule
 
             var textRT = stackText.rectTransform;
 
-            if (_localIsRotated)
+            if (localIsRotated)
             {
                 float offset = 50f * Item.ItemDataSo.Height;
                 textRT.localRotation = Quaternion.Euler(0, 0, 90f);
@@ -188,12 +189,12 @@ namespace InventoryModule
                 _contextMenu = null;
             }
 
-            originalPosition = rectTransform.anchoredPosition;
-            originalParent = transform.parent;
+            OriginalPosition = rectTransform.anchoredPosition;
+            OriginalParent = transform.parent;
 
             base.OnBeginDrag(eventData);
 
-            var equipmentSlot = originalParent?.GetComponent<EquipmentSlot>();
+            var equipmentSlot = OriginalParent?.GetComponent<EquipmentSlot>();
 
             if (equipmentSlot != null && !equipmentSlot.Equals(null) && equipmentSlot.IsEquipped)
                 equipmentSlot.ExtractItem(out _extractedFromSlot);
@@ -210,14 +211,9 @@ namespace InventoryModule
             UpdatePlacementPreview();
         }
 
-        public override void OnEndDrag(PointerEventData eventData)
-        {
-            base.OnEndDrag(eventData);
-        }
-
         private void UpdatePlacementPreview()
         {
-            float now = Time.unscaledTime;
+            var now = Time.unscaledTime;
 
             if (now - _lastPlacementUpdate < PlacementUpdateInterval)
                 return;
@@ -266,9 +262,11 @@ namespace InventoryModule
 
                 Vector2 mousePos = Input.mousePosition;
                 Vector2 localPos;
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _currentTargetGrid.GetComponent<RectTransform>(),
-                    mousePos, null, out localPos);
+
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(_currentTargetGrid.GetComponent<RectTransform>(),
+                    mousePos,
+                    null,
+                    out localPos);
 
                 _currentGridPos = _currentTargetGrid.GetGridPosition(localPos);
 
@@ -277,15 +275,15 @@ namespace InventoryModule
                 _currentGridPos.x = Mathf.Clamp(_currentGridPos.x, 0, _currentTargetGrid.GridWidth - currentW);
                 _currentGridPos.y = Mathf.Clamp(_currentGridPos.y, 0, _currentTargetGrid.GridHeight - currentH);
 
-                bool fitsInGrid = _currentGridPos.x >= 0 && _currentGridPos.y >= 0 &&
-                                  _currentGridPos.x + currentW <= _currentTargetGrid.GridWidth &&
-                                  _currentGridPos.y + currentH <= _currentTargetGrid.GridHeight;
+                bool fitsInGrid = _currentGridPos.x >= 0 && _currentGridPos.y >= 0 && _currentGridPos.x + currentW <= _currentTargetGrid.GridWidth && _currentGridPos.y + currentH <= _currentTargetGrid.GridHeight;
 
-                _currentIsValid = fitsInGrid && _currentTargetGrid.Grid.OverlapCheck(
-                    _currentGridPos.x, _currentGridPos.y, currentW, currentH, Item);
+                _currentIsValid = fitsInGrid && _currentTargetGrid.Grid.OverlapCheck(_currentGridPos.x, _currentGridPos.y, currentW, currentH, Item);
 
-                _currentTargetGrid.ShowHighlight(_currentGridPos.x, _currentGridPos.y,
-                    currentW, currentH, _currentIsValid);
+                _currentTargetGrid.ShowHighlight(_currentGridPos.x,
+                    _currentGridPos.y,
+                    currentW,
+                    currentH,
+                    _currentIsValid);
             }
             else
             {
@@ -310,13 +308,13 @@ namespace InventoryModule
 
         private (int width, int height) GetCurrentDimensions()
         {
-            if (Item == null) 
+            if (Item == null)
                 return (1, 1);
 
-            int originalW = Item.ItemDataSo.Width;
-            int originalH = Item.ItemDataSo.Height;
+            var originalW = Item.ItemDataSo.Width;
+            var originalH = Item.ItemDataSo.Height;
 
-            if (_localIsRotated)
+            if (localIsRotated)
                 return (originalH, originalW);
 
             return (originalW, originalH);
@@ -327,7 +325,8 @@ namespace InventoryModule
             HideAllHighlights();
 
             if (_stackTargetItem != null && Item != null && Item.IsStackable)
-                if (TryStackToTarget()) return;
+                if (TryStackToTarget())
+                    return;
 
             if (IsOverDropZone())
             {
@@ -335,7 +334,7 @@ namespace InventoryModule
                 return;
             }
 
-            EquipmentSlot targetSlot = _uiInputHandler.GetEquipmentSlotUnderMouse();
+            var targetSlot = _uiInputHandler.GetEquipmentSlotUnderMouse();
 
             if (targetSlot != null && targetSlot.CanEquip(Item))
             {
@@ -347,7 +346,8 @@ namespace InventoryModule
                 }
             }
 
-            InventoryItem targetContainerItem = _uiInputHandler.GetContainerItemUnderMouse(this);
+            var targetContainerItem = _uiInputHandler.GetContainerItemUnderMouse(this);
+
             if (targetContainerItem != null && targetContainerItem != this && targetContainerItem.Item != null && targetContainerItem.Item.IsContainer)
             {
                 var targetGridWindow = _currentTargetGrid?.GetComponentInParent<ContainerWindow>();
@@ -413,7 +413,7 @@ namespace InventoryModule
                 if (Item != null)
                     Item.UIUpdated -= UpdateUI;
 
-                if (Item.IsRotated != _localIsRotated)
+                if (Item.IsRotated != localIsRotated)
                     Item.Rotate();
 
                 transform.SetParent(_currentTargetGrid.transform, false);
@@ -438,53 +438,14 @@ namespace InventoryModule
                     Destroy(gameObject);
                     return;
                 }
-                else
-                {
-                    ReturnToOriginal();
-                    return;
-                }
-            }
-            else
-            {
-                ReturnToOriginal();
-                return;
-            }
-        }
-
-        public bool PlaceInInventory()
-        {
-            if (_inventoryManager == null) 
-                return false;
-
-            bool success = _inventoryManager.AddExistingItemToInventory(Item);
-
-            if (success)
-            {
-                if (_extractedFromSlot != null)
-                {
-                    _extractedFromSlot.OnItemPlacedToInventory();
-                    _extractedFromSlot = null;
-                }
-
-                Destroy(gameObject);
-                return true;
-            }
-            else
-            {
-                if (_extractedFromSlot != null)
-                {
-                    _extractedFromSlot.ReturnItemToSlotWithUI(Item, this);
-                    _extractedFromSlot = null;
-                    return false;
-                }
             }
 
-            return false;
+            ReturnToOriginal();
         }
 
         private void ReturnToOriginal()
         {
-            _localIsRotated = Item.IsRotated;
+            localIsRotated = Item.IsRotated;
             UpdateUI();
 
             if (_extractedFromSlot != null)
@@ -501,22 +462,16 @@ namespace InventoryModule
                 return;
             }
 
-            if (originalParent == null)
+            if (OriginalParent == null)
             {
                 var slots = _slotService.GetAllSlots();
 
                 foreach (var slot in slots)
                 {
-                    if (slot.CanEquip(Item))
-                    {
-                        slot.TryEquip(Item);
-                        Destroy(gameObject);
-                        return;
-                    }
-                }
+                    if (!slot.CanEquip(Item))
+                        continue;
 
-                if (_inventoryManager != null && _inventoryManager.AddExistingItemToInventory(Item))
-                {
+                    slot.TryEquip(Item);
                     Destroy(gameObject);
                     return;
                 }
@@ -525,7 +480,7 @@ namespace InventoryModule
                 return;
             }
 
-            transform.SetParent(originalParent, false);
+            transform.SetParent(OriginalParent, false);
             rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
@@ -534,7 +489,7 @@ namespace InventoryModule
             {
                 _previousGrid.PlaceItem(Item, _previousPosition.X, _previousPosition.Y);
 
-                var grid = originalParent?.GetComponent<AbstractGrid>();
+                var grid = OriginalParent?.GetComponent<AbstractGrid>();
 
                 if (grid != null)
                 {
@@ -545,7 +500,7 @@ namespace InventoryModule
 
             if (Item.CurrentGrid != null && Item.Position != null)
             {
-                var grid = originalParent?.GetComponent<AbstractGrid>();
+                var grid = OriginalParent?.GetComponent<AbstractGrid>();
 
                 if (grid != null)
                 {
@@ -554,7 +509,7 @@ namespace InventoryModule
                 }
             }
 
-            var equipmentSlot = originalParent?.GetComponent<EquipmentSlot>();
+            var equipmentSlot = OriginalParent?.GetComponent<EquipmentSlot>();
 
             if (equipmentSlot != null)
             {
@@ -564,28 +519,27 @@ namespace InventoryModule
                     Destroy(gameObject);
                     return;
                 }
-                else
-                {
-                    var slots = _slotService.GetAllSlots();
-                    foreach (var slot in slots)
-                    {
-                        if (slot.CanEquip(Item) && !slot.IsEquipped)
-                        {
-                            slot.TryEquip(Item);
-                            Destroy(gameObject);
-                            return;
-                        }
-                    }
 
-                    if (_inventoryManager != null && _inventoryManager.AddExistingItemToInventory(Item))
-                    {
-                        Destroy(gameObject);
-                        return;
-                    }
+                var slots = _slotService.GetAllSlots();
+
+                foreach (var slot in slots)
+                {
+                    if (!slot.CanEquip(Item) || slot.IsEquipped)
+                        continue;
+
+                    slot.TryEquip(Item);
+                    Destroy(gameObject);
+                    return;
+                }
+
+                if (_inventoryManager != null && _inventoryManager.AddExistingItemToInventory(Item))
+                {
+                    Destroy(gameObject);
+                    return;
                 }
             }
 
-            rectTransform.anchoredPosition = originalPosition;
+            rectTransform.anchoredPosition = OriginalPosition;
         }
 
         protected override void UpdateGridHighlight()
@@ -610,11 +564,11 @@ namespace InventoryModule
 
         private void HighlightContainer(InventoryItem containerItem)
         {
-            if (containerItem?.iconImage == null) 
+            if (containerItem?.iconImage == null)
                 return;
 
             _originalItemColor = containerItem.iconImage.color;
-            Color highlightColor = _originalItemColor;
+            var highlightColor = _originalItemColor;
             highlightColor.a = 0.7f;
             highlightColor.g = Mathf.Min(1f, highlightColor.g + 0.3f);
             containerItem.iconImage.color = highlightColor;
@@ -622,20 +576,20 @@ namespace InventoryModule
 
         private void ClearContainerHighlight()
         {
-            if (_currentContainerTarget != null && _currentContainerTarget.iconImage != null)
-            {
-                _currentContainerTarget.iconImage.color = _originalItemColor;
-                _currentContainerTarget = null;
-            }
+            if (_currentContainerTarget == null || _currentContainerTarget.iconImage == null)
+                return;
+
+            _currentContainerTarget.iconImage.color = _originalItemColor;
+            _currentContainerTarget = null;
         }
 
         private void HighlightStackTarget(InventoryItem target)
         {
-            if (target?.iconImage == null) 
+            if (target?.iconImage == null)
                 return;
 
             _originalItemColor = target.iconImage.color;
-            Color highlightColor = new Color(0.5f, 1f, 0.5f, 1f);
+            var highlightColor = new Color(0.5f, 1f, 0.5f, 1f);
             target.iconImage.color = highlightColor;
         }
 
@@ -647,59 +601,48 @@ namespace InventoryModule
 
         private bool TryStackToTarget()
         {
-            if (_stackTargetItem == null || Item == null) 
+            if (_stackTargetItem == null || Item == null)
                 return false;
 
-            int toAdd = Item.StackCount;
-            int remaining = _stackTargetItem.Item.TryAddToStack(toAdd);
+            var toAdd = Item.StackCount;
+            var remaining = _stackTargetItem.Item.TryAddToStack(toAdd);
 
-            if (remaining < Item.StackCount)
+            if (remaining >= Item.StackCount)
+                return false;
+
+            if (remaining == 0)
             {
-                if (remaining == 0)
-                {
-                    Item.RemoveItselfFromLocation();
+                Item.RemoveItselfFromLocation();
 
-                    if (_extractedFromSlot != null)
-                    {
-                        _extractedFromSlot.OnItemPlacedToInventory();
-                        _extractedFromSlot = null;
-                    }
-
-                    Destroy(gameObject);
-                    return true;
-                }
-                else
+                if (_extractedFromSlot != null)
                 {
-                    Item.StackCount = remaining;
-                    UpdateUI();
-                    ReturnToOriginal();
-                    return true;
+                    _extractedFromSlot.OnItemPlacedToInventory();
+                    _extractedFromSlot = null;
                 }
+
+                Destroy(gameObject);
+            }
+            else
+            {
+                Item.StackCount = remaining;
+                UpdateUI();
+                ReturnToOriginal();
             }
 
-            return false;
+            return true;
         }
 
-        private bool IsOverDropZone()
-        {
-            return _currentDropZone != null;
-        }
+        private bool IsOverDropZone() => _currentDropZone != null;
 
         private void DropToWorld()
         {
-            if (_currentDropZone == null || Item == null)
+            if (_currentDropZone == null || Item == null || !Item.ItemDataSo.IsDropable)
             {
                 ReturnToOriginal();
                 return;
             }
 
-            if (!Item.ItemDataSo.IsDropable)
-            {
-                ReturnToOriginal();
-                return;
-            }
-
-            bool success = _currentDropZone.TryDropItem(Item);
+            var success = _currentDropZone.TryDropItem(Item);
 
             if (success)
             {

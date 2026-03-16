@@ -9,6 +9,9 @@ namespace InventoryModule
 {
     public class ContainerSection : MonoBehaviour
     {
+        private const int MaxRefreshAttempts = 5;
+        private const float MinRefreshInterval = 0.016f;
+
         [Header("References")]
         [SerializeField] private RectTransform headerRect;
         [SerializeField] private RectTransform contentContainer;
@@ -21,16 +24,58 @@ namespace InventoryModule
         [SerializeField] private Sprite collapsedIcon;
         [SerializeField] private float collapsedHeight = 30f;
 
-        public ItemTable ContainerItem { get; private set; }
-        public ContainerMetadata ContainerMetadata { get; private set; }
-        public GridTable ContainerGrid { get; private set; }
-        public bool IsExpanded { get; private set; } = true;
+        private readonly List<AbstractGrid> _contentGrids = new();
+
+        private ContainerMetadata _containerMetadata;
+        private GridTable _cContainerGrid;
+        private bool _isExpanded = true;
 
         private IInventoryManager _inventoryManager;
 
-        private List<AbstractGrid> _contentGrids = new List<AbstractGrid>();
         private RectTransform _rectTransform;
         private LayoutElement _layoutElement;
+
+        private bool _pendingLayoutUpdate;
+        private float _lastRefreshTime;
+
+        private bool _needsLateRefresh;
+        private int _refreshAttempts;
+
+        public ItemTable ContainerItem { get; private set; }
+
+        private void Awake()
+        {
+            _rectTransform = GetComponent<RectTransform>();
+            _layoutElement = GetComponent<LayoutElement>();
+
+            if (_layoutElement == null)
+                _layoutElement = gameObject.AddComponent<LayoutElement>();
+
+            if (toggleButton != null)
+                toggleButton.onClick.AddListener(OnToggleClicked);
+        }
+
+        private void LateUpdate()
+        {
+            if (!_needsLateRefresh || !gameObject.activeInHierarchy)
+                return;
+
+            _refreshAttempts++;
+
+            var contentHeight = CalculateContentHeight();
+
+            if (!(contentHeight > 0) && _refreshAttempts < MaxRefreshAttempts)
+                return;
+
+            RefreshVisuals();
+            _needsLateRefresh = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (toggleButton != null)
+                toggleButton.onClick.RemoveListener(OnToggleClicked);
+        }
 
         [Inject]
         public void Construct(IInventoryManager inventoryManager)
@@ -38,35 +83,16 @@ namespace InventoryModule
             _inventoryManager = inventoryManager;
         }
 
-        private bool _pendingLayoutUpdate;
-        private float _lastRefreshTime;
-        private const float MinRefreshInterval = 0.016f;
-
-        private bool _needsLateRefresh;
-        private int _refreshAttempts;
-        private const int MaxRefreshAttempts = 5;
-
-        public void Initialize(ItemTable itemTable, GridTable grid)
-        {
-            ContainerItem = itemTable;
-            ContainerGrid = grid;
-
-            if (titleText != null)
-                titleText.text = itemTable.ItemDataSo.DisplayName;
-
-            RefreshVisuals();
-        }
-
         public void InitializeContainer(ItemTable itemTable, ContainerMetadata metadata, AbstractGrid gridPrefab)
         {
             ContainerItem = itemTable;
-            ContainerMetadata = metadata;
+            _containerMetadata = metadata;
 
             if (metadata?.Inventories?.Count > 0)
-                ContainerGrid = metadata.Inventories[0];
+                _cContainerGrid = metadata.Inventories[0];
 
-        if (ContainerGrid != null)
-            _inventoryManager?.RegisterAdditionalGrid(ContainerGrid);
+            if (_cContainerGrid != null)
+                _inventoryManager?.RegisterAdditionalGrid(_cContainerGrid);
 
             if (titleText != null)
                 titleText.text = itemTable.ItemDataSo.DisplayName;
@@ -81,7 +107,7 @@ namespace InventoryModule
 
                     if (panelPrefab != null)
                     {
-                        GameObject panelInstance = Instantiate(panelPrefab, contentContainer);
+                        var panelInstance = Instantiate(panelPrefab, contentContainer);
 
                         var layoutElement = panelInstance.GetComponent<LayoutElement>();
 
@@ -121,65 +147,65 @@ namespace InventoryModule
 
                                 if (prefabGrid != null && gridTable != null)
                                 {
-                                    AbstractGrid grid = Instantiate(prefabGrid, contentContainer);
+                                    var grid = Instantiate(prefabGrid, contentContainer);
                                     grid.transform.localPosition = prefabGrid.transform.localPosition;
                                     grid.RefreshGridFromTable(gridTable);
                                     _contentGrids.Add(grid);
                                 }
                             }
                         }
-                        else if (gridPrefab != null && ContainerGrid != null)
+                        else if (gridPrefab != null && _cContainerGrid != null)
                         {
-                            AbstractGrid grid = Instantiate(gridPrefab, contentContainer);
-                            grid.OverrideGridSize(ContainerGrid.Width, ContainerGrid.Height);
-                            grid.RefreshGridFromTable(ContainerGrid);
+                            var grid = Instantiate(gridPrefab, contentContainer);
+                            grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
+                            grid.RefreshGridFromTable(_cContainerGrid);
                             _contentGrids.Add(grid);
                         }
                     }
                 }
-                else if (gridPrefab != null && ContainerGrid != null)
+                else if (gridPrefab != null && _cContainerGrid != null)
                 {
-                    AbstractGrid grid = Instantiate(gridPrefab, contentContainer);
-                    grid.OverrideGridSize(ContainerGrid.Width, ContainerGrid.Height);
-                    grid.RefreshGridFromTable(ContainerGrid);
+                    var grid = Instantiate(gridPrefab, contentContainer);
+                    grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
+                    grid.RefreshGridFromTable(_cContainerGrid);
                     _contentGrids.Add(grid);
                 }
             }
 
-            IsExpanded = true;
+            _isExpanded = true;
 
             RefreshVisuals();
 
-            float contentHeight = CalculateContentHeight();
+            var contentHeight = CalculateContentHeight();
 
-            if (contentHeight <= 0)
-            {
-                _needsLateRefresh = true;
-                _refreshAttempts = 0;
-            }
+            if (!(contentHeight <= 0))
+                return;
+
+            _needsLateRefresh = true;
+            _refreshAttempts = 0;
         }
 
         public void InitializeAsMainInventory(string sectionName, GridTable grid, AbstractGrid gridPrefab)
         {
             ContainerItem = null;
-            ContainerGrid = grid;
+            _cContainerGrid = grid;
 
             if (titleText != null)
                 titleText.text = sectionName;
 
             if (contentContainer != null && gridPrefab != null)
             {
-                AbstractGrid newGrid = Instantiate(gridPrefab, contentContainer);
+                var newGrid = Instantiate(gridPrefab, contentContainer);
                 newGrid.OverrideGridSize(grid.Width, grid.Height);
                 newGrid.RefreshGridFromTable(grid);
                 _contentGrids.Add(newGrid);
             }
 
-            IsExpanded = true;
+            _isExpanded = true;
 
             RefreshVisuals();
 
-            float contentHeight = CalculateContentHeight();
+            var contentHeight = CalculateContentHeight();
 
             if (contentHeight <= 0)
             {
@@ -188,15 +214,10 @@ namespace InventoryModule
             }
         }
 
-        public void InitializeAsMainInventoryWithPanel(string sectionName, ContainerGridsData containerPanelPrefab, AbstractGrid fallbackGridPrefab)
-        {
-            InitializeAsMainInventoryWithPanel(sectionName, containerPanelPrefab, fallbackGridPrefab, null);
-        }
-
         public void InitializeAsMainInventoryWithPanel(string sectionName, ContainerGridsData containerPanelPrefab, AbstractGrid fallbackGridPrefab, GridTable existingGrid)
         {
             ContainerItem = null;
-            ContainerGrid = existingGrid;
+            _cContainerGrid = existingGrid;
 
             if (titleText != null)
                 titleText.text = sectionName;
@@ -207,7 +228,7 @@ namespace InventoryModule
 
                 if (panelPrefab != null)
                 {
-                    GameObject panelInstance = Instantiate(panelPrefab, contentContainer);
+                    var panelInstance = Instantiate(panelPrefab, contentContainer);
 
                     var layoutElement = panelInstance.GetComponent<LayoutElement>();
 
@@ -232,8 +253,8 @@ namespace InventoryModule
                                 {
                                     gridTable = new GridTable(grid.GridWidth, grid.GridHeight);
 
-                                    if (ContainerGrid == null)
-                                        ContainerGrid = gridTable;
+                                    if (_cContainerGrid == null)
+                                        _cContainerGrid = gridTable;
                                 }
 
                                 grid.SetGridTableOnly(gridTable);
@@ -262,10 +283,10 @@ namespace InventoryModule
                                     gridTable = existingGrid;
                                 else
                                 {
-                                    gridTable = new GridTable(prefabGrid.GridWidth, prefabGrid.GridHeight);
+                                    gridTable = new(prefabGrid.GridWidth, prefabGrid.GridHeight);
 
-                                    if (ContainerGrid == null)
-                                        ContainerGrid = gridTable;
+                                    if (_cContainerGrid == null)
+                                        _cContainerGrid = gridTable;
                                 }
 
                                 grid.RefreshGridFromTable(gridTable);
@@ -277,7 +298,7 @@ namespace InventoryModule
                     {
                         AbstractGrid grid = Instantiate(fallbackGridPrefab, contentContainer);
                         GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
-                        ContainerGrid = gridTable;
+                        _cContainerGrid = gridTable;
                         grid.RefreshGridFromTable(gridTable);
                         _contentGrids.Add(grid);
                     }
@@ -287,16 +308,16 @@ namespace InventoryModule
             {
                 AbstractGrid grid = Instantiate(fallbackGridPrefab, contentContainer);
                 GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
-                ContainerGrid = gridTable;
+                _cContainerGrid = gridTable;
                 grid.RefreshGridFromTable(gridTable);
                 _contentGrids.Add(grid);
             }
 
-            IsExpanded = true;
+            _isExpanded = true;
 
             RefreshVisuals();
 
-            float contentHeight = CalculateContentHeight();
+            var contentHeight = CalculateContentHeight();
 
             if (contentHeight <= 0)
             {
@@ -305,54 +326,160 @@ namespace InventoryModule
             }
         }
 
-        private void Awake()
+        public void RefreshGridUI()
         {
-            _rectTransform = GetComponent<RectTransform>();
-            _layoutElement = GetComponent<LayoutElement>();
+            if (_contentGrids == null || _containerMetadata == null)
+                return;
 
-            if (_layoutElement == null)
-                _layoutElement = gameObject.AddComponent<LayoutElement>();
-
-            if (toggleButton != null)
-                toggleButton.onClick.AddListener(OnToggleClicked);
-        }
-
-        private void OnDestroy()
-        {
-            if (toggleButton != null)
-                toggleButton.onClick.RemoveListener(OnToggleClicked);
-        }
-
-        private void LateUpdate()
-        {
-            if (_needsLateRefresh && gameObject.activeInHierarchy)
+            for (int i = 0; i < _contentGrids.Count && i < _containerMetadata.Inventories.Count; i++)
             {
-                _refreshAttempts++;
+                var grid = _contentGrids[i];
+                var gridTable = _containerMetadata.Inventories[i];
 
-                float contentHeight = CalculateContentHeight();
-
-                if (contentHeight > 0 || _refreshAttempts >= MaxRefreshAttempts)
-                {
-                    RefreshVisuals();
-                    _needsLateRefresh = false;
-                }
+                if (grid != null && gridTable != null)
+                    grid.RefreshGridFromTable(gridTable);
             }
+
+            RefreshVisuals();
+        }
+
+        public void RefreshGridUISafe()
+        {
+            if (!gameObject.activeInHierarchy)
+            {
+                RefreshGridUI();
+                return;
+            }
+
+            var now = Time.unscaledTime;
+
+            if (now - _lastRefreshTime < MinRefreshInterval)
+            {
+                if (!_pendingLayoutUpdate)
+                    DelayedRefreshAsync().Forget();
+
+                return;
+            }
+
+            _lastRefreshTime = now;
+            RefreshGridUI();
+        }
+
+        public void RefreshVisualsSafe()
+        {
+            if (!gameObject.activeInHierarchy)
+            {
+                RefreshVisuals();
+                return;
+            }
+
+            var now = Time.unscaledTime;
+
+            if (now - _lastRefreshTime < MinRefreshInterval)
+            {
+                if (!_pendingLayoutUpdate)
+                    DelayedVisualRefreshAsync().Forget();
+
+                return;
+            }
+
+            _lastRefreshTime = now;
+            RefreshVisuals();
+        }
+
+        public void Close()
+        {
+            if (_cContainerGrid != null)
+                _inventoryManager?.UnregisterAdditionalGrid(_cContainerGrid);
+
+            if (_contentGrids != null)
+            {
+                foreach (var grid in _contentGrids)
+                {
+                    if (grid != null)
+                        Destroy(grid.gameObject);
+                }
+
+                _contentGrids.Clear();
+            }
+
+            Destroy(gameObject);
+        }
+
+        private float CalculateContentHeight()
+        {
+            if (_contentGrids == null || _contentGrids.Count == 0)
+                return 0f;
+
+            var maxHeight = 0f;
+
+            foreach (var grid in _contentGrids)
+            {
+                if (grid == null)
+                    continue;
+
+                var gridRect = grid.GetRectTransform();
+
+                if (gridRect == null)
+                    continue;
+
+                var gridHeight = Mathf.Abs(gridRect.anchoredPosition.y) + gridRect.sizeDelta.y;
+
+                if (gridHeight > maxHeight)
+                    maxHeight = gridHeight;
+            }
+
+            return maxHeight;
+        }
+
+        private void ForceUpdateParentLayout()
+        {
+            if (_pendingLayoutUpdate)
+                return;
+
+            var now = Time.unscaledTime;
+
+            if (now - _lastRefreshTime < MinRefreshInterval)
+                return;
+
+            _pendingLayoutUpdate = true;
+            _lastRefreshTime = now;
+
+            LayoutUpdateAsync().Forget();
+        }
+
+        private void RefreshVisuals()
+        {
+            if (_rectTransform == null || _layoutElement == null)
+                return;
+
+            if (!_isExpanded)
+            {
+                _layoutElement.preferredHeight = collapsedHeight;
+            }
+            else
+            {
+                var contentHeight = CalculateContentHeight();
+                _layoutElement.preferredHeight = collapsedHeight + contentHeight;
+            }
+
+            ForceUpdateParentLayout();
         }
 
         private void OnToggleClicked()
         {
-            Toggle(!IsExpanded);
+            Toggle(!_isExpanded);
         }
 
-        public void Toggle(bool expand)
+        private void Toggle(bool expand)
         {
-            IsExpanded = expand;
+            _isExpanded = expand;
 
             if (contentContainer != null)
-                contentContainer.gameObject.SetActive(IsExpanded);
+                contentContainer.gameObject.SetActive(_isExpanded);
 
             if (expandIcon != null)
-                expandIcon.sprite = IsExpanded ? expandedIcon : collapsedIcon;
+                expandIcon.sprite = _isExpanded ? expandedIcon : collapsedIcon;
 
             if (gameObject.activeInHierarchy)
                 RefreshAfterFrame().Forget();
@@ -360,45 +487,24 @@ namespace InventoryModule
                 RefreshVisuals();
         }
 
+        private async UniTaskVoid DelayedVisualRefreshAsync()
+        {
+            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
+            _lastRefreshTime = Time.unscaledTime;
+            RefreshVisuals();
+        }
+
+        private async UniTaskVoid DelayedRefreshAsync()
+        {
+            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
+            _lastRefreshTime = Time.unscaledTime;
+            RefreshGridUI();
+        }
+
         private async UniTaskVoid RefreshAfterFrame()
         {
             await UniTask.DelayFrame(1);
             RefreshVisuals();
-        }
-
-        public void Expand() => Toggle(true);
-        public void Collapse() => Toggle(false);
-
-        private void RefreshVisuals()
-        {
-            if (_rectTransform == null || _layoutElement == null) 
-                return;
-
-            if (!IsExpanded)
-                _layoutElement.preferredHeight = collapsedHeight;
-            else
-            {
-                float contentHeight = CalculateContentHeight();
-                _layoutElement.preferredHeight = collapsedHeight + contentHeight;
-            }
-
-            ForceUpdateParentLayout();
-        }
-
-        private void ForceUpdateParentLayout()
-        {
-            if (_pendingLayoutUpdate) 
-                return;
-
-            float now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval) 
-                return;
-
-            _pendingLayoutUpdate = true;
-            _lastRefreshTime = now;
-
-            LayoutUpdateAsync().Forget();
         }
 
         private async UniTaskVoid LayoutUpdateAsync()
@@ -427,145 +533,6 @@ namespace InventoryModule
             }
 
             _pendingLayoutUpdate = false;
-        }
-
-        private float CalculateContentHeight()
-        {
-            if (_contentGrids == null || _contentGrids.Count == 0) 
-                return 0f;
-
-            float maxHeight = 0f;
-            foreach (var grid in _contentGrids)
-            {
-                if (grid != null)
-                {
-                    var gridRect = grid.GetRectTransform();
-
-                    if (gridRect != null)
-                    {
-                        float gridHeight = Mathf.Abs(gridRect.anchoredPosition.y) + gridRect.sizeDelta.y;
-                        if (gridHeight > maxHeight)
-                            maxHeight = gridHeight;
-                    }
-                }
-            }
-
-            return maxHeight;
-        }
-
-        public void RefreshGridUI()
-        {
-            if (_contentGrids != null && ContainerMetadata != null)
-            {
-                for (int i = 0; i < _contentGrids.Count && i < ContainerMetadata.Inventories.Count; i++)
-                {
-                    var grid = _contentGrids[i];
-                    var gridTable = ContainerMetadata.Inventories[i];
-
-                    if (grid != null && gridTable != null)
-                        grid.RefreshGridFromTable(gridTable);
-                }
-                RefreshVisuals();
-            }
-        }
-
-        public void RefreshGridUISafe()
-        {
-            if (!gameObject.activeInHierarchy)
-            {
-                RefreshGridUI();
-                return;
-            }
-
-            float now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval)
-            {
-                if (!_pendingLayoutUpdate)
-                    DelayedRefreshAsync().Forget();
-
-                return;
-            }
-
-            _lastRefreshTime = now;
-            RefreshGridUI();
-        }
-
-        public void RefreshVisualsSafe()
-        {
-            if (!gameObject.activeInHierarchy)
-            {
-                RefreshVisuals();
-                return;
-            }
-
-            float now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval)
-            {
-                if (!_pendingLayoutUpdate)
-                    DelayedVisualRefreshAsync().Forget();
-
-                return;
-            }
-
-            _lastRefreshTime = now;
-            RefreshVisuals();
-        }
-
-        private async UniTaskVoid DelayedVisualRefreshAsync()
-        {
-            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
-            _lastRefreshTime = Time.unscaledTime;
-            RefreshVisuals();
-        }
-
-        private async UniTaskVoid DelayedRefreshAsync()
-        {
-            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
-            _lastRefreshTime = Time.unscaledTime;
-            RefreshGridUI();
-        }
-
-        public void SetContentGrid(AbstractGrid grid)
-        {
-            _contentGrids.Clear();
-
-            if (grid != null)
-                _contentGrids.Add(grid);
-        }
-
-        public void SetContentGrids(List<AbstractGrid> grids)
-        {
-            _contentGrids = grids ?? new List<AbstractGrid>();
-        }
-
-        public AbstractGrid GetContentGrid()
-        {
-            return _contentGrids != null && _contentGrids.Count > 0 ? _contentGrids[0] : null;
-        }
-
-        public List<AbstractGrid> GetContentGrids()
-        {
-            return _contentGrids;
-        }
-
-        public void Close()
-        {
-        if (ContainerGrid != null)
-            _inventoryManager?.UnregisterAdditionalGrid(ContainerGrid);
-
-            if (_contentGrids != null)
-            {
-                foreach (var grid in _contentGrids)
-                {
-                    if (grid != null)
-                        Destroy(grid.gameObject);
-                }
-
-                _contentGrids.Clear();
-            }
-            Destroy(gameObject);
         }
     }
 }

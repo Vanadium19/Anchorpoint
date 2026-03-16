@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 namespace InventoryModule.ContextMenu.UI
 {
@@ -16,9 +15,9 @@ namespace InventoryModule.ContextMenu.UI
         [Header("Blocker")]
         [SerializeField] private GameObject blockerPrefab;
 
-        private IContextMenuStateService _stateService;
+        private readonly List<ContextMenuItemView> _items = new();
 
-        private readonly List<ContextMenuItemView> _items = new List<ContextMenuItemView>();
+        private IContextMenuStateService _stateService;
         private Action _onHide;
 
         public void Initialize(IContextMenuStateService stateService)
@@ -33,6 +32,7 @@ namespace InventoryModule.ContextMenu.UI
 
             _stateService.ActiveMenu = this;
             _onHide = onHide;
+
             ClearItems();
             gameObject.SetActive(true);
 
@@ -50,7 +50,7 @@ namespace InventoryModule.ContextMenu.UI
             UpdateBlockerSibling();
         }
 
-        public void Hide()
+        private void Hide()
         {
             ClearItems();
             gameObject.SetActive(false);
@@ -58,6 +58,7 @@ namespace InventoryModule.ContextMenu.UI
             if (_stateService.ActiveMenu == this)
             {
                 _stateService.ActiveMenu = null;
+
                 if (_stateService.BlockerInstance != null)
                     _stateService.BlockerInstance.SetActive(false);
             }
@@ -79,6 +80,7 @@ namespace InventoryModule.ContextMenu.UI
                 if (item != null)
                     Destroy(item.gameObject);
             }
+
             _items.Clear();
         }
 
@@ -87,7 +89,7 @@ namespace InventoryModule.ContextMenu.UI
             if (blockerPrefab == null)
                 return;
 
-            Canvas canvas = GetComponentInParent<Canvas>();
+            var canvas = GetComponentInParent<Canvas>();
 
             if (canvas == null)
                 return;

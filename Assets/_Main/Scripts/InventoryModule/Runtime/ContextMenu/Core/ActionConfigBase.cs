@@ -9,15 +9,10 @@ namespace InventoryModule.ContextMenu
     {
         [SerializeField] private string displayName;
 
-        public string DisplayName => displayName;
-
         public abstract string ActionType { get; }
 
         public abstract IContextAction Create(DiContainer container, ItemTable item);
 
-        public string GetDisplayName()
-        {
-            return string.IsNullOrEmpty(displayName) ? ActionType : displayName;
-        }
+        public string GetDisplayName() => string.IsNullOrEmpty(displayName) ? ActionType : displayName;
     }
 }

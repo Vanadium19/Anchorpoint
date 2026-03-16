@@ -1,5 +1,4 @@
 using UnityEngine;
-using Zenject;
 
 namespace InventoryModule
 {
@@ -8,9 +7,6 @@ namespace InventoryModule
         [Header("Item Prefab")]
         [SerializeField] private InventoryItem itemPrefab;
 
-        protected override AbstractItem InstantiateItemPrefab()
-        {
-            return DiContainer.InstantiatePrefabForComponent<InventoryItem>(itemPrefab);
-        }
+        protected override AbstractItem InstantiateItemPrefab() => DiContainer.InstantiatePrefabForComponent<InventoryItem>(itemPrefab);
     }
 }

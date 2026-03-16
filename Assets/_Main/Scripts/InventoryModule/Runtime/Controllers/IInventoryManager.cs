@@ -6,7 +6,6 @@ namespace InventoryModule
     public interface IInventoryManager
     {
         GridTable MainGrid { get; }
-        bool IsInventoryOpen { get; }
 
         void SetMainGrid(GridTable grid);
         void RegisterAdditionalGrid(GridTable grid);
@@ -22,9 +21,5 @@ namespace InventoryModule
         void RemoveEquippedItem(EquipmentSlotType slotType);
         int GetItemCount(ItemDataSo itemData);
         bool TryRemoveItems(ItemDataSo itemData, int count);
-
-        void ToggleInventory();
-        void OpenInventory();
-        void CloseInventory();
     }
 }

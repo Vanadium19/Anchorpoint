@@ -6,13 +6,25 @@ namespace InventoryModule
     [Serializable]
     public class ItemTable
     {
+        public event Action UIUpdated;
+
+        public ItemTable(ItemDataSo itemDataSo)
+        {
+            ItemDataSo = itemDataSo;
+            StackCount = 1;
+
+            if (!IsContainer)
+                return;
+
+            InventoryMetadata = new ContainerMetadata();
+            InventoryMetadata.Initialize(this);
+        }
+
         public ItemDataSo ItemDataSo { get; }
         public bool IsRotated { get; private set; }
         public Position Position { get; private set; }
         public GridTable CurrentGrid { get; private set; }
         public int StackCount { get; set; } = 1;
-        public int Amount { get => StackCount; set => StackCount = value; }
-        public string Id => ItemDataSo?.DisplayName?.ToLower().Replace(" ", "_") ?? string.Empty;
 
         public InventoryMetadata InventoryMetadata { get; }
 
@@ -25,20 +37,6 @@ namespace InventoryModule
         public bool IsStackable => ItemDataSo.IsStackable;
         public int MaxStack => ItemDataSo.MaxStackSize;
         public bool IsContainer => ItemDataSo.IsContainer;
-
-        public event Action UIUpdated;
-
-        public ItemTable(ItemDataSo itemDataSo)
-        {
-            ItemDataSo = itemDataSo;
-            StackCount = 1;
-
-            if (IsContainer)
-            {
-                InventoryMetadata = new ContainerMetadata();
-                InventoryMetadata.Initialize(this);
-            }
-        }
 
         public int PlacedWidth { get; private set; }
         public int PlacedHeight { get; private set; }
@@ -56,51 +54,48 @@ namespace InventoryModule
         // TODO: Код взят из ассета
         public void RemoveItselfFromLocation()
         {
-            if (CurrentGrid != null)
-            {
-                CurrentGrid.RemoveItem(this);
-                CurrentGrid = null;
-            }
+            if (CurrentGrid == null)
+                return;
+
+            CurrentGrid.RemoveItem(this);
+            CurrentGrid = null;
         }
 
         // TODO: Код взят из ассета
         public void Rotate()
         {
-            if (CanRotate)
+            if (!CanRotate)
+                return;
+
+            IsRotated = !IsRotated;
+
+            if (CurrentGrid != null)
             {
-                IsRotated = !IsRotated;
-
-                if (CurrentGrid != null)
-                {
-                    PlacedWidth = Width;
-                    PlacedHeight = Height;
-                }
-
-                UIUpdated?.Invoke();
+                PlacedWidth = Width;
+                PlacedHeight = Height;
             }
+
+            UIUpdated?.Invoke();
         }
 
         public bool CanStackWith(ItemTable other)
         {
-            if (!IsStackable || !other.IsStackable) 
+            if (!IsStackable || !other.IsStackable)
                 return false;
 
-            if (ItemDataSo != other.ItemDataSo) 
+            if (ItemDataSo != other.ItemDataSo)
                 return false;
 
-            if (StackCount >= MaxStack) 
-                return false;
-
-            return true;
+            return StackCount < MaxStack;
         }
 
         public int TryAddToStack(int amount)
         {
-            if (!IsStackable) 
+            if (!IsStackable)
                 return amount;
 
-            int spaceAvailable = MaxStack - StackCount;
-            int toAdd = Mathf.Min(amount, spaceAvailable);
+            var spaceAvailable = MaxStack - StackCount;
+            var toAdd = Mathf.Min(amount, spaceAvailable);
             StackCount += toAdd;
             UIUpdated?.Invoke();
 
@@ -114,23 +109,8 @@ namespace InventoryModule
         }
 
         // TODO: Код взят из ассета
-        public T GetMetadata<T>() where T : InventoryMetadata
-        {
-            return InventoryMetadata as T;
-        }
+        public T GetMetadata<T>() where T : InventoryMetadata => InventoryMetadata as T;
 
-        public GridTable ContainerGrid
-        {
-            get
-            {
-                var metadata = GetMetadata<ContainerMetadata>();
-                return metadata?.Inventories?.Count > 0 ? metadata.Inventories[0] : null;
-            }
-        }
-
-        public override string ToString()
-        {
-            return $"{ItemDataSo.DisplayName} ({Width}x{Height})";
-        }
+        public override string ToString() => $"{ItemDataSo.DisplayName} ({Width}x{Height})";
     }
 }

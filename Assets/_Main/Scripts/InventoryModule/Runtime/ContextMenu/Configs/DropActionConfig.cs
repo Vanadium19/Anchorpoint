@@ -1,4 +1,3 @@
-using UnityEngine;
 using Zenject;
 
 namespace InventoryModule.ContextMenu.Configs
@@ -8,11 +7,11 @@ namespace InventoryModule.ContextMenu.Configs
     {
         public override string ActionType => "Drop";
 
-    public override IContextAction Create(DiContainer container, ItemTable item)
-    {
-        var dropService = container.TryResolve<IDropService>();
-        var slotService = container.TryResolve<IEquipmentSlotService>();
-        return new Actions.DropAction(item, GetDisplayName(), dropService, slotService);
-    }
+        public override IContextAction Create(DiContainer container, ItemTable item)
+        {
+            var dropService = container.TryResolve<IDropService>();
+            var slotService = container.TryResolve<IEquipmentSlotService>();
+            return new Actions.DropAction(item, GetDisplayName(), dropService, slotService);
+        }
     }
 }

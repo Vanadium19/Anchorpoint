@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace InventoryModule
 {
     [Serializable]
     public class ContainerMetadata : InventoryMetadata
     {
-        public List<GridTable> Inventories { get; private set; } = new List<GridTable>();
+        public List<GridTable> Inventories { get; private set; } = new();
 
         public override void Awake()
         {
@@ -17,66 +16,61 @@ namespace InventoryModule
 
         private void SetProps()
         {
-            if (Inventories == null)
-                Inventories = new List<GridTable>();
+            Inventories ??= new();
 
-            if (Inventories.Count == 0 && ItemTable?.ItemDataSo != null && ItemTable.ItemDataSo.IsContainer)
+            if (Inventories.Count != 0 || ItemTable?.ItemDataSo == null || !ItemTable.ItemDataSo.IsContainer)
+                return;
+
+            var containerGrids = ItemTable.ItemDataSo.ContainerGrids;
+
+            if (containerGrids != null)
             {
-                var containerGrids = ItemTable.ItemDataSo.ContainerGrids;
+                containerGrids.InitializeGrids();
+                var grids = containerGrids.Grids;
 
-                if (containerGrids != null)
+                if (grids != null)
                 {
-                    containerGrids.InitializeGrids();
-                    var grids = containerGrids.Grids;
-
-                    if (grids != null)
-                        foreach (var grid in grids)
-                        {
-                            if (grid != null)
-                                Inventories.Add(new GridTable(grid.GridWidth, grid.GridHeight));
-                        }
+                    foreach (var grid in grids)
+                    {
+                        if (grid != null)
+                            Inventories.Add(new GridTable(grid.GridWidth, grid.GridHeight));
+                    }
                 }
-
-                if (Inventories.Count == 0)
-                    Inventories.Add(new GridTable(5, 5));
             }
+
+            if (Inventories.Count == 0)
+                Inventories.Add(new(5, 5));
         }
 
-        public void InitializeInventories()
-        {
-            SetProps();
-        }
+        public void InitializeInventories() => SetProps();
 
         public bool IsInsertingInsideYourself(GridTable grid, HashSet<object> visited = null)
         {
             if (Inventories.Count == 0)
                 return false;
 
-            if (visited == null)
-                visited = new HashSet<object>();
+            visited ??= new();
 
-            if (visited.Contains(this))
+            if (!visited.Add(this))
                 return false;
-
-            visited.Add(this);
 
             if (Inventories.Contains(grid))
                 return true;
 
-            foreach (GridTable gridTable in Inventories)
+            foreach (var gridTable in Inventories)
             {
-                ItemTable[] containers = gridTable.GetAllContainers();
+                var containers = gridTable.GetAllContainers();
 
-                foreach (ItemTable container in containers)
+                foreach (var container in containers)
                 {
-                    if (container?.InventoryMetadata is ContainerMetadata nestedMetadata)
-                    {
-                        if (nestedMetadata.Inventories.Contains(grid))
-                            return true;
+                    if (container?.InventoryMetadata is not ContainerMetadata nestedMetadata)
+                        continue;
 
-                        if (nestedMetadata.IsInsertingInsideYourself(grid, visited))
-                            return true;
-                    }
+                    if (nestedMetadata.Inventories.Contains(grid))
+                        return true;
+
+                    if (nestedMetadata.IsInsertingInsideYourself(grid, visited))
+                        return true;
                 }
             }
 
@@ -88,20 +82,20 @@ namespace InventoryModule
             if (Inventories.Count == 0)
                 return GridResponse.InventoryFull;
 
-            foreach (GridTable gridTable in Inventories)
+            foreach (var gridTable in Inventories)
             {
-                var pos = gridTable.FindSpaceForObjectAnyDirection(item);
+                var position = gridTable.FindSpaceForObjectAnyDirection(item);
 
-                if (pos != null)
-                {
-                    if (gridTable == item.CurrentGrid)
-                        return GridResponse.AlreadyInserted;
+                if (position == null)
+                    continue;
 
-                    GridResponse response = gridTable.PlaceItem(item, pos.Value.x, pos.Value.y);
+                if (gridTable == item.CurrentGrid)
+                    return GridResponse.AlreadyInserted;
 
-                    if (response == GridResponse.Inserted)
-                        return GridResponse.Inserted;
-                }
+                var response = gridTable.PlaceItem(item, position.Value.x, position.Value.y);
+
+                if (response == GridResponse.Inserted)
+                    return GridResponse.Inserted;
             }
 
             return GridResponse.InventoryFull;

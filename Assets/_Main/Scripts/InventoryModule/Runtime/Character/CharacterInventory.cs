@@ -11,8 +11,8 @@ namespace InventoryModule
         [Header("Container Panel")]
         [SerializeField] private ContainerGridsData containerPanelPrefab;
 
-        public GridTable MainGrid { get; private set; }
-        public ContainerSection MainSection { get; private set; }
+        private GridTable _mainGrid;
+        private ContainerSection _mainSection;
 
         private IInventoryManager _inventoryManager;
 
@@ -21,7 +21,7 @@ namespace InventoryModule
             _inventoryManager = inventoryManager;
 
             if (_inventoryManager?.MainGrid != null)
-                MainGrid = _inventoryManager.MainGrid;
+                _mainGrid = _inventoryManager.MainGrid;
             else
                 CreateMainGrid();
 
@@ -40,36 +40,27 @@ namespace InventoryModule
                 return;
 
             var firstGrid = prefabGrids[0];
-            MainGrid = new GridTable(firstGrid.GridWidth, firstGrid.GridHeight);
+            _mainGrid = new(firstGrid.GridWidth, firstGrid.GridHeight);
 
-            _inventoryManager?.SetMainGrid(MainGrid);
+            _inventoryManager?.SetMainGrid(_mainGrid);
         }
 
         private void InitializeUI()
         {
-            if (inventoryPanel == null || containerGridPrefab == null || MainGrid == null)
+            if (inventoryPanel == null || containerGridPrefab == null || _mainGrid == null)
                 return;
 
             inventoryPanel.Initialize();
 
-            MainSection = Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
-            inventoryPanel.EnsureSectionHasLayoutElement(MainSection);
+            _mainSection = Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
+            inventoryPanel.EnsureSectionHasLayoutElement(_mainSection);
 
             if (containerPanelPrefab != null)
-                MainSection.InitializeAsMainInventoryWithPanel("Inventory", containerPanelPrefab, containerGridPrefab, MainGrid);
+                _mainSection.InitializeAsMainInventoryWithPanel("Inventory", containerPanelPrefab, containerGridPrefab, _mainGrid);
             else
-                MainSection.InitializeAsMainInventory("Inventory", MainGrid, containerGridPrefab);
+                _mainSection.InitializeAsMainInventory("Inventory", _mainGrid, containerGridPrefab);
 
-            inventoryPanel.AddSectionFirst(MainSection);
-        }
-
-        public void OpenInventory() => _inventoryManager?.OpenInventory();
-        public void CloseInventory() => _inventoryManager?.CloseInventory();
-        public void ToggleInventory() => _inventoryManager?.ToggleInventory();
-
-        public bool PickupItem(ItemDataSo itemData, int amount = 1)
-        {
-            return _inventoryManager?.AddItemToInventory(itemData, amount) ?? false;
+            inventoryPanel.AddSectionFirst(_mainSection);
         }
     }
 }
