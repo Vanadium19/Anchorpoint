@@ -11,7 +11,7 @@ namespace EnemyModule
         private const float PatrolLookDuration = 1f;
 
         private readonly EnemyConfig _config;
-        private readonly EnemyView _view;
+        private readonly Transform _selfTransform;
         private readonly PlayerProvider _player;
         private readonly IHealthComponent _health;
         private readonly Blackboard _blackboard;
@@ -33,7 +33,7 @@ namespace EnemyModule
 
         public PatrolState(
             EnemyConfig config,
-            EnemyView view,
+            Transform selfTransform,
             PlayerProvider player,
             IHealthComponent health,
             Blackboard blackboard,
@@ -43,7 +43,7 @@ namespace EnemyModule
             Transform[] patrolPoints)
         {
             _config = config;
-            _view = view;
+            _selfTransform = selfTransform;
             _player = player;
             _health = health;
             _blackboard = blackboard;
@@ -126,8 +126,8 @@ namespace EnemyModule
             _nextLookTimer = Mathf.Max(_config.LookInterval, 0.1f);
 
             float angleOffset = UnityEngine.Random.Range(-_config.LookAngleRange, _config.LookAngleRange);
-            _lookTargetRotation = _view.transform.rotation * Quaternion.Euler(0f, angleOffset, 0f);
-            _lookTurnSpeed = Quaternion.Angle(_view.transform.rotation, _lookTargetRotation) / PatrolLookDuration;
+            _lookTargetRotation = _selfTransform.rotation * Quaternion.Euler(0f, angleOffset, 0f);
+            _lookTurnSpeed = Quaternion.Angle(_selfTransform.rotation, _lookTargetRotation) / PatrolLookDuration;
             _hasLookTarget = true;
         }
 
@@ -135,7 +135,7 @@ namespace EnemyModule
         {
             _rotation.RotateTo(_lookTargetRotation, _lookTurnSpeed);
 
-            if (Quaternion.Angle(_view.transform.rotation, _lookTargetRotation) <= 0.1f)
+            if (Quaternion.Angle(_selfTransform.rotation, _lookTargetRotation) <= 0.1f)
                 _hasLookTarget = false;
         }
 

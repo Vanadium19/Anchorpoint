@@ -8,7 +8,7 @@ namespace EnemyModule
     public sealed class AttackState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly EnemyView _view;
+        private readonly Transform _selfTransform;
         private readonly PlayerProvider _player;
         private readonly IRangedAttackComponent _attack;
         private readonly Blackboard _blackboard;
@@ -21,7 +21,7 @@ namespace EnemyModule
 
         public AttackState(
             EnemyConfig config,
-            EnemyView view,
+            Transform selfTransform,
             PlayerProvider player,
             IRangedAttackComponent attack,
             Blackboard blackboard,
@@ -30,7 +30,7 @@ namespace EnemyModule
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _view = view;
+            _selfTransform = selfTransform;
             _player = player;
             _attack = attack;
             _blackboard = blackboard;
@@ -79,7 +79,7 @@ namespace EnemyModule
                 return true;
 
             float maxAttackDistance = _config.AttackRange * _config.AttackExitRangeMultiplier;
-            return Vector3.Distance(_view.transform.position, targetPosition) > maxAttackDistance;
+            return Vector3.Distance(_selfTransform.position, targetPosition) > maxAttackDistance;
         }
 
         private bool TryUpdateVisibleTarget(out Vector3 targetPosition)

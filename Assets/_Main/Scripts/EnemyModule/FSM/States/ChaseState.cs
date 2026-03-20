@@ -8,7 +8,7 @@ namespace EnemyModule
     public sealed class ChaseState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly EnemyView _view;
+        private readonly Transform _selfTransform;
         private readonly PlayerProvider _player;
         private readonly Blackboard _blackboard;
         private readonly IPathMoveComponent _movement;
@@ -19,14 +19,14 @@ namespace EnemyModule
 
         public ChaseState(
             EnemyConfig config,
-            EnemyView view,
+            Transform selfTransform,
             PlayerProvider player,
             Blackboard blackboard,
             IPathMoveComponent movement,
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _view = view;
+            _selfTransform = selfTransform;
             _player = player;
             _blackboard = blackboard;
             _movement = movement;
@@ -71,7 +71,7 @@ namespace EnemyModule
             if (!TryUpdateVisibleTarget(out Vector3 targetPosition))
                 return false;
 
-            return Vector3.Distance(_view.transform.position, targetPosition) <= _config.AttackRange;
+            return Vector3.Distance(_selfTransform.position, targetPosition) <= _config.AttackRange;
         }
 
         public bool ShouldReturnToPatrol()
@@ -107,7 +107,7 @@ namespace EnemyModule
             if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
                 return true;
 
-            return Vector3.Distance(_view.transform.position, targetPosition) <= _config.LostTargetReachDistance;
+            return Vector3.Distance(_selfTransform.position, targetPosition) <= _config.LostTargetReachDistance;
         }
 
         private Transform ResolvePlayerTransform()

@@ -1085,8 +1085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f1c4d8abd2aae42a7338442efdbad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.View.EnemyView
-  firePoint: {fileID: 596289272314295884}
-  bulletPrefab: {fileID: -8206953463150193610, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
   animator: {fileID: 2171579678116017918}
   ragdoll: {fileID: 3414506700862876485}
 --- !u!114 &3414506700862876485

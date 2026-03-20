@@ -12,6 +12,8 @@ namespace EnemyModule
         [SerializeField] private NavMeshAgent navMeshAgent;
         [SerializeField] private Transform[] patrolPoints;
         [SerializeField] private Transform eyes;
+        [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject bulletPrefab;
 
         private void OnValidate()
         {
@@ -21,20 +23,19 @@ namespace EnemyModule
 
         public override void InstallBindings()
         {
-            Transform[] resolvedPatrolPoints = patrolPoints ?? Array.Empty<Transform>();
-
             Container.BindInstance(config).AsSingle();
             Container.BindInstance(view).AsSingle();
-            Container.QueueForInject(view);
 
             Container.Bind<NavMeshAgent>()
                 .FromInstance(navMeshAgent)
                 .AsSingle();
 
             Container.Bind<Transform[]>()
-                .FromInstance(resolvedPatrolPoints)
+                .FromInstance(patrolPoints)
                 .WhenInjectedInto<PatrolState>();
 
+            Container.Bind<Transform>().FromInstance(view.transform);
+            
             Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
                 .To<HealthComponent>()
                 .AsSingle()
@@ -62,7 +63,7 @@ namespace EnemyModule
             Container.Bind<IRangedAttackComponent>()
                 .To<ProjectileAttackComponent>()
                 .AsSingle()
-                .WithArguments(view.FirePoint, view.ProjectilePrefab, config.MaxAmmo);
+                .WithArguments(firePoint, bulletPrefab, config.MaxAmmo);
 
             Container.Bind<Blackboard>().AsSingle();
 

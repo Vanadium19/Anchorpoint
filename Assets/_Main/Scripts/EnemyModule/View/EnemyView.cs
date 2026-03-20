@@ -13,8 +13,7 @@ namespace EnemyModule
         private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
         private static readonly int ShootHash = Animator.StringToHash("Shoot");
 
-        [Header("References")] [SerializeField] private Transform firePoint;
-        [SerializeField] private Bullet bulletPrefab;
+        [Header("References")]
         [SerializeField] private Animator animator;
         [SerializeField] private EnemyRagdoll ragdoll;
 
@@ -27,9 +26,6 @@ namespace EnemyModule
 
         private bool _isHealthSubscribed;
         private bool _isAttackSubscribed;
-
-        internal Transform FirePoint => firePoint;
-        internal GameObject ProjectilePrefab => bulletPrefab != null ? bulletPrefab.gameObject : null;
 
         [Inject]
         public void Construct(IHealthComponent health, IPathMoveComponent movement, IRangedAttackComponent attack)
