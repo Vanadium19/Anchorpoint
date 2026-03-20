@@ -8,6 +8,12 @@ namespace EnemyModule
         [Header("Stats")]
         public float MaxHealth = 100f;
 
+        [Header("Navigation")]
+        public float StoppingDistance = 0.5f;
+        public float LostTargetReachDistance = 2f;
+        public float CoverSearchRadius = 15f;
+        public float CoverArrivalDistance = 1f;
+
         [Header("Sensing")]
         public float SightDistance = 25f;
         public float ViewAngle = 120f;
@@ -16,6 +22,8 @@ namespace EnemyModule
 
         [Header("Combat")]
         public float AttackRange = 10f;
+        public float AttackExitRangeMultiplier = 1.2f;
+        public float CombatTurnSpeed = 540f;
         public float FireRate = 1f;
         public int MaxAmmo = 10;
         public float ReloadTime = 3f;

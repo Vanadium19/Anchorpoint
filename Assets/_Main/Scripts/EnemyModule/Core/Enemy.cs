@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EnemyModule
 {
-    public class EnemyModel
+    public class Enemy
     {
         private AIState _currentState;
         private int _currentAmmo;
@@ -21,6 +21,7 @@ namespace EnemyModule
         {
             _currentAmmo = maxAmmo;
             _lastKnownPosition = startPos;
+            _hasTarget = false;
             SetState(AIState.Patrol);
         }
 
