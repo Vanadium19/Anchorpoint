@@ -1,6 +1,5 @@
 using ComponentsModule;
 using UnityEngine;
-using UnityEngine.AI;
 using WeaponModule;
 using Zenject;
 
@@ -19,29 +18,57 @@ namespace EnemyModule
         [SerializeField] private Animator animator;
         [SerializeField] private EnemyRagdoll ragdoll;
 
-        public Transform FirePoint => firePoint;
+        private IHealthComponent _health;
+        private IPathMoveComponent _movement;
 
-        public void UpdateAnimator(Vector3 velocity)
+        private Vector3? _lastHitPosition;
+        private Vector3? _lastHitForce;
+
+        [Inject]
+        public void Construct(IHealthComponent health, IPathMoveComponent movement)
         {
-            var isMoving = velocity.sqrMagnitude > 0.01f;
-            animator.SetBool(IsMovingHash, isMoving);
+            _health = health;
+            _movement = movement;
+            _lastHitPosition = null;
+            _lastHitForce = null;
+        }
+
+        private void OnEnable()
+        {
+            _health.DamageTaken += OnDamageTaken;
+            _health.Died += Die;
+        }
+
+        private void Update() => UpdateAnimator();
+
+        private void OnDisable()
+        {
+            _health.DamageTaken -= OnDamageTaken;
+            _health.Died -= Die;
         }
 
         //TODO: Вынести пули в модуль оружия
         public void SpawnBullet(Vector3 targetPos, float damage, float bulletSpeed)
         {
             animator.SetTrigger(ShootHash);
-
             var direction = (targetPos - firePoint.position).normalized;
 
             var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(direction));
             bullet.Setup(damage, bulletSpeed, 0f, Vector3.zero);
         }
 
-        public void Die(Vector3? hitPosition, Vector3? hitForce)
+        private void UpdateAnimator() => animator.SetBool(IsMovingHash, _movement.IsMoving);
+
+        private void Die()
         {
-            ragdoll.Activate(hitForce, hitPosition);
+            ragdoll.Activate(_lastHitForce, _lastHitPosition);
             Destroy(gameObject, DestroyDelay);
+        }
+
+        private void OnDamageTaken(Vector3? hitPosition, Vector3? hitForce)
+        {
+            _lastHitPosition = hitPosition;
+            _lastHitForce = hitForce;
         }
     }
 }

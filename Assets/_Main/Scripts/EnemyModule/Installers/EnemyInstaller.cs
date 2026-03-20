@@ -28,6 +28,10 @@ namespace EnemyModule
                 .FromInstance(navMeshAgent)
                 .AsSingle();
 
+            Container.Bind<Transform[]>()
+                .FromInstance(patrolPoints)
+                .WhenInjectedInto<AIAgent>();
+
             Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
                 .To<HealthComponent>()
                 .AsSingle()

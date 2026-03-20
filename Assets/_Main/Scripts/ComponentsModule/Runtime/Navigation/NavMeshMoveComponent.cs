@@ -5,6 +5,8 @@ namespace ComponentsModule
 {
     public class NavMeshMoveComponent : IPathMoveComponent
     {
+        private const float MinMovementSqrMagnitude = 0.01f;
+
         private readonly NavMeshAgent _agent;
 
         public NavMeshMoveComponent(NavMeshAgent agent)
@@ -12,6 +14,7 @@ namespace ComponentsModule
             _agent = agent;
         }
 
+        public bool IsMoving => _agent.velocity.sqrMagnitude > MinMovementSqrMagnitude;
         public bool IsPathPending => _agent.pathPending;
         public float RemainingDistance => _agent.remainingDistance;
         public float StoppingDistance => _agent.stoppingDistance;

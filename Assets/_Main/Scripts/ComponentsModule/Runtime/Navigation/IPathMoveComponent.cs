@@ -4,6 +4,7 @@ namespace ComponentsModule
 {
     public interface IPathMoveComponent
     {
+        bool IsMoving { get; }
         bool IsPathPending { get; }
         float RemainingDistance { get; }
         float StoppingDistance { get; }
