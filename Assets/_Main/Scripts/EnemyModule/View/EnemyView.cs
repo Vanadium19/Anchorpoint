@@ -14,36 +14,12 @@ namespace EnemyModule
         private static readonly int ShootHash = Animator.StringToHash("Shoot");
 
         [Header("References")]
-        [SerializeField] private Transform eyes;
         [SerializeField] private Transform firePoint;
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Animator animator;
         [SerializeField] private EnemyRagdoll ragdoll;
 
-        [SerializeField] private NavMeshAgent agent;
-
-        private IHealthComponent _health;
-
-        public IHealthComponent Health => _health;
-        public Transform Eyes => eyes;
         public Transform FirePoint => firePoint;
-        public NavMeshAgent Agent => agent;
-
-        [Inject]
-        public void Construct(IHealthComponent health)
-        {
-            _health = health;
-        }
-
-        private void Awake()
-        {
-            agent ??= GetComponent<NavMeshAgent>();
-        }
-
-        private void OnValidate()
-        {
-            agent ??= GetComponent<NavMeshAgent>();
-        }
 
         public void UpdateAnimator(Vector3 velocity)
         {

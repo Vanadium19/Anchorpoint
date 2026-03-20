@@ -11,6 +11,7 @@ namespace EnemyModule
         [SerializeField] private EnemyView view;
         [SerializeField] private NavMeshAgent navMeshAgent;
         [SerializeField] private Transform[] patrolPoints;
+        [SerializeField] private Transform eyes;
 
         private void OnValidate()
         {
@@ -44,7 +45,7 @@ namespace EnemyModule
             Container.Bind<ILineOfSightComponent>()
                 .To<LineOfSightComponent>()
                 .AsSingle()
-                .WithArguments(view.Eyes);
+                .WithArguments(eyes);
 
             Container.Bind<ICoverFinderComponent>()
                 .To<NavMeshCoverFinderComponent>()

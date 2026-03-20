@@ -1085,7 +1085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f1c4d8abd2aae42a7338442efdbad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.View.EnemyView
-  eyes: {fileID: 42298620315356849}
   firePoint: {fileID: 596289272314295884}
   bulletPrefab: {fileID: -8206953463150193610, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
   animator: {fileID: 2171579678116017918}
@@ -1124,6 +1123,7 @@ MonoBehaviour:
   patrolPoints:
   - {fileID: 5406760815006577862}
   - {fileID: 6105373433568639839}
+  eyes: {fileID: 42298620315356849}
 --- !u!114 &2776398370721606989
 MonoBehaviour:
   m_ObjectHideFlags: 0
