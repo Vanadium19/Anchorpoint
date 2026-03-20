@@ -2,19 +2,15 @@ using FSMModule;
 
 namespace EnemyModule
 {
-    public sealed class PatrolToChaseTransition : AbstractStateTransition<AIState>
+    public sealed class PatrolToChaseTransition : AbstractStateTransition<StateName>
     {
         private readonly PatrolState _patrolState;
 
-        public PatrolToChaseTransition(PatrolState patrolState)
-            : base(AIState.Patrol, AIState.Chase)
+        public PatrolToChaseTransition(PatrolState patrolState) : base(StateName.Patrol, StateName.Chase)
         {
             _patrolState = patrolState;
         }
 
-        public override bool CanPerform()
-        {
-            return _patrolState.TrySpotPlayer();
-        }
+        public override bool CanPerform() => _patrolState.TrySpotPlayer();
     }
 }

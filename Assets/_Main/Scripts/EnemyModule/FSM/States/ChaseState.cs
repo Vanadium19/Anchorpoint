@@ -8,26 +8,27 @@ namespace EnemyModule
     public sealed class ChaseState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly Transform _selfTransform;
-        private readonly PlayerProvider _player;
+        private readonly Transform _transform;
+
+        private readonly PlayerProvider _playerProvider;
         private readonly Blackboard _blackboard;
+
         private readonly IPathMoveComponent _movement;
         private readonly ILineOfSightComponent _lineOfSight;
 
-        private Transform _playerTransform;
+        private Transform _player;
         private float _chaseTimer;
 
-        public ChaseState(
-            EnemyConfig config,
-            Transform selfTransform,
-            PlayerProvider player,
+        public ChaseState(EnemyConfig config,
+            Transform transform,
+            PlayerProvider playerProvider,
             Blackboard blackboard,
             IPathMoveComponent movement,
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _selfTransform = selfTransform;
-            _player = player;
+            _transform = transform;
+            _playerProvider = playerProvider;
             _blackboard = blackboard;
             _movement = movement;
             _lineOfSight = lineOfSight;
@@ -35,7 +36,7 @@ namespace EnemyModule
 
         public void OnEnter()
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
             _chaseTimer = _config.MemoryTime;
 
             if (_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
@@ -46,7 +47,7 @@ namespace EnemyModule
 
         public void OnUpdate(float deltaTime)
         {
-            bool canSeePlayer = TryUpdateVisibleTarget(out _);
+            var canSeePlayer = TryUpdateVisibleTarget(out _);
 
             if (_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
                 _movement.MoveTo(targetPosition);
@@ -62,37 +63,27 @@ namespace EnemyModule
             _chaseTimer -= deltaTime;
         }
 
-        public void OnExit()
-        {
-        }
+        public void OnExit() { }
 
         public bool CanEnterAttack()
         {
-            if (!TryUpdateVisibleTarget(out Vector3 targetPosition))
+            if (!TryUpdateVisibleTarget(out var targetPosition))
                 return false;
 
-            return Vector3.Distance(_selfTransform.position, targetPosition) <= _config.AttackRange;
+            return Vector3.Distance(_transform.position, targetPosition) <= _config.AttackRange;
         }
 
-        public bool ShouldReturnToPatrol()
-        {
-            return _chaseTimer <= 0f && HasReachedLastKnownPosition();
-        }
+        public bool ShouldReturnToPatrol() => _chaseTimer <= 0f && HasReachedLastKnownPosition();
 
         private bool TryUpdateVisibleTarget(out Vector3 targetPosition)
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
             targetPosition = default;
 
-            if (_playerTransform == null)
+            if (_player == null)
                 return false;
 
-            bool canSeePlayer = _lineOfSight.CheckLineOfSight(
-                _playerTransform,
-                _config.SightDistance,
-                _config.ViewAngle,
-                _config.ViewMask,
-                out targetPosition);
+            var canSeePlayer = _lineOfSight.CheckLineOfSight(_player, _config.SightDistance, _config.ViewAngle, _config.ViewMask, out targetPosition);
 
             if (!canSeePlayer)
                 return false;
@@ -107,15 +98,7 @@ namespace EnemyModule
             if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
                 return true;
 
-            return Vector3.Distance(_selfTransform.position, targetPosition) <= _config.LostTargetReachDistance;
-        }
-
-        private Transform ResolvePlayerTransform()
-        {
-            if (_player.TryGet(out Transform playerTransform))
-                return playerTransform;
-
-            return null;
+            return Vector3.Distance(_transform.position, targetPosition) <= _config.LostTargetReachDistance;
         }
     }
 }

@@ -7,17 +7,19 @@ namespace EnemyModule
     public sealed class ReloadState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly IRangedAttackComponent _attack;
+
         private readonly Blackboard _blackboard;
+
+        private readonly IRangedAttackComponent _attack;
         private readonly IPathMoveComponent _movement;
         private readonly ICoverFinderComponent _coverFinder;
 
         private float _reloadTimer;
-        private bool _movingToCover;
         private bool _isReloadComplete;
 
-        public ReloadState(
-            EnemyConfig config,
+        private bool _movingToCover;
+
+        public ReloadState(EnemyConfig config,
             IRangedAttackComponent attack,
             Blackboard blackboard,
             IPathMoveComponent movement,
@@ -29,6 +31,8 @@ namespace EnemyModule
             _movement = movement;
             _coverFinder = coverFinder;
         }
+
+        public bool IsReloadComplete => _isReloadComplete;
 
         public void OnEnter()
         {
@@ -67,18 +71,15 @@ namespace EnemyModule
             _movement.Stop();
         }
 
-        public bool IsReloadComplete => _isReloadComplete;
-
         private bool TryMoveToCover()
         {
             if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
                 return false;
 
-            bool foundCover = _coverFinder.TryFindCover(
-                targetPosition,
+            var foundCover = _coverFinder.TryFindCover(targetPosition,
                 _config.CoverSearchRadius,
                 _config.ViewMask,
-                out Vector3 coverPosition);
+                out var coverPosition);
 
             if (!foundCover)
                 return false;

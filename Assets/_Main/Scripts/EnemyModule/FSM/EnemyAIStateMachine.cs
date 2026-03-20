@@ -7,7 +7,7 @@ namespace EnemyModule
     public sealed class EnemyAIStateMachine
     {
         private readonly IHealthComponent _health;
-        private readonly IAutoStateMachine<AIState> _stateMachine;
+        private readonly IAutoStateMachine<StateName> _stateMachine;
 
         public EnemyAIStateMachine(
             IHealthComponent health,
@@ -23,16 +23,16 @@ namespace EnemyModule
             ReloadToChaseTransition reloadToChaseTransition)
         {
             _health = health;
-            _stateMachine = new AutoStateMachine<AIState>(
-                AIState.Patrol,
+            _stateMachine = new AutoStateMachine<StateName>(
+                StateName.Patrol,
                 new[]
                 {
-                    (AIState.Patrol, (IState)patrolState),
-                    (AIState.Chase, (IState)chaseState),
-                    (AIState.Attack, (IState)attackState),
-                    (AIState.Reload, (IState)reloadState),
+                    (StateName.Patrol, (IState)patrolState),
+                    (StateName.Chase, (IState)chaseState),
+                    (StateName.Attack, (IState)attackState),
+                    (StateName.Reload, (IState)reloadState),
                 },
-                new IStateTransition<AIState>[]
+                new IStateTransition<StateName>[]
                 {
                     patrolToChaseTransition,
                     chaseToAttackTransition,

@@ -2,19 +2,15 @@ using FSMModule;
 
 namespace EnemyModule
 {
-    public sealed class ChaseToAttackTransition : AbstractStateTransition<AIState>
+    public sealed class ChaseToAttackTransition : AbstractStateTransition<StateName>
     {
         private readonly ChaseState _chaseState;
 
-        public ChaseToAttackTransition(ChaseState chaseState)
-            : base(AIState.Chase, AIState.Attack)
+        public ChaseToAttackTransition(ChaseState chaseState) : base(StateName.Chase, StateName.Attack)
         {
             _chaseState = chaseState;
         }
 
-        public override bool CanPerform()
-        {
-            return _chaseState.CanEnterAttack();
-        }
+        public override bool CanPerform() => _chaseState.CanEnterAttack();
     }
 }

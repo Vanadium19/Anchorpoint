@@ -11,30 +11,35 @@ namespace EnemyModule
         private const float PatrolLookDuration = 1f;
 
         private readonly EnemyConfig _config;
-        private readonly Transform _selfTransform;
-        private readonly PlayerProvider _player;
-        private readonly IHealthComponent _health;
+        private readonly Transform _transform;
+        private readonly Transform[] _patrolPoints;
+
+        private readonly PlayerProvider _playerProvider;
         private readonly Blackboard _blackboard;
+
+        private readonly IHealthComponent _health;
         private readonly IPathMoveComponent _movement;
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
-        private readonly Transform[] _patrolPoints;
 
-        private Transform _playerTransform;
-        private bool _isSubscribedToDamage;
+        private Transform _player;
+
         private bool _isAlertedByDamage;
+
         private bool _isWaiting;
-        private bool _hasLookTarget;
+
         private float _waitTimer;
         private float _nextLookTimer;
-        private float _lookTurnSpeed;
-        private Quaternion _lookTargetRotation;
+
         private int _currentPointIndex;
 
-        public PatrolState(
-            EnemyConfig config,
-            Transform selfTransform,
-            PlayerProvider player,
+        private bool _hasLookTarget;
+        private float _lookTurnSpeed;
+        private Quaternion _lookTargetRotation;
+
+        public PatrolState(EnemyConfig config,
+            Transform transform,
+            PlayerProvider playerProvider,
             IHealthComponent health,
             Blackboard blackboard,
             IPathMoveComponent movement,
@@ -43,8 +48,8 @@ namespace EnemyModule
             Transform[] patrolPoints)
         {
             _config = config;
-            _selfTransform = selfTransform;
-            _player = player;
+            _transform = transform;
+            _playerProvider = playerProvider;
             _health = health;
             _blackboard = blackboard;
             _movement = movement;
@@ -55,12 +60,15 @@ namespace EnemyModule
 
         public void OnEnter()
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
             _blackboard.DeleteValue<Vector3>(BlackboardTag.TargetPosition);
-            SubscribeToDamage();
+
+            _health.DamageTaken += OnDamageTaken;
+
             _isAlertedByDamage = false;
             _isWaiting = false;
             _hasLookTarget = false;
+
             _waitTimer = 0f;
             _nextLookTimer = 0f;
             _lookTurnSpeed = 0f;
@@ -87,7 +95,8 @@ namespace EnemyModule
 
         public void OnExit()
         {
-            UnsubscribeFromDamage();
+            _health.DamageTaken -= OnDamageTaken;
+
             _isAlertedByDamage = false;
             _isWaiting = false;
             _hasLookTarget = false;
@@ -125,9 +134,9 @@ namespace EnemyModule
         {
             _nextLookTimer = Mathf.Max(_config.LookInterval, 0.1f);
 
-            float angleOffset = UnityEngine.Random.Range(-_config.LookAngleRange, _config.LookAngleRange);
-            _lookTargetRotation = _selfTransform.rotation * Quaternion.Euler(0f, angleOffset, 0f);
-            _lookTurnSpeed = Quaternion.Angle(_selfTransform.rotation, _lookTargetRotation) / PatrolLookDuration;
+            var angleOffset = UnityEngine.Random.Range(-_config.LookAngleRange, _config.LookAngleRange);
+            _lookTargetRotation = _transform.rotation * Quaternion.Euler(0f, angleOffset, 0f);
+            _lookTurnSpeed = Quaternion.Angle(_transform.rotation, _lookTargetRotation) / PatrolLookDuration;
             _hasLookTarget = true;
         }
 
@@ -135,7 +144,7 @@ namespace EnemyModule
         {
             _rotation.RotateTo(_lookTargetRotation, _lookTurnSpeed);
 
-            if (Quaternion.Angle(_selfTransform.rotation, _lookTargetRotation) <= 0.1f)
+            if (Quaternion.Angle(_transform.rotation, _lookTargetRotation) <= 0.1f)
                 _hasLookTarget = false;
         }
 
@@ -144,17 +153,16 @@ namespace EnemyModule
             if (_isAlertedByDamage && _blackboard.HasValue<Vector3>(BlackboardTag.TargetPosition))
                 return true;
 
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
 
-            if (_playerTransform == null)
+            if (_player == null)
                 return false;
 
-            bool canSeePlayer = _lineOfSight.CheckLineOfSight(
-                _playerTransform,
+            var canSeePlayer = _lineOfSight.CheckLineOfSight(_player,
                 _config.SightDistance,
                 _config.ViewAngle,
                 _config.ViewMask,
-                out Vector3 targetPosition);
+                out var targetPosition);
 
             if (!canSeePlayer)
                 return false;
@@ -174,41 +182,15 @@ namespace EnemyModule
             _movement.MoveTo(_patrolPoints[_currentPointIndex].position);
         }
 
-        private Transform ResolvePlayerTransform()
-        {
-            if (_player.TryGet(out Transform playerTransform))
-                return playerTransform;
-
-            return null;
-        }
-
         private void OnDamageTaken(Vector3? hitPosition, Vector3? hitForce)
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
 
-            if (_playerTransform == null)
+            if (_player == null)
                 return;
 
-            _blackboard.SetValue(BlackboardTag.TargetPosition, _playerTransform.position);
+            _blackboard.SetValue(BlackboardTag.TargetPosition, _player.position);
             _isAlertedByDamage = true;
-        }
-
-        private void SubscribeToDamage()
-        {
-            if (_isSubscribedToDamage)
-                return;
-
-            _health.DamageTaken += OnDamageTaken;
-            _isSubscribedToDamage = true;
-        }
-
-        private void UnsubscribeFromDamage()
-        {
-            if (!_isSubscribedToDamage)
-                return;
-
-            _health.DamageTaken -= OnDamageTaken;
-            _isSubscribedToDamage = false;
         }
     }
 }

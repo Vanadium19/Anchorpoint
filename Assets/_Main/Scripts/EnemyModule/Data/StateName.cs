@@ -1,6 +1,6 @@
 namespace EnemyModule
 {
-    public enum AIState
+    public enum StateName
     {
         Patrol = 0,
         Chase,

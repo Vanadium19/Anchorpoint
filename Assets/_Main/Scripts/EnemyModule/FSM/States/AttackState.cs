@@ -8,21 +8,23 @@ namespace EnemyModule
     public sealed class AttackState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly Transform _selfTransform;
-        private readonly PlayerProvider _player;
-        private readonly IRangedAttackComponent _attack;
+
+        private readonly Transform _transform;
+
+        private readonly PlayerProvider _playerProvider;
         private readonly Blackboard _blackboard;
+
+        private readonly IRangedAttackComponent _attack;
         private readonly IPathMoveComponent _movement;
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
 
-        private Transform _playerTransform;
+        private Transform _player;
         private float _nextFireTime;
 
-        public AttackState(
-            EnemyConfig config,
-            Transform selfTransform,
-            PlayerProvider player,
+        public AttackState(EnemyConfig config,
+            Transform transform,
+            PlayerProvider playerProvider,
             IRangedAttackComponent attack,
             Blackboard blackboard,
             IPathMoveComponent movement,
@@ -30,8 +32,8 @@ namespace EnemyModule
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _selfTransform = selfTransform;
-            _player = player;
+            _transform = transform;
+            _playerProvider = playerProvider;
             _attack = attack;
             _blackboard = blackboard;
             _movement = movement;
@@ -39,9 +41,11 @@ namespace EnemyModule
             _lineOfSight = lineOfSight;
         }
 
+        public bool NeedsReload => _attack.IsEmpty;
+
         public void OnEnter()
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
             _movement.Stop();
         }
 
@@ -62,54 +66,36 @@ namespace EnemyModule
             if (!_attack.TryAttack(targetPosition, _config.Damage, _config.BulletSpeed))
                 return;
 
-            float fireRate = Mathf.Max(_config.FireRate, 0.01f);
+            var fireRate = Mathf.Max(_config.FireRate, 0.01f);
             _nextFireTime = Time.time + (1f / fireRate);
         }
 
-        public void OnExit()
-        {
-            _movement.Stop();
-        }
-
-        public bool NeedsReload => _attack.IsEmpty;
+        public void OnExit() => _movement.Stop();
 
         public bool ShouldExitAttack()
         {
-            if (!TryUpdateVisibleTarget(out Vector3 targetPosition))
+            if (!TryUpdateVisibleTarget(out var targetPosition))
                 return true;
 
-            float maxAttackDistance = _config.AttackRange * _config.AttackExitRangeMultiplier;
-            return Vector3.Distance(_selfTransform.position, targetPosition) > maxAttackDistance;
+            var maxAttackDistance = _config.AttackRange * _config.AttackExitRangeMultiplier;
+            return Vector3.Distance(_transform.position, targetPosition) > maxAttackDistance;
         }
 
         private bool TryUpdateVisibleTarget(out Vector3 targetPosition)
         {
-            _playerTransform ??= ResolvePlayerTransform();
+            _player ??= _playerProvider.Get<Transform>();
             targetPosition = default;
 
-            if (_playerTransform == null)
+            if (_player == null)
                 return false;
 
-            bool canSeePlayer = _lineOfSight.CheckLineOfSight(
-                _playerTransform,
-                _config.SightDistance,
-                _config.ViewAngle,
-                _config.ViewMask,
-                out targetPosition);
+            var canSeePlayer = _lineOfSight.CheckLineOfSight(_player, _config.SightDistance, _config.ViewAngle, _config.ViewMask, out targetPosition);
 
             if (!canSeePlayer)
                 return false;
 
             _blackboard.SetValue(BlackboardTag.TargetPosition, targetPosition);
             return true;
-        }
-
-        private Transform ResolvePlayerTransform()
-        {
-            if (_player.TryGet(out Transform playerTransform))
-                return playerTransform;
-
-            return null;
         }
     }
 }
