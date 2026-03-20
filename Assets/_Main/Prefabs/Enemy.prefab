@@ -1090,9 +1090,6 @@ MonoBehaviour:
   bulletPrefab: {fileID: -8206953463150193610, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
   animator: {fileID: 2171579678116017918}
   ragdoll: {fileID: 3414506700862876485}
-  patrolPoints:
-  - {fileID: 5406760815006577862}
-  - {fileID: 6105373433568639839}
   agent: {fileID: 863995259156288490}
 --- !u!114 &3414506700862876485
 MonoBehaviour:
@@ -1123,6 +1120,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.Installers.EnemyInstaller
   config: {fileID: 11400000, guid: 4858d3375a83caa42b7964f16b713873, type: 2}
   view: {fileID: 3810477692545956003}
+  navMeshAgent: {fileID: 863995259156288490}
+  patrolPoints:
+  - {fileID: 5406760815006577862}
+  - {fileID: 6105373433568639839}
 --- !u!114 &2776398370721606989
 MonoBehaviour:
   m_ObjectHideFlags: 0

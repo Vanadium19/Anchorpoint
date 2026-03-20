@@ -10,6 +10,7 @@ namespace EnemyModule
         [SerializeField] private EnemyConfig config;
         [SerializeField] private EnemyView view;
         [SerializeField] private NavMeshAgent navMeshAgent;
+        [SerializeField] private Transform[] patrolPoints;
 
         private void OnValidate()
         {

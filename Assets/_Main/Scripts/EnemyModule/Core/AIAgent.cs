@@ -20,6 +20,7 @@ namespace EnemyModule
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
         private readonly ICoverFinderComponent _coverFinder;
+        private readonly Transform[] _patrolPoints;
 
         private CancellationTokenSource _cancellationToken;
         private Transform _playerTransform;
@@ -36,7 +37,8 @@ namespace EnemyModule
             IPathMoveComponent movement,
             ITargetRotationComponent rotation,
             ILineOfSightComponent lineOfSight,
-            ICoverFinderComponent coverFinder)
+            ICoverFinderComponent coverFinder,
+            Transform[] patrolPoints)
         {
             _config = config;
             _model = model;
@@ -47,6 +49,7 @@ namespace EnemyModule
             _rotation = rotation;
             _lineOfSight = lineOfSight;
             _coverFinder = coverFinder;
+            _patrolPoints = patrolPoints;
         }
 
         public void Initialize()
@@ -65,8 +68,8 @@ namespace EnemyModule
 
             _movement.SetStoppingDistance(_config.StoppingDistance);
 
-            if (_view.PatrolPoints.Length > 0)
-                _movement.MoveTo(_view.PatrolPoints[_patrolIndex].position);
+            if (_patrolPoints.Length > 0)
+                _movement.MoveTo(_patrolPoints[_patrolIndex].position);
         }
 
         public void Tick()
@@ -113,7 +116,7 @@ namespace EnemyModule
             if (TrySpotPlayer())
                 return;
 
-            if (_view.PatrolPoints.Length == 0)
+            if (_patrolPoints.Length == 0)
                 return;
 
             if (_movement.IsPathPending)
@@ -337,22 +340,22 @@ namespace EnemyModule
         {
             _model.SetState(AIState.Patrol);
 
-            if (_view.PatrolPoints.Length == 0)
+            if (_patrolPoints.Length == 0)
             {
                 _movement.Stop();
                 return;
             }
 
-            _movement.MoveTo(_view.PatrolPoints[_patrolIndex].position);
+            _movement.MoveTo(_patrolPoints[_patrolIndex].position);
         }
 
         private void MoveToNextPatrolPoint()
         {
-            if (_view.PatrolPoints.Length == 0)
+            if (_patrolPoints.Length == 0)
                 return;
 
-            _patrolIndex = (_patrolIndex + 1) % _view.PatrolPoints.Length;
-            _movement.MoveTo(_view.PatrolPoints[_patrolIndex].position);
+            _patrolIndex = (_patrolIndex + 1) % _patrolPoints.Length;
+            _movement.MoveTo(_patrolPoints[_patrolIndex].position);
         }
 
         private void DisposeCancellation()

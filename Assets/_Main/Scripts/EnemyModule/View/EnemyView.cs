@@ -19,13 +19,11 @@ namespace EnemyModule
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Animator animator;
         [SerializeField] private EnemyRagdoll ragdoll;
-        [SerializeField] private Transform[] patrolPoints;
 
         [SerializeField] private NavMeshAgent agent;
 
         private IHealthComponent _health;
 
-        public Transform[] PatrolPoints => patrolPoints;
         public IHealthComponent Health => _health;
         public Transform Eyes => eyes;
         public Transform FirePoint => firePoint;
