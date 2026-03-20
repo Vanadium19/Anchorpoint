@@ -2,6 +2,7 @@ using UnityEngine;
 using Zenject;
 using ComponentsModule;
 using UnityEngine.AI;
+using System;
 
 namespace EnemyModule
 {
@@ -30,7 +31,7 @@ namespace EnemyModule
 
             Container.Bind<Transform[]>()
                 .FromInstance(patrolPoints)
-                .WhenInjectedInto<AIAgent>();
+                .WhenInjectedInto<PatrolState>();
 
             Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
                 .To<HealthComponent>()
@@ -57,7 +58,20 @@ namespace EnemyModule
                 .WithArguments(view.transform);
 
             Container.Bind<Enemy>().AsSingle();
-            Container.Bind<AIAgent>().AsSingle();
+
+            Container.Bind<PatrolState>().AsSingle();
+            Container.Bind<ChaseState>().AsSingle();
+            Container.Bind<AttackState>().AsSingle();
+            Container.Bind<ReloadState>().AsSingle();
+
+            Container.Bind<PatrolToChaseTransition>().AsSingle();
+            Container.Bind<ChaseToAttackTransition>().AsSingle();
+            Container.Bind<ChaseToPatrolTransition>().AsSingle();
+            Container.Bind<AttackToReloadTransition>().AsSingle();
+            Container.Bind<AttackToChaseTransition>().AsSingle();
+            Container.Bind<ReloadToChaseTransition>().AsSingle();
+
+            Container.Bind<EnemyAIStateMachine>().AsSingle();
 
             Container.BindInterfacesTo<EnemyController>()
                 .AsSingle()

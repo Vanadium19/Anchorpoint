@@ -23,44 +23,61 @@ namespace EnemyModule
 
         private Vector3? _lastHitPosition;
         private Vector3? _lastHitForce;
+        private bool _isSubscribed;
 
         [Inject]
         public void Construct(IHealthComponent health, IPathMoveComponent movement)
         {
+            UnsubscribeFromHealth();
+
             _health = health;
             _movement = movement;
             _lastHitPosition = null;
             _lastHitForce = null;
+            _isSubscribed = false;
+
+            SubscribeToHealth();
         }
 
         private void OnEnable()
         {
-            _health.DamageTaken += OnDamageTaken;
-            _health.Died += Die;
+            SubscribeToHealth();
         }
 
         private void Update() => UpdateAnimator();
 
         private void OnDisable()
         {
-            _health.DamageTaken -= OnDamageTaken;
-            _health.Died -= Die;
+            UnsubscribeFromHealth();
         }
 
         //TODO: Вынести пули в модуль оружия
-        public void SpawnBullet(Vector3 targetPos, float damage, float bulletSpeed)
+        public void SpawnBullet(Vector3 position, float damage, float bulletSpeed)
         {
-            animator.SetTrigger(ShootHash);
-            var direction = (targetPos - firePoint.position).normalized;
+            if (animator != null)
+                animator.SetTrigger(ShootHash);
+            var direction = (position - firePoint.position).normalized;
 
             var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(direction));
             bullet.Setup(damage, bulletSpeed, 0f, Vector3.zero);
         }
 
-        private void UpdateAnimator() => animator.SetBool(IsMovingHash, _movement.IsMoving);
+        private void UpdateAnimator()
+        {
+            if (animator == null || _movement == null)
+                return;
+
+            animator.SetBool(IsMovingHash, _movement.IsMoving);
+        }
 
         private void Die()
         {
+            if (ragdoll == null)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             ragdoll.Activate(_lastHitForce, _lastHitPosition);
             Destroy(gameObject, DestroyDelay);
         }
@@ -69,6 +86,26 @@ namespace EnemyModule
         {
             _lastHitPosition = hitPosition;
             _lastHitForce = hitForce;
+        }
+
+        private void SubscribeToHealth()
+        {
+            if (_health == null || _isSubscribed)
+                return;
+
+            _health.DamageTaken += OnDamageTaken;
+            _health.Died += Die;
+            _isSubscribed = true;
+        }
+
+        private void UnsubscribeFromHealth()
+        {
+            if (_health == null || !_isSubscribed)
+                return;
+
+            _health.DamageTaken -= OnDamageTaken;
+            _health.Died -= Die;
+            _isSubscribed = false;
         }
     }
 }
