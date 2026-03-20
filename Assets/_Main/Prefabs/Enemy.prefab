@@ -1089,7 +1089,6 @@ MonoBehaviour:
   bulletPrefab: {fileID: -8206953463150193610, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
   animator: {fileID: 2171579678116017918}
   ragdoll: {fileID: 3414506700862876485}
-  agent: {fileID: 863995259156288490}
 --- !u!114 &3414506700862876485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1124,6 +1123,8 @@ MonoBehaviour:
   - {fileID: 5406760815006577862}
   - {fileID: 6105373433568639839}
   eyes: {fileID: 42298620315356849}
+  firePoint: {fileID: 596289272314295884}
+  bulletPrefab: {fileID: 255396894567764038, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
 --- !u!114 &2776398370721606989
 MonoBehaviour:
   m_ObjectHideFlags: 0

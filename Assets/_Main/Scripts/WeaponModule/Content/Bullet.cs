@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace WeaponModule
 {
-    public class Bullet : MonoBehaviour
+    public class Bullet : MonoBehaviour, IProjectile
     {
         [Header("Settings")]
         [SerializeField] private float lifeTime = 3f;

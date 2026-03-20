@@ -5,6 +5,7 @@ using Zenject;
 
 namespace EnemyModule
 {
+    //TODO: Need refactor
     public class EnemyView : MonoBehaviour
     {
         private const float DestroyDelay = 10f;
@@ -12,36 +13,39 @@ namespace EnemyModule
         private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
         private static readonly int ShootHash = Animator.StringToHash("Shoot");
 
-        [Header("References")]
-        [SerializeField] private Transform firePoint;
+        [Header("References")] [SerializeField] private Transform firePoint;
         [SerializeField] private Bullet bulletPrefab;
         [SerializeField] private Animator animator;
         [SerializeField] private EnemyRagdoll ragdoll;
 
         private IHealthComponent _health;
         private IPathMoveComponent _movement;
+        private IRangedAttackComponent _attack;
 
         private Vector3? _lastHitPosition;
         private Vector3? _lastHitForce;
-        private bool _isSubscribed;
+
+        private bool _isHealthSubscribed;
+        private bool _isAttackSubscribed;
 
         [Inject]
-        public void Construct(IHealthComponent health, IPathMoveComponent movement)
+        public void Construct(IHealthComponent health, IPathMoveComponent movement, IRangedAttackComponent attack)
         {
             UnsubscribeFromHealth();
+            UnsubscribeFromAttack();
 
             _health = health;
             _movement = movement;
-            _lastHitPosition = null;
-            _lastHitForce = null;
-            _isSubscribed = false;
+            _attack = attack;
 
             SubscribeToHealth();
+            SubscribeToAttack();
         }
 
         private void OnEnable()
         {
             SubscribeToHealth();
+            SubscribeToAttack();
         }
 
         private void Update() => UpdateAnimator();
@@ -49,17 +53,7 @@ namespace EnemyModule
         private void OnDisable()
         {
             UnsubscribeFromHealth();
-        }
-
-        //TODO: Вынести пули в модуль оружия
-        public void SpawnBullet(Vector3 position, float damage, float bulletSpeed)
-        {
-            if (animator != null)
-                animator.SetTrigger(ShootHash);
-            var direction = (position - firePoint.position).normalized;
-
-            var bullet = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(direction));
-            bullet.Setup(damage, bulletSpeed, 0f, Vector3.zero);
+            UnsubscribeFromAttack();
         }
 
         private void UpdateAnimator()
@@ -88,24 +82,50 @@ namespace EnemyModule
             _lastHitForce = hitForce;
         }
 
+        private void OnAttacked()
+        {
+            if (animator == null)
+                return;
+
+            animator.SetTrigger(ShootHash);
+        }
+
         private void SubscribeToHealth()
         {
-            if (_health == null || _isSubscribed)
+            if (_health == null || _isHealthSubscribed)
                 return;
 
             _health.DamageTaken += OnDamageTaken;
             _health.Died += Die;
-            _isSubscribed = true;
+            _isHealthSubscribed = true;
         }
 
         private void UnsubscribeFromHealth()
         {
-            if (_health == null || !_isSubscribed)
+            if (_health == null || !_isHealthSubscribed)
                 return;
 
             _health.DamageTaken -= OnDamageTaken;
             _health.Died -= Die;
-            _isSubscribed = false;
+            _isHealthSubscribed = false;
+        }
+
+        private void SubscribeToAttack()
+        {
+            if (_attack == null || _isAttackSubscribed)
+                return;
+
+            _attack.Attacked += OnAttacked;
+            _isAttackSubscribed = true;
+        }
+
+        private void UnsubscribeFromAttack()
+        {
+            if (_attack == null || !_isAttackSubscribed)
+                return;
+
+            _attack.Attacked -= OnAttacked;
+            _isAttackSubscribed = false;
         }
     }
 }

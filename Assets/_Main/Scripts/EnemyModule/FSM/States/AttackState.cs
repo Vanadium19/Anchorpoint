@@ -11,6 +11,7 @@ namespace EnemyModule
         private readonly Enemy _enemy;
         private readonly EnemyView _view;
         private readonly PlayerProvider _player;
+        private readonly IRangedAttackComponent _attack;
         private readonly IPathMoveComponent _movement;
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
@@ -23,6 +24,7 @@ namespace EnemyModule
             Enemy enemy,
             EnemyView view,
             PlayerProvider player,
+            IRangedAttackComponent attack,
             IPathMoveComponent movement,
             ITargetRotationComponent rotation,
             ILineOfSightComponent lineOfSight)
@@ -31,6 +33,7 @@ namespace EnemyModule
             _enemy = enemy;
             _view = view;
             _player = player;
+            _attack = attack;
             _movement = movement;
             _rotation = rotation;
             _lineOfSight = lineOfSight;
@@ -52,11 +55,11 @@ namespace EnemyModule
             if (Time.time < _nextFireTime)
                 return;
 
+            if (!_attack.TryAttack(_enemy.LastKnownPosition, _config.Damage, _config.BulletSpeed))
+                return;
+
             float fireRate = Mathf.Max(_config.FireRate, 0.01f);
             _nextFireTime = Time.time + (1f / fireRate);
-
-            if (_enemy.TryConsumeAmmo())
-                _view.SpawnBullet(_enemy.LastKnownPosition, _config.Damage, _config.BulletSpeed);
         }
 
         public void OnExit()
@@ -64,7 +67,7 @@ namespace EnemyModule
             _movement.Stop();
         }
 
-        public bool NeedsReload => _enemy.CurrentAmmo <= 0;
+        public bool NeedsReload => _attack.IsEmpty;
 
         public bool ShouldExitAttack()
         {

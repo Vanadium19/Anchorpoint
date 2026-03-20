@@ -3,6 +3,7 @@ using Zenject;
 using ComponentsModule;
 using UnityEngine.AI;
 using System;
+using WeaponModule;
 
 namespace EnemyModule
 {
@@ -13,6 +14,8 @@ namespace EnemyModule
         [SerializeField] private NavMeshAgent navMeshAgent;
         [SerializeField] private Transform[] patrolPoints;
         [SerializeField] private Transform eyes;
+        [SerializeField] private Transform firePoint;
+        [SerializeField] private GameObject bulletPrefab;
 
         private void OnValidate()
         {
@@ -22,15 +25,18 @@ namespace EnemyModule
 
         public override void InstallBindings()
         {
+            Transform[] resolvedPatrolPoints = patrolPoints ?? Array.Empty<Transform>();
+
             Container.BindInstance(config).AsSingle();
             Container.BindInstance(view).AsSingle();
+            Container.QueueForInject(view);
 
             Container.Bind<NavMeshAgent>()
                 .FromInstance(navMeshAgent)
                 .AsSingle();
 
             Container.Bind<Transform[]>()
-                .FromInstance(patrolPoints)
+                .FromInstance(resolvedPatrolPoints)
                 .WhenInjectedInto<PatrolState>();
 
             Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
@@ -56,6 +62,11 @@ namespace EnemyModule
                 .To<NavMeshCoverFinderComponent>()
                 .AsSingle()
                 .WithArguments(view.transform);
+
+            Container.Bind<IRangedAttackComponent>()
+                .To<ProjectileAttackComponent>()
+                .AsSingle()
+                .WithArguments(firePoint, bulletPrefab, config.MaxAmmo);
 
             Container.Bind<Enemy>().AsSingle();
 

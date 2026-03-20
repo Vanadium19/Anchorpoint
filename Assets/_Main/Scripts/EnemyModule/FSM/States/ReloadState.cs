@@ -8,6 +8,7 @@ namespace EnemyModule
     {
         private readonly EnemyConfig _config;
         private readonly Enemy _enemy;
+        private readonly IRangedAttackComponent _attack;
         private readonly IPathMoveComponent _movement;
         private readonly ICoverFinderComponent _coverFinder;
 
@@ -18,11 +19,13 @@ namespace EnemyModule
         public ReloadState(
             EnemyConfig config,
             Enemy enemy,
+            IRangedAttackComponent attack,
             IPathMoveComponent movement,
             ICoverFinderComponent coverFinder)
         {
             _config = config;
             _enemy = enemy;
+            _attack = attack;
             _movement = movement;
             _coverFinder = coverFinder;
         }
@@ -53,7 +56,7 @@ namespace EnemyModule
             if (_reloadTimer > 0f)
                 return;
 
-            _enemy.Reload(_config.MaxAmmo);
+            _attack.Reload();
             _isReloadComplete = true;
         }
 

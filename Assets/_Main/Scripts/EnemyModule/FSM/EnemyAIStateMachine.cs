@@ -6,17 +6,16 @@ namespace EnemyModule
 {
     public sealed class EnemyAIStateMachine
     {
-        private readonly EnemyConfig _config;
         private readonly Enemy _enemy;
         private readonly EnemyView _view;
         private readonly IHealthComponent _health;
+        private readonly IRangedAttackComponent _attack;
         private readonly IAutoStateMachine<AIState> _stateMachine;
 
-        public EnemyAIStateMachine(
-            EnemyConfig config,
-            Enemy enemy,
+        public EnemyAIStateMachine(Enemy enemy,
             EnemyView view,
             IHealthComponent health,
+            IRangedAttackComponent attack,
             PatrolState patrolState,
             ChaseState chaseState,
             AttackState attackState,
@@ -28,10 +27,10 @@ namespace EnemyModule
             AttackToChaseTransition attackToChaseTransition,
             ReloadToChaseTransition reloadToChaseTransition)
         {
-            _config = config;
             _enemy = enemy;
             _view = view;
             _health = health;
+            _attack = attack;
             _stateMachine = new AutoStateMachine<AIState>(
                 AIState.Patrol,
                 new[]
@@ -56,7 +55,7 @@ namespace EnemyModule
 
         public void Initialize()
         {
-            _enemy.Initialize(_config.MaxAmmo, _view.transform.position);
+            _enemy.Initialize(_view.transform.position);
             _stateMachine.OnEnter();
         }
 
