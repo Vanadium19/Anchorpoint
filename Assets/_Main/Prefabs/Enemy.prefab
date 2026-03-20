@@ -400,16 +400,19 @@ PrefabInstance:
       addedObject: {fileID: 863995259156288490}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3810477692545956003}
-    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3414506700862876485}
+      addedObject: {fileID: 2776398370721606989}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6092380881920590704}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 2776398370721606989}
+      addedObject: {fileID: 5868149460719240051}
+    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3810477692545956003}
+    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3414506700862876485}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 436772443010981899}
@@ -1073,6 +1076,117 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &2776398370721606989
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171579678108583234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08eca9f7688a0a24685b89133b020c8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Zenject::Zenject.GameObjectContext
+  _scriptableObjectInstallers: []
+  _monoInstallers:
+  - {fileID: 6092380881920590704}
+  _installerPrefabs: []
+  _autoRun: 1
+  _kernel: {fileID: 0}
+--- !u!114 &6092380881920590704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171579678108583234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a138d92e36e488a4b82c3804ee2c40c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.Installers.EnemyInstaller
+  config: {fileID: 11400000, guid: 4858d3375a83caa42b7964f16b713873, type: 2}
+  view: {fileID: 3810477692545956003}
+  navMeshAgent: {fileID: 863995259156288490}
+  patrolPoints:
+  - {fileID: 5406760815006577862}
+  - {fileID: 6105373433568639839}
+  eyes: {fileID: 42298620315356849}
+  firePoint: {fileID: 596289272314295884}
+  bulletPrefab: {fileID: 255396894567764038, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
+--- !u!114 &5868149460719240051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171579678108583234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ac128292e772fe4d89622b2cbb2a30c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EnemyModule::EnemyModule.AIAgent
+  context: {fileID: 2776398370721606989}
+  stateMachineAsset:
+    rid: 8156811036537651343
+  references:
+    version: 2
+    RefIds:
+    - rid: 8156811036537651343
+      type: {class: AutoStateMachineAsset, ns: EnemyModule, asm: EnemyModule}
+      data:
+        initialState: 0
+        states:
+        - key: 0
+          state:
+            rid: 8156811036537651344
+        - key: 1
+          state:
+            rid: 8156811036537651345
+        - key: 2
+          state:
+            rid: 8156811036537651346
+        - key: 3
+          state:
+            rid: 8156811036537651347
+        transitions:
+        - rid: 8156811036537651348
+        - rid: 8156811036537651349
+        - rid: 8156811036537651350
+        - rid: 8156811036537651351
+        - rid: 8156811036537651352
+        - rid: 8156811036537651353
+    - rid: 8156811036537651344
+      type: {class: PatrolStateAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651345
+      type: {class: ChaseStateAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651346
+      type: {class: AttackStateAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651347
+      type: {class: ReloadStateAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651348
+      type: {class: AttackToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651349
+      type: {class: AttackToReloadTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651350
+      type: {class: ChaseToAttackTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651351
+      type: {class: ChaseToPatrolTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651352
+      type: {class: PatrolToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 8156811036537651353
+      type: {class: ReloadToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
 --- !u!114 &3810477692545956003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1102,45 +1216,6 @@ MonoBehaviour:
   animator: {fileID: 2171579678116017918}
   agent: {fileID: 863995259156288490}
   mainCollider: {fileID: 3326720251899390544}
---- !u!114 &6092380881920590704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2171579678108583234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a138d92e36e488a4b82c3804ee2c40c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.Installers.EnemyInstaller
-  config: {fileID: 11400000, guid: 4858d3375a83caa42b7964f16b713873, type: 2}
-  view: {fileID: 3810477692545956003}
-  navMeshAgent: {fileID: 863995259156288490}
-  patrolPoints:
-  - {fileID: 5406760815006577862}
-  - {fileID: 6105373433568639839}
-  eyes: {fileID: 42298620315356849}
-  firePoint: {fileID: 596289272314295884}
-  bulletPrefab: {fileID: 255396894567764038, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
---- !u!114 &2776398370721606989
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2171579678108583234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08eca9f7688a0a24685b89133b020c8e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Zenject::Zenject.GameObjectContext
-  _scriptableObjectInstallers: []
-  _monoInstallers:
-  - {fileID: 6092380881920590704}
-  _installerPrefabs: []
-  _autoRun: 1
-  _kernel: {fileID: 0}
 --- !u!114 &436772443010981899
 MonoBehaviour:
   m_ObjectHideFlags: 0

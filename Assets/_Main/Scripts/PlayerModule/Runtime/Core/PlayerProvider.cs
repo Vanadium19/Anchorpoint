@@ -10,6 +10,10 @@ namespace PlayerModule
 
         private DiContainer _container;
 
+        public Vector3 Position => transform.position;
+        public Quaternion Rotation => transform.rotation;
+        public Vector3 Forward => transform.forward;
+
         private void Awake()
         {
             _container = context.Container;
@@ -27,8 +31,5 @@ namespace PlayerModule
             value = _container.TryResolve<T>();
             return value != null;
         }
-        public Vector3 Position => transform.position;
-        public Quaternion Rotation => transform.rotation;
-        public Vector3 Forward => transform.forward;
     }
 }

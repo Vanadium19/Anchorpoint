@@ -3,6 +3,8 @@ using Zenject;
 using ComponentsModule;
 using UnityEngine.AI;
 using System;
+using UnityEditor.Experimental.GraphView;
+
 namespace EnemyModule
 {
     public class EnemyInstaller : MonoInstaller
@@ -30,12 +32,9 @@ namespace EnemyModule
                 .FromInstance(navMeshAgent)
                 .AsSingle();
 
-            Container.Bind<Transform[]>()
-                .FromInstance(patrolPoints)
-                .WhenInjectedInto<PatrolState>();
-
+            Container.Bind<Transform[]>().FromInstance(patrolPoints);
             Container.Bind<Transform>().FromInstance(view.transform);
-            
+
             Container.Bind(typeof(IHealthComponent), typeof(IDamageable))
                 .To<HealthComponent>()
                 .AsSingle()
@@ -66,24 +65,6 @@ namespace EnemyModule
                 .WithArguments(firePoint, bulletPrefab, config.MaxAmmo);
 
             Container.Bind<Blackboard>().AsSingle();
-
-            Container.Bind<PatrolState>().AsSingle();
-            Container.Bind<ChaseState>().AsSingle();
-            Container.Bind<AttackState>().AsSingle();
-            Container.Bind<ReloadState>().AsSingle();
-
-            Container.Bind<PatrolToChaseTransition>().AsSingle();
-            Container.Bind<ChaseToAttackTransition>().AsSingle();
-            Container.Bind<ChaseToPatrolTransition>().AsSingle();
-            Container.Bind<AttackToReloadTransition>().AsSingle();
-            Container.Bind<AttackToChaseTransition>().AsSingle();
-            Container.Bind<ReloadToChaseTransition>().AsSingle();
-
-            Container.Bind<EnemyAIStateMachine>().AsSingle();
-
-            Container.BindInterfacesTo<EnemyController>()
-                .AsSingle()
-                .NonLazy();
         }
     }
 }
