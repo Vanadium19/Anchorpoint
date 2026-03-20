@@ -1,4 +1,5 @@
 using ComponentsModule;
+using SharedData;
 using UnityEngine;
 using WeaponModule;
 using Zenject;
@@ -9,9 +10,6 @@ namespace EnemyModule
     public class EnemyView : MonoBehaviour
     {
         private const float DestroyDelay = 10f;
-
-        private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
-        private static readonly int ShootHash = Animator.StringToHash("Shoot");
 
         [Header("References")]
         [SerializeField] private Animator animator;
@@ -60,7 +58,7 @@ namespace EnemyModule
             if (animator == null || _movement == null)
                 return;
 
-            animator.SetBool(IsMovingHash, _movement.IsMoving);
+            animator.SetBool(EnemyAnimatorHashes.IsMoving, _movement.IsMoving);
         }
 
         private void Die()
@@ -86,7 +84,7 @@ namespace EnemyModule
             if (animator == null)
                 return;
 
-            animator.SetTrigger(ShootHash);
+            animator.SetTrigger(EnemyAnimatorHashes.Shoot);
         }
 
         private void SubscribeToHealth()

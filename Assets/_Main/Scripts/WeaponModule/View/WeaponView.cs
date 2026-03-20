@@ -1,3 +1,4 @@
+using SharedData;
 using UnityEngine;
 
 namespace WeaponModule
@@ -41,15 +42,13 @@ namespace WeaponModule
 
         public void SetTriggerHold(bool isHeld)
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
-            handsAnimator?.SetBool("TriggerHold", isHeld);
+            handsAnimator?.SetBool(WeaponAnimatorHashes.TriggerHold, isHeld);
         }
 
         public void PlayFireEffects(bool isAiming)
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
             //FIXME: Magic numbers
-            gunAnimator?.Play("Fire", 1, 0f);
+            gunAnimator?.Play(WeaponAnimatorHashes.FireState, 1, 0f);
 
             if (muzzleFlash)
                 muzzleFlash.Play();
@@ -68,15 +67,13 @@ namespace WeaponModule
 
         public void PlayReload()
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
-            handsAnimator?.SetTrigger("Reload");
-            gunAnimator?.SetTrigger("Reload");
+            handsAnimator?.SetTrigger(WeaponAnimatorHashes.Reload);
+            gunAnimator?.SetTrigger(WeaponAnimatorHashes.Reload);
         }
 
         public void SetHolsterState(bool isHolstered)
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
-            string trigger = isHolstered ? "Holster" : "Draw";
+            var trigger = isHolstered ? WeaponAnimatorHashes.Holster : WeaponAnimatorHashes.Draw;
 
             handsAnimator?.SetTrigger(trigger);
             gunAnimator?.SetTrigger(trigger);
@@ -84,22 +81,21 @@ namespace WeaponModule
 
         public void SetMovementState(bool isMoving, Vector2 inputVector)
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
             //FIXME: Magic numbers
             if (handsAnimator)
             {
-                handsAnimator.SetBool("IsMoving", isMoving);
+                handsAnimator.SetBool(WeaponAnimatorHashes.IsMoving, isMoving);
 
-                handsAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
-                handsAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
+                handsAnimator.SetFloat(WeaponAnimatorHashes.InputX, inputVector.x, 0.1f, Time.deltaTime);
+                handsAnimator.SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f, Time.deltaTime);
             }
 
             if (!gunAnimator)
                 return;
 
-            gunAnimator.SetBool("IsMoving", isMoving);
-            gunAnimator.SetFloat("InputX", inputVector.x, 0.1f, Time.deltaTime);
-            gunAnimator.SetFloat("InputY", inputVector.y, 0.1f, Time.deltaTime);
+            gunAnimator.SetBool(WeaponAnimatorHashes.IsMoving, isMoving);
+            gunAnimator.SetFloat(WeaponAnimatorHashes.InputX, inputVector.x, 0.1f, Time.deltaTime);
+            gunAnimator.SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f, Time.deltaTime);
         }
 
 
@@ -114,8 +110,8 @@ namespace WeaponModule
             float targetBlend = isAiming ? stabilityTarget : 0f;
 
             _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
-            if (handsAnimator) handsAnimator.SetFloat("AimBlend", _currentAimBlend);
-            if (gunAnimator) gunAnimator.SetFloat("AimBlend", _currentAimBlend);
+            if (handsAnimator) handsAnimator.SetFloat(WeaponAnimatorHashes.AimBlend, _currentAimBlend);
+            if (gunAnimator) gunAnimator.SetFloat(WeaponAnimatorHashes.AimBlend, _currentAimBlend);
         }
 
         public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
