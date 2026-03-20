@@ -28,6 +28,9 @@ namespace EnemyModule
         private bool _isHealthSubscribed;
         private bool _isAttackSubscribed;
 
+        internal Transform FirePoint => firePoint;
+        internal GameObject ProjectilePrefab => bulletPrefab != null ? bulletPrefab.gameObject : null;
+
         [Inject]
         public void Construct(IHealthComponent health, IPathMoveComponent movement, IRangedAttackComponent attack)
         {

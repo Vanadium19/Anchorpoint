@@ -8,10 +8,10 @@ namespace EnemyModule
     public sealed class AttackState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly Enemy _enemy;
         private readonly EnemyView _view;
         private readonly PlayerProvider _player;
         private readonly IRangedAttackComponent _attack;
+        private readonly Blackboard _blackboard;
         private readonly IPathMoveComponent _movement;
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
@@ -21,19 +21,19 @@ namespace EnemyModule
 
         public AttackState(
             EnemyConfig config,
-            Enemy enemy,
             EnemyView view,
             PlayerProvider player,
             IRangedAttackComponent attack,
+            Blackboard blackboard,
             IPathMoveComponent movement,
             ITargetRotationComponent rotation,
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _enemy = enemy;
             _view = view;
             _player = player;
             _attack = attack;
+            _blackboard = blackboard;
             _movement = movement;
             _rotation = rotation;
             _lineOfSight = lineOfSight;
@@ -50,12 +50,16 @@ namespace EnemyModule
             TryUpdateVisibleTarget(out _);
 
             _movement.Stop();
-            _rotation.RotateTowards(_enemy.LastKnownPosition, _config.CombatTurnSpeed);
+
+            if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
+                return;
+
+            _rotation.RotateTowards(targetPosition, _config.CombatTurnSpeed);
 
             if (Time.time < _nextFireTime)
                 return;
 
-            if (!_attack.TryAttack(_enemy.LastKnownPosition, _config.Damage, _config.BulletSpeed))
+            if (!_attack.TryAttack(targetPosition, _config.Damage, _config.BulletSpeed))
                 return;
 
             float fireRate = Mathf.Max(_config.FireRate, 0.01f);
@@ -96,7 +100,7 @@ namespace EnemyModule
             if (!canSeePlayer)
                 return false;
 
-            _enemy.SetTargetPosition(targetPosition);
+            _blackboard.SetValue(BlackboardTag.TargetPosition, targetPosition);
             return true;
         }
 

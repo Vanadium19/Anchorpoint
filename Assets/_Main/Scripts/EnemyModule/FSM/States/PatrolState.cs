@@ -11,10 +11,10 @@ namespace EnemyModule
         private const float PatrolLookDuration = 1f;
 
         private readonly EnemyConfig _config;
-        private readonly Enemy _enemy;
         private readonly EnemyView _view;
         private readonly PlayerProvider _player;
         private readonly IHealthComponent _health;
+        private readonly Blackboard _blackboard;
         private readonly IPathMoveComponent _movement;
         private readonly ITargetRotationComponent _rotation;
         private readonly ILineOfSightComponent _lineOfSight;
@@ -33,20 +33,20 @@ namespace EnemyModule
 
         public PatrolState(
             EnemyConfig config,
-            Enemy enemy,
             EnemyView view,
             PlayerProvider player,
             IHealthComponent health,
+            Blackboard blackboard,
             IPathMoveComponent movement,
             ITargetRotationComponent rotation,
             ILineOfSightComponent lineOfSight,
             Transform[] patrolPoints)
         {
             _config = config;
-            _enemy = enemy;
             _view = view;
             _player = player;
             _health = health;
+            _blackboard = blackboard;
             _movement = movement;
             _rotation = rotation;
             _lineOfSight = lineOfSight;
@@ -56,6 +56,7 @@ namespace EnemyModule
         public void OnEnter()
         {
             _playerTransform ??= ResolvePlayerTransform();
+            _blackboard.DeleteValue<Vector3>(BlackboardTag.TargetPosition);
             SubscribeToDamage();
             _isAlertedByDamage = false;
             _isWaiting = false;
@@ -140,7 +141,7 @@ namespace EnemyModule
 
         public bool TrySpotPlayer()
         {
-            if (_isAlertedByDamage)
+            if (_isAlertedByDamage && _blackboard.HasValue<Vector3>(BlackboardTag.TargetPosition))
                 return true;
 
             _playerTransform ??= ResolvePlayerTransform();
@@ -158,7 +159,7 @@ namespace EnemyModule
             if (!canSeePlayer)
                 return false;
 
-            _enemy.SetTargetPosition(targetPosition);
+            _blackboard.SetValue(BlackboardTag.TargetPosition, targetPosition);
             return true;
         }
 
@@ -188,7 +189,7 @@ namespace EnemyModule
             if (_playerTransform == null)
                 return;
 
-            _enemy.SetTargetPosition(_playerTransform.position);
+            _blackboard.SetValue(BlackboardTag.TargetPosition, _playerTransform.position);
             _isAlertedByDamage = true;
         }
 

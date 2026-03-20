@@ -7,8 +7,8 @@ namespace EnemyModule
     public sealed class ReloadState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly Enemy _enemy;
         private readonly IRangedAttackComponent _attack;
+        private readonly Blackboard _blackboard;
         private readonly IPathMoveComponent _movement;
         private readonly ICoverFinderComponent _coverFinder;
 
@@ -18,14 +18,14 @@ namespace EnemyModule
 
         public ReloadState(
             EnemyConfig config,
-            Enemy enemy,
             IRangedAttackComponent attack,
+            Blackboard blackboard,
             IPathMoveComponent movement,
             ICoverFinderComponent coverFinder)
         {
             _config = config;
-            _enemy = enemy;
             _attack = attack;
+            _blackboard = blackboard;
             _movement = movement;
             _coverFinder = coverFinder;
         }
@@ -71,8 +71,11 @@ namespace EnemyModule
 
         private bool TryMoveToCover()
         {
+            if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
+                return false;
+
             bool foundCover = _coverFinder.TryFindCover(
-                _enemy.LastKnownPosition,
+                targetPosition,
                 _config.CoverSearchRadius,
                 _config.ViewMask,
                 out Vector3 coverPosition);

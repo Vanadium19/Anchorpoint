@@ -8,9 +8,9 @@ namespace EnemyModule
     public sealed class ChaseState : IState
     {
         private readonly EnemyConfig _config;
-        private readonly Enemy _enemy;
         private readonly EnemyView _view;
         private readonly PlayerProvider _player;
+        private readonly Blackboard _blackboard;
         private readonly IPathMoveComponent _movement;
         private readonly ILineOfSightComponent _lineOfSight;
 
@@ -19,16 +19,16 @@ namespace EnemyModule
 
         public ChaseState(
             EnemyConfig config,
-            Enemy enemy,
             EnemyView view,
             PlayerProvider player,
+            Blackboard blackboard,
             IPathMoveComponent movement,
             ILineOfSightComponent lineOfSight)
         {
             _config = config;
-            _enemy = enemy;
             _view = view;
             _player = player;
+            _blackboard = blackboard;
             _movement = movement;
             _lineOfSight = lineOfSight;
         }
@@ -37,13 +37,21 @@ namespace EnemyModule
         {
             _playerTransform ??= ResolvePlayerTransform();
             _chaseTimer = _config.MemoryTime;
-            _movement.MoveTo(_enemy.LastKnownPosition);
+
+            if (_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
+                _movement.MoveTo(targetPosition);
+            else
+                _movement.Stop();
         }
 
         public void OnUpdate(float deltaTime)
         {
             bool canSeePlayer = TryUpdateVisibleTarget(out _);
-            _movement.MoveTo(_enemy.LastKnownPosition);
+
+            if (_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
+                _movement.MoveTo(targetPosition);
+            else
+                _movement.Stop();
 
             if (canSeePlayer)
                 return;
@@ -89,14 +97,17 @@ namespace EnemyModule
             if (!canSeePlayer)
                 return false;
 
-            _enemy.SetTargetPosition(targetPosition);
+            _blackboard.SetValue(BlackboardTag.TargetPosition, targetPosition);
             _chaseTimer = _config.MemoryTime;
             return true;
         }
 
         private bool HasReachedLastKnownPosition()
         {
-            return Vector3.Distance(_view.transform.position, _enemy.LastKnownPosition) <= _config.LostTargetReachDistance;
+            if (!_blackboard.TryGetValue(BlackboardTag.TargetPosition, out Vector3 targetPosition))
+                return true;
+
+            return Vector3.Distance(_view.transform.position, targetPosition) <= _config.LostTargetReachDistance;
         }
 
         private Transform ResolvePlayerTransform()

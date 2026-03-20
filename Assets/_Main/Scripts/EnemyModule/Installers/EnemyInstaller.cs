@@ -3,8 +3,6 @@ using Zenject;
 using ComponentsModule;
 using UnityEngine.AI;
 using System;
-using WeaponModule;
-
 namespace EnemyModule
 {
     public class EnemyInstaller : MonoInstaller
@@ -14,8 +12,6 @@ namespace EnemyModule
         [SerializeField] private NavMeshAgent navMeshAgent;
         [SerializeField] private Transform[] patrolPoints;
         [SerializeField] private Transform eyes;
-        [SerializeField] private Transform firePoint;
-        [SerializeField] private GameObject bulletPrefab;
 
         private void OnValidate()
         {
@@ -66,9 +62,9 @@ namespace EnemyModule
             Container.Bind<IRangedAttackComponent>()
                 .To<ProjectileAttackComponent>()
                 .AsSingle()
-                .WithArguments(firePoint, bulletPrefab, config.MaxAmmo);
+                .WithArguments(view.FirePoint, view.ProjectilePrefab, config.MaxAmmo);
 
-            Container.Bind<Enemy>().AsSingle();
+            Container.Bind<Blackboard>().AsSingle();
 
             Container.Bind<PatrolState>().AsSingle();
             Container.Bind<ChaseState>().AsSingle();
