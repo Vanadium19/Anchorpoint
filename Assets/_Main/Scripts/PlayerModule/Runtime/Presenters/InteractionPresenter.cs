@@ -46,7 +46,8 @@ namespace PlayerModule
             if (_lastLoot == loot) return;
 
             _lastLoot = loot;
-            _cachedMessage = string.Format(_config.InteractionHintFormat, loot.ItemDef.ItemName, loot.Amount);
+            _cachedMessage = string.Format(_config.InteractionHintFormat, 
+                loot.ItemData?.DisplayName ?? "Item", loot.Amount);
             _view.Show(_cachedMessage);
         }
     }

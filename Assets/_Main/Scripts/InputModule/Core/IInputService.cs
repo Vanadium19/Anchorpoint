@@ -6,5 +6,6 @@ namespace InputModule
         void Disable();
         void SetUIMode(bool isActive);
         void SetBuildMode(bool isActive);
+        void Reset();
     }
 }

@@ -13,11 +13,10 @@ namespace BuildingModule
         public IEnumerable<ItemToCount> Values => value;
     }
 
-    //TODO: Replace with Odin serialized dictionary
     [Serializable]
     public class ItemToCount
     {
-        public ItemDefinition ItemDefinition;
+        public ItemDataSo ItemData;
         public int Count;
     }
 }
