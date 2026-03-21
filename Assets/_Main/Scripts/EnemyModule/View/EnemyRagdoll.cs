@@ -52,18 +52,18 @@ namespace EnemyModule
 
         private void ApplyForce(Vector3 position, Vector3 direction)
         {
-            Rigidbody closest = null;
-            float minDistance = float.MaxValue;
+            var closest = default(Rigidbody);
+            var minDistance = float.MaxValue;
 
             foreach (var body in _bodies)
             {
-                float distance = Vector3.Distance(body.position, position);
+                var distance = Vector3.Distance(body.position, position);
 
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    closest = body;
-                }
+                if ((distance >= minDistance))
+                    continue;
+
+                minDistance = distance;
+                closest = body;
             }
 
             if (closest)
