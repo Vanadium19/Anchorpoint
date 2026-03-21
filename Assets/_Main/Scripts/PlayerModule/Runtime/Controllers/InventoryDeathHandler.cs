@@ -29,8 +29,7 @@ namespace PlayerModule
 
         private void OnDied()
         {
-            // TODO: Implement inventory clearing with new system
-            Debug.Log("[InventoryDeathHandler] Player died - clearing inventory");
+            _inventoryManager.ClearInventory();
         }
     }
 }

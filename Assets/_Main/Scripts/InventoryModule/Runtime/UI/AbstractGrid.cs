@@ -250,11 +250,13 @@ namespace InventoryModule
             var width = Mathf.Abs(endPos.x - startPos.x);
             var height = Mathf.Abs(endPos.y - startPos.y);
 
-            if (width < lineThickness)
-                width = lineThickness;
+            var effectiveThickness = Mathf.Max(lineThickness, 2f);
 
-            if (height < lineThickness)
-                height = lineThickness;
+            if (width < effectiveThickness)
+                width = effectiveThickness;
+
+            if (height < effectiveThickness)
+                height = effectiveThickness;
 
             lineRect.anchoredPosition = new Vector2(Mathf.Min(startPos.x, endPos.x), Mathf.Max(startPos.y, endPos.y));
             lineRect.sizeDelta = new Vector2(width, height);

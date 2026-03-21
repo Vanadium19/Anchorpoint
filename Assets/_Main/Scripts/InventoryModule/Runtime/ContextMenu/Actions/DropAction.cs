@@ -23,16 +23,16 @@ namespace InventoryModule.ContextMenu.Actions
             if (_dropService == null)
                 return;
 
+            if (!_dropService.TryDropItem(Item))
+                return;
+
+            Item.RemoveItselfFromLocation();
+
             if (_slotService != null)
             {
                 var slot = _slotService.GetSlotForItem(Item);
-
-                if (slot != null)
-                    slot.Unequip();
+                slot?.Unequip();
             }
-
-            if (_dropService.TryDropItem(Item))
-                Item.RemoveItselfFromLocation();
         }
     }
 }

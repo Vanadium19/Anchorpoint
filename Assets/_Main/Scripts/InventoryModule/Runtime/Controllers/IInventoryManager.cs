@@ -21,5 +21,6 @@ namespace InventoryModule
         void RemoveEquippedItem(EquipmentSlotType slotType);
         int GetItemCount(ItemDataSo itemData);
         bool TryRemoveItems(ItemDataSo itemData, int count);
+        void ClearInventory();
     }
 }

@@ -127,12 +127,6 @@ namespace InventoryModule
                 }
             }
 
-            foreach (var equipped in _equippedItems.Values)
-            {
-                if (equipped != null)
-                    count += CountInEquippedItem(equipped, itemData, processedGrids);
-            }
-
             return count;
         }
 
@@ -173,16 +167,35 @@ namespace InventoryModule
             if (remaining <= 0)
                 return remaining == 0;
 
-            foreach (var equipped in _equippedItems.Values)
-            {
-                if (remaining <= 0)
-                    break;
+            return remaining == 0;
+        }
 
-                if (equipped != null)
-                    RemoveFromEquippedItem(equipped, itemData, ref remaining, processedGrids);
+        public void ClearInventory()
+        {
+            if (_mainGrid != null)
+            {
+                var items = _mainGrid.GetAllItems();
+                for (var i = 0; i < items.Length; i++)
+                    items[i].RemoveItselfFromLocation();
             }
 
-            return remaining == 0;
+            foreach (var grid in _additionalGrids)
+            {
+                var items = grid.GetAllItems();
+                for (var i = 0; i < items.Length; i++)
+                    items[i].RemoveItselfFromLocation();
+            }
+
+            if (_slotService != null)
+            {
+                foreach (var slot in _slotService.GetAllSlots())
+                {
+                    if (slot.IsEquipped)
+                        slot.Unequip();
+                }
+            }
+
+            _equippedItems.Clear();
         }
 
         public bool AddItemToInventory(ItemDataSo itemData, int stackCount = 1)
@@ -294,8 +307,30 @@ namespace InventoryModule
 
         private void RemoveFromEquippedItem(ItemTable equippedItem, ItemDataSo itemData, ref int remaining, HashSet<GridTable> processedGrids)
         {
-            if (!equippedItem.IsContainer)
+            if (equippedItem.ItemDataSo != itemData)
                 return;
+
+            if (!equippedItem.IsContainer)
+            {
+                if (equippedItem.StackCount <= remaining)
+                {
+                    remaining -= equippedItem.StackCount;
+                    equippedItem.StackCount = 0;
+
+                    if (_slotService != null)
+                    {
+                        var slot = _slotService.GetSlotForItem(equippedItem);
+                        slot?.Unequip();
+                    }
+                }
+                else
+                {
+                    equippedItem.StackCount -= remaining;
+                    remaining = 0;
+                }
+
+                return;
+            }
 
             var metadata = equippedItem.GetMetadata<ContainerMetadata>();
 
