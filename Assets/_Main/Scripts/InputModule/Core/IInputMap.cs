@@ -14,6 +14,7 @@ namespace InputModule
         float WeaponScroll { get; }
         int SelectWeaponIndex { get; }
         bool IsFirePressed { get; }
+        bool IsFireHeld { get; }
         bool IsAimPressed { get; }
         bool IsReloadPressed { get; }
         bool IsHolsterPressed { get; }

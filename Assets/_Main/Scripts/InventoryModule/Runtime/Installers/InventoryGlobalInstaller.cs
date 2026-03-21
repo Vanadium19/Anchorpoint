@@ -1,33 +1,42 @@
-using UnityEngine;
 using Zenject;
+using InventoryModule.ContextMenu;
+using InventoryModule.ContextMenu.UI;
 
 namespace InventoryModule
 {
     public sealed class InventoryGlobalInstaller : MonoInstaller
     {
-        [SerializeField] private InventoryConfig inventoryConfig;
-        [SerializeField] private ItemDatabase itemDatabase;
-
         public override void InstallBindings()
         {
-            Container.Bind<InventoryConfig>()
-                .FromInstance(inventoryConfig)
-                .AsSingle();
-
-            Container.Bind<ItemDatabase>()
-                .FromInstance(itemDatabase)
-                .AsSingle();
-
-            Container.Bind<InventoryModel>()
+            Container.BindInterfacesAndSelfTo<InventoryManager>()
                 .AsSingle()
-                .WithArguments(inventoryConfig.Width, inventoryConfig.Height);
+                .NonLazy();
 
-            Container.Bind<IItemProvider>()
-                .To<ItemProvider>()
+            Container.BindInterfacesAndSelfTo<EquipmentSlotService>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<GridService>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<IContainerWindowService>()
+                .To<ContainerWindowService>()
                 .AsSingle();
 
-            Container.Bind<IInventoryService>()
-                .To<InventoryService>()
+            Container.Bind<IContextMenuStateService>()
+                .To<ContextMenuStateService>()
+                .AsSingle();
+
+            Container.BindInterfacesTo<InventoryStaticDataResetHandler>()
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<UIInputHandler>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.Bind<IContextActionService>()
+                .To<ContextActionService>()
                 .AsSingle();
         }
     }
