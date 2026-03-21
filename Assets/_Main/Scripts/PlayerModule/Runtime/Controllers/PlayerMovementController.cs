@@ -1,5 +1,5 @@
 using ComponentsModule;
-using InputModule;
+using UnityEngine;
 using Zenject;
 
 namespace PlayerModule
@@ -10,60 +10,69 @@ namespace PlayerModule
         private readonly IRotationComponent _rotation;
         private readonly ICrouchComponent _croucher;
         private readonly ILeanComponent _leaner;
-        private readonly IInputMap _inputMap;
+        private readonly PlayerInputSwitcher _inputSwitcher;
         private readonly PlayerConfig _config;
 
-        public PlayerMovementController(IMoveComponent mover,
+        public PlayerMovementController(
+            IMoveComponent mover,
             IRotationComponent rotation,
             ICrouchComponent croucher,
             ILeanComponent leaner,
-            IInputMap inputMap,
+            PlayerInputSwitcher inputSwitcher,
             PlayerConfig config)
         {
             _mover = mover;
-            _inputMap = inputMap;
             _rotation = rotation;
-            _leaner = leaner;
             _croucher = croucher;
+            _leaner = leaner;
+            _inputSwitcher = inputSwitcher;
             _config = config;
         }
 
         public void Tick()
         {
-            Move();
-            Rotate();
-            Crouch();
-            Lean();
+            var input = _inputSwitcher.CurrentInput;
+
+            Move(input);
+            Rotate(input);
+            Crouch(input);
+            Lean(input);
         }
 
-        private void Move()
+        private void Move(IPlayerInput input)
         {
-            var isCrouching = _inputMap.IsCrouchPressed;
-            var jumped = _inputMap.IsJumpPressed && !isCrouching;
+            if (input == null)
+                return;
 
+            var isCrouching = input.IsCrouchPressed;
             var targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
+
             _mover.SetSpeed(targetSpeed);
-
-            var direction = _inputMap.MoveInput;
-            _mover.Move(direction, jumped);
+            _mover.Move(input.MoveDirection, input.IsJumpPressed && !isCrouching);
         }
 
-        private void Rotate()
+        private void Rotate(IPlayerInput input)
         {
-            var direction = _inputMap.LookInput;
-            _rotation.Rotate(direction);
+            if (input == null)
+                return;
+
+            _rotation.Rotate(input.LookDirection);
         }
 
-        private void Lean()
+        private void Lean(IPlayerInput input)
         {
-            var targetLean = _inputMap.LeanInput;
-            _leaner.Lean(targetLean);
+            if (input == null)
+                return;
+
+            _leaner.Lean(input.LeanDirection);
         }
 
-        private void Crouch()
+        private void Crouch(IPlayerInput input)
         {
-            var isCrouching = _inputMap.IsCrouchPressed;
-            _croucher.Crouch(isCrouching);
+            if (input == null)
+                return;
+
+            _croucher.Crouch(input.IsCrouchPressed);
         }
     }
 }

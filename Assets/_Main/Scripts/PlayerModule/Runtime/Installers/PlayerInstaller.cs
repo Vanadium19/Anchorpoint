@@ -1,4 +1,5 @@
 using ComponentsModule;
+using BuildingModule;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -42,6 +43,10 @@ namespace PlayerModule
                 .FromInstance(player)
                 .AsSingle();
 
+            Container.Bind<Camera>()
+                .FromInstance(Camera.main)
+                .AsSingle();
+
             Container.Bind<IMoveComponent>()
                 .To<MoveComponent>()
                 .AsSingle()
@@ -71,6 +76,10 @@ namespace PlayerModule
                 .NonLazy();
 
             Container.BindInterfacesTo<PlayerMovementController>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<PlayerInputSwitcher>()
                 .AsSingle()
                 .NonLazy();
 

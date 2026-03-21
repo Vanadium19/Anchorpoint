@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2194487db8f04d1ab717986e756f9d5a, type: 3}
+  m_Name: TableConfig
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingConfig
+  id: Table
+  category: 2
+  prefab: {fileID: 9073956356888515507, guid: 966205d8f9ee49845832ebe91efc6f7c, type: 3}
+  price:
+    value: []
+  icon: {fileID: 371250376, guid: 45d89d1d68544f54bb0edd3d96989617, type: 3}
+  order: 2
+  allowedBuildLayers:
+    serializedVersion: 2
+    m_Bits: 513
+  requireGroundSupport: 1

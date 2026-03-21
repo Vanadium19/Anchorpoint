@@ -26,13 +26,14 @@ namespace PlayerModule
             IInputMap input,
             IInventoryService inventoryService,
             IItemProvider itemProvider,
+            Camera camera,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
             _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
+            _camera = camera;
             _config = config;
-            _camera = Camera.main;
             _cancellationTokenSource = new CancellationTokenSource();
         }
 

@@ -11,13 +11,16 @@ namespace BuildingModule
             _catalog = catalog;
         }
 
-        public BuildingView Create(BuildingName name, Vector3 position, Quaternion rotation)
+        public BuildingView Create(string id, Vector3 position, Quaternion rotation)
         {
-            if (!_catalog.TryGetConfig(name, out var config))
+            if (!_catalog.TryGetConfig(id, out var config))
                 return null;
 
             var view = Object.Instantiate(config.Prefab, position, rotation);
-            view.SetBuildingName(name);
+
+            if (view.CollisionCollider != null)
+                view.CollisionCollider.enabled = false;
+
             return view;
         }
     }

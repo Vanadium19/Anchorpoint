@@ -7,8 +7,6 @@ namespace BuildingModule
     public class StorageService : IStorageService
     {
         private readonly BuildingCatalog _buildingCatalog;
-
-        //FIXME: Нужнен ефактор инвентаря
         private readonly InventoryModel _inventory;
         private readonly IInventoryService _inventoryService;
 
@@ -21,9 +19,9 @@ namespace BuildingModule
             _inventoryService = inventoryService;
         }
 
-        public bool CanBuy(BuildingName name)
+        public bool CanBuy(string id)
         {
-            if (!_buildingCatalog.TryGetConfig(name, out var config))
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return false;
 
             foreach (var itemToCount in config.Price.Values)
@@ -40,12 +38,12 @@ namespace BuildingModule
             return true;
         }
 
-        public bool Buy(BuildingName name)
+        public bool Buy(string id)
         {
-            if (!_buildingCatalog.TryGetConfig(name, out var config))
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return false;
 
-            if (!CanBuy(name))
+            if (!CanBuy(id))
                 return false;
 
             foreach (var itemToCount in config.Price.Values)
@@ -53,8 +51,8 @@ namespace BuildingModule
                 var resource = _inventory.Items.First(item => item.Id == itemToCount.ItemDefinition.Id);
                 resource.Amount -= itemToCount.Count;
                 _inventoryService.UpdateInventory();
-                
-                if (resource.Amount <=0)
+
+                if (resource.Amount <= 0)
                     _inventoryService.RemoveItemAsync(resource, CancellationToken.None);
             }
 

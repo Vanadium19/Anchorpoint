@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BuildingModule
@@ -5,67 +6,126 @@ namespace BuildingModule
     public class PlacementService : IPlacementService
     {
         private readonly IGrid _grid;
-
         private readonly IPreviewService _previewService;
         private readonly IStorageService _storage;
         private readonly BuildingFactory _factory;
+        private readonly BuildingCatalog _catalog;
+        private readonly PlacementConfig _config;
 
-        private BuildingName _currentBuilding;
+        private string _currentBuildingId;
+        private Vector3 _lastValidPosition;
+        private float _currentRotation;
 
-        public PlacementService(IGrid grid,
+        public PlacementService(
+            IGrid grid,
             IPreviewService previewService,
             IStorageService storage,
-            BuildingFactory factory)
+            BuildingFactory factory,
+            BuildingCatalog catalog,
+            PlacementConfig config)
         {
             _grid = grid;
             _previewService = previewService;
             _factory = factory;
             _storage = storage;
+            _catalog = catalog;
+            _config = config;
         }
 
-        public BuildingName CurrentBuilding => _currentBuilding;
+        public string CurrentBuildingId => _currentBuildingId;
 
-        public void SetBuilding(BuildingName value)
+        public Vector3 LastValidPosition => _lastValidPosition;
+
+        public float CurrentRotation => _currentRotation;
+
+        public bool HasCollisionAtPosition(Vector3 position)
         {
-            if (_currentBuilding == value)
+            return _previewService.HasCollisionAtPosition(position, _currentRotation);
+        }
+
+        public void SetBuilding(string id)
+        {
+            if (_currentBuildingId == id)
                 return;
 
-            _currentBuilding = value;
-            _previewService.SetPreview(value);
+            _currentBuildingId = id;
+            _previewService.SetPreview(id);
         }
 
         public void UpdatePosition(Vector3 worldPosition)
         {
-            if (_currentBuilding == BuildingName.None)
+            if (string.IsNullOrEmpty(_currentBuildingId))
                 return;
 
             if (!_grid.TryGetNearestTile(worldPosition, out var tile))
                 return;
 
-            _previewService.UpdatePreview(tile.WorldPosition, tile.IsOccupied);
+            _lastValidPosition = tile.WorldPosition;
+            _previewService.UpdatePreview(tile.WorldPosition, tile.IsOccupied, _currentRotation);
         }
 
-        public bool Build(Vector3 worldPosition)
+        public void UpdatePositionFree(Vector3 worldPosition, bool hasGroundSupport)
         {
-            if (_currentBuilding == BuildingName.None)
+            if (string.IsNullOrEmpty(_currentBuildingId))
+                return;
+
+            _lastValidPosition = worldPosition;
+            var hasCollision = _previewService.HasCollisionAtPosition(worldPosition, _currentRotation);
+            _previewService.UpdatePreview(worldPosition, hasCollision, hasGroundSupport);
+        }
+
+        public void UpdateRotation(float rotation)
+        {
+            if (Mathf.Abs(_currentRotation - rotation) < 0.01f)
+                return;
+
+            _currentRotation = rotation;
+            _previewService.UpdatePreview(_currentRotation);
+        }
+
+        public bool Build(Vector3 worldPosition, bool useGrid = true)
+        {
+            if (string.IsNullOrEmpty(_currentBuildingId))
                 return false;
 
-            if (!_grid.TryGetNearestTile(worldPosition, out var tile))
-                return false;
+            if (useGrid)
+            {
+                if (!_grid.TryGetNearestTile(worldPosition, out var tile))
+                    return false;
 
-            if (tile.IsOccupied)
-                return false;
+                if (tile.IsOccupied)
+                    return false;
 
-            if (!_storage.CanBuy(_currentBuilding))
-                return false;
+                if (!_storage.CanBuy(_currentBuildingId))
+                    return false;
 
-            _factory.Create(_currentBuilding, tile.WorldPosition, Quaternion.identity);
-            _storage.Buy(_currentBuilding);
-            tile.Occupy();
-            Cancel();
+                var rotation = Quaternion.Euler(0f, _currentRotation, 0f);
+                _factory.Create(_currentBuildingId, tile.WorldPosition, rotation);
+                _storage.Buy(_currentBuildingId);
+                tile.Occupy();
+            }
+            else
+            {
+                if (HasCollisionAtPosition(worldPosition))
+                    return false;
+
+                if (!_storage.CanBuy(_currentBuildingId))
+                    return false;
+
+                var rotation = Quaternion.Euler(0f, _currentRotation, 0f);
+                _factory.Create(_currentBuildingId, worldPosition, rotation);
+                _storage.Buy(_currentBuildingId);
+            }
+
+            _previewService.Cancel();
+            _previewService.SetPreview(_currentBuildingId);
             return true;
         }
 
-        public void Cancel() => SetBuilding(BuildingName.None);
+        public void Cancel()
+        {
+            _currentBuildingId = null;
+            _previewService.Cancel();
+        }
     }
 }

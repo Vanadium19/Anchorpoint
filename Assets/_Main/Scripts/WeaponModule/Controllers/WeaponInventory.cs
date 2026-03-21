@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Zenject;
 using Cysharp.Threading.Tasks;
 using InputModule;
+using BuildingModule;
 
 namespace WeaponModule
 {
@@ -9,19 +10,24 @@ namespace WeaponModule
     {
         private readonly WeaponFactory _weaponFactory;
         private readonly IInputMap _input;
+        private readonly IConstructionModeService _constructionModeService;
         private readonly List<WeaponSetupData> _loadout;
         private readonly List<IWeapon> _weapons = new();
 
         private IWeapon _currentWeapon;
         private int _currentIndex = -1;
         private bool _isSwitching = false;
+        private int _lastEquippedIndex;
 
-        public WeaponInventory(WeaponFactory weaponFactory,
+        public WeaponInventory(
+            WeaponFactory weaponFactory,
             IInputMap input,
-            List<WeaponSetupData> loadout)
+            List<WeaponSetupData> loadout,
+            [InjectOptional] IConstructionModeService constructionModeService = null)
         {
             _weaponFactory = weaponFactory;
             _input = input;
+            _constructionModeService = constructionModeService;
             _loadout = loadout;
         }
 
@@ -37,6 +43,26 @@ namespace WeaponModule
 
             if (_weapons.Count > 0)
                 EquipWeapon(0).Forget();
+
+            if (_constructionModeService != null)
+                _constructionModeService.ActiveChanged += OnBuildModeChanged;
+        }
+
+        private void OnBuildModeChanged(bool isActive)
+        {
+            if (isActive)
+                UnequipCurrentWeapon();
+        }
+
+        private void UnequipCurrentWeapon()
+        {
+            if (_currentWeapon == null)
+                return;
+
+            _lastEquippedIndex = _currentIndex;
+            _currentWeapon.Unequip().Forget();
+            _currentWeapon = null;
+            _currentIndex = -1;
         }
 
         public void Tick()
