@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6058cb8a58a9fdc4cab7806e0b0ae954, type: 3}
+  m_Name: ScrapMetal
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDefinition
+  itemName: ScrapMetal
+  description: 
+  icon: {fileID: -2137217032, guid: fa9d4b3a0df108f48bb7457fd830e980, type: 3}
+  worldPrefab: {fileID: 4239781895274958637, guid: 059ace23df0503449b05d7027cea4128, type: 3}
+  inventoryPrefab: {fileID: 7929940482639392972, guid: 059ace23df0503449b05d7027cea4128, type: 3}
+  width: 2
+  height: 1
+  maxStack: 5
+  canRotate: 1
+  weight: 0.1
+  value: 1
+  category: 1

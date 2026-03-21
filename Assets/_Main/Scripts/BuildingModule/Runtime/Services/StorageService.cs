@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Threading;
 using InventoryModule;
 
 namespace BuildingModule
@@ -6,14 +7,18 @@ namespace BuildingModule
     public class StorageService : IStorageService
     {
         private readonly BuildingCatalog _buildingCatalog;
-        private readonly IInventoryManager _inventoryManager;
 
-        public StorageService(
+        //FIXME: Нужнен ефактор инвентаря
+        private readonly InventoryModel _inventory;
+        private readonly IInventoryService _inventoryService;
+
+        public StorageService(InventoryModel inventory,
             BuildingCatalog buildingCatalog,
-            IInventoryManager inventoryManager)
+            IInventoryService inventoryService)
         {
+            _inventory = inventory;
             _buildingCatalog = buildingCatalog;
-            _inventoryManager = inventoryManager;
+            _inventoryService = inventoryService;
         }
 
         public bool CanBuy(BuildingName name)
@@ -21,17 +26,14 @@ namespace BuildingModule
             if (!_buildingCatalog.TryGetConfig(name, out var config))
                 return false;
 
-            var price = config.Price;
-            if (price?.Values == null)
-                return true;
-
-            foreach (var itemToCount in price.Values)
+            foreach (var itemToCount in config.Price.Values)
             {
-                if (itemToCount.ItemData == null)
-                    continue;
+                var resource = _inventory.Items.FirstOrDefault(item => item.Id == itemToCount.ItemDefinition.Id);
 
-                int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
-                if (available < itemToCount.Count)
+                if (resource == null)
+                    return false;
+
+                if (resource.Amount < itemToCount.Count)
                     return false;
             }
 
@@ -46,20 +48,14 @@ namespace BuildingModule
             if (!CanBuy(name))
                 return false;
 
-            var price = config.Price;
-            if (price?.Values == null)
-                return true;
-
-            foreach (var itemToCount in price.Values)
+            foreach (var itemToCount in config.Price.Values)
             {
-                if (itemToCount.ItemData == null)
-                    continue;
-
-                bool removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
-                if (!removed)
-                {
-                    return false;
-                }
+                var resource = _inventory.Items.First(item => item.Id == itemToCount.ItemDefinition.Id);
+                resource.Amount -= itemToCount.Count;
+                _inventoryService.UpdateInventory();
+                
+                if (resource.Amount <=0)
+                    _inventoryService.RemoveItemAsync(resource, CancellationToken.None);
             }
 
             return true;

@@ -56,10 +56,11 @@ namespace BuildingModule
             if (tile.IsOccupied)
                 return false;
 
-            if (!_storage.Buy(_currentBuilding))
+            if (!_storage.CanBuy(_currentBuilding))
                 return false;
 
             _factory.Create(_currentBuilding, tile.WorldPosition, Quaternion.identity);
+            _storage.Buy(_currentBuilding);
             tile.Occupy();
             Cancel();
             return true;

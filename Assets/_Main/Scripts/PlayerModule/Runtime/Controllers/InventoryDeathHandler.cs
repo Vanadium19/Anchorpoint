@@ -1,7 +1,6 @@
 using System;
 using ComponentsModule;
 using InventoryModule;
-using UnityEngine;
 using Zenject;
 
 namespace PlayerModule
@@ -9,12 +8,11 @@ namespace PlayerModule
     public class InventoryDeathHandler : IInitializable, IDisposable
     {
         private readonly IHealthComponent _health;
-        private readonly IInventoryManager _inventoryManager;
-
-        public InventoryDeathHandler(IHealthComponent health, IInventoryManager inventoryManager)
+        private readonly IInventoryService _inventoryService;
+        public InventoryDeathHandler(IHealthComponent health, IInventoryService inventoryService)
         {
             _health = health;
-            _inventoryManager = inventoryManager;
+            _inventoryService = inventoryService;
         }
 
         public void Initialize()
@@ -27,9 +25,6 @@ namespace PlayerModule
             _health.Died -= OnDied;
         }
 
-        private void OnDied()
-        {
-            _inventoryManager.ClearInventory();
-        }
+        private void OnDied() => _inventoryService.ClearInventory();
     }
 }

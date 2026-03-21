@@ -1,6 +1,8 @@
+using Cysharp.Threading.Tasks;
 using InputModule;
 using InventoryModule;
 using System;
+using System.Threading;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -10,26 +12,40 @@ namespace PlayerModule
     public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
     {
         private readonly IInputMap _input;
-        private readonly IInventoryManager _inventoryManager;
+        private readonly IInventoryService _inventoryService;
+        private readonly IItemProvider _itemProvider;
         private readonly Camera _camera;
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly PlayerConfig _config;
+        private readonly UIModule.InteractionHUDView _hud;
 
         public event Action<LootItemView> HoverChanged;
         private LootItemView _currentHoveredLoot;
 
         public PlayerInteractionController(
             IInputMap input,
-            IInventoryManager inventoryManager,
+            IInventoryService inventoryService,
+            IItemProvider itemProvider,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
-            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
+            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
+            _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
             _config = config;
             _camera = Camera.main;
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public void Initialize() { }
-        public void Dispose() { }
+        public void Initialize()
+        {
+            // Initialization if needed
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
+        }
 
         public void Tick()
         {
@@ -42,7 +58,7 @@ namespace PlayerModule
 
                 if (loot != null && _input.IsInteractPressed)
                 {
-                    TryPickUpLoot(loot);
+                    TryPickUpLootAsync(loot).Forget();
                 }
             }
             else
@@ -50,7 +66,6 @@ namespace PlayerModule
                 UpdateHover(null);
             }
         }
-
         private void UpdateHover(LootItemView newLoot)
         {
             if (_currentHoveredLoot == null && newLoot == null) return;
@@ -66,44 +81,42 @@ namespace PlayerModule
             _currentHoveredLoot = newLoot;
             HoverChanged?.Invoke(_currentHoveredLoot);
         }
-
-        private void TryPickUpLoot(LootItemView loot)
+        private async UniTaskVoid TryPickUpLootAsync(LootItemView loot)
         {
-            var itemData = loot.ItemData;
+            var token = _cancellationTokenSource.Token;
 
-            if (itemData == null)
+            try
             {
-                Debug.LogWarning("[PlayerInteractionController] Loot has no ItemData");
-                return;
-            }
+                var itemDefinition = _itemProvider.GetItemDefinition(loot.ItemDef.Id);
 
-            bool success;
-
-            if (loot.ItemTable != null)
-            {
-                success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
-                
-                if (!success && itemData.IsEquippable)
+                if (itemDefinition == null)
                 {
-                    success = _inventoryManager.TryAutoEquipItem(loot.ItemTable);
+                    Debug.LogWarning($"Item definition not found for loot: {loot.ItemDef.Id}");
+                    return;
+                }
+
+                var result = await _inventoryService.AddItemAsync(
+                    itemDefinition,
+                    loot.Amount,
+                    token);
+
+                if (result.Success)
+                {
+                    loot.Collect();
+                    UpdateHover(null);
+                }
+                else
+                {
+                    Debug.LogWarning($"Failed to pick up loot: {result.ErrorMessage}");
                 }
             }
-            else
+            catch (OperationCanceledException)
             {
-                success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
-                
-                if (!success && itemData.IsEquippable)
-                {
-                    var newItem = new ItemTable(itemData) { StackCount = loot.Amount };
-                    success = _inventoryManager.TryAutoEquipItem(newItem);
-                }
+                // Operation was cancelled, ignore
             }
-
-            if (success)
+            catch (Exception exception)
             {
-                loot.PlayCollectEffects();
-                UpdateHover(null);
-                UnityEngine.Object.Destroy(loot.gameObject);
+                Debug.LogError($"Error picking up loot: {exception}");
             }
         }
     }

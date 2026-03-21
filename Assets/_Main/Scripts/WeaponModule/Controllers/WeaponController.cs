@@ -130,7 +130,7 @@ namespace WeaponModule
             if (_isReloading)
                 return;
 
-            if (_input.IsFireHeld && Time.time >= _nextFireTime)
+            if (_input.IsFirePressed && Time.time >= _nextFireTime)
             {
                 if (_model.CurrentAmmo > 0)
                 {
