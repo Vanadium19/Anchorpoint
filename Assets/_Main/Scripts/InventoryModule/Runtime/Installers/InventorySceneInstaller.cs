@@ -1,25 +1,65 @@
-using ComponentsModule;
 using UnityEngine;
 using Zenject;
+using InventoryModule.ContextMenu;
 
 namespace InventoryModule
 {
     public sealed class InventorySceneInstaller : MonoInstaller
     {
-        [SerializeField] private InventoryView inventoryView;
+        [Header("UI References")]
+        [SerializeField] private GameObject inventoryUI;
+        [SerializeField] private CharacterInventory characterInventory;
+        [SerializeField] private Canvas mainCanvas;
+
+        [Header("Drop Settings")]
+        [SerializeField] private Transform playerTransform;
+        [SerializeField] private float dropDistance = 2f;
+        [SerializeField] private float dropOffsetY = 0.5f;
+
+        [Header("Context Menu")]
+        [SerializeField] private ContainerWindow containerWindowPrefab;
+        [SerializeField] private AbstractGrid gridPrefab;
 
         public override void InstallBindings()
         {
-            Container.Bind<InventoryView>()
-                .FromInstance(inventoryView)
-                .AsSingle();
+            if (mainCanvas != null)
+                Container.Bind<Canvas>().FromInstance(mainCanvas).AsSingle();
 
-            Container.BindInterfacesTo<InventoryPresenter>()
+            Container.Bind<IDropService>()
+                .To<DropService>()
                 .AsSingle()
-                .NonLazy();
-            Container.Bind<IPlayerPositionProvider>()
-                .FromComponentInHierarchy()
+                .WithArguments(playerTransform, dropDistance, dropOffsetY);
+
+            if (containerWindowPrefab != null)
+                Container.Bind<ContainerWindow>()
+                    .FromInstance(containerWindowPrefab)
+                    .AsSingle();
+
+            if (gridPrefab != null)
+                Container.Bind<AbstractGrid>()
+                    .FromInstance(gridPrefab)
+                    .AsSingle();
+
+            if (characterInventory != null)
+                Container.Bind<CharacterInventory>()
+                    .FromInstance(characterInventory)
+                    .AsSingle();
+
+            if (inventoryUI != null)
+            {
+                Container.Bind<GameObject>()
+                    .WithId("InventoryUI")
+                    .FromInstance(inventoryUI);
+            }
+
+            Container.BindInterfacesTo<InventoryStartup>()
                 .AsSingle();
+        }
+
+        public override void Start()
+        {
+            var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
+            contextActionService?.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
         }
     }
 }

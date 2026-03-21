@@ -4,13 +4,13 @@
   <Project Path="ExtractionModule.csproj" />
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="SimpleFolderIcon.csproj" />
-  <Project Path="InventoryModule.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="WeaponModule.csproj" />
   <Project Path="ComponentsModule.csproj" />
   <Project Path="InputModule.csproj" />
   <Project Path="EnemyModule.csproj" />
   <Project Path="BuildingModule.csproj" />
+  <Project Path="InventoryModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="CameraModule.csproj" />
   <Project Path="UIModule.csproj" />

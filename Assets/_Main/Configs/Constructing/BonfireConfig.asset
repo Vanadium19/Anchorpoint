@@ -16,5 +16,5 @@ MonoBehaviour:
   prefab: {fileID: 6607105530365848724, guid: 6e68d3a1a556943a5a45f589cd83746d, type: 3}
   price:
     value:
-    - ItemDefinition: {fileID: 11400000, guid: 4758fcdc5303b2e418ba778061356649, type: 2}
+    - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
       Count: 2
