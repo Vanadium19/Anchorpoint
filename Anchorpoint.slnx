@@ -13,6 +13,7 @@
   <Project Path="BuildingModule.csproj" />
   <Project Path="EvacuationModule.csproj" />
   <Project Path="UIModule.csproj" />
+  <Project Path="BaseModule.csproj" />
   <Project Path="PlayerModule.csproj" />
   <Project Path="CommandsModule.csproj" />
   <Project Path="GameCycleModule.csproj" />

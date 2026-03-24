@@ -35,7 +35,6 @@ namespace BuildingModule
         private void OnActiveChanged(bool isActive)
         {
             _gridView.gameObject.SetActive(isActive && _useGrid);
-            _constructionPanel.SetActive(isActive);
             _inputService.SetBuildMode(isActive);
         }
     }

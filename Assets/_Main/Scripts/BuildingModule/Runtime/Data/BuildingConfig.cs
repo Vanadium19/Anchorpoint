@@ -14,6 +14,9 @@ namespace BuildingModule
         [Header("Placement Restrictions")]
         [SerializeField] private LayerMask allowedBuildLayers = ~0;
 
+        [Header("Base Level")]
+        [SerializeField] private int basePoints;
+
         public string Id => id;
         public BuildingCategory Category => category;
         public BuildingView Prefab => prefab;
@@ -21,5 +24,6 @@ namespace BuildingModule
         public Sprite Icon => icon;
         public int Order => order;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
+        public int BasePoints => basePoints;
     }
 }

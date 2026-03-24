@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: BuildingMenuConfig
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingMenuConfig
   animationOffset: 50
+  slideAnimationDuration: 0.3
+  slideOffset: 200
   itemSpacing: 150
   itemSize: 100
   smoothTime: 0.1

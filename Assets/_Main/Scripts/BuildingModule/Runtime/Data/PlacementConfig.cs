@@ -22,7 +22,6 @@ namespace BuildingModule
         [SerializeField] private float previewAlpha = 0.5f;
         [Range(0f, 1f)]
         [SerializeField] private float smoothSpeed = 0.5f;
-        [SerializeField] private float deadZoneThreshold = 0.05f;
         [SerializeField] private float ceilingOffset = 0.1f;
         [Range(0f, 2f)]
         [SerializeField] private float ceilingAngleFactor = 0.5f;
@@ -42,7 +41,6 @@ namespace BuildingModule
         public float PreviewYOffset => previewYOffset;
         public float PreviewAlpha => previewAlpha;
         public float SmoothSpeed => smoothSpeed;
-        public float DeadZoneThreshold => deadZoneThreshold;
         public float CeilingOffset => ceilingOffset;
         public float CeilingAngleFactor => ceilingAngleFactor;
         public float WallAngleFactor => wallAngleFactor;

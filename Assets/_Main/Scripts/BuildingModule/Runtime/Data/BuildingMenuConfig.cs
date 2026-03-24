@@ -7,6 +7,8 @@ namespace BuildingModule
     {
         [Header("Animation")]
         [SerializeField] private float animationOffset = 150f;
+        [SerializeField] private float slideAnimationDuration = 0.3f;
+        [SerializeField] private float slideOffset = 200f;
 
         [Header("Layout")]
         [SerializeField] private float itemSpacing = 150f;
@@ -22,6 +24,8 @@ namespace BuildingModule
         [SerializeField] private float minItemAlpha = 0.3f;
 
         public float AnimationOffset => animationOffset;
+        public float SlideAnimationDuration => slideAnimationDuration;
+        public float SlideOffset => slideOffset;
         public float ItemSpacing => itemSpacing;
         public float ItemSize => itemSize;
         public float SmoothTime => smoothTime;

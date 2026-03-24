@@ -115,11 +115,8 @@ namespace BuildingModule
             }
             else
             {
-                if (Vector3.Distance(_smoothedPosition, targetPosition) > _config.DeadZoneThreshold)
-                {
-                    _smoothedPosition = Vector3.Lerp(_smoothedPosition, targetPosition, _config.SmoothSpeed);
-                    _placementService.UpdatePositionFree(_smoothedPosition, _hasGroundSupport);
-                }
+                _smoothedPosition = Vector3.Lerp(_smoothedPosition, targetPosition, _config.SmoothSpeed);
+                _placementService.UpdatePositionFree(_smoothedPosition, _hasGroundSupport);
             }
         }
 
@@ -184,10 +181,7 @@ namespace BuildingModule
             {
                 if (!_hasGroundSupport)
                     return;
-                    
-                if (!_useGrid && Vector3.Distance(_smoothedPosition, _targetPosition) > 0.5f)
-                    return;
-                    
+
                 var position = _placementService.LastValidPosition;
                 _placementService.Build(position, _useGrid);
             }

@@ -22,4 +22,4 @@ MonoBehaviour:
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 512
-  requireGroundSupport: 1
+  basePoints: 75

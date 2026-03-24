@@ -107,6 +107,7 @@ namespace BuildingModule
 
             if (_isActive)
             {
+                _view.SetActive(true);
                 _view.Show();
                 UpdateView();
             }

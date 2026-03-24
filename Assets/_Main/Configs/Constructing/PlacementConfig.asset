@@ -19,9 +19,7 @@ MonoBehaviour:
   rotationSpeed: 90
   previewYOffset: 0
   previewAlpha: 0.8
-  smoothSpeed: 0.1
-  deadZoneThreshold: 0.05
-  floorNormalThreshold: 0.367
+  smoothSpeed: 0.15
   ceilingOffset: 0.1
   ceilingAngleFactor: 0.1
   wallAngleFactor: 0.7
@@ -30,5 +28,3 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   queryTriggerInteraction: 0
-  groundCheckEnabled: 1
-  groundCheckDistance: 0.02

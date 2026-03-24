@@ -1,9 +1,14 @@
+using System;
 using UnityEngine;
 
 namespace BuildingModule
 {
     public interface IPlacementService
     {
+        event Action<string> BuildingChanged;
+        event Action PlacementCompleted;
+        event Action SelectionCleared;
+
         string CurrentBuildingId { get; }
         Vector3 LastValidPosition { get; }
         float CurrentRotation { get; }

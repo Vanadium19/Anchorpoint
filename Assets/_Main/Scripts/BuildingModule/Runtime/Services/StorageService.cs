@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading;
 using InventoryModule;
+using BaseModule;
 
 namespace BuildingModule
 {
@@ -9,14 +10,17 @@ namespace BuildingModule
         private readonly BuildingCatalog _buildingCatalog;
         private readonly InventoryModel _inventory;
         private readonly IInventoryService _inventoryService;
+        private readonly IBaseLevelService _baseLevelService;
 
         public StorageService(InventoryModel inventory,
             BuildingCatalog buildingCatalog,
-            IInventoryService inventoryService)
+            IInventoryService inventoryService,
+            IBaseLevelService baseLevelService)
         {
             _inventory = inventory;
             _buildingCatalog = buildingCatalog;
             _inventoryService = inventoryService;
+            _baseLevelService = baseLevelService;
         }
 
         public bool CanBuy(string id)
@@ -56,6 +60,7 @@ namespace BuildingModule
                     _inventoryService.RemoveItemAsync(resource, CancellationToken.None);
             }
 
+            _baseLevelService.AddPoints(config.BasePoints);
             return true;
         }
     }

@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using DG.Tweening;
 
 namespace BuildingModule
 {
     public class BuildingMenuView : MonoBehaviour
     {
         [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private RectTransform panelRect;
         [SerializeField] private GameObject itemPrefab;
 
         private BuildingMenuConfig _config;
@@ -22,6 +24,10 @@ namespace BuildingModule
         private float _verticalOffset;
         private float _targetVerticalOffset;
         private float _verticalVelocity;
+
+        private Vector2 _originalAnchoredPosition;
+        private bool _isInitialized;
+        private Tween _slideTween;
 
         [Inject]
         public void Construct(BuildingMenuConfig config)
@@ -38,13 +44,67 @@ namespace BuildingModule
 
         public void Show()
         {
-            canvasGroup.alpha = 1f;
+            AnimateShow(_config?.SlideOffset ?? 200f, _config?.SlideAnimationDuration ?? 0.3f);
             ResetVerticalPosition();
         }
 
         public void Hide()
         {
-            canvasGroup.alpha = 0f;
+            AnimateHide(_config?.SlideOffset ?? 200f, _config?.SlideAnimationDuration ?? 0.3f);
+        }
+
+        public void AnimateShow(float slideOffset, float duration)
+        {
+            if (!_isInitialized && panelRect != null)
+            {
+                _originalAnchoredPosition = panelRect.anchoredPosition;
+                _isInitialized = true;
+            }
+
+            _slideTween?.Kill();
+            canvasGroup.alpha = 1f;
+            
+            if (panelRect != null)
+            {
+                panelRect.anchoredPosition = _originalAnchoredPosition + Vector2.down * slideOffset;
+                _slideTween = panelRect
+                    .DOAnchorPos(_originalAnchoredPosition, duration)
+                    .SetEase(Ease.OutQuad);
+            }
+        }
+
+        public void AnimateHide(float slideOffset, float duration)
+        {
+            if (!_isInitialized && panelRect != null)
+            {
+                _originalAnchoredPosition = panelRect.anchoredPosition;
+                _isInitialized = true;
+            }
+
+            _slideTween?.Kill();
+
+            if (panelRect != null)
+            {
+                _slideTween = panelRect
+                    .DOAnchorPos(_originalAnchoredPosition + Vector2.down * slideOffset, duration)
+                    .SetEase(Ease.InQuad)
+                    .OnComplete(() =>
+                    {
+                        canvasGroup.alpha = 0f;
+                        gameObject.SetActive(false);
+                    });
+            }
+            else
+            {
+                canvasGroup.alpha = 0f;
+                gameObject.SetActive(false);
+            }
+        }
+
+        public void SetActive(bool active)
+        {
+            if (active && !gameObject.activeSelf)
+                gameObject.SetActive(true);
         }
 
         public void SetItems(List<BuildingMenuItem> items, int selectedIndex)

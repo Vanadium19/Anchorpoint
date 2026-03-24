@@ -1,5 +1,6 @@
 using UnityEngine;
 using Zenject;
+using BaseModule;
 
 namespace BuildingModule
 {
@@ -9,6 +10,8 @@ namespace BuildingModule
         [SerializeField] private BuildingCatalog buildingCatalog;
         [SerializeField] private PlacementConfig placementConfig;
         [SerializeField] private BuildingMenuConfig menuConfig;
+        [SerializeField] private BaseLevelUIConfig baseLevelUIConfig;
+        [SerializeField] private BaseLevelView baseLevelView;
         [SerializeField] private LayerMask raycastLayers;
         [SerializeField] private bool useGrid = true;
 
@@ -36,21 +39,26 @@ namespace BuildingModule
             Container.Bind<IConstructionModeService>().To<ConstructionModeService>().AsSingle();
 
             Container.Bind<IPlacementInputHandler>()
-                .To<PlacementInputHandler>()
-                .AsSingle();
+            .To<PlacementInputHandler>()
+            .AsSingle();
 
             Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
 
             Container.BindInterfacesTo<PlacementController>()
-                .AsSingle()
-                .WithArguments(placementConfig, buildingCatalog, raycastLayers, useGrid)
-                .NonLazy();
+            .AsSingle()
+            .WithArguments(placementConfig, buildingCatalog, raycastLayers, useGrid)
+            .NonLazy();
             Container.BindInterfacesTo<ModeControllers>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<ConstructionModePresenter>().AsSingle().WithArguments(buildPanel, gridView, useGrid).NonLazy();
 
             Container.Bind<BuildingMenuView>().FromInstance(buildingMenuView).AsSingle();
             Container.BindInterfacesTo<BuildingMenuPresenter>().AsSingle().WithArguments(buildingMenuView).NonLazy();
+
+            Container.Bind<BaseLevelUIConfig>().FromInstance(baseLevelUIConfig).AsSingle();
+            Container.Bind<BaseLevelView>().FromInstance(baseLevelView).AsSingle();
+            Container.BindInterfacesTo<BaseLevelPreviewBridge>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<BaseLevelPresenter>().AsSingle().NonLazy();
         }
     }
 }

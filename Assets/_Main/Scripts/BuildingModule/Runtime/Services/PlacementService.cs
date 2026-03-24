@@ -16,6 +16,10 @@ namespace BuildingModule
         private Vector3 _lastValidPosition;
         private float _currentRotation;
 
+        public event Action<string> BuildingChanged;
+        public event Action PlacementCompleted;
+        public event Action SelectionCleared;
+
         public PlacementService(
             IGrid grid,
             IPreviewService previewService,
@@ -50,6 +54,8 @@ namespace BuildingModule
 
             _currentBuildingId = id;
             _previewService.SetPreview(id);
+            _previewService.UpdatePreview(_currentRotation);
+            BuildingChanged?.Invoke(id);
         }
 
         public void UpdatePosition(Vector3 worldPosition)
@@ -119,6 +125,7 @@ namespace BuildingModule
 
             _previewService.Cancel();
             _previewService.SetPreview(_currentBuildingId);
+            PlacementCompleted?.Invoke();
             return true;
         }
 
@@ -126,6 +133,7 @@ namespace BuildingModule
         {
             _currentBuildingId = null;
             _previewService.Cancel();
+            SelectionCleared?.Invoke();
         }
     }
 }
