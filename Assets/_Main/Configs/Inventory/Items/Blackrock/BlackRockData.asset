@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: BlackRockData
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: Blackrock
+  description: 
+  icon: {fileID: -83341640, guid: 9a3059305a0136642a59eec1687f1598, type: 3}
+  dimensionsSo: {fileID: 11400000, guid: b1e414c9176b6ed429e1776447d3e10e, type: 2}
+  equipmentSlotType: 2
+  isEquippable: 1
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 1
+  containerGrids: {fileID: 6427057047484263632, guid: 261623e8afa6bd84e83432921ce3a197, type: 3}
+  canRotate: 1
+  isDropable: 1
+  worldPrefab: {fileID: 657080748682000708, guid: 2a6743016d9e77345b36a791130b8e20, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

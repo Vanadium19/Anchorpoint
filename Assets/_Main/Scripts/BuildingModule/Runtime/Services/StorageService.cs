@@ -1,66 +1,67 @@
 using System.Linq;
-using System.Threading;
 using InventoryModule;
-using BaseModule;
 
 namespace BuildingModule
 {
     public class StorageService : IStorageService
     {
         private readonly BuildingCatalog _buildingCatalog;
-        private readonly InventoryModel _inventory;
-        private readonly IInventoryService _inventoryService;
-        private readonly IBaseLevelService _baseLevelService;
+        private readonly IInventoryManager _inventoryManager;
 
-        public StorageService(InventoryModel inventory,
+        public StorageService(
             BuildingCatalog buildingCatalog,
-            IInventoryService inventoryService,
-            IBaseLevelService baseLevelService)
+            IInventoryManager inventoryManager)
         {
-            _inventory = inventory;
             _buildingCatalog = buildingCatalog;
-            _inventoryService = inventoryService;
-            _baseLevelService = baseLevelService;
+            _inventoryManager = inventoryManager;
         }
 
-        public bool CanBuy(string id)
+        public bool CanBuy(BuildingName name)
         {
-            if (!_buildingCatalog.TryGetConfig(id, out var config))
+            if (!_buildingCatalog.TryGetConfig(name, out var config))
                 return false;
 
-            foreach (var itemToCount in config.Price.Values)
+            var price = config.Price;
+            if (price?.Values == null)
+                return true;
+
+            foreach (var itemToCount in price.Values)
             {
-                var resource = _inventory.Items.FirstOrDefault(item => item.Id == itemToCount.ItemDefinition.Id);
+                if (itemToCount.ItemData == null)
+                    continue;
 
-                if (resource == null)
-                    return false;
-
-                if (resource.Amount < itemToCount.Count)
+                int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
+                if (available < itemToCount.Count)
                     return false;
             }
 
             return true;
         }
 
-        public bool Buy(string id)
+        public bool Buy(BuildingName name)
         {
-            if (!_buildingCatalog.TryGetConfig(id, out var config))
+            if (!_buildingCatalog.TryGetConfig(name, out var config))
                 return false;
 
-            if (!CanBuy(id))
+            if (!CanBuy(name))
                 return false;
 
-            foreach (var itemToCount in config.Price.Values)
+            var price = config.Price;
+            if (price?.Values == null)
+                return true;
+
+            foreach (var itemToCount in price.Values)
             {
-                var resource = _inventory.Items.First(item => item.Id == itemToCount.ItemDefinition.Id);
-                resource.Amount -= itemToCount.Count;
-                _inventoryService.UpdateInventory();
+                if (itemToCount.ItemData == null)
+                    continue;
 
-                if (resource.Amount <= 0)
-                    _inventoryService.RemoveItemAsync(resource, CancellationToken.None);
+                bool removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
+                if (!removed)
+                {
+                    return false;
+                }
             }
 
-            _baseLevelService.AddPoints(config.BasePoints);
             return true;
         }
     }

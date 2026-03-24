@@ -1,8 +1,6 @@
-using Cysharp.Threading.Tasks;
 using InputModule;
 using InventoryModule;
 using System;
-using System.Threading;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -12,41 +10,26 @@ namespace PlayerModule
     public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
     {
         private readonly IInputMap _input;
-        private readonly IInventoryService _inventoryService;
-        private readonly IItemProvider _itemProvider;
+        private readonly IInventoryManager _inventoryManager;
         private readonly Camera _camera;
-        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly PlayerConfig _config;
-        private readonly UIModule.InteractionHUDView _hud;
 
         public event Action<LootItemView> HoverChanged;
         private LootItemView _currentHoveredLoot;
 
         public PlayerInteractionController(
             IInputMap input,
-            IInventoryService inventoryService,
-            IItemProvider itemProvider,
-            Camera camera,
+            IInventoryManager inventoryManager,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
-            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            _itemProvider = itemProvider ?? throw new ArgumentNullException(nameof(itemProvider));
-            _camera = camera;
+            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _config = config;
-            _cancellationTokenSource = new CancellationTokenSource();
+            _camera = Camera.main;
         }
 
-        public void Initialize()
-        {
-            // Initialization if needed
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
-        }
+        public void Initialize() { }
+        public void Dispose() { }
 
         public void Tick()
         {
@@ -58,18 +41,17 @@ namespace PlayerModule
                 UpdateHover(loot);
 
                 if (loot != null && _input.IsInteractPressed)
-                {
-                    TryPickUpLootAsync(loot).Forget();
-                }
+                    TryPickUpLoot(loot);
             }
             else
-            {
                 UpdateHover(null);
-            }
         }
+
         private void UpdateHover(LootItemView newLoot)
         {
-            if (_currentHoveredLoot == null && newLoot == null) return;
+            if (_currentHoveredLoot == null && newLoot == null) 
+                return;
+
             if (_currentHoveredLoot != null && newLoot == null)
             {
                 _currentHoveredLoot = null;
@@ -77,47 +59,56 @@ namespace PlayerModule
                 return;
             }
 
-            if (_currentHoveredLoot == newLoot) return;
+            if (_currentHoveredLoot == newLoot) 
+                return;
 
             _currentHoveredLoot = newLoot;
             HoverChanged?.Invoke(_currentHoveredLoot);
         }
-        private async UniTaskVoid TryPickUpLootAsync(LootItemView loot)
+
+        private void TryPickUpLoot(LootItemView loot)
         {
-            var token = _cancellationTokenSource.Token;
+            var itemData = loot.ItemData;
 
-            try
+            if (itemData == null)
             {
-                var itemDefinition = _itemProvider.GetItemDefinition(loot.ItemDef.Id);
+                Debug.LogWarning("[PlayerInteractionController] Loot has no ItemData");
+                return;
+            }
 
-                if (itemDefinition == null)
-                {
-                    Debug.LogWarning($"Item definition not found for loot: {loot.ItemDef.Id}");
-                    return;
-                }
+            bool success;
 
-                var result = await _inventoryService.AddItemAsync(
-                    itemDefinition,
-                    loot.Amount,
-                    token);
-
-                if (result.Success)
-                {
-                    loot.Collect();
-                    UpdateHover(null);
-                }
+            if (itemData.IsEquippable)
+            {
+                if (loot.ItemTable != null)
+                    success = _inventoryManager.TryAutoEquipItem(loot.ItemTable);
                 else
                 {
-                    Debug.LogWarning($"Failed to pick up loot: {result.ErrorMessage}");
+                    var newItem = new ItemTable(itemData) { StackCount = loot.Amount };
+                    success = _inventoryManager.TryAutoEquipItem(newItem);
+                }
+
+                if (!success)
+                {
+                    if (loot.ItemTable != null)
+                        success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
+                    else
+                        success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
                 }
             }
-            catch (OperationCanceledException)
+            else
             {
-                // Operation was cancelled, ignore
+                if (loot.ItemTable != null)
+                    success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
+                else
+                    success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
             }
-            catch (Exception exception)
+
+            if (success)
             {
-                Debug.LogError($"Error picking up loot: {exception}");
+                loot.PlayCollectEffects();
+                UpdateHover(null);
+                UnityEngine.Object.Destroy(loot.gameObject);
             }
         }
     }

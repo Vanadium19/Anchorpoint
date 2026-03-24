@@ -45,7 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4e6589720da476459dc6dd71624b071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Zenject::Zenject.ProjectContext
-  _scriptableObjectInstallers: []
+  _scriptableObjectInstallers:
+  - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
   - {fileID: 1183441546344267572}
   _installerPrefabs: []
@@ -74,5 +75,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acff9fdc1a940a843a8d4c502959979b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryGlobalInstaller
-  inventoryConfig: {fileID: 11400000, guid: 554b5d8536118b5469b2694daf2d766a, type: 2}
-  itemDatabase: {fileID: 11400000, guid: 0f1fa79f1b22b344dbbe73527d7f80fa, type: 2}
+  dropZone: {fileID: 0}
+  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
+  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
