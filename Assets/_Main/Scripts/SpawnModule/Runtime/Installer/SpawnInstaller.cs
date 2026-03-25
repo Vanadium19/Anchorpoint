@@ -8,6 +8,8 @@ namespace SpawnModule
         [SerializeField] private LevelSpawnPointsView spawnPointsView;
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private int enemyCount;
+        [SerializeField] private int waitTime;
+        [SerializeField] private int spawnInterval;
 
         public override void InstallBindings()
         {
@@ -15,7 +17,9 @@ namespace SpawnModule
 
             var spawnConfig = new SpawnConfig
             {
-                EnemyCount = enemyCount
+                EnemyCount = enemyCount,
+                WaitTime = waitTime,
+                SpawnInterval = spawnInterval
             };
             Container.BindInstance(spawnConfig).AsSingle();
 

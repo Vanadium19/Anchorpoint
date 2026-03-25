@@ -1,3 +1,4 @@
+using EnemyModule;
 using UnityEngine;
 using Zenject;
 

@@ -1,15 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using EnemyModule;
 using Zenject;
 
 namespace SpawnModule
 {
-    public class EnemySpawnController : IInitializable
+    public class EnemySpawnController : IInitializable, IDisposable
     {
         private readonly LevelSpawnPointsView _view;
         private readonly IEnemyFactory _factory;
         private readonly SpawnConfig _config;
-        // Надо подумать, где сохранять врагов
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private bool _isSpawning;
         
         public EnemySpawnController(
             LevelSpawnPointsView view,
@@ -23,7 +28,18 @@ namespace SpawnModule
         
         public void Initialize()
         {
-            Spawn();
+            StartSpawning();
+        }
+
+        public void StartSpawning()
+        {
+            if (_isSpawning) return;
+        
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+            _isSpawning = true;
+        
+            SpawnLoopAsync(_cts.Token).Forget();
         }
         
         public void Spawn()
@@ -42,6 +58,29 @@ namespace SpawnModule
                 var point = shuffled[i];
                 _factory.Create(point.Position);
             }
+        }
+
+        private async UniTaskVoid SpawnLoopAsync(CancellationToken token)
+        {
+            await UniTask.WaitForSeconds(_config.WaitTime, cancellationToken: token);
+
+            while (!token.IsCancellationRequested && _isSpawning)
+            {
+                Spawn();
+                await UniTask.WaitForSeconds(_config.SpawnInterval, cancellationToken: token);
+            }
+        }
+        
+        public void StopSpawning()
+        {
+            _isSpawning = false;
+            _cts?.Cancel();
+        }
+        
+        public void Dispose()
+        {
+            StopSpawning();
+            _cts?.Dispose();
         }
     }
 }

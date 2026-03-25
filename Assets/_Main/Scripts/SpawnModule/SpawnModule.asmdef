@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "Zenject",
-        "EnemyModule"
+        "EnemyModule",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

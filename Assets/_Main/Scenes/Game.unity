@@ -2021,6 +2021,8 @@ MonoBehaviour:
   spawnPointsView: {fileID: 207961830}
   enemyPrefab: {fileID: 4278790717967130169, guid: 114a32f62fee04559abff222e97c533e, type: 3}
   enemyCount: 3
+  waitTime: 5
+  spawnInterval: 30
 --- !u!1001 &502489095
 PrefabInstance:
   m_ObjectHideFlags: 0
