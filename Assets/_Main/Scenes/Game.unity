@@ -653,7 +653,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: WeaponModule::WeaponModule.View.WeaponView
   handsAnimator: {fileID: 97654509}
   gunAnimator: {fileID: 1286685047}
-  muzzleFlash: {fileID: 0}
   firePoint: {fileID: 692809251}
   aimPivot: {fileID: 175084217}
   recoilPivot: {fileID: 49455354}
@@ -1456,6 +1455,7 @@ GameObject:
   - component: {fileID: 489959972}
   - component: {fileID: 489959973}
   - component: {fileID: 489959974}
+  - component: {fileID: 489959975}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1481,6 +1481,7 @@ MonoBehaviour:
   - {fileID: 489959972}
   - {fileID: 489959974}
   - {fileID: 489959973}
+  - {fileID: 489959975}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1555,6 +1556,20 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 72e2fa0730381e24d88a5bcce4e4c148, type: 2}
   controller: {fileID: 63042974}
   view: {fileID: 317137221}
+--- !u!114 &489959975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489959967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b19c428df64e4b189f90a432fddfa8dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: VFXModule::VFXModule.VfxServiceInstaller
+  effectsCatalog: {fileID: 11400000, guid: 6828e79f36a3cfa4dba7941bb11e748e, type: 2}
+  effectsContainer: {fileID: 1101553498}
 --- !u!1 &491514575 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100018, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
@@ -3968,6 +3983,37 @@ Transform:
   - {fileID: 919254857}
   m_Father: {fileID: 1241708201}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1101553497
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1101553498}
+  m_Layer: 0
+  m_Name: VFXContainer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1101553498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101553497}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1158476883}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1150780794
 GameObject:
   m_ObjectHideFlags: 0
@@ -4145,6 +4191,7 @@ Transform:
   - {fileID: 832575519}
   - {fileID: 489959970}
   - {fileID: 213191153}
+  - {fileID: 1101553498}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1193282733
@@ -4393,7 +4440,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: WeaponModule::WeaponModule.View.WeaponView
   handsAnimator: {fileID: 1920861178}
   gunAnimator: {fileID: 919254858}
-  muzzleFlash: {fileID: 0}
   firePoint: {fileID: 2019828986}
   aimPivot: {fileID: 1241708201}
   recoilPivot: {fileID: 1091910274}

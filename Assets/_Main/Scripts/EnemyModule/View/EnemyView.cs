@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using WeaponModule;
 using Zenject;
+using VFXModule;
 
 namespace EnemyModule
 {
@@ -28,11 +29,13 @@ namespace EnemyModule
         public bool IsPathPending => agent.pathPending;
         public float RemainingDistance => agent.remainingDistance;
         public Vector3 Velocity => agent != null ? agent.velocity : Vector3.zero;
+        private DiContainer _container;
 
         [Inject]
-        public void Construct(IHealthComponent health)
+        public void Construct(IHealthComponent health, DiContainer container)
         {
             _health = health;
+            _container = container;
         }
 
         public void Initialize(EnemyConfig config)
@@ -97,7 +100,12 @@ namespace EnemyModule
                 animator.SetTrigger("Shoot");
 
             Vector3 dir = (targetPos - firePoint.position).normalized;
-            GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, Quaternion.LookRotation(dir));
+            GameObject bulletObj = _container.InstantiatePrefab(
+            bulletPrefab,
+            firePoint.position,
+            Quaternion.LookRotation(dir),
+            null
+            );
 
             if (bulletObj.TryGetComponent(out Bullet bullet))
                 bullet.Setup(_config.Damage, _config.BulletSpeed, 0f, Vector3.zero);

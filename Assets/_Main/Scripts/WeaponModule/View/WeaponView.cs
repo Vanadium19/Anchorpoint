@@ -1,4 +1,6 @@
 using UnityEngine;
+using VFXModule;
+using Zenject;
 
 namespace WeaponModule
 {
@@ -6,7 +8,6 @@ namespace WeaponModule
     {
         [Header("References")] [SerializeField] private Animator handsAnimator;
         [SerializeField] private Animator gunAnimator;
-        [SerializeField] private ParticleSystem muzzleFlash;
         [SerializeField] private Transform firePoint;
         [SerializeField] private Transform aimPivot;
 
@@ -25,6 +26,15 @@ namespace WeaponModule
 
         private Transform _cameraTransform;
 
+        private IEffectsService _effectsService;
+        private DiContainer _container;
+
+        [Inject]
+        public void Construct(IEffectsService effectsService, DiContainer container)
+        {
+            _effectsService = effectsService;
+            _container = container;
+        }
         public void Initialize(WeaponConfig config)
         {
             _config = config;
@@ -47,12 +57,8 @@ namespace WeaponModule
 
         public void PlayFireEffects(bool isAiming)
         {
-            //TODO: Вынести в отдельный класс параметры аниматора и делать через хэш
-            //FIXME: Magic numbers
             gunAnimator?.Play("Fire", 1, 0f);
-
-            if (muzzleFlash)
-                muzzleFlash.Play();
+            _effectsService.Fire(EffectId.Shoot, firePoint.position, firePoint.rotation);
 
             if (isAiming)
             {
@@ -136,7 +142,12 @@ namespace WeaponModule
         {
             if (bulletPrefab == null || firePoint == null) return;
 
-            GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
+            GameObject bulletObj = _container.InstantiatePrefab(
+            bulletPrefab,
+            firePoint.position,
+            firePoint.rotation,
+            null
+            );
 
             if (bulletObj.TryGetComponent(out Bullet bulletScript))
             {

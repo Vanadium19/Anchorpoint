@@ -1,5 +1,7 @@
 using ComponentsModule;
 using UnityEngine;
+using VFXModule;
+using Zenject;
 
 namespace WeaponModule
 {
@@ -7,11 +9,18 @@ namespace WeaponModule
     {
         [Header("Settings")]
         [SerializeField] private float lifeTime = 3f;
-        [SerializeField] private GameObject hitEffect;
 
         private float _damage;
         private Rigidbody _rigidbody;
         private TrailRenderer _trail;
+
+        private IEffectsService _effectsService;
+
+        [Inject]
+        public void Construct(IEffectsService effectsService)
+        {
+            _effectsService = effectsService;
+        }
 
         private void Awake()
         {
@@ -57,13 +66,12 @@ namespace WeaponModule
                 target.TakeDamage(_damage, collision.contacts[0].point, force);
             }
 
-            if (hitEffect != null)
-            {
-                ContactPoint contact = collision.contacts[0];
-                //FIXME: Magic numbers
-                GameObject effect = Instantiate(hitEffect, contact.point + contact.normal * 0.05f, Quaternion.LookRotation(contact.normal));
-                Destroy(effect, 2f);
-            }
+            ContactPoint contact = collision.contacts[0];
+            _effectsService.Fire(
+                EffectId.Blood,
+                contact.point + contact.normal * 0.05f,
+                Quaternion.LookRotation(contact.normal)
+            );
 
             Destroy(gameObject);
         }
