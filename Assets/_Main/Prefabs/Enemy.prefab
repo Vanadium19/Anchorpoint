@@ -336,7 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.73644
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalPosition.y
@@ -344,7 +344,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.0252589
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalRotation.w
@@ -416,6 +416,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 436772443010981899}
+    - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3766973165566144414}
     - targetCorrespondingSourceObject: {fileID: 100032, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8362542187851058666}
@@ -1093,7 +1096,7 @@ MonoBehaviour:
   - {fileID: 6092380881920590704}
   _installerPrefabs: []
   _autoRun: 1
-  _kernel: {fileID: 0}
+  _kernel: {fileID: 3766973165566144414}
 --- !u!114 &6092380881920590704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1228,6 +1231,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
+--- !u!114 &3766973165566144414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171579678108583234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c47912ae4e51a84d92f1acf689997c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Zenject::Zenject.DefaultGameObjectKernel
 --- !u!1 &2171579678108583238 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100056, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
