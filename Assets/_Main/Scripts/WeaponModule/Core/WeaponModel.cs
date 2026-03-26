@@ -1,39 +1,58 @@
 using System;
+using UnityEngine;
 
 namespace WeaponModule
 {
     public class WeaponModel
     {
-        private int _currentAmmo;
-        private int _maxAmmo;
+        private int _currentMagazineAmmo;
+        private int _reserveAmmo;
+        private int _magazineCapacity;
 
         public event Action<int, int> AmmoChanged;
 
-        public int CurrentAmmo => _currentAmmo;
-        public bool IsFull => _currentAmmo == _maxAmmo;
-        public bool IsEmpty => _currentAmmo <= 0;
+        public int CurrentMagazineAmmo => _currentMagazineAmmo;
+        public int ReserveAmmo => _reserveAmmo;
+        public int MagazineCapacity => _magazineCapacity;
 
-        public void Initialize(int maxAmmo)
+        public bool IsFull => _currentMagazineAmmo >= _magazineCapacity;
+        public bool IsMagazineEmpty => _currentMagazineAmmo <= 0;
+        public bool CanReload => !IsFull && _reserveAmmo > 0;
+
+        public void Initialize(int magazineCapacity, int currentMagazineAmmo, int reserveAmmo)
         {
-            _maxAmmo = maxAmmo;
-            _currentAmmo = maxAmmo;
-            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
+            _magazineCapacity = Mathf.Max(1, magazineCapacity);
+            _currentMagazineAmmo = Mathf.Clamp(currentMagazineAmmo, 0, _magazineCapacity);
+            _reserveAmmo = Mathf.Max(0, reserveAmmo);
+
+            NotifyAmmoChanged();
         }
 
         public bool TryConsumeAmmo()
         {
-            if (_currentAmmo <= 0)
+            if (_currentMagazineAmmo <= 0)
                 return false;
 
-            _currentAmmo--;
-            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
+            _currentMagazineAmmo--;
+            NotifyAmmoChanged();
             return true;
         }
 
-        public void Reload()
+        public int Reload()
         {
-            _currentAmmo = _maxAmmo;
-            AmmoChanged?.Invoke(_currentAmmo, _maxAmmo);
+            if (!CanReload)
+                return 0;
+
+            int ammoNeeded = _magazineCapacity - _currentMagazineAmmo;
+            int ammoToLoad = Mathf.Min(ammoNeeded, _reserveAmmo);
+
+            _currentMagazineAmmo += ammoToLoad;
+            _reserveAmmo -= ammoToLoad;
+
+            NotifyAmmoChanged();
+            return ammoToLoad;
         }
+
+        private void NotifyAmmoChanged() => AmmoChanged?.Invoke(_currentMagazineAmmo, _reserveAmmo);
     }
 }

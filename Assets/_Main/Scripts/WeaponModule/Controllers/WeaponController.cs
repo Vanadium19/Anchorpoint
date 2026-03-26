@@ -13,32 +13,44 @@ namespace WeaponModule
         private readonly WeaponModel _model;
         private readonly WeaponView _view;
         private readonly IInputMap _input;
+        private readonly AmmoReserveService _ammoReserveService;
 
         private float _nextFireTime;
         private bool _isReloading;
         private bool _isAiming;
         private bool _isAimToggleActive;
-
         private bool _shouldShootFrame;
 
         private CancellationTokenSource _tokenSource;
 
-        public WeaponController(WeaponConfig config,
+        public WeaponModel Model => _model;
+
+        public WeaponController(
+            WeaponConfig config,
             WeaponModel model,
             WeaponView view,
-            IInputMap input)
+            IInputMap input,
+            AmmoReserveService ammoReserveService)
         {
             _config = config;
             _model = model;
             _view = view;
             _input = input;
+            _ammoReserveService = ammoReserveService;
 
             _tokenSource = new();
         }
 
         public void Initialize()
         {
-            _model.Initialize(_config.MaxAmmo);
+            _ammoReserveService.GetAmmoState(
+                _config.name,
+                _config.MagazineCapacity,
+                _config.InitialReserveAmmo,
+                out int currentMagazineAmmo,
+                out int reserveAmmo);
+
+            _model.Initialize(_config.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
             _view.Initialize(_config);
         }
 
@@ -55,7 +67,9 @@ namespace WeaponModule
 
         public async UniTask Unequip()
         {
+            SaveAmmoState();
             CancelCurrentActions();
+
             _view.SetHolsterState(true);
             await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime));
 
@@ -64,6 +78,7 @@ namespace WeaponModule
 
         public void Dispose()
         {
+            SaveAmmoState();
             CancelCurrentActions();
             _tokenSource.Dispose();
         }
@@ -132,7 +147,7 @@ namespace WeaponModule
 
             if (_input.IsFireHeld && Time.time >= _nextFireTime)
             {
-                if (_model.CurrentAmmo > 0)
+                if (_model.CurrentMagazineAmmo > 0)
                 {
                     _shouldShootFrame = true;
                     _nextFireTime = Time.time + _config.FireRate;
@@ -142,11 +157,16 @@ namespace WeaponModule
 
         private void Fire()
         {
-            if (_model.TryConsumeAmmo())
-            {
-                _view.PlayFireEffects(_isAiming);
-                _view.SpawnBullet(_config.Damage, _config.BulletSpeed);
-            }
+            if (!_model.TryConsumeAmmo())
+                return;
+
+            SaveAmmoState();
+
+            _view.PlayFireEffects(_isAiming);
+            _view.SpawnBullet(_config.Damage, _config.BulletSpeed);
+
+            if (_model.IsMagazineEmpty && _model.CanReload)
+                ReloadRoutine(true, _config.EmptyReloadDelay).Forget();
         }
 
         private void HandleReload()
@@ -154,8 +174,8 @@ namespace WeaponModule
             if (_isReloading)
                 return;
 
-            if (_input.IsReloadPressed && !_model.IsFull)
-                ReloadRoutine().Forget();
+            if (_input.IsReloadPressed && _model.CanReload)
+                ReloadRoutine(_model.IsMagazineEmpty, 0f).Forget();
         }
 
         private void HandleMovementAnim()
@@ -170,16 +190,47 @@ namespace WeaponModule
             _view.SetTriggerHold(_input.IsFirePressed);
         }
 
-        private async UniTaskVoid ReloadRoutine()
+        private async UniTaskVoid ReloadRoutine(bool isEmptyReload, float delayBeforeReload)
         {
-            _isReloading = true;
-            _view.PlayReload();
+            if (_isReloading)
+                return;
 
-            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _tokenSource.Token)
+            if (!_model.CanReload)
+                return;
+
+            _isReloading = true;
+            _shouldShootFrame = false;
+
+            if (delayBeforeReload > 0f)
+            {
+                bool delayCanceled = await UniTask
+                    .Delay(TimeSpan.FromSeconds(delayBeforeReload), cancellationToken: _tokenSource.Token)
+                    .SuppressCancellationThrow();
+
+                if (delayCanceled)
+                {
+                    _isReloading = false;
+                    return;
+                }
+
+                if (!_model.CanReload)
+                {
+                    _isReloading = false;
+                    return;
+                }
+            }
+
+            _view.PlayReload(isEmptyReload);
+
+            bool reloadCanceled = await UniTask
+                .Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _tokenSource.Token)
                 .SuppressCancellationThrow();
 
-            if (!canceled)
+            if (!reloadCanceled)
+            {
                 _model.Reload();
+                SaveAmmoState();
+            }
 
             _isReloading = false;
         }
@@ -189,11 +240,20 @@ namespace WeaponModule
             _view.SetHolsterState(false);
             _isReloading = true;
 
-            bool canceled = await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
+            bool canceled = await UniTask
+                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
                 .SuppressCancellationThrow();
 
             if (!canceled)
                 _isReloading = false;
+        }
+
+        private void SaveAmmoState()
+        {
+            _ammoReserveService.SetAmmoState(
+                _config.name,
+                _model.CurrentMagazineAmmo,
+                _model.ReserveAmmo);
         }
 
         private void CancelCurrentActions()

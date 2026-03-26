@@ -65,10 +65,14 @@ namespace WeaponModule
             }
         }
 
-        public void PlayReload()
+        public void PlayReload(bool isEmptyReload)
         {
-            handsAnimator?.SetTrigger(WeaponAnimatorHashes.Reload);
-            gunAnimator?.SetTrigger(WeaponAnimatorHashes.Reload);
+            int trigger = isEmptyReload && _config.UseEmptyReloadAnimation
+                ? WeaponAnimatorHashes.EmptyReload
+                : WeaponAnimatorHashes.Reload;
+
+            handsAnimator?.SetTrigger(trigger);
+            gunAnimator?.SetTrigger(trigger);
         }
 
         public void SetHolsterState(bool isHolstered)
