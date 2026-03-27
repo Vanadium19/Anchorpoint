@@ -10,12 +10,12 @@
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="InputModule.csproj" />
   <Project Path="FSMModule.csproj" />
-  <Project Path="BuildingModule.csproj" />
   <Project Path="InventoryModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="BuildingModule.csproj" />
   <Project Path="EvacuationModule.csproj" />
-  <Project Path="CameraModule.csproj" />
   <Project Path="UIModule.csproj" />
+  <Project Path="BaseModule.csproj" />
   <Project Path="PlayerModule.csproj" />
   <Project Path="CommandsModule.csproj" />
   <Project Path="GameCycleModule.csproj" />

@@ -14,3 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BuildingModule.BuildingCatalog
   configs:
   - {fileID: 11400000, guid: c18925e1d69e24f208e2e4d59e998905, type: 2}
+  - {fileID: 11400000, guid: 40511f6db42e84f47b216c9787763c89, type: 2}
+  - {fileID: 11400000, guid: 031c8870d07eec44686c0a96dab72b75, type: 2}
+  - {fileID: 11400000, guid: 4924265ad436dbb45934dfb9ab19184e, type: 2}
+  - {fileID: 11400000, guid: e86e571abe3de0646b4c50711571c728, type: 2}
+  - {fileID: 11400000, guid: f26d733684b31684a8da246c16df0cbe, type: 2}
+  categoryConfigs:
+  - {fileID: 11400000, guid: d0d21f88f919e604b870589681704b43, type: 2}
+  - {fileID: 11400000, guid: 49208cfa84340e542a656a15cae1442f, type: 2}
+  - {fileID: 11400000, guid: 52fbf5176cf24004ebae865366737d3b, type: 2}

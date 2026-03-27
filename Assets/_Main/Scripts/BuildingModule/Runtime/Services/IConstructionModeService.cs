@@ -8,7 +8,6 @@ namespace BuildingModule
         bool IsActive { get; }
 
         void Toggle();
-
         void SetActive(bool value);
     }
 }

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2194487db8f04d1ab717986e756f9d5a, type: 3}
+  m_Name: BonfireConfig
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingModule.BuildingConfig
+  id: Campfire
+  category: 2
+  prefab: {fileID: 6607105530365848724, guid: 6e68d3a1a556943a5a45f589cd83746d, type: 3}
+  price:
+    value: []
+  icon: {fileID: 1916296333, guid: b0db633ed4cfd2545829e44a34181ed6, type: 3}
+  order: 0
+  allowedBuildLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  basePoints: 15

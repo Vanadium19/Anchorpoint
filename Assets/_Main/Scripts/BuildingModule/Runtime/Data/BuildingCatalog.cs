@@ -7,26 +7,35 @@ namespace BuildingModule
     [CreateAssetMenu(fileName = "BuildingCatalog", menuName = "Game/Configs/Constructing/BuildingCatalog")]
     public class BuildingCatalog : ScriptableObject
     {
-        //TODO: Replace with Odin serialized dictionary
         [SerializeField] private List<BuildingConfig> configs;
+        [SerializeField] private List<BuildingCategoryConfig> categoryConfigs;
 
         private void OnValidate()
         {
-            var success = configs.GroupBy(config => config.name)
-                .All(group => group.Count() == 1);
-
-            if (success)
+            if (configs == null || configs.Count == 0)
                 return;
 
-            Debug.LogError($"Config with this {nameof(BuildingName)} exists");
-            var last = configs[^1];
-            configs.Remove(last);
+            var validConfigs = configs.Where(c => !string.IsNullOrEmpty(c.Id)).ToList();
+            var duplicates = validConfigs.GroupBy(c => c.Id).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+
+            if (duplicates.Count > 0)
+                Debug.LogError("Duplicate Ids found: " + string.Join(", ", duplicates));
         }
 
-        public bool TryGetConfig(BuildingName buildingName, out BuildingConfig config)
+        public bool TryGetConfig(string id, out BuildingConfig config)
         {
-            config = configs.FirstOrDefault(config => config.Name == buildingName);
+            config = configs.FirstOrDefault(config => config.Id == id);
             return config;
+        }
+
+        public IReadOnlyList<BuildingConfig> GetAll() => configs;
+
+        public IReadOnlyList<BuildingCategoryConfig> GetCategoryConfigs() => categoryConfigs;
+
+        public bool TryGetCategoryConfig(BuildingCategory category, out BuildingCategoryConfig config)
+        {
+            config = categoryConfigs?.FirstOrDefault(c => c.Category == category);
+            return config != null;
         }
     }
 }

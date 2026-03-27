@@ -1,5 +1,6 @@
 using ComponentsModule;
 using InputModule;
+using UnityEngine;
 using Zenject;
 
 namespace PlayerModule
@@ -13,7 +14,8 @@ namespace PlayerModule
         private readonly IInputMap _inputMap;
         private readonly PlayerConfig _config;
 
-        public PlayerMovementController(IMoveComponent mover,
+        public PlayerMovementController(
+            IMoveComponent mover,
             IRotationComponent rotation,
             ICrouchComponent croucher,
             ILeanComponent leaner,
@@ -21,10 +23,10 @@ namespace PlayerModule
             PlayerConfig config)
         {
             _mover = mover;
-            _inputMap = inputMap;
             _rotation = rotation;
-            _leaner = leaner;
             _croucher = croucher;
+            _leaner = leaner;
+            _inputMap = inputMap;
             _config = config;
         }
 
@@ -32,38 +34,48 @@ namespace PlayerModule
         {
             Move();
             Rotate();
-            Crouch();
-            Lean();
+
+            if (!_inputMap.IsBuildMode)
+            {
+                Crouch();
+                Lean();
+            }
         }
 
         private void Move()
         {
-            var isCrouching = _inputMap.IsCrouchPressed;
-            var jumped = _inputMap.IsJumpPressed && !isCrouching;
+            var moveInput = _inputMap.IsBuildMode
+                ? _inputMap.BuildMoveInput
+                : _inputMap.MoveInput;
 
+            var isJumpPressed = _inputMap.IsBuildMode
+                ? _inputMap.IsBuildJumpPressed
+                : _inputMap.IsJumpPressed;
+
+            var isCrouching = !_inputMap.IsBuildMode && _inputMap.IsCrouchPressed;
             var targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
-            _mover.SetSpeed(targetSpeed);
 
-            var direction = _inputMap.MoveInput;
-            _mover.Move(direction, jumped);
+            _mover.SetSpeed(targetSpeed);
+            _mover.Move(moveInput, isJumpPressed && !isCrouching);
         }
 
         private void Rotate()
         {
-            var direction = _inputMap.LookInput;
-            _rotation.Rotate(direction);
-        }
+            var lookInput = _inputMap.IsBuildMode
+                ? _inputMap.BuildLookInput
+                : _inputMap.LookInput;
 
-        private void Lean()
-        {
-            var targetLean = _inputMap.LeanInput;
-            _leaner.Lean(targetLean);
+            _rotation.Rotate(lookInput);
         }
 
         private void Crouch()
         {
-            var isCrouching = _inputMap.IsCrouchPressed;
-            _croucher.Crouch(isCrouching);
+            _croucher.Crouch(_inputMap.IsCrouchPressed);
+        }
+
+        private void Lean()
+        {
+            _leaner.Lean(_inputMap.LeanInput);
         }
     }
 }
