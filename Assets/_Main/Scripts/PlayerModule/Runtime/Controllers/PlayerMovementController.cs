@@ -32,15 +32,11 @@ namespace PlayerModule
 
         public void Tick()
         {
-            if (_inputMap.IsBuildMode)
+            Move();
+            Rotate();
+
+            if (!_inputMap.IsBuildMode)
             {
-                MoveBuild();
-                RotateBuild();
-            }
-            else
-            {
-                Move();
-                Rotate();
                 Crouch();
                 Lean();
             }
@@ -48,27 +44,28 @@ namespace PlayerModule
 
         private void Move()
         {
-            var isCrouching = _inputMap.IsCrouchPressed;
+            var moveInput = _inputMap.IsBuildMode
+                ? _inputMap.BuildMoveInput
+                : _inputMap.MoveInput;
+
+            var isJumpPressed = _inputMap.IsBuildMode
+                ? _inputMap.IsBuildJumpPressed
+                : _inputMap.IsJumpPressed;
+
+            var isCrouching = !_inputMap.IsBuildMode && _inputMap.IsCrouchPressed;
             var targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
 
             _mover.SetSpeed(targetSpeed);
-            _mover.Move(_inputMap.MoveInput, _inputMap.IsJumpPressed && !isCrouching);
-        }
-
-        private void MoveBuild()
-        {
-            _mover.SetSpeed(_config.WalkSpeed);
-            _mover.Move(_inputMap.BuildMoveInput, _inputMap.IsBuildJumpPressed);
+            _mover.Move(moveInput, isJumpPressed && !isCrouching);
         }
 
         private void Rotate()
         {
-            _rotation.Rotate(_inputMap.LookInput);
-        }
+            var lookInput = _inputMap.IsBuildMode
+                ? _inputMap.BuildLookInput
+                : _inputMap.LookInput;
 
-        private void RotateBuild()
-        {
-            _rotation.Rotate(_inputMap.BuildLookInput);
+            _rotation.Rotate(lookInput);
         }
 
         private void Crouch()
