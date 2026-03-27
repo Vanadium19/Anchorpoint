@@ -1,10 +1,9 @@
 using UnityEngine;
 using Zenject;
-using ComponentsModule;
 
 namespace PlayerModule
 {
-    public class PlayerProvider : MonoBehaviour, IPlayerPositionProvider
+    public class PlayerProvider : MonoBehaviour
     {
         [SerializeField] private GameObjectContext context;
 

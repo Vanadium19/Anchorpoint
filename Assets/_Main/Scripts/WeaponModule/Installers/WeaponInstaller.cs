@@ -1,6 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
-using System.Collections.Generic;
+using WeaponModule;
 
 namespace WeaponModule.Installers
 {
@@ -16,7 +17,12 @@ namespace WeaponModule.Installers
 
             Container.BindFactory<WeaponConfig, WeaponView, WeaponController, WeaponFactory>();
 
-            Container.BindInterfacesTo<WeaponInventory>().AsSingle();
+            Container.Bind<WeaponInventory>()
+                .AsSingle();
+
+            Container.Bind<IWeaponInventory>()
+                .To<WeaponInventory>()
+                .FromResolve();
         }
     }
 }

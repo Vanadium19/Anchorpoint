@@ -12,6 +12,7 @@ namespace BuildingModule
         string CurrentBuildingId { get; }
         Vector3 LastValidPosition { get; }
         float CurrentRotation { get; }
+
         bool HasCollisionAtPosition(Vector3 position);
 
         void SetBuilding(string id);

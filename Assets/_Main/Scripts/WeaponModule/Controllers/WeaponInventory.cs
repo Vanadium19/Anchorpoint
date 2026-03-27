@@ -1,33 +1,28 @@
 using System.Collections.Generic;
-using Zenject;
 using Cysharp.Threading.Tasks;
-using InputModule;
-using BuildingModule;
 
 namespace WeaponModule
 {
-    public class WeaponInventory : IInitializable, ITickable, ILateTickable
+    public class WeaponInventory : IWeaponInventory
     {
         private readonly WeaponFactory _weaponFactory;
-        private readonly IInputMap _input;
-        private readonly IConstructionModeService _constructionModeService;
         private readonly List<WeaponSetupData> _loadout;
+
         private readonly List<IWeapon> _weapons = new();
 
         private IWeapon _currentWeapon;
         private int _currentIndex = -1;
-        private bool _isSwitching = false;
         private int _lastEquippedIndex;
+
+        public IWeapon CurrentWeapon => _currentWeapon;
+
+        public int WeaponsCount => _weapons.Count;
 
         public WeaponInventory(
             WeaponFactory weaponFactory,
-            IInputMap input,
-            List<WeaponSetupData> loadout,
-            [InjectOptional] IConstructionModeService constructionModeService = null)
+            List<WeaponSetupData> loadout)
         {
             _weaponFactory = weaponFactory;
-            _input = input;
-            _constructionModeService = constructionModeService;
             _loadout = loadout;
         }
 
@@ -40,21 +35,28 @@ namespace WeaponModule
                 setup.View.gameObject.SetActive(false);
                 _weapons.Add(weapon);
             }
-
-            if (_weapons.Count > 0)
-                EquipWeapon(0).Forget();
-
-            if (_constructionModeService != null)
-                _constructionModeService.ActiveChanged += OnBuildModeChanged;
         }
 
-        private void OnBuildModeChanged(bool isActive)
+        public void EquipWeapon(int index)
         {
-            if (isActive)
+            if (index < 0 || index >= _weapons.Count)
+                return;
+
+            if (_weapons[index] == _currentWeapon)
+            {
                 UnequipCurrentWeapon();
+                return;
+            }
+
+            if (_currentWeapon != null)
+                HideWeapon(_currentWeapon);
+
+            _currentIndex = index;
+            _currentWeapon = _weapons[index];
+            _currentWeapon.Equip();
         }
 
-        private void UnequipCurrentWeapon()
+        public void UnequipCurrentWeapon()
         {
             if (_currentWeapon == null)
                 return;
@@ -65,99 +67,16 @@ namespace WeaponModule
             _currentIndex = -1;
         }
 
-        public void Tick()
+        public void EquipLastWeapon()
         {
-            if (_isSwitching)
-                return;
-
-            _currentWeapon?.Tick();
-            HandleInput();
+            if (_lastEquippedIndex >= 0 && _lastEquippedIndex < _weapons.Count)
+                EquipWeapon(_lastEquippedIndex);
         }
 
-        public void LateTick() => _currentWeapon?.LateTick();
-
-        private void HandleInput()
+        private void HideWeapon(IWeapon weapon)
         {
-            int requestedIndex = _input.SelectWeaponIndex;
-
-            if (requestedIndex != -1)
-            {
-                EquipWeapon(requestedIndex).Forget();
-                return;
-            }
-
-            float scroll = _input.WeaponScroll;
-
-            //FIXME: Magic numbers
-            if (scroll > 0.1f)
-                EquipNext();
-            else if (scroll < -0.1f)
-                EquipPrevious();
-        }
-
-        private void EquipNext()
-        {
-            //FIXME: Magic numbers
-            if (_currentIndex == -1)
-            {
-                EquipWeapon(0).Forget();
-                return;
-            }
-
-            //FIXME: Magic numbers
-            int nextIndex = _currentIndex + 1;
-
-            if (nextIndex >= _weapons.Count)
-                nextIndex = 0;
-
-            EquipWeapon(nextIndex).Forget();
-        }
-
-        private void EquipPrevious()
-        {
-            if (_currentIndex == -1)
-            {
-                EquipWeapon(_weapons.Count - 1).Forget();
-                return;
-            }
-
-            //FIXME: Magic numbers
-            int prevIndex = _currentIndex - 1;
-
-            //FIXME: Magic numbers
-            if (prevIndex < 0)
-                prevIndex = _weapons.Count - 1;
-
-            EquipWeapon(prevIndex).Forget();
-        }
-
-        private async UniTaskVoid EquipWeapon(int index)
-        {
-            if (index < 0 || index >= _weapons.Count)
-                return;
-
-            _isSwitching = true;
-
-            if (_weapons[index] == _currentWeapon)
-            {
-                if (_currentWeapon != null)
-                    await _currentWeapon.Unequip();
-
-                _currentWeapon = null;
-                //FIXME: Magic numbers
-                _currentIndex = -1;
-
-                _isSwitching = false;
-                return;
-            }
-
-            if (_currentWeapon != null)
-                await _currentWeapon.Unequip();
-
-            _currentIndex = index;
-            _currentWeapon = _weapons[index];
-            _currentWeapon.Equip();
-            _isSwitching = false;
+            if (weapon is WeaponController controller)
+                controller.Hide();
         }
     }
 }

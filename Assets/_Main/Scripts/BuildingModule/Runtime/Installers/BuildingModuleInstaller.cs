@@ -1,6 +1,6 @@
+using BaseModule;
 using UnityEngine;
 using Zenject;
-using BaseModule;
 
 namespace BuildingModule
 {
@@ -59,6 +59,8 @@ namespace BuildingModule
             Container.Bind<BaseLevelView>().FromInstance(baseLevelView).AsSingle();
             Container.BindInterfacesTo<BaseLevelPreviewBridge>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BaseLevelPresenter>().AsSingle().NonLazy();
+
+            Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
         }
     }
 }

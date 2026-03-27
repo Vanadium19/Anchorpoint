@@ -26,5 +26,5 @@ MonoBehaviour:
   wallOffset: 0
   collisionLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2039
   queryTriggerInteraction: 0
