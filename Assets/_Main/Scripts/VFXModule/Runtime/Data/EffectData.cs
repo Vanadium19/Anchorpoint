@@ -1,15 +1,14 @@
 using System;
-using TriInspector;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace VFXModule
 {
     [Serializable]
-    [DeclareHorizontalGroup("vars")]
     public class EffectData
     {
-        [Group("vars")] [SerializeField] private EffectId id;
-        [Group("vars")] [SerializeField] private EffectView prefab;
+        [HorizontalGroup("vars")] [SerializeField] private EffectId id;
+        [HorizontalGroup("vars")] [SerializeField] private EffectView prefab;
 
         public EffectId Id => id;
         public EffectView Prefab => prefab;
