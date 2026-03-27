@@ -1,4 +1,5 @@
 using System.Linq;
+using BaseModule;
 using InventoryModule;
 
 namespace BuildingModule
@@ -7,21 +8,25 @@ namespace BuildingModule
     {
         private readonly BuildingCatalog _buildingCatalog;
         private readonly IInventoryManager _inventoryManager;
+        private readonly IBaseLevelService _baseLevelService;
 
         public StorageService(
             BuildingCatalog buildingCatalog,
-            IInventoryManager inventoryManager)
+            IInventoryManager inventoryManager,
+            IBaseLevelService baseLevelService)
         {
             _buildingCatalog = buildingCatalog;
             _inventoryManager = inventoryManager;
+            _baseLevelService = baseLevelService;
         }
 
-        public bool CanBuy(BuildingName name)
+        public bool CanBuy(string id)
         {
-            if (!_buildingCatalog.TryGetConfig(name, out var config))
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return false;
 
             var price = config.Price;
+
             if (price?.Values == null)
                 return true;
 
@@ -31,6 +36,7 @@ namespace BuildingModule
                     continue;
 
                 int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
+
                 if (available < itemToCount.Count)
                     return false;
             }
@@ -38,15 +44,16 @@ namespace BuildingModule
             return true;
         }
 
-        public bool Buy(BuildingName name)
+        public bool Buy(string id)
         {
-            if (!_buildingCatalog.TryGetConfig(name, out var config))
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return false;
 
-            if (!CanBuy(name))
+            if (!CanBuy(id))
                 return false;
 
             var price = config.Price;
+
             if (price?.Values == null)
                 return true;
 
@@ -56,12 +63,12 @@ namespace BuildingModule
                     continue;
 
                 bool removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
+
                 if (!removed)
-                {
                     return false;
-                }
             }
 
+            _baseLevelService.AddPoints(config.BasePoints);
             return true;
         }
     }

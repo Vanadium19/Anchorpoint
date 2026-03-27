@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10cb1f967fa26d6419fa200d94d04c5c, type: 3}
+  m_Name: PlacementConfig
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.PlacementConfig
+  inputTolerance: 0.01
+  minPlacementDistance: 2
+  maxPlacementDistance: 20
+  scrollSensitivity: 100
+  rotationSpeed: 90
+  previewYOffset: 0
+  previewAlpha: 0.8
+  smoothSpeed: 0.15
+  ceilingOffset: 0.1
+  ceilingAngleFactor: 0.1
+  wallAngleFactor: 0.7
+  wallOffset: 0
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 2039
+  queryTriggerInteraction: 0

@@ -23,8 +23,6 @@ namespace WeaponModule
 
         private CancellationTokenSource _tokenSource;
 
-        public WeaponModel Model => _model;
-
         public WeaponController(
             WeaponConfig config,
             WeaponModel model,
@@ -41,6 +39,8 @@ namespace WeaponModule
             _tokenSource = new();
         }
 
+        public WeaponModel Model => _model;
+
         public void Initialize()
         {
             _ammoReserveService.GetAmmoState(
@@ -56,6 +56,7 @@ namespace WeaponModule
 
         public void Equip()
         {
+            CancelCurrentActions();
             _view.gameObject.SetActive(true);
             _isReloading = false;
             _isAiming = false;
@@ -71,8 +72,18 @@ namespace WeaponModule
             CancelCurrentActions();
 
             _view.SetHolsterState(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(_config.DrawTime));
 
+            bool canceled = await UniTask.Delay(
+                TimeSpan.FromSeconds(_config.DrawTime),
+                cancellationToken: _tokenSource.Token).SuppressCancellationThrow();
+
+            if (!canceled)
+                _view.gameObject.SetActive(false);
+        }
+
+        public void Hide()
+        {
+            CancelCurrentActions();
             _view.gameObject.SetActive(false);
         }
 
@@ -187,7 +198,7 @@ namespace WeaponModule
 
         private void HandleTriggerFinger()
         {
-            _view.SetTriggerHold(_input.IsFirePressed);
+            _view.SetTriggerHold(_input.IsFireHeld);
         }
 
         private async UniTaskVoid ReloadRoutine(bool isEmptyReload, float delayBeforeReload)

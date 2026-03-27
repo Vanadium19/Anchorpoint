@@ -12,10 +12,10 @@ namespace PlayerModule
         [SerializeField] private CharacterController characterController;
         [SerializeField] private Transform cameraRoot;
         [SerializeField] private Transform player;
-        
+
         [Header("Health")]
         [SerializeField] private HealthView healthView;
-        
+
         [Header("Settings")]
         [SerializeField] private PlayerConfig config;
 
@@ -42,6 +42,10 @@ namespace PlayerModule
                 .FromInstance(player)
                 .AsSingle();
 
+            Container.Bind<Camera>()
+                .FromInstance(Camera.main)
+                .AsSingle();
+
             Container.Bind<IMoveComponent>()
                 .To<MoveComponent>()
                 .AsSingle()
@@ -62,10 +66,13 @@ namespace PlayerModule
                 .AsSingle()
                 .WithArguments(cameraRoot, config.LeanAngle, config.LeanOffset, config.LeanSpeed);
 
-            Container.Bind<HealthView>()
-                .FromInstance(healthView)
-                .AsSingle();
-            
+            if (healthView != null)
+            {
+                Container.Bind<HealthView>()
+                    .FromInstance(healthView)
+                    .AsSingle();
+            }
+
             Container.BindInterfacesTo<HealthPresenter>()
                 .AsSingle()
                 .NonLazy();
@@ -94,9 +101,9 @@ namespace PlayerModule
                 .AsSingle()
                 .NonLazy();
 
-            Container.Bind<IPlayerPositionProvider>()
-                .FromInstance(player.GetComponent<PlayerProvider>())
-                .AsSingle();
+            Container.BindInterfacesTo<WeaponInputController>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

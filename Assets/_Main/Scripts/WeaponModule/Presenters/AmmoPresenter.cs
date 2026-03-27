@@ -8,7 +8,7 @@ namespace WeaponModule
         private readonly WeaponInventory _weaponInventory;
         private readonly AmmoView _ammoView;
 
-        private WeaponController _currentWeapon;
+        private IWeapon _currentWeapon;
 
         public AmmoPresenter(WeaponInventory weaponInventory, AmmoView ammoView)
         {
@@ -28,7 +28,7 @@ namespace WeaponModule
             UnsubscribeFromCurrentWeapon();
         }
 
-        private void OnCurrentWeaponChanged(WeaponController weapon)
+        private void OnCurrentWeaponChanged(IWeapon weapon)
         {
             UnsubscribeFromCurrentWeapon();
 

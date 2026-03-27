@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cac2a1478d4432418c78f29b642ef80, type: 3}
+  m_Name: BaseLevelUIConfig
+  m_EditorClassIdentifier: BaseModule::BaseModule.BaseLevelUIConfig
+  levelFormat: LVL {0}
+  levelUpFormat: LVL {0} (+{1})
+  pointsFormat: EXP {0}/{1}
+  pointsNoThresholdFormat: '{0}'
+  previewPointsFormat: +{0} EXP
+  progressAnimationDuration: 0.5
+  previewProgressAnimationDuration: 0.3
+  pointsCountUpDuration: 0.5
+  levelChangeAnimationDuration: 0.3
+  slideAnimationDuration: 0.3
+  levelPunchScale: 0.2
+  levelPunchVibrato: 1
+  levelPunchElasticity: 0.5
+  slideOffset: -200

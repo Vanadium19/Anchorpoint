@@ -4,10 +4,11 @@ namespace WeaponModule
 {
     public interface IWeapon
     {
+        public WeaponModel Model { get; }
+
         void Initialize();
-        void Tick();
-        void LateTick();
         void Equip();
+        void Hide();
         UniTask Unequip();
     }
 }
