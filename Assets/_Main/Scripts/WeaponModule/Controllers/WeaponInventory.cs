@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
@@ -14,17 +15,17 @@ namespace WeaponModule
         private int _currentIndex = -1;
         private int _lastEquippedIndex;
 
-        public IWeapon CurrentWeapon => _currentWeapon;
+        public event Action<IWeapon> CurrentWeaponChanged;
 
-        public int WeaponsCount => _weapons.Count;
-
-        public WeaponInventory(
-            WeaponFactory weaponFactory,
-            List<WeaponSetupData> loadout)
+        public WeaponInventory(WeaponFactory weaponFactory, List<WeaponSetupData> loadout)
         {
             _weaponFactory = weaponFactory;
             _loadout = loadout;
         }
+
+        public IWeapon CurrentWeapon => _currentWeapon;
+
+        public int WeaponsCount => _weapons.Count;
 
         public void Initialize()
         {
@@ -54,6 +55,7 @@ namespace WeaponModule
             _currentIndex = index;
             _currentWeapon = _weapons[index];
             _currentWeapon.Equip();
+            CurrentWeaponChanged?.Invoke(_currentWeapon);
         }
 
         public void UnequipCurrentWeapon()
@@ -65,6 +67,7 @@ namespace WeaponModule
             _currentWeapon.Unequip().Forget();
             _currentWeapon = null;
             _currentIndex = -1;
+            CurrentWeaponChanged?.Invoke(_currentWeapon);
         }
 
         public void EquipLastWeapon()
