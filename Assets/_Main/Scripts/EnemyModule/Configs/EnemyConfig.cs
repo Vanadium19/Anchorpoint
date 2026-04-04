@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using InventoryModule;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace EnemyModule
 {
@@ -35,5 +39,50 @@ namespace EnemyModule
         public float LookInterval = 2f;
         public float LookTurnSpeed = 2f;
         public float LookAngleRange = 60f;
+
+        [Header("Loot")]
+        [Min(0)] [SerializeField] private int maxDropItems;
+        [SerializeField] private List<LootDropData> loot;
+        [SerializeField] private float lootScatterRadius = 0.75f;
+        [SerializeField] private float lootSpawnOffsetY = 0.35f;
+
+        public float LootScatterRadius => lootScatterRadius;
+        public float LootSpawnOffsetY => lootSpawnOffsetY;
+
+        public int GetRandomDropCount() => maxDropItems <= 0 ? 0 : Random.Range(0, maxDropItems + 1);
+
+        public bool TryGetRandomLootItem(out ItemDataSo item)
+        {
+            item = null;
+
+            if (loot == null || loot.Count == 0)
+                return false;
+
+            var totalWeight = loot.Sum(entry => entry.DropWeight);
+
+            if (totalWeight <= 0f)
+                return false;
+
+            var roll = Random.value * totalWeight;
+            var fallbackItem = default(ItemDataSo);
+
+            foreach (var data in loot)
+            {
+                if (!data.IsValid)
+                    continue;
+
+                fallbackItem ??= data.Item;
+                roll -= data.DropWeight;
+
+                if (roll > 0f)
+                    continue;
+
+                item = data.Item;
+                return true;
+            }
+
+            item = fallbackItem;
+            return item;
+        }
     }
 }

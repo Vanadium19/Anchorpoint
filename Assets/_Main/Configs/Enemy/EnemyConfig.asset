@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23e11bbd92c253249bf24be38360fdab, type: 3}
   m_Name: EnemyConfig
   m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.Configs.EnemyConfig
+  MaxHealth: 100
+  StoppingDistance: 0.5
+  LostTargetReachDistance: 2
+  CoverSearchRadius: 15
+  CoverArrivalDistance: 1
   SightDistance: 25
   ViewAngle: 120
   ViewMask:
@@ -19,6 +24,8 @@ MonoBehaviour:
     m_Bits: 65
   MemoryTime: 10
   AttackRange: 20
+  AttackExitRangeMultiplier: 1.2
+  CombatTurnSpeed: 540
   FireRate: 1
   MaxAmmo: 10
   ReloadTime: 3
@@ -28,3 +35,9 @@ MonoBehaviour:
   LookInterval: 2
   LookTurnSpeed: 2
   LookAngleRange: 90
+  maxDropItems: 3
+  loot:
+  - dropWeight: 1
+    item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+  lootScatterRadius: 0.75
+  lootSpawnOffsetY: 0.35
