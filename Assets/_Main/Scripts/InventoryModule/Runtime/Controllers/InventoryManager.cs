@@ -28,6 +28,55 @@ namespace InventoryModule
         {
             _slotService = slotService;
         }
+        public List<ItemTable> ExtractAllRootItems()
+        {
+            var extractedItems = new List<ItemTable>();
+            var uniqueItems = new HashSet<ItemTable>();
+
+            if (_mainGrid != null)
+            {
+                var mainGridItems = _mainGrid.GetAllItems();
+
+                for (var i = 0; i < mainGridItems.Length; i++)
+                {
+                    var item = mainGridItems[i];
+
+                    if (item != null && uniqueItems.Add(item))
+                        extractedItems.Add(item);
+                }
+            }
+
+            if (_slotService != null)
+            {
+                var slots = _slotService.GetAllSlots();
+
+                for (var i = 0; i < slots.Count; i++)
+                {
+                    var item = slots[i].EquippedItem;
+
+                    if (item != null && uniqueItems.Add(item))
+                        extractedItems.Add(item);
+                }
+            }
+
+            for (var i = 0; i < extractedItems.Count; i++)
+                extractedItems[i].RemoveItselfFromLocation();
+
+            if (_slotService != null)
+            {
+                var slots = _slotService.GetAllSlots();
+
+                for (var i = 0; i < slots.Count; i++)
+                {
+                    if (slots[i].IsEquipped)
+                        slots[i].Unequip();
+                }
+            }
+
+            _equippedItems.Clear();
+
+            return extractedItems;
+        }
 
         public void SetInput(IInputMap inputMap, IInputService inputService)
         {

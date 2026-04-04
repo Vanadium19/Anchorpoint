@@ -30,6 +30,11 @@ namespace InventoryModule
                 .AsSingle()
                 .WithArguments(playerTransform, dropDistance, dropOffsetY);
 
+            Container.BindInterfacesAndSelfTo<DeathLootService>()
+                .AsSingle()
+                .WithArguments(1.25f, 0.35f)
+                .NonLazy();
+
             if (containerWindowPrefab != null)
                 Container.Bind<ContainerWindow>()
                     .FromInstance(containerWindowPrefab)

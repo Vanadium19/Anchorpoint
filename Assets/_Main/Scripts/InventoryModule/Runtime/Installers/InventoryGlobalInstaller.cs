@@ -38,6 +38,8 @@ namespace InventoryModule
             Container.Bind<IContextActionService>()
                 .To<ContextActionService>()
                 .AsSingle();
+
+
         }
     }
 }
