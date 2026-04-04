@@ -2,8 +2,6 @@ using UnityEngine;
 using Zenject;
 using ComponentsModule;
 using UnityEngine.AI;
-using System;
-using UnityEditor.Experimental.GraphView;
 
 namespace EnemyModule
 {
@@ -63,6 +61,10 @@ namespace EnemyModule
                 .To<ProjectileAttackComponent>()
                 .AsSingle()
                 .WithArguments(firePoint, bulletPrefab, config.MaxAmmo);
+
+            Container.BindInterfacesTo<LootDumper>()
+                .AsSingle()
+                .NonLazy();
 
             Container.Bind<Blackboard>().AsSingle();
         }
