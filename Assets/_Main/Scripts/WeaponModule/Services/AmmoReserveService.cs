@@ -41,5 +41,9 @@ namespace WeaponModule
                 ReserveAmmo = Mathf.Max(0, reserveAmmo)
             };
         }
+        public void Clear()
+        {
+            AmmoByWeaponId.Clear();
+        }
     }
 }
