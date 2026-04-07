@@ -69,6 +69,27 @@ namespace BaseModule
             PointsChanged?.Invoke(oldPoints, newPoints, oldPointsInLevel, newPointsInLevel);
         }
 
+        public void SetPoints(int points)
+        {
+            if (points < 0)
+                points = 0;
+
+            var oldLevel = CurrentLevel;
+            var oldPointsInLevel = GetPointsInLevel(_currentPoints, oldLevel);
+            var oldPoints = _currentPoints;
+
+            _currentPoints = points;
+
+            var newLevel = CurrentLevel;
+            var newPointsInLevel = GetPointsInLevel(_currentPoints, newLevel);
+            var newPoints = _currentPoints;
+
+            if (oldLevel != newLevel)
+                LevelChanged?.Invoke(oldLevel, newLevel);
+
+            PointsChanged?.Invoke(oldPoints, newPoints, oldPointsInLevel, newPointsInLevel);
+        }
+
         public BaseLevelPreview GetPreview(int buildingPoints)
         {
             var previewPoints = _currentPoints + buildingPoints;

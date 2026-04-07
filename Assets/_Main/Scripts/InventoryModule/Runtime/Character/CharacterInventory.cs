@@ -1,4 +1,5 @@
 using UnityEngine;
+using Zenject;
 
 namespace InventoryModule
 {
@@ -13,8 +14,15 @@ namespace InventoryModule
 
         private GridTable _mainGrid;
         private ContainerSection _mainSection;
+        private DiContainer _diContainer;
 
         private IInventoryManager _inventoryManager;
+
+        [Inject]
+        public void Construct(DiContainer container)
+        {
+            _diContainer = container;
+        }
 
         public void Initialize(IInventoryManager inventoryManager)
         {
@@ -52,7 +60,9 @@ namespace InventoryModule
 
             inventoryPanel.Initialize();
 
-            _mainSection = Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
+            _mainSection = _diContainer != null
+                ? _diContainer.InstantiatePrefabForComponent<ContainerSection>(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer)
+                : Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
             inventoryPanel.EnsureSectionHasLayoutElement(_mainSection);
 
             if (containerPanelPrefab != null)

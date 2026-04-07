@@ -10,8 +10,8 @@ namespace PlayerModule
         private readonly PlayerInteractionController _controller;
         private readonly InteractionHUDView _view;
         private readonly PlayerConfig _config;
-        private string _cachedMessage;
         private LootItemView _lastLoot;
+        private IContainerUI _lastContainer;
 
         public InteractionPresenter(
             PlayerInteractionController controller,
@@ -27,28 +27,53 @@ namespace PlayerModule
         {
             _view.Show("");
             _view.Hide();
-            _controller.HoverChanged += OnHoverChanged;
+            _controller.LootHoverChanged += OnLootHoverChanged;
+            _controller.ContainerHoverChanged += OnContainerHoverChanged;
         }
 
         public void Dispose()
         {
-            _controller.HoverChanged -= OnHoverChanged;
+            _controller.LootHoverChanged -= OnLootHoverChanged;
+            _controller.ContainerHoverChanged -= OnContainerHoverChanged;
         }
 
-        private void OnHoverChanged(LootItemView loot)
+        private void OnLootHoverChanged(LootItemView loot)
         {
             if (loot == null)
             {
                 _lastLoot = null;
-                _view.Hide();
+
+                if (_lastContainer == null)
+                    _view.Hide();
+
                 return;
             }
-            if (_lastLoot == loot) return;
+
+            if (_lastLoot == loot)
+                return;
 
             _lastLoot = loot;
-            _cachedMessage = string.Format(_config.InteractionHintFormat, 
+            var message = string.Format(_config.LootHintFormat,
                 loot.ItemData?.DisplayName ?? "Item", loot.Amount);
-            _view.Show(_cachedMessage);
+            _view.Show(message);
+        }
+
+        private void OnContainerHoverChanged(IContainerUI container)
+        {
+            if (container == null)
+            {
+                _lastContainer = null;
+
+                if (_lastLoot == null)
+                    _view.Hide();
+
+                return;
+            }
+
+            _lastContainer = container;
+            var message = string.Format(_config.ContainerHintFormat,
+                container.DisplayName);
+            _view.Show(message);
         }
     }
 }

@@ -36,8 +36,9 @@ namespace InventoryModule
         private IContextActionService _contextActionService;
         private IContainerWindowService _windowService;
         private IContextMenuStateService _menuStateService;
+        private DiContainer _diContainer;
         private ContextMenuPresenter _contextMenu;
-        
+
         private Vector2 _stackTextOriginalPos;
         private bool _stackTextPosInitialized;
 
@@ -48,7 +49,8 @@ namespace InventoryModule
             IUIInputHandler uiInputHandler,
             IContextActionService contextActionService,
             IContainerWindowService windowService,
-            IContextMenuStateService menuStateService)
+            IContextMenuStateService menuStateService,
+            DiContainer container)
         {
             _inventoryManager = inventoryManager;
             _slotService = slotService;
@@ -57,6 +59,7 @@ namespace InventoryModule
             _contextActionService = contextActionService;
             _windowService = windowService;
             _menuStateService = menuStateService;
+            _diContainer = container;
         }
 
         protected override void Awake()
@@ -153,7 +156,9 @@ namespace InventoryModule
             if (canvas == null)
                 return;
 
-            var window = Instantiate(containerWindowPrefab, canvas.transform);
+            var window = _diContainer != null
+                ? _diContainer.InstantiatePrefabForComponent<ContainerWindow>(containerWindowPrefab, canvas.transform)
+                : Instantiate(containerWindowPrefab, canvas.transform);
             window.transform.SetAsLastSibling();
             window.Initialize(Item, metadata, containerWindowPrefab.GridPrefab, _windowService);
         }
