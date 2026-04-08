@@ -53,7 +53,7 @@ namespace SaveModule
 
             foreach (var saveable in _saveables)
             {
-                state[saveable.SaveKey] = saveable.CreateMementoJson();
+                state[saveable.SaveKey] = saveable.CreateMemento();
             }
 
             var saveData = new GameSaveData { State = state };
@@ -69,8 +69,8 @@ namespace SaveModule
 
             foreach (var saveable in _saveables)
             {
-                if (saveData.State.TryGetValue(saveable.SaveKey, out var json))
-                    saveable.RestoreMementoFromJson(json);
+                if (saveData.State.TryGetValue(saveable.SaveKey, out var data))
+                    saveable.RestoreMemento(data);
             }
         }
     }

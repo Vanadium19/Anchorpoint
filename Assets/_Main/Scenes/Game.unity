@@ -1899,7 +1899,6 @@ GameObject:
   - component: {fileID: 489959974}
   - component: {fileID: 489959976}
   - component: {fileID: 489959977}
-  - component: {fileID: 489959978}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1922,11 +1921,10 @@ MonoBehaviour:
   _scriptableObjectInstallers:
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
+  - {fileID: 489959977}
   - {fileID: 489959972}
   - {fileID: 489959974}
   - {fileID: 489959976}
-  - {fileID: 489959977}
-  - {fileID: 489959978}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -2027,18 +2025,6 @@ MonoBehaviour:
   dropOffsetY: 0.5
   containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
   gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
---- !u!114 &489959978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 489959967}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f03cfb89438a56f4580336082db001ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameSceneSaveModule::GameSceneSaveModule.GameSceneSaveModuleInstaller
 --- !u!1001 &502489095
 PrefabInstance:
   m_ObjectHideFlags: 0

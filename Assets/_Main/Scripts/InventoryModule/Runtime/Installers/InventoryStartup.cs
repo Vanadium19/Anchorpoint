@@ -1,14 +1,10 @@
+using System;
 using UnityEngine;
 using Zenject;
 using InputModule;
 
 namespace InventoryModule
 {
-    public interface IInventoryReadyHandler
-    {
-        event System.Action InventoryReady;
-    }
-
     public sealed class InventoryStartup : IInitializable, IInventoryReadyHandler
     {
         private readonly IInventoryManager _inventoryManager;
@@ -18,7 +14,7 @@ namespace InventoryModule
         private readonly GameObject _inventoryUI;
         private readonly IEquipmentSlotService _slotService;
 
-        public event System.Action InventoryReady;
+        public event Action InventoryReady;
 
         public InventoryStartup(
             IInventoryManager inventoryManager,

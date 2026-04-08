@@ -125,10 +125,7 @@ namespace PlayerModule
             var itemData = loot.ItemData;
 
             if (itemData == null)
-            {
-                Debug.LogWarning("[PlayerInteractionController] Loot has no ItemData");
                 return;
-            }
 
             bool success;
 

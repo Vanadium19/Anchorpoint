@@ -1,7 +1,6 @@
 using System;
 using System.IO;
-using Sirenix.Serialization;
-using UnityEngine;
+using Newtonsoft.Json;
 
 namespace SaveModule
 {
@@ -15,8 +14,8 @@ namespace SaveModule
             if (!File.Exists(filePath))
                 return default;
 
-            var bytes = File.ReadAllBytes(filePath);
-            return SerializationUtility.DeserializeValue<TData>(bytes, DataFormat.JSON);
+            var json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<TData>(json);
         }
 
         public void Save<TData>(TData data, string filePath)
@@ -29,8 +28,8 @@ namespace SaveModule
             if (!string.IsNullOrEmpty(directoryName) && !Directory.Exists(directoryName))
                 Directory.CreateDirectory(directoryName);
 
-            var bytes = SerializationUtility.SerializeValue(data, DataFormat.JSON);
-            File.WriteAllBytes(filePath, bytes);
+            var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            File.WriteAllText(filePath, json);
         }
     }
 }

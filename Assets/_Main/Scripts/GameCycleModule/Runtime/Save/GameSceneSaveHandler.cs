@@ -3,7 +3,7 @@ using Zenject;
 using SaveModule;
 using InventoryModule;
 
-namespace GameSceneSaveModule
+namespace GameCycleModule
 {
     public class GameSceneSaveHandler : IInitializable, IDisposable
     {

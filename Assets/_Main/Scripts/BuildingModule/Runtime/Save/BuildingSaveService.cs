@@ -20,7 +20,7 @@ namespace BuildingModule
             _itemCatalog = itemCatalog;
         }
 
-        public BuildingSnapshot CreateSnapshot(BuildingView building)
+        private BuildingSnapshot CreateSnapshot(BuildingView building)
         {
             if (building == null)
                 return null;
@@ -39,25 +39,29 @@ namespace BuildingModule
                 RotationY = building.transform.rotation.eulerAngles.y
             };
 
-            var containerUI = building.GetComponent<IContainerUI>();
-
-            if (containerUI != null)
-            {
-                foreach (var grid in containerUI.Grids)
-                {
-                    var containerMemento = new ContainerMemento();
-                    var items = grid.GetAllItems();
-
-                    foreach (var item in items)
-                    {
-                        containerMemento.Items.Add(ItemSerializer.Serialize(item));
-                    }
-
-                    snapshot.Containers.Add(containerMemento);
-                }
-            }
+            SerializeContainers(building, snapshot);
 
             return snapshot;
+        }
+
+        private void SerializeContainers(BuildingView building, BuildingSnapshot snapshot)
+        {
+            var containerUI = building.GetComponent<IContainerUI>();
+
+            if (containerUI == null)
+                return;
+
+            foreach (var grid in containerUI.Grids)
+            {
+                var containerMemento = new ContainerMemento();
+
+                foreach (var item in grid.GetAllItems())
+                {
+                    containerMemento.Items.Add(ItemSerializer.Serialize(item));
+                }
+
+                snapshot.Containers.Add(containerMemento);
+            }
         }
 
         public BuildingView RestoreFromSnapshot(BuildingSnapshot snapshot)

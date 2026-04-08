@@ -1,6 +1,7 @@
 using PlayerModule;
 using UnityEngine;
 using Zenject;
+using InventoryModule;
 
 namespace CampSaveModule
 {
@@ -12,6 +13,15 @@ namespace CampSaveModule
         {
             Container.Bind<PlayerProvider>()
                 .FromInstance(playerProvider)
+                .AsSingle();
+
+            Container.Bind<InventorySaveable>()
+                .AsSingle();
+
+            Container.Bind<CampSaveable>()
+                .AsSingle();
+
+            Container.BindInterfacesTo<CampSaveHandler>()
                 .AsSingle();
         }
     }

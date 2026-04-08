@@ -16,8 +16,10 @@ namespace BuildingModule
 
         public void UnregisterBuilding(BuildingView building)
         {
-            if (building != null)
-                _buildings.Remove(building);
+            if (building == null)
+                return;
+
+            _buildings.Remove(building);
         }
 
         public void Clear()

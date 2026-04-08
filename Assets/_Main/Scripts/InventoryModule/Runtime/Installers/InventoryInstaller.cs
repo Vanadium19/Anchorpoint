@@ -28,11 +28,10 @@ namespace InventoryModule
 
         public override void InstallBindings()
         {
-        Container.Bind<ItemCatalog>().FromInstance(itemCatalog).AsSingle();
+            Container.Bind<ItemCatalog>().FromInstance(itemCatalog).AsSingle();
 
             InstallGlobalBindings();
             InstallSceneBindings();
-            InstallSaveSystem();
         }
 
         private void InstallGlobalBindings()
@@ -105,20 +104,11 @@ namespace InventoryModule
                     .FromInstance(inventoryUI);
             }
 
-            Container.BindInterfacesAndSelfTo<InventoryStartup>()
-                .AsSingle();
-        }
+        Container.BindInterfacesAndSelfTo<InventoryStartup>()
+            .AsSingle();
+    }
 
-        private void InstallSaveSystem()
-        {
-            Container.Bind<InventorySaveable>()
-                .AsSingle();
-
-            Container.BindInterfacesTo<InventorySaveRegistration>()
-                .AsSingle();
-        }
-
-        public override void Start()
+    public override void Start()
         {
             var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
 

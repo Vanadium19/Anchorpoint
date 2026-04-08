@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Newtonsoft.Json;
 using SaveModule;
-using Sirenix.Serialization;
 
 namespace InventoryModule
 {
@@ -27,37 +26,32 @@ namespace InventoryModule
             _itemCatalog = itemCatalog;
         }
 
-        public string CreateMementoJson()
+        public string CreateMemento()
         {
-            var inventoryJson = SerializeInventory();
-            var equipmentJson = SerializeEquipment();
+            var inventoryData = SerializeInventory();
+            var equipmentData = SerializeEquipment();
 
             var combined = new Dictionary<string, string>
             {
-                [InventoryKey] = inventoryJson,
-                [EquipmentKey] = equipmentJson
+                [InventoryKey] = inventoryData,
+                [EquipmentKey] = equipmentData
             };
 
-            var bytes = SerializationUtility.SerializeValue(combined, DataFormat.JSON);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return JsonConvert.SerializeObject(combined);
         }
 
-        public void RestoreMementoFromJson(string json)
+        public void RestoreMemento(string data)
         {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            var combined = SerializationUtility.DeserializeValue<Dictionary<string, string>>(bytes, DataFormat.JSON);
+            var combined = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
 
             if (combined == null)
-            {
-                Debug.LogError("[InventorySaveable] Failed to deserialize memento");
                 return;
-            }
 
-            if (combined.TryGetValue(InventoryKey, out var invJson))
-                RestoreInventory(invJson);
+            if (combined.TryGetValue(InventoryKey, out var invData))
+                RestoreInventory(invData);
 
-            if (combined.TryGetValue(EquipmentKey, out var eqJson))
-                RestoreEquipment(eqJson);
+            if (combined.TryGetValue(EquipmentKey, out var eqData))
+                RestoreEquipment(eqData);
         }
 
         private string SerializeInventory()
@@ -77,8 +71,7 @@ namespace InventoryModule
                 }
             }
 
-            var bytes = SerializationUtility.SerializeValue(memento, DataFormat.JSON);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return JsonConvert.SerializeObject(memento);
         }
 
         private string SerializeEquipment()
@@ -102,26 +95,18 @@ namespace InventoryModule
                 }
             }
 
-            var bytes = SerializationUtility.SerializeValue(memento, DataFormat.JSON);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return JsonConvert.SerializeObject(memento);
         }
 
         private void RestoreInventory(string json)
         {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            var memento = SerializationUtility.DeserializeValue<InventoryMemento>(bytes, DataFormat.JSON);
+            var memento = JsonConvert.DeserializeObject<InventoryMemento>(json);
 
             if (memento == null)
-            {
-                Debug.LogError("[InventorySaveable] Failed to deserialize inventory memento");
                 return;
-            }
 
             if (_inventoryManager.MainGrid == null)
-            {
-                Debug.LogWarning("[InventorySaveable] MainGrid is null, cannot restore inventory");
                 return;
-            }
 
             _inventoryManager.ClearInventory();
 
@@ -136,20 +121,13 @@ namespace InventoryModule
 
         private void RestoreEquipment(string json)
         {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            var memento = SerializationUtility.DeserializeValue<EquipmentMemento>(bytes, DataFormat.JSON);
+            var memento = JsonConvert.DeserializeObject<EquipmentMemento>(json);
 
             if (memento == null)
-            {
-                Debug.LogError("[InventorySaveable] Failed to deserialize equipment memento");
                 return;
-            }
 
             if (_slotService == null)
-            {
-                Debug.LogWarning("[InventorySaveable] SlotService is null");
                 return;
-            }
 
             if (memento.Slots != null)
             {
@@ -167,7 +145,7 @@ namespace InventoryModule
                         continue;
 
                     var itemData = _itemCatalog.GetByName(slotMemento.Item.ItemDataName);
-                    
+
                     if (itemData == null)
                         continue;
 

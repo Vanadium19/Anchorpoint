@@ -89,12 +89,9 @@ namespace InventoryModule
                 return;
 
             var itemData = catalog.GetByName(memento.ItemDataName);
-            
+
             if (itemData == null)
-            {
-                Debug.LogWarning($"[ItemSerializer] ItemData not found: {memento.ItemDataName}");
                 return;
-            }
 
             var item = Deserialize(memento, itemData);
             grid.PlaceItem(item, memento.X, memento.Y);

@@ -3,7 +3,7 @@ namespace SaveModule
     public interface ISaveable
     {
         string SaveKey { get; }
-        string CreateMementoJson();
-        void RestoreMementoFromJson(string json);
+        string CreateMemento();
+        void RestoreMemento(string data);
     }
 }

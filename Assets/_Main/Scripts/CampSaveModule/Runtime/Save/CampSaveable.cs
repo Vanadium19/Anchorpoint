@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
-using UnityEngine;
+using Newtonsoft.Json;
 using SaveModule;
 using BaseModule;
 using BuildingModule;
-using Sirenix.Serialization;
 
 namespace CampSaveModule
 {
@@ -25,7 +23,7 @@ namespace CampSaveModule
             _buildingSaveService = buildingSaveService;
         }
 
-        public string CreateMementoJson()
+        public string CreateMemento()
         {
             var memento = new CampMemento
             {
@@ -33,20 +31,15 @@ namespace CampSaveModule
                 Buildings = new List<BuildingSnapshot>(_buildingSaveService.GetAllSnapshots())
             };
 
-            var bytes = SerializationUtility.SerializeValue(memento, DataFormat.JSON);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return JsonConvert.SerializeObject(memento);
         }
 
-        public void RestoreMementoFromJson(string json)
+        public void RestoreMemento(string data)
         {
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            var memento = SerializationUtility.DeserializeValue<CampMemento>(bytes, DataFormat.JSON);
+            var memento = JsonConvert.DeserializeObject<CampMemento>(data);
 
             if (memento == null)
-            {
-                Debug.LogWarning("[CampSaveable] Failed to parse memento");
                 return;
-            }
 
             _baseLevelService.SetPoints(memento.BasePoints);
 
