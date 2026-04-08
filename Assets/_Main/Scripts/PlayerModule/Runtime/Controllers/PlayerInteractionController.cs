@@ -20,12 +20,13 @@ namespace PlayerModule
         public PlayerInteractionController(
             IInputMap input,
             IInventoryManager inventoryManager,
+            Camera camera,
             PlayerConfig config)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
+            _camera = camera;
             _config = config;
-            _camera = Camera.main;
         }
 
         public void Initialize() { }

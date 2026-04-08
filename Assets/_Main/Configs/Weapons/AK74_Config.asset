@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: WeaponModule::WeaponModule.Configs.WeaponConfig
   damage: 20
   fireRate: 0.1
-  maxAmmo: 300
+  magazineCapacity: 30
+  initialReserveAmmo: 90
   bulletSpeed: 400
   inheritVelocity: 1
   reloadTime: 2
   drawTime: 1
+  emptyReloadDelay: 0.35
+  useEmptyReloadAnimation: 0
   aimPosition: {x: -0.0713, y: -0.003, z: -0.04}
   aimRotation: {x: 0, y: 0, z: 0}
   aimSpeed: 10

@@ -7,6 +7,9 @@ namespace InputModule
     public class GameInputService : IInputMap, IInputService, IDisposable
     {
         private readonly InputSystem_Actions _actions;
+        private bool _isBuildMode;
+
+        public bool IsBuildMode => _isBuildMode;
 
         public GameInputService()
         {
@@ -38,14 +41,16 @@ namespace InputModule
         
         public void SetBuildMode(bool isActive)
         {
+            _isBuildMode = isActive;
+
             if (isActive)
             {
                 _actions.Player.Disable();
                 _actions.Global.Disable();
                 _actions.Build.Enable();
 
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
             else
             {
@@ -79,6 +84,29 @@ namespace InputModule
         
         public bool IsBuildPressed => _actions.Player.Build.WasPressedThisFrame() ||
                                 _actions.Build.Build.WasPressedThisFrame();
+
+        public Vector2 BuildMoveInput => _actions.Build.Move.ReadValue<Vector2>();
+        public Vector2 BuildLookInput => _actions.Build.Look.ReadValue<Vector2>();
+        public bool IsBuildJumpPressed => _actions.Build.Jump.WasPressedThisFrame();
+        public bool IsBuildPlacePressed => _actions.Build.Place.WasPressedThisFrame();
+        public bool IsBuildCancelPressed => _actions.Build.Cancel.WasPressedThisFrame();
+        public bool IsBuildRotateLeftPressed => _actions.Build.RotateLeft.IsPressed();
+        public bool IsBuildRotateRightPressed => _actions.Build.RotateRight.IsPressed();
+        public bool IsBuildSelectLeftPressed => _actions.Build.SelectLeft.WasPressedThisFrame();
+        public bool IsBuildSelectRightPressed => _actions.Build.SelectRight.WasPressedThisFrame();
+        public bool IsBuildCategoryUpPressed => _actions.Build.CategoryUp.WasPressedThisFrame();
+        public bool IsBuildCategoryDownPressed => _actions.Build.CategoryDown.WasPressedThisFrame();
+        public float BuildScroll
+        {
+            get
+            {
+                float scrollValue = _actions.Build.Scroll.ReadValue<float>();
+                if (scrollValue > 0) return 1f;
+                if (scrollValue < 0) return -1f;
+                return 0f;
+            }
+        }
+
         public int SelectWeaponIndex
         {
             get

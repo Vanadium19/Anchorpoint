@@ -16,6 +16,7 @@
   <Project Path="EvacuationModule.csproj" />
   <Project Path="CameraModule.csproj" />
   <Project Path="UIModule.csproj" />
+  <Project Path="BaseModule.csproj" />
   <Project Path="PlayerModule.csproj" />
   <Project Path="CommandsModule.csproj" />
   <Project Path="GameCycleModule.csproj" />

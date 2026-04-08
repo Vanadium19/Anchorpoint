@@ -4,13 +4,18 @@ namespace BuildingModule
 {
     public class BuildingView : MonoBehaviour
     {
-        [SerializeField] private MeshRenderer meshRenderer;
+        [SerializeField] private Collider collisionCollider;
 
-        private BuildingName _name;
+        public Collider CollisionCollider => collisionCollider;
 
-        public MeshRenderer MeshRenderer => meshRenderer;
-        public BuildingName Name => _name;
+        public MeshRenderer[] GetAllMeshRenderers()
+        {
+            return GetComponentsInChildren<MeshRenderer>();
+        }
 
-        public void SetBuildingName(BuildingName value) => _name = value;
+        public MeshRenderer GetMainMeshRenderer()
+        {
+            return GetComponentInChildren<MeshRenderer>();
+        }
     }
 }

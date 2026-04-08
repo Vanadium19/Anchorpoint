@@ -7,6 +7,7 @@ namespace SharedData
         public static readonly int TriggerHold = Animator.StringToHash("TriggerHold");
         public static readonly int FireState = Animator.StringToHash("Fire");
         public static readonly int Reload = Animator.StringToHash("Reload");
+        public static readonly int EmptyReload = Animator.StringToHash("EmptyReload");
         public static readonly int Holster = Animator.StringToHash("Holster");
         public static readonly int Draw = Animator.StringToHash("Draw");
         public static readonly int IsMoving = Animator.StringToHash("IsMoving");
