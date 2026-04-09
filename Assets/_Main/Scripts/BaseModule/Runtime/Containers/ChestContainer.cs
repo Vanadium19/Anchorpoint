@@ -12,8 +12,9 @@ namespace BaseModule
         [SerializeField] private int gridHeight = 4;
         [SerializeField] private Collider interactionCollider;
 
-        private GridTable _grid;
         private readonly List<GridTable> _grids = new();
+
+        private GridTable _grid;
 
         public string DisplayName => displayName;
         public GameObject UIPrefab => uiPrefab;

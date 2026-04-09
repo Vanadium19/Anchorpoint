@@ -9,17 +9,20 @@ namespace InventoryModule
         private readonly Dictionary<IContainerUI, BuildingContainerView> _activeContainers = new();
         private readonly Dictionary<IContainerUI, BuildingContainerView> _cachedContainers = new();
         private readonly IInventoryManager _inventoryManager;
+        private readonly IContainerWindowService _windowService;
         private readonly DiContainer _diContainer;
         private readonly Canvas _canvas;
         private readonly GameObject _externalPanel;
 
         public BuildingContainerService(
             IInventoryManager inventoryManager,
+            IContainerWindowService windowService,
             DiContainer diContainer,
             Canvas canvas,
             GameObject externalPanel)
         {
             _inventoryManager = inventoryManager;
+            _windowService = windowService;
             _diContainer = diContainer;
             _canvas = canvas;
             _externalPanel = externalPanel;
@@ -88,6 +91,8 @@ namespace InventoryModule
             if (!_activeContainers.TryGetValue(container, out var view))
                 return;
 
+            CloseNestedWindows(container);
+
             view.gameObject.SetActive(false);
             _activeContainers.Remove(container);
 
@@ -99,10 +104,27 @@ namespace InventoryModule
         {
             foreach (var kvp in _activeContainers)
             {
+                CloseNestedWindows(kvp.Key);
                 kvp.Value.gameObject.SetActive(false);
             }
 
             _activeContainers.Clear();
+        }
+
+        private void CloseNestedWindows(IContainerUI container)
+        {
+            if (container == null || container.Grids == null)
+                return;
+
+            foreach (var grid in container.Grids)
+            {
+                var items = grid.GetAllItems();
+                foreach (var item in items)
+                {
+                    if (item.IsContainer)
+                        _windowService.CloseAllWindowsForItem(item);
+                }
+            }
         }
     }
 }

@@ -104,7 +104,7 @@ namespace InventoryModule
                     .FromInstance(inventoryUI);
             }
 
-        Container.BindInterfacesAndSelfTo<InventoryStartup>()
+        Container.BindInterfacesTo<InventoryStartup>()
             .AsSingle();
     }
 

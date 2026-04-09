@@ -20,7 +20,7 @@ namespace InventoryModule
             var duplicates = validItems.GroupBy(i => i.name).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
 
             if (duplicates.Count > 0)
-                Debug.LogError("Duplicate items found: " + string.Join(", ", duplicates));
+                throw new System.InvalidOperationException("Duplicate items found: " + string.Join(", ", duplicates));
         }
 
         public ItemDataSo GetByName(string name)

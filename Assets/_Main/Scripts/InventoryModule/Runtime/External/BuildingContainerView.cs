@@ -43,7 +43,9 @@ namespace InventoryModule
                 AbstractGrid grid;
 
                 if (gridIndex < presetGrids.Count && presetGrids[gridIndex] != null)
+                {
                     grid = presetGrids[gridIndex];
+                }
                 else if (gridPrefab != null && _diContainer != null)
                 {
                     var parent = gridContainer != null ? gridContainer : transform;
