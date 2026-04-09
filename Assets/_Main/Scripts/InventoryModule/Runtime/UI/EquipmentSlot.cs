@@ -35,6 +35,7 @@ namespace InventoryModule
         private DiContainer _diContainer;
 
         public ItemTable EquippedItem { get; private set; }
+        public EquipmentSlotType SlotType => slotType;
         public bool IsEquipped => EquippedItem != null;
 
         private void Awake()
@@ -254,7 +255,9 @@ namespace InventoryModule
 
             metadata.InitializeInventories();
 
-            _linkedSection = Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
+            _linkedSection = _diContainer != null
+                ? _diContainer.InstantiatePrefabForComponent<ContainerSection>(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer)
+                : Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
             inventoryPanel.EnsureSectionHasLayoutElement(_linkedSection);
             _linkedSection.InitializeContainer(item, metadata, containerGridPrefab);
             inventoryPanel.AddContainerSection(_linkedSection);

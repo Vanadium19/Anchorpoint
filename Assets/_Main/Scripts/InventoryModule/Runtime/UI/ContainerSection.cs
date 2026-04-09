@@ -31,6 +31,7 @@ namespace InventoryModule
         private bool _isExpanded = true;
 
         private IInventoryManager _inventoryManager;
+        private DiContainer _diContainer;
 
         private RectTransform _rectTransform;
         private LayoutElement _layoutElement;
@@ -78,9 +79,24 @@ namespace InventoryModule
         }
 
         [Inject]
-        public void Construct(IInventoryManager inventoryManager)
+        public void Construct(IInventoryManager inventoryManager, DiContainer container)
         {
             _inventoryManager = inventoryManager;
+            _diContainer = container;
+        }
+
+        private AbstractGrid InstantiateGrid(AbstractGrid prefab, Transform parent)
+        {
+            return _diContainer != null
+                ? _diContainer.InstantiatePrefabForComponent<AbstractGrid>(prefab, parent)
+                : Instantiate(prefab, parent);
+        }
+
+        private GameObject InstantiatePanel(GameObject prefab, Transform parent)
+        {
+            return _diContainer != null
+                ? _diContainer.InstantiatePrefab(prefab, parent)
+                : Instantiate(prefab, parent);
         }
 
         public void InitializeContainer(ItemTable itemTable, ContainerMetadata metadata, AbstractGrid gridPrefab)
@@ -107,7 +123,7 @@ namespace InventoryModule
 
                     if (panelPrefab != null)
                     {
-                        var panelInstance = Instantiate(panelPrefab, contentContainer);
+                        var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
 
                         var layoutElement = panelInstance.GetComponent<LayoutElement>();
 
@@ -147,7 +163,7 @@ namespace InventoryModule
 
                                 if (prefabGrid != null && gridTable != null)
                                 {
-                                    var grid = Instantiate(prefabGrid, contentContainer);
+                                    var grid = InstantiateGrid(prefabGrid, contentContainer);
                                     grid.transform.localPosition = prefabGrid.transform.localPosition;
                                     grid.RefreshGridFromTable(gridTable);
                                     _contentGrids.Add(grid);
@@ -156,7 +172,7 @@ namespace InventoryModule
                         }
                         else if (gridPrefab != null && _cContainerGrid != null)
                         {
-                            var grid = Instantiate(gridPrefab, contentContainer);
+                            var grid = InstantiateGrid(gridPrefab, contentContainer);
                             grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
                             grid.RefreshGridFromTable(_cContainerGrid);
                             _contentGrids.Add(grid);
@@ -165,7 +181,7 @@ namespace InventoryModule
                 }
                 else if (gridPrefab != null && _cContainerGrid != null)
                 {
-                    var grid = Instantiate(gridPrefab, contentContainer);
+                    var grid = InstantiateGrid(gridPrefab, contentContainer);
                     grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
                     grid.RefreshGridFromTable(_cContainerGrid);
                     _contentGrids.Add(grid);
@@ -195,7 +211,7 @@ namespace InventoryModule
 
             if (contentContainer != null && gridPrefab != null)
             {
-                var newGrid = Instantiate(gridPrefab, contentContainer);
+                var newGrid = InstantiateGrid(gridPrefab, contentContainer);
                 newGrid.OverrideGridSize(grid.Width, grid.Height);
                 newGrid.RefreshGridFromTable(grid);
                 _contentGrids.Add(newGrid);
@@ -228,7 +244,7 @@ namespace InventoryModule
 
                 if (panelPrefab != null)
                 {
-                    var panelInstance = Instantiate(panelPrefab, contentContainer);
+                    var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
 
                     var layoutElement = panelInstance.GetComponent<LayoutElement>();
 
@@ -274,7 +290,7 @@ namespace InventoryModule
                         {
                             if (prefabGrid != null)
                             {
-                                AbstractGrid grid = Instantiate(prefabGrid, contentContainer);
+                                AbstractGrid grid = InstantiateGrid(prefabGrid, contentContainer);
                                 grid.transform.localPosition = prefabGrid.transform.localPosition;
 
                                 GridTable gridTable;
@@ -296,7 +312,7 @@ namespace InventoryModule
                     }
                     else if (fallbackGridPrefab != null)
                     {
-                        AbstractGrid grid = Instantiate(fallbackGridPrefab, contentContainer);
+                        AbstractGrid grid = InstantiateGrid(fallbackGridPrefab, contentContainer);
                         GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
                         _cContainerGrid = gridTable;
                         grid.RefreshGridFromTable(gridTable);
@@ -306,7 +322,7 @@ namespace InventoryModule
             }
             else if (fallbackGridPrefab != null)
             {
-                AbstractGrid grid = Instantiate(fallbackGridPrefab, contentContainer);
+                AbstractGrid grid = InstantiateGrid(fallbackGridPrefab, contentContainer);
                 GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
                 _cContainerGrid = gridTable;
                 grid.RefreshGridFromTable(gridTable);

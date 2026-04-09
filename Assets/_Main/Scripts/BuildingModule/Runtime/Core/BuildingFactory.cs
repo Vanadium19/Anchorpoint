@@ -5,10 +5,12 @@ namespace BuildingModule
     public class BuildingFactory
     {
         private readonly BuildingCatalog _catalog;
+        private readonly IBuildingRegistry _registry;
 
-        public BuildingFactory(BuildingCatalog catalog)
+        public BuildingFactory(BuildingCatalog catalog, IBuildingRegistry registry)
         {
             _catalog = catalog;
+            _registry = registry;
         }
 
         public BuildingView Create(string id, Vector3 position, Quaternion rotation)
@@ -20,6 +22,8 @@ namespace BuildingModule
 
             if (view.CollisionCollider != null)
                 view.CollisionCollider.enabled = false;
+
+            _registry.RegisterBuilding(view);
 
             return view;
         }

@@ -3538,7 +3538,7 @@ RectTransform:
   - {fileID: 1894236942}
   - {fileID: 876265376}
   - {fileID: 1610138063}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1627070406}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -4153,11 +4153,11 @@ GameObject:
   - component: {fileID: 1121154638}
   - component: {fileID: 1121154639}
   - component: {fileID: 1121154640}
-  - component: {fileID: 1121154642}
   - component: {fileID: 1121154643}
   - component: {fileID: 1121154645}
   - component: {fileID: 1121154644}
   - component: {fileID: 1121154646}
+  - component: {fileID: 1121154648}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -4196,9 +4196,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
   - {fileID: 1121154640}
-  - {fileID: 1121154642}
   - {fileID: 1121154643}
   - {fileID: 1121154645}
+  - {fileID: 1121154648}
   - {fileID: 1121154646}
   _installerPrefabs: []
   _autoRun: 1
@@ -4242,26 +4242,6 @@ MonoBehaviour:
   gridView: {fileID: 1349734205}
   buildPanel: {fileID: 876265375}
   buildingMenuView: {fileID: 876265377}
---- !u!114 &1121154642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1121154637}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f919c61543e62644893d78e01b7a3966, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventorySceneInstaller
-  inventoryUI: {fileID: 1539802521}
-  characterInventory: {fileID: 1085248790}
-  mainCanvas: {fileID: 770494282}
-  playerTransform: {fileID: 1085248789}
-  dropDistance: 2
-  dropOffsetY: 0.5
-  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
-  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
 --- !u!114 &1121154643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4317,6 +4297,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CampModule.CampSceneInstaller
   playerProvider: {fileID: 1085248783}
+--- !u!114 &1121154648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121154637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed60037df428e8d4099cc7c82e1ef260, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryInstaller
+  itemCatalog: {fileID: 11400000, guid: 92501a77e0aef534eabcfea7101354ba, type: 2}
+  inventoryUI: {fileID: 1539802521}
+  externalPanel: {fileID: 58877744}
+  characterInventory: {fileID: 1085248790}
+  mainCanvas: {fileID: 770494282}
+  playerTransform: {fileID: 1085248789}
+  dropDistance: 2
+  dropOffsetY: 0.5
+  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
+  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
 --- !u!1 &1234387471
 GameObject:
   m_ObjectHideFlags: 0
@@ -4332,7 +4334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1234387472
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4752,7 +4754,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1539802522
 Transform:
   m_ObjectHideFlags: 0
@@ -4880,6 +4882,7 @@ Transform:
   - {fileID: 832575519}
   - {fileID: 341918723}
   - {fileID: 1121154638}
+  - {fileID: 1055444121}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1634647484
@@ -5122,7 +5125,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1689216091}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -5888,7 +5891,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1627070406}
-  - {fileID: 1055444121}
   - {fileID: 2010413747}
   - {fileID: 1802630640}
   - {fileID: 893970486}

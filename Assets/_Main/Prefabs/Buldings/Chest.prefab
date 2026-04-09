@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5210313411751150884}
   - component: {fileID: -4107687537983994958}
+  - component: {fileID: -8720203244860742456}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Untagged
@@ -46,6 +47,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingView
   collisionCollider: {fileID: 7430541806735722204}
+--- !u!114 &-8720203244860742456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3299782671928014577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f9b3640f89f96546910222aa1243231, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BaseModule::BaseModule.ChestContainer
+  displayName: Chest
+  uiPrefab: {fileID: 6687326268205152755, guid: 1ad51d2f62811f44c930415c32347883, type: 3}
+  gridWidth: 8
+  gridHeight: 8
+  interactionCollider: {fileID: 3938317775041088865}
 --- !u!1001 &1820407430620871529
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -139,5 +157,10 @@ BoxCollider:
 --- !u!4 &2218545723213749378 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0e49fae8ff93d7249bf6bbc4af28472c, type: 3}
+  m_PrefabInstance: {fileID: 1820407430620871529}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &3938317775041088865 stripped
+MeshCollider:
+  m_CorrespondingSourceObject: {fileID: 3451118302482216456, guid: 0e49fae8ff93d7249bf6bbc4af28472c, type: 3}
   m_PrefabInstance: {fileID: 1820407430620871529}
   m_PrefabAsset: {fileID: 0}

@@ -1,4 +1,5 @@
 using UnityEngine;
+using InventoryModule;
 
 namespace BuildingModule
 {
@@ -7,6 +8,7 @@ namespace BuildingModule
         [SerializeField] private Collider collisionCollider;
 
         public Collider CollisionCollider => collisionCollider;
+        public IContainerUI ContainerUI => GetComponent<IContainerUI>();
 
         public MeshRenderer[] GetAllMeshRenderers()
         {

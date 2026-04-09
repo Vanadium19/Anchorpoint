@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using InputModule;
+using SaveModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,8 +11,8 @@ namespace EvacuationModule
     public class EvacuationService : IDisposable, IEvacuationService
     {
         private readonly EvacuationConfig _config;
-
         private readonly IInputService _input;
+        private readonly IGameSaveLoader _gameSaveLoader;
 
         private CancellationTokenSource _tokenSource;
 
@@ -19,11 +20,11 @@ namespace EvacuationModule
         public event Action Completed;
         public event Action<float> TimerChanged;
 
-        public EvacuationService(EvacuationConfig config,
-            IInputService input)
+        public EvacuationService(EvacuationConfig config, IInputService input, IGameSaveLoader gameSaveLoader)
         {
             _config = config;
             _input = input;
+            _gameSaveLoader = gameSaveLoader;
         }
 
         public void Dispose() => CancelTimer();
@@ -77,7 +78,10 @@ namespace EvacuationModule
             Completed?.Invoke();
 
             if (_config.CompleteMode == EvacuationCompleteMode.LoadScene)
+            {
+                _gameSaveLoader?.Save();
                 SceneManager.LoadScene(_config.TargetSceneName);
+            }
 
             _input?.Disable();
         }
