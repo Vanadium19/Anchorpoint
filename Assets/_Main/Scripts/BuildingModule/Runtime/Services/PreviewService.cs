@@ -12,6 +12,7 @@ namespace BuildingModule
         private string _currentPreviewId;
         private List<Material> _previewMaterials = new List<Material>();
         private Quaternion _initialColliderRotation;
+        private bool _canAfford = true;
 
         public PreviewService(BuildingFactory factory, PlacementConfig config)
         {
@@ -177,6 +178,11 @@ namespace BuildingModule
             _preview.transform.rotation = Quaternion.Euler(0f, rotation, 0f);
         }
 
+        public void SetCanAfford(bool canAfford)
+        {
+            _canAfford = canAfford;
+        }
+
         public void Cancel()
         {
             if (_preview != null)
@@ -196,7 +202,15 @@ namespace BuildingModule
             if (_preview == null)
                 return;
 
-            var color = isOccupied ? Color.red : Color.green;
+            Color color;
+
+            if (isOccupied)
+                color = Color.red;
+            else if (!_canAfford)
+                color = Color.red;
+            else
+                color = Color.green;
+
             color.a = _config.PreviewAlpha;
 
             foreach (var mat in _previewMaterials)
