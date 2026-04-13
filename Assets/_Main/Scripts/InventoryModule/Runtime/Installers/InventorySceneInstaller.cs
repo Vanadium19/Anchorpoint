@@ -30,7 +30,7 @@ namespace InventoryModule
                 .AsSingle()
                 .WithArguments(playerTransform, dropDistance, dropOffsetY);
 
-            Container.BindInterfacesAndSelfTo<DeathLootService>()
+            Container.BindInterfacesAndSelfTo<DeathLootSpawner>()
                 .AsSingle()
                 .WithArguments(1.25f, 0.35f)
                 .NonLazy();

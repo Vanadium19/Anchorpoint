@@ -39,7 +39,9 @@ namespace InventoryModule
                 .To<ContextActionService>()
                 .AsSingle();
 
-
+            Container.Bind<IDeathLootStorage>()
+                .To<DeathLootStorage>()
+                .AsSingle();
         }
     }
 }

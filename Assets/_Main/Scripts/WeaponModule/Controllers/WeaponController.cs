@@ -54,23 +54,9 @@ namespace WeaponModule
             _view.Initialize(_config);
         }
 
-        private CancellationToken CreateViewLifetimeToken()
-        {
-            if (_view == null)
-                return _tokenSource.Token;
-
-            return CancellationTokenSource
-                .CreateLinkedTokenSource(_tokenSource.Token, _view.GetCancellationTokenOnDestroy())
-                .Token;
-        }
-
         public void Equip()
         {
             CancelCurrentActions();
-
-            if (_view == null)
-                return;
-
             _view.gameObject.SetActive(true);
             _isReloading = false;
             _isAiming = false;
@@ -85,35 +71,19 @@ namespace WeaponModule
             SaveAmmoState();
             CancelCurrentActions();
 
-            if (_view == null)
-                return;
-
             _view.SetHolsterState(true);
-
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                _tokenSource.Token,
-                _view.GetCancellationTokenOnDestroy());
 
             bool canceled = await UniTask.Delay(
                 TimeSpan.FromSeconds(_config.DrawTime),
-                cancellationToken: linkedTokenSource.Token).SuppressCancellationThrow();
+                cancellationToken: _tokenSource.Token).SuppressCancellationThrow();
 
-            if (canceled)
-                return;
-
-            if (_view == null)
-                return;
-
-            _view.gameObject.SetActive(false);
+            if (!canceled)
+                _view.gameObject.SetActive(false);
         }
 
         public void Hide()
         {
             CancelCurrentActions();
-
-            if (_view == null)
-                return;
-
             _view.gameObject.SetActive(false);
         }
 
@@ -126,7 +96,7 @@ namespace WeaponModule
 
         public void Tick()
         {
-            if (_view == null || !_view.gameObject.activeSelf)
+            if (!_view.gameObject.activeSelf)
                 return;
 
             HandleAimingState();
@@ -138,7 +108,7 @@ namespace WeaponModule
 
         public void LateTick()
         {
-            if (_view == null || !_view.gameObject.activeSelf)
+            if (!_view.gameObject.activeSelf)
                 return;
 
             HandleProceduralAnimation();
@@ -239,20 +209,13 @@ namespace WeaponModule
             if (!_model.CanReload)
                 return;
 
-            if (_view == null)
-                return;
-
             _isReloading = true;
             _shouldShootFrame = false;
-
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                _tokenSource.Token,
-                _view.GetCancellationTokenOnDestroy());
 
             if (delayBeforeReload > 0f)
             {
                 bool delayCanceled = await UniTask
-                    .Delay(TimeSpan.FromSeconds(delayBeforeReload), cancellationToken: linkedTokenSource.Token)
+                    .Delay(TimeSpan.FromSeconds(delayBeforeReload), cancellationToken: _tokenSource.Token)
                     .SuppressCancellationThrow();
 
                 if (delayCanceled)
@@ -261,7 +224,7 @@ namespace WeaponModule
                     return;
                 }
 
-                if (!_model.CanReload || _view == null)
+                if (!_model.CanReload)
                 {
                     _isReloading = false;
                     return;
@@ -271,7 +234,7 @@ namespace WeaponModule
             _view.PlayReload(isEmptyReload);
 
             bool reloadCanceled = await UniTask
-                .Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: linkedTokenSource.Token)
+                .Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _tokenSource.Token)
                 .SuppressCancellationThrow();
 
             if (!reloadCanceled)
@@ -285,18 +248,11 @@ namespace WeaponModule
 
         private async UniTaskVoid DrawWeaponRoutine()
         {
-            if (_view == null)
-                return;
-
             _view.SetHolsterState(false);
             _isReloading = true;
 
-            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                _tokenSource.Token,
-                _view.GetCancellationTokenOnDestroy());
-
             bool canceled = await UniTask
-                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: linkedTokenSource.Token)
+                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
                 .SuppressCancellationThrow();
 
             if (!canceled)

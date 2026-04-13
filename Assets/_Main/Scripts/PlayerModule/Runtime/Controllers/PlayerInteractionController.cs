@@ -13,7 +13,7 @@ namespace PlayerModule
         private readonly IInventoryManager _inventoryManager;
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
-        private readonly IDeathLootService _deathLootService;
+        private readonly IDeathLootStorage _deathLootStorage;
 
         public event Action<LootItemView> HoverChanged;
         private LootItemView _currentHoveredLoot;
@@ -23,13 +23,13 @@ namespace PlayerModule
             IInventoryManager inventoryManager,
             Camera camera,
             PlayerConfig config,
-            IDeathLootService deathLootService)
+            IDeathLootStorage deathLootStorage)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _camera = camera;
             _config = config;
-            _deathLootService = deathLootService;
+            _deathLootStorage = deathLootStorage;
         }
 
         public void Initialize() { }
@@ -111,7 +111,7 @@ namespace PlayerModule
             if (success)
             {
                 if (loot.ItemTable != null)
-                    _deathLootService.RemoveCollectedItem(loot.ItemTable);
+                    _deathLootStorage.RemoveItem(loot.ItemTable);
 
                 loot.PlayCollectEffects();
                 UpdateHover(null);
