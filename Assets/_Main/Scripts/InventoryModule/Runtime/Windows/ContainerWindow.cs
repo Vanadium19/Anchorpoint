@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using Zenject;
 
 namespace InventoryModule
 {
@@ -23,14 +24,21 @@ namespace InventoryModule
         [SerializeField] private float minWindowHeight = 150f;
 
         private readonly List<AbstractGrid> _contentGrids = new();
-        
+
         private GameObject _panelInstance;
         private ItemTable _containerItem;
         private Canvas _canvas;
+        private DiContainer _diContainer;
 
         public ItemTable ContainerItem => _containerItem;
         public AbstractGrid GridPrefab => gridPrefab;
         private IContainerWindowService _windowService;
+
+        [Inject]
+        public void Construct(DiContainer container)
+        {
+            _diContainer = container;
+        }
 
         private void Awake()
         {
@@ -81,7 +89,9 @@ namespace InventoryModule
 
         private void CreateGridsFromPanel(GameObject panelPrefab, ContainerMetadata metadata, RectTransform parent)
         {
-            _panelInstance = Instantiate(panelPrefab, parent);
+            _panelInstance = _diContainer != null
+                ? _diContainer.InstantiatePrefab(panelPrefab, parent)
+                : Instantiate(panelPrefab, parent);
 
             var panelGrids = _panelInstance.GetComponentsInChildren<AbstractGrid>();
 
@@ -115,7 +125,9 @@ namespace InventoryModule
 
                     if (prefabGrid != null && gridTable != null)
                     {
-                        AbstractGrid grid = Instantiate(prefabGrid, parent);
+                        AbstractGrid grid = _diContainer != null
+                            ? _diContainer.InstantiatePrefabForComponent<AbstractGrid>(prefabGrid, parent)
+                            : Instantiate(prefabGrid, parent);
                         grid.transform.localPosition = prefabGrid.transform.localPosition;
                         grid.RefreshGridFromTable(gridTable);
                         _contentGrids.Add(grid);
@@ -130,7 +142,9 @@ namespace InventoryModule
         {
             if (gridPrefab != null && gridTable != null)
             {
-                AbstractGrid grid = Instantiate(gridPrefab, parent);
+                AbstractGrid grid = _diContainer != null
+                    ? _diContainer.InstantiatePrefabForComponent<AbstractGrid>(gridPrefab, parent)
+                    : Instantiate(gridPrefab, parent);
                 grid.OverrideGridSize(gridTable.Width, gridTable.Height);
                 grid.RefreshGridFromTable(gridTable);
                 _contentGrids.Add(grid);

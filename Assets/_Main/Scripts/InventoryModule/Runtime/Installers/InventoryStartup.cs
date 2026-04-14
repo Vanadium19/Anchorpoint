@@ -1,10 +1,11 @@
+using System;
 using UnityEngine;
 using Zenject;
 using InputModule;
 
 namespace InventoryModule
 {
-    public sealed class InventoryStartup : IInitializable
+    public sealed class InventoryStartup : IInitializable, IInventoryReadyHandler
     {
         private readonly IInventoryManager _inventoryManager;
         private readonly IInputMap _inputMap;
@@ -12,6 +13,8 @@ namespace InventoryModule
         private readonly CharacterInventory _characterInventory;
         private readonly GameObject _inventoryUI;
         private readonly IEquipmentSlotService _slotService;
+
+        public event Action InventoryReady;
 
         public InventoryStartup(
             IInventoryManager inventoryManager,
@@ -47,6 +50,8 @@ namespace InventoryModule
                     slot.ForceAwake();
                 }
             }
+
+            InventoryReady?.Invoke();
         }
     }
 }

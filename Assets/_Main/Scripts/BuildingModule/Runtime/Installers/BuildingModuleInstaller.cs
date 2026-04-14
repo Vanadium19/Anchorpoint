@@ -30,6 +30,10 @@ namespace BuildingModule
 
             Container.Bind<IGrid>().FromInstance(grid).AsSingle();
 
+            Container.Bind<IBuildingRegistry>()
+                .To<BuildingRegistry>()
+                .AsSingle();
+
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
             Container.Bind<IStorageService>().To<StorageService>().AsSingle();
@@ -61,6 +65,10 @@ namespace BuildingModule
             Container.BindInterfacesAndSelfTo<BaseLevelPresenter>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
+
+            Container.Bind<IBuildingSaveService>()
+                .To<BuildingSaveService>()
+                .AsSingle();
         }
     }
 }

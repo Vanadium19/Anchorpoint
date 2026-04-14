@@ -40,12 +40,19 @@ namespace InventoryModule
         private IGridService _gridService;
         private DiContainer _diContainer;
 
-        protected DiContainer DiContainer => _diContainer ?? ProjectContext.Instance.Container;
+        protected DiContainer DiContainer => _diContainer;
+
+        [Inject]
+        public void Construct(IGridService gridService, DiContainer container)
+        {
+            _gridService = gridService;
+            _diContainer = container;
+        }
 
         private void Awake()
         {
-            _gridService = DiContainer.Resolve<IGridService>();
-            _gridService?.RegisterGrid(this);
+            if (_gridService != null)
+                _gridService.RegisterGrid(this);
 
             _rectTransform = GetComponent<RectTransform>();
 

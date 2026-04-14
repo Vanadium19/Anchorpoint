@@ -1,20 +1,22 @@
 {
-    "name": "InventoryModule",
-    "rootNamespace": "",
+  "name": "InventoryModule",
+  "rootNamespace": "",
     "references": [
         "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
         "GUID:5a8d3845af48dc54db440d2b68ad43e7",
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:ad92713fd5884a16a1e7ccde1a579228"
+        "GUID:ad92713fd5884a16a1e7ccde1a579228",
+        "GUID:ba2f6c8082fa68b45b0e32eb1b701c1c",
+        "GUID:5f3147f7af4c49739579b966c458f5e4"
     ],
-    "includePlatforms": [],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }

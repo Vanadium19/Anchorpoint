@@ -20,7 +20,8 @@ namespace InventoryModule.ContextMenu.Configs
                 contextService.ContainerWindowPrefab,
                 contextService.GridPrefab,
                 contextService.Canvas,
-                windowService);
+                windowService,
+                container);
         }
     }
 }
