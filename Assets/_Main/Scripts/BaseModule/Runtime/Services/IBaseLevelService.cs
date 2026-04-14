@@ -14,6 +14,7 @@ namespace BaseModule
         bool HasNextLevel { get; }
 
         void AddPoints(int amount);
+        void SetPoints(int points);
         BaseLevelPreview GetPreview(int buildingPoints);
     }
 }

@@ -1897,8 +1897,8 @@ GameObject:
   - component: {fileID: 489959968}
   - component: {fileID: 489959972}
   - component: {fileID: 489959974}
-  - component: {fileID: 489959975}
   - component: {fileID: 489959976}
+  - component: {fileID: 489959977}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1921,9 +1921,9 @@ MonoBehaviour:
   _scriptableObjectInstallers:
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
+  - {fileID: 489959977}
   - {fileID: 489959972}
   - {fileID: 489959974}
-  - {fileID: 489959975}
   - {fileID: 489959976}
   _installerPrefabs: []
   _autoRun: 1
@@ -1986,26 +1986,6 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 72e2fa0730381e24d88a5bcce4e4c148, type: 2}
   controller: {fileID: 63042974}
   view: {fileID: 317137221}
---- !u!114 &489959975
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 489959967}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f919c61543e62644893d78e01b7a3966, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventorySceneInstaller
-  inventoryUI: {fileID: 541139105}
-  characterInventory: {fileID: 1150780805}
-  mainCanvas: {fileID: 1278639131}
-  playerTransform: {fileID: 1150780799}
-  dropDistance: 2
-  dropOffsetY: 0.5
-  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
-  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
 --- !u!114 &489959976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2023,6 +2003,28 @@ MonoBehaviour:
   enemyCount: 3
   waitTime: 5
   spawnInterval: 30
+--- !u!114 &489959977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489959967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed60037df428e8d4099cc7c82e1ef260, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryInstaller
+  itemCatalog: {fileID: 11400000, guid: 92501a77e0aef534eabcfea7101354ba, type: 2}
+  inventoryUI: {fileID: 541139105}
+  externalPanel: {fileID: 296601033}
+  characterInventory: {fileID: 1150780805}
+  mainCanvas: {fileID: 1278639131}
+  playerTransform: {fileID: 1150780799}
+  dropDistance: 2
+  dropOffsetY: 0.5
+  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
+  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
 --- !u!1001 &502489095
 PrefabInstance:
   m_ObjectHideFlags: 0

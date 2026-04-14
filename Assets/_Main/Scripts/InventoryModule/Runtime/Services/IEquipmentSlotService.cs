@@ -8,5 +8,6 @@ namespace InventoryModule
         void UnregisterSlot(EquipmentSlot slot);
         IReadOnlyList<EquipmentSlot> GetAllSlots();
         EquipmentSlot GetSlotForItem(ItemTable item);
+        EquipmentSlot GetSlot(EquipmentSlotType slotType);
     }
 }

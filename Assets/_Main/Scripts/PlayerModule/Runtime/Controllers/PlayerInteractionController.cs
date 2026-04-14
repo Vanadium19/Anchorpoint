@@ -11,22 +11,29 @@ namespace PlayerModule
     {
         private readonly IInputMap _input;
         private readonly IInventoryManager _inventoryManager;
+        private readonly IBuildingContainerService _buildingContainerService;
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
         private readonly IDeathLootStorage _deathLootStorage;
 
-        public event Action<LootItemView> HoverChanged;
+        public event Action<LootItemView> LootHoverChanged;
+        public event Action<IContainerUI> ContainerHoverChanged;
+
         private LootItemView _currentHoveredLoot;
+        private IContainerUI _currentHoveredContainer;
+        private Collider _lastHitCollider;
 
         public PlayerInteractionController(
             IInputMap input,
             IInventoryManager inventoryManager,
+            IBuildingContainerService buildingContainerService,
             Camera camera,
             PlayerConfig config,
             IDeathLootStorage deathLootStorage)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
+            _buildingContainerService = buildingContainerService;
             _camera = camera;
             _config = config;
             _deathLootStorage = deathLootStorage;
@@ -41,33 +48,79 @@ namespace PlayerModule
 
             if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))
             {
-                var loot = hit.collider.GetComponentInParent<LootItemView>();
-                UpdateHover(loot);
+                if (hit.collider != _lastHitCollider)
+                {
+                    _lastHitCollider = hit.collider;
+                    FindAndCacheTargets(hit.collider);
+                }
 
-                if (loot != null && _input.IsInteractPressed)
-                    TryPickUpLoot(loot);
+                if (_input.IsInteractPressed)
+                    HandleInteraction();
             }
             else
-                UpdateHover(null);
+            {
+                if (_lastHitCollider != null)
+                {
+                    _lastHitCollider = null;
+                    UpdateHover(null, null);
+                }
+            }
         }
 
-        private void UpdateHover(LootItemView newLoot)
+        private void FindAndCacheTargets(Collider collider)
         {
-            if (_currentHoveredLoot == null && newLoot == null) 
-                return;
+            var current = collider.transform;
 
-            if (_currentHoveredLoot != null && newLoot == null)
+            while (current != null)
             {
-                _currentHoveredLoot = null;
-                HoverChanged?.Invoke(null);
-                return;
+                var container = current.GetComponent<IContainerUI>();
+
+                if (container != null)
+                {
+                    UpdateHover(null, container);
+                    return;
+                }
+
+                var loot = current.GetComponent<LootItemView>();
+                
+                if (loot != null)
+                {
+                    UpdateHover(loot, null);
+                    return;
+                }
+
+                current = current.parent;
             }
 
-            if (_currentHoveredLoot == newLoot) 
+            UpdateHover(null, null);
+        }
+
+        private void HandleInteraction()
+        {
+            if (_currentHoveredContainer != null)
+                TryInteractWithContainer(_currentHoveredContainer);
+            else if (_currentHoveredLoot != null)
+                TryPickUpLoot(_currentHoveredLoot);
+        }
+
+        private void UpdateHover(LootItemView newLoot, IContainerUI newContainer)
+        {
+            if (_currentHoveredLoot == newLoot && _currentHoveredContainer == newContainer)
                 return;
 
             _currentHoveredLoot = newLoot;
-            HoverChanged?.Invoke(_currentHoveredLoot);
+            _currentHoveredContainer = newContainer;
+
+            LootHoverChanged?.Invoke(newLoot);
+            ContainerHoverChanged?.Invoke(newContainer);
+        }
+
+        private void TryInteractWithContainer(IContainerUI container)
+        {
+            if (!_inventoryManager.IsInventoryOpen)
+                _inventoryManager.OpenInventory();
+
+            _buildingContainerService.OpenContainer(container);
         }
 
         private void TryPickUpLoot(LootItemView loot)
@@ -75,10 +128,7 @@ namespace PlayerModule
             var itemData = loot.ItemData;
 
             if (itemData == null)
-            {
-                Debug.LogWarning("[PlayerInteractionController] Loot has no ItemData");
                 return;
-            }
 
             bool success;
 
@@ -114,7 +164,8 @@ namespace PlayerModule
                     _deathLootStorage.RemoveItem(loot.ItemTable);
 
                 loot.PlayCollectEffects();
-                UpdateHover(null);
+                _lastHitCollider = null;
+                UpdateHover(null, null);
                 UnityEngine.Object.Destroy(loot.gameObject);
             }
         }

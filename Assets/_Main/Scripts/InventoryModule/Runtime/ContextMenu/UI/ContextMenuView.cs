@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace InventoryModule.ContextMenu.UI
 {
@@ -18,7 +19,14 @@ namespace InventoryModule.ContextMenu.UI
         private readonly List<ContextMenuItemView> _items = new();
 
         private IContextMenuStateService _stateService;
+        private DiContainer _diContainer;
         private Action _onHide;
+
+        [Inject]
+        public void Construct(DiContainer container)
+        {
+            _diContainer = container;
+        }
 
         public void Initialize(IContextMenuStateService stateService)
         {
@@ -38,7 +46,9 @@ namespace InventoryModule.ContextMenu.UI
 
             foreach (var action in actions)
             {
-                var itemView = Instantiate(itemPrefab, itemsContainer);
+                var itemView = _diContainer != null
+                    ? _diContainer.InstantiatePrefabForComponent<ContextMenuItemView>(itemPrefab, itemsContainer)
+                    : Instantiate(itemPrefab, itemsContainer);
                 itemView.Initialize(action, OnActionExecuted);
                 _items.Add(itemView);
             }

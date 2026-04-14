@@ -1,6 +1,7 @@
 using PlayerModule;
 using UnityEngine;
 using Zenject;
+using InventoryModule;
 
 namespace GameCycleModule
 {
@@ -25,6 +26,12 @@ namespace GameCycleModule
 
             Container.Bind<GameOverView>()
                 .FromInstance(gameOverView)
+                .AsSingle();
+
+            Container.Bind<InventorySaveable>()
+                .AsSingle();
+
+            Container.BindInterfacesTo<GameSceneSaveHandler>()
                 .AsSingle();
         }
     }

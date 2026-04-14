@@ -22,12 +22,23 @@ namespace InventoryModule
 
         public EquipmentSlot GetSlotForItem(ItemTable item)
         {
-            if (item == null) 
+            if (item == null)
                 return null;
 
             foreach (var slot in _slots)
             {
                 if (slot.GetItem() == item)
+                    return slot;
+            }
+
+            return null;
+        }
+
+        public EquipmentSlot GetSlot(EquipmentSlotType slotType)
+        {
+            foreach (var slot in _slots)
+            {
+                if (slot.SlotType == slotType)
                     return slot;
             }
 

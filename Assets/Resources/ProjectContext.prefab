@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4504210640190269513}
   - component: {fileID: 2990750458375650146}
-  - component: {fileID: 1183441546344267572}
+  - component: {fileID: -7506741358313061942}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -48,7 +48,7 @@ MonoBehaviour:
   _scriptableObjectInstallers:
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
   _monoInstallers:
-  - {fileID: 1183441546344267572}
+  - {fileID: -7506741358313061942}
   _installerPrefabs: []
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
       _missingHandlerDefaultResponse: 2
       _requireStrictUnsubscribe: 0
       _defaultAsyncTickPriority: 1
---- !u!114 &1183441546344267572
+--- !u!114 &-7506741358313061942
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -72,9 +72,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5534078141944324955}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acff9fdc1a940a843a8d4c502959979b, type: 3}
+  m_Script: {fileID: 11500000, guid: fc26eb5205eae5645ab953c22622a1d4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: InventoryModule::InventoryModule.InventoryGlobalInstaller
-  dropZone: {fileID: 0}
-  containerWindowPrefab: {fileID: 3504572452691022344, guid: a0103ee645b1f0a4a94533e3bfffca12, type: 3}
-  gridPrefab: {fileID: 3582090011329120946, guid: 47258f69aae3ce641a0851acb11ca4be, type: 3}
+  m_EditorClassIdentifier: SaveModule::SaveModule.SaveModuleInstaller
+  saveFilePath: Assets/_Main/Saves/camp.json

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using Zenject;
 using InputModule;
@@ -23,6 +24,9 @@ namespace InventoryModule
 
         public GridTable MainGrid => _mainGrid;
         public bool IsInventoryOpen => _isInventoryOpen;
+
+        public event Action InventoryOpened;
+        public event Action InventoryClosed;
 
         public InventoryManager(IEquipmentSlotService slotService)
         {
@@ -125,6 +129,7 @@ namespace InventoryModule
             _isInventoryOpen = true;
             _inventoryUI?.SetActive(true);
             _inputService?.SetUIMode(true);
+            InventoryOpened?.Invoke();
         }
 
         public void CloseInventory()
@@ -132,6 +137,7 @@ namespace InventoryModule
             _isInventoryOpen = false;
             _inventoryUI?.SetActive(false);
             _inputService?.SetUIMode(false);
+            InventoryClosed?.Invoke();
         }
 
         public void SaveEquippedItem(EquipmentSlotType slotType, ItemTable item)
