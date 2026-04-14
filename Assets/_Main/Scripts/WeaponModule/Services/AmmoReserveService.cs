@@ -5,18 +5,16 @@ namespace WeaponModule
 {
     public class AmmoReserveService
     {
-        private class AmmoState
-        {
-            public int CurrentMagazineAmmo;
-            public int ReserveAmmo;
-        }
+        private readonly Dictionary<string, AmmoState> _ammoByWeaponId = new();
 
-        private static readonly Dictionary<string, AmmoState> AmmoByWeaponId = new();
-
-        public void GetAmmoState(string weaponId, int defaultMagazineAmmo, int defaultReserveAmmo,
-            out int currentMagazineAmmo, out int reserveAmmo)
+        public void GetAmmoState(
+            string weaponId,
+            int defaultMagazineAmmo,
+            int defaultReserveAmmo,
+            out int currentMagazineAmmo,
+            out int reserveAmmo)
         {
-            if (AmmoByWeaponId.TryGetValue(weaponId, out AmmoState ammoState))
+            if (_ammoByWeaponId.TryGetValue(weaponId, out var ammoState))
             {
                 currentMagazineAmmo = ammoState.CurrentMagazineAmmo;
                 reserveAmmo = ammoState.ReserveAmmo;
@@ -26,7 +24,7 @@ namespace WeaponModule
             currentMagazineAmmo = Mathf.Max(0, defaultMagazineAmmo);
             reserveAmmo = Mathf.Max(0, defaultReserveAmmo);
 
-            AmmoByWeaponId[weaponId] = new AmmoState
+            _ammoByWeaponId[weaponId] = new AmmoState
             {
                 CurrentMagazineAmmo = currentMagazineAmmo,
                 ReserveAmmo = reserveAmmo
@@ -35,15 +33,11 @@ namespace WeaponModule
 
         public void SetAmmoState(string weaponId, int currentMagazineAmmo, int reserveAmmo)
         {
-            AmmoByWeaponId[weaponId] = new AmmoState
+            _ammoByWeaponId[weaponId] = new AmmoState
             {
                 CurrentMagazineAmmo = Mathf.Max(0, currentMagazineAmmo),
                 ReserveAmmo = Mathf.Max(0, reserveAmmo)
             };
-        }
-        public void Clear()
-        {
-            AmmoByWeaponId.Clear();
         }
     }
 }
