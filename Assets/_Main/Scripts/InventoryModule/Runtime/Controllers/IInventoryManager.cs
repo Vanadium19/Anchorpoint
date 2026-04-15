@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using InputModule;
 using System;
@@ -28,6 +29,8 @@ namespace InventoryModule
         void RemoveEquippedItem(EquipmentSlotType slotType);
         int GetItemCount(ItemDataSo itemData);
         bool TryRemoveItems(ItemDataSo itemData, int count);
+
+        List<ItemTable> ExtractAllRootItems();
         void ClearInventory();
     }
 }

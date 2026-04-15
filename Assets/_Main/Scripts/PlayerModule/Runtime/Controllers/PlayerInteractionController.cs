@@ -14,6 +14,7 @@ namespace PlayerModule
         private readonly IBuildingContainerService _buildingContainerService;
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
+        private readonly IDeathLootStorage _deathLootStorage;
 
         public event Action<LootItemView> LootHoverChanged;
         public event Action<IContainerUI> ContainerHoverChanged;
@@ -27,13 +28,15 @@ namespace PlayerModule
             IInventoryManager inventoryManager,
             IBuildingContainerService buildingContainerService,
             Camera camera,
-            PlayerConfig config)
+            PlayerConfig config,
+            IDeathLootStorage deathLootStorage)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _buildingContainerService = buildingContainerService;
             _camera = camera;
             _config = config;
+            _deathLootStorage = deathLootStorage;
         }
 
         public void Initialize() { }
@@ -157,6 +160,9 @@ namespace PlayerModule
 
             if (success)
             {
+                if (loot.ItemTable != null)
+                    _deathLootStorage.RemoveItem(loot.ItemTable);
+
                 loot.PlayCollectEffects();
                 _lastHitCollider = null;
                 UpdateHover(null, null);
