@@ -66,6 +66,10 @@ namespace InventoryModule
             Container.Bind<IContextActionService>()
                 .To<ContextActionService>()
                 .AsSingle();
+
+            Container.Bind<IDeathLootStorage>()
+                .To<DeathLootStorage>()
+                .AsSingle();
         }
 
         private void InstallSceneBindings()
@@ -81,6 +85,11 @@ namespace InventoryModule
                 .To<DropService>()
                 .AsSingle()
                 .WithArguments(playerTransform, dropDistance, dropOffsetY);
+
+            Container.BindInterfacesAndSelfTo<DeathLootSpawner>()
+                .AsSingle()
+                .WithArguments(1.25f, 0.35f)
+                .NonLazy();
 
             if (containerWindowPrefab != null)
                 Container.Bind<ContainerWindow>()
