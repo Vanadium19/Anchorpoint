@@ -12,6 +12,8 @@ namespace BuildingModule
         [SerializeField] private BuildingMenuConfig menuConfig;
         [SerializeField] private BaseLevelUIConfig baseLevelUIConfig;
         [SerializeField] private BaseLevelView baseLevelView;
+        [SerializeField] private BuildingPricePanelView buildingPricePanelView;
+        [SerializeField] private BuildingPriceUIConfig buildingPriceUIConfig;
         [SerializeField] private LayerMask raycastLayers;
         [SerializeField] private bool useGrid = true;
 
@@ -63,6 +65,10 @@ namespace BuildingModule
             Container.Bind<BaseLevelView>().FromInstance(baseLevelView).AsSingle();
             Container.BindInterfacesTo<BaseLevelPreviewBridge>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<BaseLevelPresenter>().AsSingle().NonLazy();
+
+            Container.Bind<BuildingPriceUIConfig>().FromInstance(buildingPriceUIConfig).AsSingle();
+            Container.Bind<BuildingPricePanelView>().FromInstance(buildingPricePanelView).AsSingle();
+            Container.BindInterfacesTo<BuildingPricePresenter>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
 

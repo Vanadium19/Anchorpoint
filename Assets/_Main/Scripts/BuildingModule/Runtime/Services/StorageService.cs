@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using BaseModule;
 using InventoryModule;
@@ -70,6 +71,49 @@ namespace BuildingModule
 
             _baseLevelService.AddPoints(config.BasePoints);
             return true;
+        }
+
+        public BuildPriceInfo GetPriceInfo(string id)
+        {
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
+                return null;
+
+            var price = config.Price;
+            var info = new BuildPriceInfo
+            {
+                BuildingName = config.Id
+            };
+
+            if (price?.Values == null)
+            {
+                info.AvailableCount = int.MaxValue;
+                info.Items = new List<PriceItemInfo>();
+                return info;
+            }
+
+            int minAvailable = int.MaxValue;
+
+            foreach (var itemToCount in price.Values)
+            {
+                if (itemToCount.ItemData == null)
+                    continue;
+
+                int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
+                int canAfford = itemToCount.Count > 0 ? available / itemToCount.Count : int.MaxValue;
+
+                if (canAfford < minAvailable)
+                    minAvailable = canAfford;
+
+                info.Items.Add(new PriceItemInfo
+                {
+                    ItemData = itemToCount.ItemData,
+                    Available = available,
+                    Cost = itemToCount.Count
+                });
+            }
+
+            info.AvailableCount = minAvailable == int.MaxValue ? 0 : minAvailable;
+            return info;
         }
     }
 }
