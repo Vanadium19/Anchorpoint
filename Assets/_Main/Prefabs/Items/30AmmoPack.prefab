@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5343471267438138079}
   - component: {fileID: 3445325597789474244}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 30AmmoPack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -116,6 +116,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: c65ca256f87bccb48b556b0117ff928e, type: 3}
       propertyPath: m_Name
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c65ca256f87bccb48b556b0117ff928e, type: 3}
+      propertyPath: m_Layer
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

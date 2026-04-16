@@ -23,6 +23,10 @@ MonoBehaviour:
   isContainer: 0
   containerGrids: {fileID: 0}
   canRotate: 1
+  hasDurability: 1
+  maxDurability: 30
+  showDurability: 1
+  effectData: {fileID: 11400000, guid: ad39592b66a361d48ba2aaf1e08979d2, type: 2}
   isDropable: 1
   worldPrefab: {fileID: 3445325597789474244, guid: d93ad29b793363f4294580a58ad5e703, type: 3}
   contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

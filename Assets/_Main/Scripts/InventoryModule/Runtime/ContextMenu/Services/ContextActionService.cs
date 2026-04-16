@@ -7,6 +7,7 @@ namespace InventoryModule.ContextMenu
     public class ContextActionService : IContextActionService
     {
         private DiContainer _container;
+        private object _effectTarget;
 
         private ContainerWindow _windowPrefab;
         private AbstractGrid _gridPrefab;
@@ -49,7 +50,6 @@ namespace InventoryModule.ContextMenu
             }
         }
 
-
         public void SetPrefabs(DiContainer sceneContainer, ContainerWindow windowPrefab, AbstractGrid gridPrefab, Canvas canvas)
         {
             _container = sceneContainer;
@@ -57,6 +57,11 @@ namespace InventoryModule.ContextMenu
             _gridPrefab = gridPrefab;
             _canvas = canvas;
             _prefabsResolved = true;
+        }
+
+        public void SetEffectTarget(object effectTarget)
+        {
+            _effectTarget = effectTarget;
         }
 
         private void TryResolvePrefabs()
@@ -89,7 +94,12 @@ namespace InventoryModule.ContextMenu
 
             foreach (var config in sortedConfigs)
             {
-                var action = config.Create(_container, item);
+                IContextAction action;
+
+                if (config is IUseActionConfig useConfig && _effectTarget != null)
+                    action = useConfig.Create(_container, item, _effectTarget);
+                else
+                    action = config.Create(_container, item);
 
                 if (action == null)
                     continue;

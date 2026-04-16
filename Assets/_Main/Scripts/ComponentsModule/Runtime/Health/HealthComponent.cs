@@ -37,5 +37,14 @@ namespace ComponentsModule
             if (_currentHealth <= 0)
                 Died?.Invoke();
         }
+
+        public void Heal(float amount)
+        {
+            if (!IsAlive || amount <= 0)
+                return;
+
+            _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+            HealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
     }
 }

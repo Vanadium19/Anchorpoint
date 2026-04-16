@@ -10,6 +10,7 @@ namespace InventoryModule.ContextMenu
         Canvas Canvas { get; }
         bool IsInitialized { get; }
 
+        void SetEffectTarget(object effectTarget);
         IReadOnlyList<IContextAction> GetActions(ItemTable item);
     }
 }

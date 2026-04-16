@@ -68,7 +68,7 @@ namespace InventoryModule
                 Item.UIUpdated -= UpdateUI;
         }
 
-        public void SetItem(ItemTable item)
+        public virtual void SetItem(ItemTable item)
         {
             if (Item != null)
                 Item.UIUpdated -= UpdateUI;

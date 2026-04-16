@@ -75,11 +75,37 @@ namespace InventoryModule
 
         private void OnDestroy()
         {
+            UnsubscribeFromDurability();
+
             if (_contextMenu == null)
                 return;
 
             Destroy(_contextMenu.gameObject);
             _contextMenu = null;
+        }
+
+        public override void SetItem(ItemTable item)
+        {
+            UnsubscribeFromDurability();
+            base.SetItem(item);
+            SubscribeToDurability();
+        }
+
+        private void SubscribeToDurability()
+        {
+            if (Item?.DurabilityMetadata != null)
+                Item.DurabilityMetadata.DurabilityChanged += OnDurabilityChanged;
+        }
+
+        private void UnsubscribeFromDurability()
+        {
+            if (Item?.DurabilityMetadata != null)
+                Item.DurabilityMetadata.DurabilityChanged -= OnDurabilityChanged;
+        }
+
+        private void OnDurabilityChanged(int current, int max)
+        {
+            UpdateStackAndDurabilityDisplay();
         }
 
         public override void OnPointerClick(PointerEventData eventData)
@@ -102,16 +128,36 @@ namespace InventoryModule
             if (stackText == null || Item == null)
                 return;
 
-            if (Item.IsStackable)
+            UpdateStackAndDurabilityDisplay();
+        }
+
+        private void UpdateStackAndDurabilityDisplay()
+        {
+            if (stackText == null)
+                return;
+
+            if (Item.HasDurability && Item.DurabilityMetadata != null)
+            {
+                var showDurability = Item.ItemDataSo?.ShowDurability ?? true;
+                stackText.gameObject.SetActive(showDurability);
+                
+                if (showDurability)
+                {
+                    var metadata = Item.DurabilityMetadata;
+                    stackText.text = $"{metadata.Current}/{metadata.Max}";
+                }
+            }
+            else if (Item.IsStackable)
             {
                 stackText.text = Item.StackCount.ToString();
                 stackText.gameObject.SetActive(true);
-                UpdateStackTextTransform();
             }
             else
             {
                 stackText.gameObject.SetActive(false);
             }
+
+            UpdateStackTextTransform();
         }
 
         private void ShowContextMenu(Vector2 screenPosition)

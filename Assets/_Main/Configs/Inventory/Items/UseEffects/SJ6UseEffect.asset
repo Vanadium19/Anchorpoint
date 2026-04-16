@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ec7b37df3dd0f440922df030242ec5f, type: 3}
+  m_Name: SJ6UseEffect
+  m_EditorClassIdentifier: EffectModule::EffectModule.FixedAmountUseEffectDataSo
+  durabilityPerUse: 1
+  effects: []
+  buffs:
+  - {fileID: 11400000, guid: fa05d5a1874785648ba7b26247a44d06, type: 2}

@@ -55,8 +55,7 @@ namespace PlayerModule
             var isCrouching = !_inputMap.IsBuildMode && _inputMap.IsCrouchPressed;
             var targetSpeed = isCrouching ? _config.CrouchSpeed : _config.WalkSpeed;
 
-            _mover.SetSpeed(targetSpeed);
-            _mover.Move(moveInput, isJumpPressed && !isCrouching);
+            _mover.Move(moveInput, isJumpPressed && !isCrouching, targetSpeed);
         }
 
         private void Rotate()

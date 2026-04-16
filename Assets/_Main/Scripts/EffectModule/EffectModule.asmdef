@@ -1,0 +1,20 @@
+{
+    "name": "EffectModule",
+    "rootNamespace": "EffectModule",
+    "references": [
+        "InventoryModule",
+        "ComponentsModule",
+        "WeaponModule",
+        "Zenject",
+        "GUID:ba2f6c8082fa68b45b0e32eb1b701c1c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
