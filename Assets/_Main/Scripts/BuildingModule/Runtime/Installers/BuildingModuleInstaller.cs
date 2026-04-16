@@ -69,7 +69,6 @@ namespace BuildingModule
             Container.Bind<BuildingPriceUIConfig>().FromInstance(buildingPriceUIConfig).AsSingle();
             Container.Bind<BuildingPricePanelView>().FromInstance(buildingPricePanelView).AsSingle();
             Container.BindInterfacesTo<BuildingPricePresenter>().AsSingle().NonLazy();
-            Container.BindInterfacesTo<BuildingPriceBridge>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
 
