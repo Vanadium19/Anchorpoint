@@ -16,10 +16,15 @@ MonoBehaviour:
   actionConfigs:
   - rid: 7132730415434956899
   - rid: 7132730415434956896
+  - rid: 2114036783279505522
   - rid: 7132730487505944659
   references:
     version: 2
     RefIds:
+    - rid: 2114036783279505522
+      type: {class: UseActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
+      data:
+        displayName: 
     - rid: 7132730415434956896
       type: {class: EquipActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:

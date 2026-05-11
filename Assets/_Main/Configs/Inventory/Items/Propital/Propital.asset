@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: Propital
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: Propital
+  description: 
+  icon: {fileID: -1275963478, guid: 20828d17591110243ba8b10199295d93, type: 3}
+  dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
+  equipmentSlotType: 0
+  isEquippable: 0
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 1
+  maxDurability: 1
+  showDurability: 0
+  effectData: {fileID: 11400000, guid: 7ddcb331cdff7fb498e5d1e61a402497, type: 2}
+  isDropable: 1
+  worldPrefab: {fileID: 3445325597789474244, guid: efac62bb529256c42bcc3c074d1659fe, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

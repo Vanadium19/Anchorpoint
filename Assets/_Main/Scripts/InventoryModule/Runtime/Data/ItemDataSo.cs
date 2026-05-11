@@ -25,6 +25,14 @@ namespace InventoryModule
         [SerializeField] private ContainerGridsData containerGrids;
         [SerializeField] private bool canRotate = true;
 
+        [Header("Durability")]
+        [SerializeField] private bool hasDurability;
+        [SerializeField] private int maxDurability = 1;
+        [SerializeField] private bool showDurability = true;
+
+        [Header("Effect")]
+        [SerializeField] private UseEffectDataSo effectData;
+
         [Header("World Drop")]
         [SerializeField] private bool isDropable = true;
         [SerializeField] private LootItemView worldPrefab;
@@ -44,6 +52,10 @@ namespace InventoryModule
         public bool IsDropable => isDropable;
         public LootItemView WorldPrefab => worldPrefab;
         public ContextActionPreset ContextActionPreset => contextActionPreset;
+        public bool HasDurability => hasDurability;
+        public int MaxDurability => maxDurability;
+        public bool ShowDurability => showDurability;
+        public UseEffectDataSo EffectData => effectData;
 
         public int Width => dimensionsSo != null ? dimensionsSo.Width : 1;
         public int Height => dimensionsSo != null ? dimensionsSo.Height : 1;

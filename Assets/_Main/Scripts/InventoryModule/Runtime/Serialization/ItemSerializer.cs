@@ -19,6 +19,9 @@ namespace InventoryModule
                 IsRotated = item.IsRotated
             };
 
+            if (item.HasDurability && item.DurabilityMetadata != null)
+                memento.DurabilityCurrent = item.DurabilityMetadata.Current;
+
             if (item.IsContainer)
             {
                 var metadata = item.GetMetadata<ContainerMetadata>();
@@ -56,6 +59,9 @@ namespace InventoryModule
             if (memento.IsRotated)
                 item.Rotate();
 
+            if (item.HasDurability && item.DurabilityMetadata != null && memento.DurabilityCurrent > 0)
+                item.DurabilityMetadata.SetCurrent(memento.DurabilityCurrent);
+
             return item;
         }
 
@@ -68,6 +74,7 @@ namespace InventoryModule
                 return;
 
             var metadata = item.GetMetadata<ContainerMetadata>();
+            
             if (metadata?.Inventories == null)
                 return;
 

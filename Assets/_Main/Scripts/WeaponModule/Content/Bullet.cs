@@ -48,13 +48,12 @@ namespace WeaponModule
 
         private void OnCollisionEnter(Collision collision)
         {
-            //TODO: Через прокси
-            var target = collision.gameObject.GetComponentInParent<IDamageable>();
+            var entity = collision.gameObject.GetComponentInParent<IEntity>();
 
-            if (target != null)
+            if (entity != null && entity.TryGet<IDamageable>(out var damageable))
             {
                 Vector3 force = transform.forward * 10f;
-                target.TakeDamage(_damage, collision.contacts[0].point, force);
+                damageable.TakeDamage(_damage, collision.contacts[0].point, force);
             }
 
             if (hitEffect != null)

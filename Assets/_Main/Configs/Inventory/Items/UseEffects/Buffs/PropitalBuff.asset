@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af773ce7f45c939438ec3c3cdf451136, type: 3}
+  m_Name: PropitalBuff
+  m_EditorClassIdentifier: EffectModule::EffectModule.BuffDataSo
+  duration: 40
+  displayName: Propital
+  icon: {fileID: -1275963478, guid: 20828d17591110243ba8b10199295d93, type: 3}
+  buffEffects:
+  - {fileID: 11400000, guid: 861dcb32a6f087f40895f9b51bd63dae, type: 2}

@@ -6,6 +6,9 @@ namespace InventoryModule
     [Serializable]
     public class ItemTable
     {
+        [NonSerialized]
+        public GridTable CurrentGrid;
+
         public event Action UIUpdated;
 
         public ItemTable(ItemDataSo itemDataSo)
@@ -13,22 +16,27 @@ namespace InventoryModule
             ItemDataSo = itemDataSo;
             StackCount = 1;
 
-            if (!IsContainer)
-                return;
+            if (IsContainer)
+            {
+                InventoryMetadata = new ContainerMetadata();
+                InventoryMetadata.Initialize(this);
+            }
 
-            InventoryMetadata = new ContainerMetadata();
-            InventoryMetadata.Initialize(this);
+            if (HasDurability)
+            {
+                DurabilityMetadata = new DurabilityMetadata();
+                DurabilityMetadata.Initialize(this);
+            }
         }
 
         public ItemDataSo ItemDataSo { get; }
         public bool IsRotated { get; private set; }
         public Position Position { get; private set; }
-        public GridTable CurrentGrid { get; private set; }
         public int StackCount { get; set; } = 1;
 
-        public InventoryMetadata InventoryMetadata { get; }
+        public InventoryMetadata InventoryMetadata { get; private set; }
+        public DurabilityMetadata DurabilityMetadata { get; private set; }
 
-        // TODO: Код взят из ассета
         public int Width => IsRotated ? ItemDataSo.Height : ItemDataSo.Width;
 
         public int Height => IsRotated ? ItemDataSo.Width : ItemDataSo.Height;
@@ -37,6 +45,7 @@ namespace InventoryModule
         public bool IsStackable => ItemDataSo.IsStackable;
         public int MaxStack => ItemDataSo.MaxStackSize;
         public bool IsContainer => ItemDataSo.IsContainer;
+        public bool HasDurability => ItemDataSo.HasDurability;
 
         public int PlacedWidth { get; private set; }
         public int PlacedHeight { get; private set; }
@@ -108,8 +117,16 @@ namespace InventoryModule
             UIUpdated?.Invoke();
         }
 
-        // TODO: Код взят из ассета
-        public T GetMetadata<T>() where T : InventoryMetadata => InventoryMetadata as T;
+        public T GetMetadata<T>() where T : InventoryMetadata
+        {
+            if (InventoryMetadata is T containerMeta)
+                return containerMeta;
+
+            if (DurabilityMetadata is T durabilityMeta)
+                return durabilityMeta;
+
+            return null;
+        }
 
         public override string ToString() => $"{ItemDataSo.DisplayName} ({Width}x{Height})";
     }

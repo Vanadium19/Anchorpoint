@@ -12,8 +12,12 @@ namespace ComponentsModule
         private readonly float _jumpHeight;
         private readonly float _gravity;
 
-        private float _speed;
+        private readonly float _baseSpeed;
+        private float _speedMultiplier = 1f;
         private float _verticalVelocity;
+
+        public float BaseSpeed => _baseSpeed;
+        public float CurrentSpeed => _baseSpeed * _speedMultiplier;
 
         public MoveComponent(CharacterController characterController, float speed, float jumpHeight, float gravity)
         {
@@ -23,13 +27,14 @@ namespace ComponentsModule
             _jumpHeight = jumpHeight;
             _gravity = gravity;
 
-            _speed = speed;
+            _baseSpeed = speed;
         }
 
-        public void Move(Vector2 direction, bool isJumping)
+        public void Move(Vector2 direction, bool isJumping, float baseSpeed)
         {
+            var speed = baseSpeed * _speedMultiplier;
             var movement = direction.x * _transform.right + direction.y * _transform.forward;
-            movement *= _speed;
+            movement *= speed;
 
             _verticalVelocity = CalculateVerticalVelocity(isJumping);
             movement.y = _verticalVelocity;
@@ -37,9 +42,14 @@ namespace ComponentsModule
             _characterController.Move(movement * Time.deltaTime);
         }
 
-        public void SetSpeed(float value)
+        public void SetSpeedMultiplier(float multiplier)
         {
-            _speed = value;
+            _speedMultiplier = multiplier;
+        }
+
+        public void ResetSpeedMultiplier()
+        {
+            _speedMultiplier = 1f;
         }
 
         private float CalculateVerticalVelocity(bool isJumping)

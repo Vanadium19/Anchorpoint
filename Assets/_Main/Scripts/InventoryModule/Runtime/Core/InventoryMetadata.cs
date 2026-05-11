@@ -6,7 +6,8 @@ namespace InventoryModule
     [Serializable]
     public abstract class InventoryMetadata
     {
-        public ItemTable ItemTable { get; protected set; }
+        [NonSerialized]
+        public ItemTable ItemTable;
 
         public virtual void Initialize(ItemTable itemTable) => ItemTable = itemTable;
 

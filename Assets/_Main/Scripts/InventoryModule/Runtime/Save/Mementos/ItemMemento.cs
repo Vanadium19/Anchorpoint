@@ -11,6 +11,7 @@ namespace InventoryModule
         public int Y;
         public int StackCount;
         public bool IsRotated;
+        public int DurabilityCurrent;
         public List<ContainerMemento> NestedContainers = new();
     }
 }

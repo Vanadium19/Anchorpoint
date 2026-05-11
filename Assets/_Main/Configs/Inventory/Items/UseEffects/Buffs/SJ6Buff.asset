@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af773ce7f45c939438ec3c3cdf451136, type: 3}
+  m_Name: SJ6Buff
+  m_EditorClassIdentifier: EffectModule::EffectModule.BuffDataSo
+  duration: 60
+  displayName: SJ6
+  icon: {fileID: -507253424, guid: f5b3af8a12852584f9fae610109054ee, type: 3}
+  buffEffects:
+  - {fileID: 11400000, guid: 261c6a23b66ead047b9ba96932177ab9, type: 2}

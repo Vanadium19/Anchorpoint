@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: Salewa
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: Salewa
+  description: 
+  icon: {fileID: 1132903133, guid: 95074c1bd1cf15049b2dc077f4ae0585, type: 3}
+  dimensionsSo: {fileID: 11400000, guid: 010cc35743222824d84d93f3107c71f5, type: 2}
+  equipmentSlotType: 0
+  isEquippable: 0
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 1
+  maxDurability: 400
+  showDurability: 1
+  effectData: {fileID: 11400000, guid: 49b59a89fb5fec1499da9597328ed542, type: 2}
+  isDropable: 1
+  worldPrefab: {fileID: 3445325597789474244, guid: c72ce76cc21aab34f804f5662c115228, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

@@ -11,5 +11,7 @@ namespace ComponentsModule
 
         float MaxHealth { get; }
         float CurrentHealth { get; }
+
+        void Heal(float amount);
     }
 }

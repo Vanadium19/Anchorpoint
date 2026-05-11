@@ -53,6 +53,22 @@ namespace WeaponModule
             return ammoToLoad;
         }
 
+        public int AddReserveAmmo(int amount)
+        {
+            if (amount <= 0)
+                return 0;
+
+            int added = amount;
+            _reserveAmmo += added;
+            NotifyAmmoChanged();
+            return added;
+        }
+
+        public int GetReserveSpace()
+        {
+            return int.MaxValue - _reserveAmmo;
+        }
+
         private void NotifyAmmoChanged() => AmmoChanged?.Invoke(_currentMagazineAmmo, _reserveAmmo);
     }
 }
