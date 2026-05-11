@@ -1,7 +1,7 @@
+using ComponentsModule;
 using System.Collections.Generic;
 using UnityEngine;
 using InventoryModule;
-using ComponentsModule;
 
 namespace EffectModule
 {
@@ -17,16 +17,16 @@ namespace EffectModule
 
         public override bool CanApply(object target)
         {
-            var effectTarget = target as IEffectTarget;
+            var entity = target as IEntity;
 
-            if (effectTarget == null)
+            if (entity == null)
                 return false;
 
             foreach (var effect in effects)
             {
                 if (effect is HealEffectDataSo)
                 {
-                    if (effectTarget.TryGet<IHealthComponent>(out var health))
+                    if (entity.TryGet<IHealthComponent>(out var health))
                     {
                         if (health.CurrentHealth >= health.MaxHealth)
                             return false;

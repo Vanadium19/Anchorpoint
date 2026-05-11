@@ -415,10 +415,10 @@ PrefabInstance:
       addedObject: {fileID: 3414506700862876485}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 436772443010981899}
+      addedObject: {fileID: 3766973165566144414}
     - targetCorrespondingSourceObject: {fileID: 100060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3766973165566144414}
+      addedObject: {fileID: 1541654332145281660}
     - targetCorrespondingSourceObject: {fileID: 100032, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8362542187851058666}
@@ -1219,18 +1219,6 @@ MonoBehaviour:
   animator: {fileID: 2171579678116017918}
   agent: {fileID: 863995259156288490}
   mainCollider: {fileID: 3326720251899390544}
---- !u!114 &436772443010981899
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2171579678108583234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
 --- !u!114 &3766973165566144414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1243,6 +1231,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c47912ae4e51a84d92f1acf689997c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Zenject::Zenject.DefaultGameObjectKernel
+--- !u!114 &1541654332145281660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2171579678108583234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a9f60e768c7bfc49ab4c3a11786a0ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.Entity
+  context: {fileID: 2776398370721606989}
 --- !u!1 &2171579678108583238 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100056, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}

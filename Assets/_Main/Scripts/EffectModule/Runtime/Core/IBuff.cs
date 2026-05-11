@@ -1,4 +1,5 @@
 using System;
+using ComponentsModule;
 
 namespace EffectModule
 {
@@ -12,7 +13,7 @@ namespace EffectModule
         bool IsExpired { get; }
         bool IsPaused { get; }
 
-        void Apply(IBuffTarget target);
+        void Apply(IEntity target);
         void Tick(float deltaTime);
         void Pause();
         void Resume();

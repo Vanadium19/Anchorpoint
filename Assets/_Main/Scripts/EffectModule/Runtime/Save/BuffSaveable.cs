@@ -1,4 +1,5 @@
 using System;
+using ComponentsModule;
 using Newtonsoft.Json;
 using SaveModule;
 
@@ -26,12 +27,12 @@ namespace EffectModule
 
         public string CreateMemento()
         {
-            var buffTarget = _primaryBuffTargetService?.PrimaryTarget;
+            var target = _primaryBuffTargetService?.PrimaryTarget;
 
-            if (buffTarget == null)
+            if (target == null)
                 return "{}";
 
-            var activeBuffs = _buffService.GetActiveBuffs(buffTarget);
+            var activeBuffs = _buffService.GetActiveBuffs(target);
             var memento = new BuffsMemento();
 
             foreach (var activeBuff in activeBuffs)
@@ -52,15 +53,15 @@ namespace EffectModule
 
         public void RestoreMemento(string data)
         {
-            var buffTarget = _primaryBuffTargetService?.PrimaryTarget;
+            var target = _primaryBuffTargetService?.PrimaryTarget;
 
-            if (buffTarget == null)
+            if (target == null)
                 return;
 
-            RestoreInternal(buffTarget, data);
+            RestoreInternal(target, data);
         }
 
-        private void RestoreInternal(IBuffTarget buffTarget, string data)
+        private void RestoreInternal(IEntity target, string data)
         {
             var memento = JsonConvert.DeserializeObject<BuffsMemento>(data);
 
@@ -68,10 +69,10 @@ namespace EffectModule
                 return;
 
             foreach (var buffMemento in memento.Buffs)
-                RestoreBuff(buffTarget, buffMemento);
+                RestoreBuff(target, buffMemento);
         }
 
-        private void RestoreBuff(IBuffTarget buffTarget, BuffMemento memento)
+        private void RestoreBuff(IEntity target, BuffMemento memento)
         {
             var buffData = _buffCatalog?.GetByName(memento.BuffDataName);
 
@@ -80,7 +81,7 @@ namespace EffectModule
 
             var buff = buffData.BuffEffects[0].CreateBuff(memento.Duration);
             var elapsed = memento.Duration - memento.RemainingTime;
-            _buffService.AddBuff(buffTarget, buff, buffData);
+            _buffService.AddBuff(target, buff, buffData);
             buff.SetElapsedTime(elapsed);
         }
     }

@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
+using ComponentsModule;
 using Zenject;
 
 namespace EffectModule
 {
     public class BuffService : IBuffService, global::Zenject.ITickable
     {
-        private readonly Dictionary<IBuffTarget, List<ActiveBuff>> _activeBuffs = new();
+        private readonly Dictionary<IEntity, List<ActiveBuff>> _activeBuffs = new();
 
         public event Action<ActiveBuff> BuffAdded;
         public event Action<ActiveBuff> BuffRemoved;
         public event Action<ActiveBuff> BuffUpdated;
 
-        public IReadOnlyList<ActiveBuff> GetActiveBuffs(IBuffTarget target)
+        public IReadOnlyList<ActiveBuff> GetActiveBuffs(IEntity target)
         {
             if (target == null || !_activeBuffs.TryGetValue(target, out var buffs))
                 return new List<ActiveBuff>();
@@ -20,7 +21,7 @@ namespace EffectModule
             return buffs.AsReadOnly();
         }
 
-        public void AddBuff(IBuffTarget target, IBuff buff, BuffDataSo buffData = null)
+        public void AddBuff(IEntity target, IBuff buff, BuffDataSo buffData = null)
         {
             if (target == null || buff == null)
                 return;
@@ -45,7 +46,7 @@ namespace EffectModule
             BuffAdded?.Invoke(activeBuff);
         }
 
-        private ActiveBuff FindBuff(IBuffTarget target, string buffId)
+        private ActiveBuff FindBuff(IEntity target, string buffId)
         {
             if (!_activeBuffs.TryGetValue(target, out var buffs))
                 return null;
@@ -59,7 +60,7 @@ namespace EffectModule
             return null;
         }
 
-        public void RemoveBuff(IBuffTarget target, ActiveBuff activeBuff)
+        public void RemoveBuff(IEntity target, ActiveBuff activeBuff)
         {
             if (target == null || activeBuff == null)
                 return;
@@ -75,7 +76,7 @@ namespace EffectModule
             }
         }
 
-        public void RemoveAllBuffs(IBuffTarget target)
+        public void RemoveAllBuffs(IEntity target)
         {
             if (target == null || !_activeBuffs.TryGetValue(target, out var buffs))
                 return;
@@ -90,7 +91,7 @@ namespace EffectModule
             buffs.Clear();
         }
 
-        public bool HasBuff(IBuffTarget target, string buffId)
+        public bool HasBuff(IEntity target, string buffId)
         {
             if (target == null || string.IsNullOrEmpty(buffId))
                 return false;

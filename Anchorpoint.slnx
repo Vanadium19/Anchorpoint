@@ -1,7 +1,7 @@
 ﻿<Solution>
+  <Project Path="EffectModule.csproj" />
   <Project Path="Zenject.csproj" />
   <Project Path="NpcBaseModule.csproj" />
-  <Project Path="EffectModule.csproj" />
   <Project Path="EnemyModule.csproj" />
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="SimpleFolderIcon.csproj" />

@@ -1,7 +1,9 @@
 {
     "name": "ComponentsModule",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+    "Zenject"
+  ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

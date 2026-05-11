@@ -1,4 +1,5 @@
 using System;
+using ComponentsModule;
 using UnityEngine;
 
 namespace EffectModule
@@ -7,7 +8,7 @@ namespace EffectModule
     {
         public event Action<IBuff> Completed;
 
-        protected IBuffTarget Target { get; private set; }
+        protected IEntity Target { get; private set; }
         protected float ElapsedTime { get; private set; }
 
         public abstract string EffectId { get; }
@@ -23,14 +24,14 @@ namespace EffectModule
             Duration = duration;
         }
 
-        public virtual void Apply(IBuffTarget target)
+        public void Apply(IEntity target)
         {
             Target = target;
             ElapsedTime = 0f;
             OnApply();
         }
 
-        public virtual void Tick(float deltaTime)
+        public void Tick(float deltaTime)
         {
             if (IsPaused || IsExpired)
                 return;
@@ -45,25 +46,25 @@ namespace EffectModule
             }
         }
 
-        public virtual void Pause()
+        public void Pause()
         {
             IsPaused = true;
             OnPause();
         }
 
-        public virtual void Resume()
+        public void Resume()
         {
             IsPaused = false;
             OnResume();
         }
 
-        public virtual void Cancel()
+        public void Cancel()
         {
             OnCancel();
             Target = null;
         }
 
-        public virtual void ResetDuration()
+        public void ResetDuration()
         {
             ElapsedTime = 0f;
         }

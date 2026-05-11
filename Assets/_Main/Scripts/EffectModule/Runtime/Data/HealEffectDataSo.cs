@@ -1,6 +1,5 @@
-using UnityEngine;
-using InventoryModule;
 using ComponentsModule;
+using UnityEngine;
 
 namespace EffectModule
 {
@@ -11,7 +10,7 @@ namespace EffectModule
 
         public int Amount => amount;
 
-        public override void Apply(IEffectTarget target)
+        public override void Apply(IEntity target)
         {
             if (target.TryGet<IHealthComponent>(out var health))
                 health.Heal(amount);

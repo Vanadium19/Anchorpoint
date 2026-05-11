@@ -1,3 +1,4 @@
+using ComponentsModule;
 using InventoryModule;
 
 namespace EffectModule
@@ -16,9 +17,9 @@ namespace EffectModule
             if (item == null || target == null)
                 return;
 
-            var effectTarget = target as IEffectTarget;
+            var entity = target as IEntity;
 
-            if (effectTarget == null)
+            if (entity == null)
                 return;
 
             var effectData = item.ItemDataSo?.EffectData as IUseEffectData;
@@ -27,18 +28,13 @@ namespace EffectModule
                 return;
 
             foreach (var effect in effectData.Effects)
-                effect.Apply(effectTarget);
+                effect.Apply(entity);
 
             if (effectData.Buffs == null)
                 return;
 
-            var buffTarget = target as IBuffTarget;
-
-            if (buffTarget == null)
-                return;
-
             foreach (var buff in effectData.Buffs)
-                buff.Apply(buffTarget, _buffService);
+                buff.Apply(entity, _buffService);
         }
     }
 }

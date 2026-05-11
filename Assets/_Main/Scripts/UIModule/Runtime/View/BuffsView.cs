@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ComponentsModule;
 using UnityEngine;
 using Zenject;
 using EffectModule;
@@ -13,7 +14,7 @@ namespace UIModule
 
         private readonly Dictionary<string, BuffSlotView> _slots = new();
         private IBuffService _buffService;
-        private IBuffTarget _target;
+        private IEntity _target;
 
         [Inject]
         private void Construct(IBuffService buffService)
@@ -28,7 +29,7 @@ namespace UIModule
             }
         }
 
-        public void Initialize(IBuffTarget target)
+        public void Initialize(IEntity target)
         {
             _target = target;
         }

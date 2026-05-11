@@ -1,5 +1,4 @@
 using ComponentsModule;
-using UnityEngine;
 
 namespace EffectModule
 {

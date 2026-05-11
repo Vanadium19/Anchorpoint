@@ -4369,9 +4369,9 @@ GameObject:
   - component: {fileID: 1085248787}
   - component: {fileID: 1085248786}
   - component: {fileID: 1085248785}
-  - component: {fileID: 1085248784}
   - component: {fileID: 1085248783}
   - component: {fileID: 1085248790}
+  - component: {fileID: 1085248792}
   - component: {fileID: 1085248791}
   m_Layer: 6
   m_Name: Player
@@ -4393,18 +4393,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: PlayerModule::PlayerModule.PlayerProvider
   context: {fileID: 1085248787}
---- !u!114 &1085248784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1085248782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e54ffc789122c02499a1ae1489ae4bd1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.DamageHandler
 --- !u!114 &1085248785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4459,7 +4447,6 @@ MonoBehaviour:
   _monoInstallers:
   - {fileID: 1085248786}
   - {fileID: 1085248785}
-  - {fileID: 1085248791}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -4528,10 +4515,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 1085248782}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61d219dae3ed3764f9b8202ddc182d46, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a9f60e768c7bfc49ab4c3a11786a0ff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: EffectModule::EffectModule.BuffTarget
-  logWarnings: 0
+  m_EditorClassIdentifier: ComponentsModule::ComponentsModule.Entity
+  context: {fileID: 1085248787}
+--- !u!114 &1085248792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085248782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f598b807782757441a149141f97e8f4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EffectModule::EffectModule.BuffTargetInitializer
   isPrimaryBuffTarget: 1
 --- !u!1001 &1092414768
 PrefabInstance:
@@ -5081,6 +5080,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: EffectModule::EffectModule.EffectInstaller
   buffCatalog: {fileID: 11400000, guid: b26867172ae260e408faf91845c5a026, type: 2}
+  entity: {fileID: 1085248791}
 --- !u!1 &1196090891
 GameObject:
   m_ObjectHideFlags: 0

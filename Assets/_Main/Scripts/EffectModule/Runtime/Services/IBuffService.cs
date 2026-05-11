@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ComponentsModule;
 
 namespace EffectModule
 {
@@ -9,10 +10,10 @@ namespace EffectModule
         event Action<ActiveBuff> BuffRemoved;
         event Action<ActiveBuff> BuffUpdated;
 
-        IReadOnlyList<ActiveBuff> GetActiveBuffs(IBuffTarget target);
-        void AddBuff(IBuffTarget target, IBuff buff, BuffDataSo buffData = null);
-        void RemoveBuff(IBuffTarget target, ActiveBuff activeBuff);
-        void RemoveAllBuffs(IBuffTarget target);
-        bool HasBuff(IBuffTarget target, string buffId);
+        IReadOnlyList<ActiveBuff> GetActiveBuffs(IEntity target);
+        void AddBuff(IEntity target, IBuff buff, BuffDataSo buffData = null);
+        void RemoveBuff(IEntity target, ActiveBuff activeBuff);
+        void RemoveAllBuffs(IEntity target);
+        bool HasBuff(IEntity target, string buffId);
     }
 }

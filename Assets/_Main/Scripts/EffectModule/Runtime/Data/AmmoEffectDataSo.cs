@@ -1,5 +1,5 @@
+using ComponentsModule;
 using UnityEngine;
-using InventoryModule;
 using WeaponModule;
 
 namespace EffectModule
@@ -11,7 +11,7 @@ namespace EffectModule
 
         public int Amount => amount;
 
-        public override void Apply(IEffectTarget target)
+        public override void Apply(IEntity target)
         {
             if (!target.TryGet<IWeaponInventory>(out var weaponInventory))
                 return;

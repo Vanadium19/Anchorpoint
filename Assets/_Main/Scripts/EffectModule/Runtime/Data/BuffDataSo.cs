@@ -1,3 +1,4 @@
+using ComponentsModule;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +17,7 @@ namespace EffectModule
         public Sprite Icon => icon;
         public IReadOnlyList<BuffEffectDataSo> BuffEffects => buffEffects;
 
-        public void Apply(IBuffTarget target, IBuffService buffService)
+        public void Apply(IEntity target, IBuffService buffService)
         {
             if (target == null || buffService == null)
                 return;
