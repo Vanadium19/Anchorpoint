@@ -9,6 +9,7 @@ namespace BuildingModule
         void UpdatePreview(Vector3 position, bool isOccupied, float rotation);
         void UpdatePreview(Vector3 position, bool isOccupied, bool hasGroundSupport);
         void UpdatePreview(float rotation);
+        void SetCanAfford(bool canAfford);
         void Cancel();
         bool HasCollisionAtPosition(Vector3 position, float rotation);
         bool TryGetCollisionBounds(Vector3 position, float rotation, out Vector3 worldCenter, out Vector3 halfSize, out Quaternion totalRotation);

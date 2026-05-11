@@ -9,7 +9,8 @@ namespace InventoryModule
         private readonly float _dropOffsetY;
         private readonly IContainerWindowService _windowService;
 
-        public DropService(Transform playerTransform,
+        public DropService(
+            Transform playerTransform,
             IContainerWindowService windowService,
             float dropDistance = 2f,
             float dropOffsetY = 0.5f)
@@ -30,6 +31,12 @@ namespace InventoryModule
 
         public bool TryDropItem(ItemTable item)
         {
+            var dropPosition = GetDropPosition();
+            return TryDropItem(item, dropPosition);
+        }
+
+        public bool TryDropItem(ItemTable item, Vector3 worldPosition)
+        {
             if (!CanDrop(item))
                 return false;
 
@@ -41,9 +48,7 @@ namespace InventoryModule
             if (item.IsContainer)
                 _windowService.CloseAllWindowsForItem(item);
 
-            var dropPosition = GetDropPosition();
-
-            var lootInstance = Object.Instantiate(prefab, dropPosition, Quaternion.identity);
+            var lootInstance = Object.Instantiate(prefab, worldPosition, Quaternion.identity);
             lootInstance.SetItemTable(item);
 
             return true;
@@ -62,7 +67,7 @@ namespace InventoryModule
             }
 
             var forward = _playerTransform.forward;
-            forward.y = 0;
+            forward.y = 0f;
             forward.Normalize();
 
             var dropPosition = _playerTransform.position + forward * _dropDistance;
