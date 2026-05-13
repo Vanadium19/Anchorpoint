@@ -4,7 +4,8 @@
     "references": [
         "Zenject",
         "EnemyModule",
-        "UniTask"
+        "UniTask",
+        "InventoryModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
