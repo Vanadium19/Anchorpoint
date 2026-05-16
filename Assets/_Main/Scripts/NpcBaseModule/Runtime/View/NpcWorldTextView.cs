@@ -5,28 +5,49 @@ namespace NpcBaseModule
 {
     public sealed class NpcWorldTextView : MonoBehaviour
     {
+        [SerializeField] private Canvas canvas;
         [SerializeField] private GameObject root;
         [SerializeField] private TMP_Text text;
 
-        private void Awake()
-        {
-            if (root == null)
-            {
-                var canvas = GetComponentInParent<Canvas>(true);
-                root = canvas != null ? canvas.gameObject : gameObject;
-            }
-
-            text ??= GetComponentInChildren<TMP_Text>(true);
-        }
-
-        private void Start() => Hide();
+        private void Awake() => Initialize();
 
         public void Show(string message)
         {
-            text?.SetText(message);
-            root?.SetActive(true);
+            Initialize();
+
+            if (root == null)
+                return;
+
+            root.SetActive(true);
+
+            if (canvas != null)
+                canvas.enabled = true;
+
+            if (text == null)
+                return;
+
+            text.gameObject.SetActive(true);
+            text.SetText(message);
         }
 
-        public void Hide() => root?.SetActive(false);
+        public void Hide()
+        {
+            Initialize();
+
+            if (root != null)
+                root.SetActive(false);
+        }
+
+        private void Initialize()
+        {
+            if (canvas == null)
+                canvas = GetComponentInParent<Canvas>(true);
+
+            if (root == null)
+                root = canvas != null ? canvas.gameObject : gameObject;
+
+            if (text == null)
+                text = GetComponentInChildren<TMP_Text>(true);
+        }
     }
 }
