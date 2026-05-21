@@ -2,8 +2,11 @@
   "name": "NpcBaseModule",
   "references": [
     "Zenject",
-    "Unity.TextMeshPro"
-  ],
+    "Unity.TextMeshPro",
+    "GUID:75469ad4d38634e559750d17036d5f7c",
+    "Unity.ugui",
+    "GUID:5a8d3845af48dc54db440d2b68ad43e7"
+],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,
