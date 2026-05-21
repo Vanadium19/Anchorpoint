@@ -23,6 +23,10 @@ namespace MenuModule
                 Container.BindInterfacesTo<PauseMenuPresenter>()
                     .AsSingle()
                     .NonLazy();
+
+                Container.BindInterfacesTo<GameplayPauseController>()
+                    .AsSingle()
+                    .NonLazy();
             }
 
             if (victoryView != null)
