@@ -1,4 +1,3 @@
-using AudioModule;
 using UnityEngine;
 using Zenject;
 
@@ -7,7 +6,6 @@ namespace MenuModule
     public class MainMenuInstaller : MonoInstaller
     {
         [SerializeField] private GameNavigationConfig navigationConfig;
-        [SerializeField] private AudioSettingsConfig audioSettingsConfig;
         [SerializeField] private MainMenuView mainMenuView;
 
         public override void InstallBindings()
@@ -33,8 +31,6 @@ namespace MenuModule
                 .AsSingle()
                 .IfNotBound();
 
-            InstallAudioSettingsService();
-
             Container.Bind<IGameNavigationService>()
                 .To<GameNavigationService>()
                 .AsSingle()
@@ -46,19 +42,6 @@ namespace MenuModule
             return navigationConfig != null
                 ? navigationConfig
                 : ScriptableObject.CreateInstance<GameNavigationConfig>();
-        }
-
-        private void InstallAudioSettingsService()
-        {
-            Container.Bind<AudioSettingsConfig>()
-                .FromInstance(audioSettingsConfig)
-                .AsSingle()
-                .IfNotBound();
-
-            Container.Bind<IAudioSettingsService>()
-                .To<AudioMixerSettingsService>()
-                .AsSingle()
-                .IfNotBound();
         }
     }
 }
