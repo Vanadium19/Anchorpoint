@@ -6,5 +6,6 @@ namespace BaseModule
         void HidePreview();
         void Show();
         void Hide();
+        void HideImmediately();
     }
 }

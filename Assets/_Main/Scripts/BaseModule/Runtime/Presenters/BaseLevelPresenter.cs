@@ -56,6 +56,12 @@ namespace BaseModule
             _view.AnimateHide(_uiConfig.SlideOffset, _uiConfig.SlideAnimationDuration);
         }
 
+        public void HideImmediately()
+        {
+            HidePreview();
+            _view.Hide();
+        }
+
         public void ShowPreview(int buildingPoints)
         {
             var preview = _baseLevelService.GetPreview(buildingPoints);

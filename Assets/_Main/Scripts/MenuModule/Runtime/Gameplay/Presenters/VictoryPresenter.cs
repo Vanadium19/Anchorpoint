@@ -13,6 +13,7 @@ namespace MenuModule
         private readonly IGamePauseService _pauseService;
         private readonly IInputService _inputService;
         private readonly IConstructionModeService _constructionModeService;
+        private readonly IBaseLevelPresenter _baseLevelPresenter;
 
         private bool _isShown;
 
@@ -20,13 +21,15 @@ namespace MenuModule
             IBaseLevelService baseLevelService,
             IGamePauseService pauseService,
             IInputService inputService,
-            IConstructionModeService constructionModeService)
+            IConstructionModeService constructionModeService,
+            IBaseLevelPresenter baseLevelPresenter = null)
         {
             _view = view;
             _baseLevelService = baseLevelService;
             _pauseService = pauseService;
             _inputService = inputService;
             _constructionModeService = constructionModeService;
+            _baseLevelPresenter = baseLevelPresenter;
         }
 
         public void Initialize()
@@ -50,6 +53,7 @@ namespace MenuModule
 
             _isShown = true;
             _constructionModeService?.SetActive(false);
+            _baseLevelPresenter?.HideImmediately();
             _pauseService.Pause(GamePauseReason.Victory);
             _inputService.SetUIMode(true);
             _view.Show();
