@@ -10,6 +10,8 @@ namespace SaveModule
         private readonly List<ISaveable> _saveables = new();
         private readonly Dictionary<string, ISaveable> _saveableMap = new();
 
+        private bool _isSavingBlocked;
+
         public GameSaveLoader(IGameRepository repository, string filePath)
         {
             _repository = repository;
@@ -48,6 +50,9 @@ namespace SaveModule
 
         public void Save()
         {
+            if (_isSavingBlocked)
+                return;
+
             var existingData = _repository.Load<GameSaveData>(_filePath);
             var state = existingData?.State ?? new Dictionary<string, string>();
 
@@ -62,6 +67,8 @@ namespace SaveModule
 
         public void Load()
         {
+            _isSavingBlocked = false;
+
             var saveData = _repository.Load<GameSaveData>(_filePath);
 
             if (saveData?.State == null || saveData.State.Count == 0)
@@ -72,6 +79,12 @@ namespace SaveModule
                 if (saveData.State.TryGetValue(saveable.SaveKey, out var data))
                     saveable.RestoreMemento(data);
             }
+        }
+
+        public void DeleteSave()
+        {
+            _repository.Delete(_filePath);
+            _isSavingBlocked = true;
         }
     }
 }

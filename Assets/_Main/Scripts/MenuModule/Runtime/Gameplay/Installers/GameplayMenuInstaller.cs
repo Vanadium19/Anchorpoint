@@ -37,6 +37,10 @@ namespace MenuModule
                 Container.BindInterfacesTo<VictoryPresenter>()
                     .AsSingle()
                     .NonLazy();
+
+                Container.BindInterfacesTo<VictorySaveDeleteController>()
+                    .AsSingle()
+                    .NonLazy();
             }
         }
 
