@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 966df4d6c0dc4ec0b855f32895a79c89, type: 3}
+  m_Name: MenuAmbient
+  m_EditorClassIdentifier: AudioModule::AudioModule.AudioSourceEvent
+  _poolable: 1
+  duration: 73.900406
+  loop: 1
+  loopOne: 0
+  spartialBlend: 0
+  output: {fileID: -1777540225507397050, guid: 50118c7dbb4b44132a5d2e6cce8781a9, type: 2}
+  clip:
+    rid: 4193797325995114569
+  pitch:
+    rid: 4193797325995114570
+  volume:
+    rid: 4193797325995114571
+  reverbZoneMix:
+    rid: 4193797325995114572
+  rolloffMode: 0
+  rolloffCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  minDistance:
+    rid: 4193797325995114573
+  maxDistance:
+    rid: 4193797325995114574
+  dopplerLevel:
+    rid: 4193797325995114575
+  spread:
+    rid: 4193797325995114576
+  behaviours: []
+  actions: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 4193797325995114569
+      type: {class: ClipConst, ns: AudioModule, asm: AudioModule}
+      data:
+        clip: {fileID: 8300000, guid: 0e884cd4e804f4610a3ea3e440fbc35f, type: 3}
+    - rid: 4193797325995114570
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 1
+    - rid: 4193797325995114571
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 1
+    - rid: 4193797325995114572
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 1
+    - rid: 4193797325995114573
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 1
+    - rid: 4193797325995114574
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 500
+    - rid: 4193797325995114575
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 0.8
+    - rid: 4193797325995114576
+      type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
+      data:
+        value: 0
