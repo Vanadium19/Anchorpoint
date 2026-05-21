@@ -13,7 +13,7 @@ namespace GameCycleModule
         private readonly BuffSaveable _buffSaveable;
 
         public GameSceneSaveHandler(
-            IGameSaveLoader gameSaveLoader,
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader,
             InventorySaveable inventorySaveable,
             BuffSaveable buffSaveable)
         {

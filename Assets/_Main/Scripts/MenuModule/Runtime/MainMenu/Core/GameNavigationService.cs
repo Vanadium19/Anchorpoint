@@ -23,7 +23,7 @@ namespace MenuModule
 
         public GameNavigationService(
             GameNavigationConfig config,
-            [InjectOptional] IGameSaveLoader gameSaveLoader = null)
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _config = config;
             _gameSaveLoader = gameSaveLoader;

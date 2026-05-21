@@ -7,7 +7,8 @@ namespace SaveModule
     {
         private readonly IGameSaveLoader _gameSaveLoader;
 
-        public AutoSaveHandler(IGameSaveLoader gameSaveLoader)
+        public AutoSaveHandler(
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _gameSaveLoader = gameSaveLoader;
         }

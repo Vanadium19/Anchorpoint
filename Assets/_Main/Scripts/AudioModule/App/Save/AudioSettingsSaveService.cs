@@ -15,7 +15,7 @@ namespace AudioModule
 
         public AudioSettingsSaveService(IAudioSettingsService audioSettingsService,
             IAudioSettingsMemento audioSettingsMemento,
-            IGameSaveLoader gameSaveLoader)
+            [Inject(Id = GameSaveLoaderIds.Settings)] IGameSaveLoader gameSaveLoader)
         {
             _audioSettingsService = audioSettingsService;
             _audioSettingsMemento = audioSettingsMemento;

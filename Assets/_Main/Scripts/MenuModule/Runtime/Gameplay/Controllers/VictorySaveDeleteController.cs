@@ -11,7 +11,7 @@ namespace MenuModule
         private readonly IGameSaveLoader _gameSaveLoader;
 
         public VictorySaveDeleteController(IBaseLevelService baseLevelService,
-            IGameSaveLoader gameSaveLoader)
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _baseLevelService = baseLevelService;
             _gameSaveLoader = gameSaveLoader;

@@ -9,7 +9,7 @@ namespace EvacuationModule
     public class EndEvacuationCommand : IAsyncCommand
     {
         [Inject] private EvacuationConfig _config;
-        [Inject] private IGameSaveLoader _gameSaveLoader;
+        [Inject(Id = GameSaveLoaderIds.Game)] private IGameSaveLoader _gameSaveLoader;
 
         public UniTask<TaskResult> Execute()
         {

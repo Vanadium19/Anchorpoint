@@ -14,7 +14,7 @@ namespace CampSaveModule
         private readonly BuffSaveable _buffSaveable;
 
         public CampSaveHandler(
-            IGameSaveLoader gameSaveLoader,
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader,
             CampSaveable campSaveable,
             InventorySaveable inventorySaveable,
             BuffSaveable buffSaveable)
