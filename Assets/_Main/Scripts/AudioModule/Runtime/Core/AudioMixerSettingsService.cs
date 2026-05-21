@@ -21,6 +21,8 @@ namespace AudioModule
 
             if (!_config.Mixer)
                 throw new NullReferenceException(nameof(_config.Mixer));
+
+            SetSnapshot(new());
         }
 
         public float GetVolume(AudioMixerChannel channel) => _volumes[channel];

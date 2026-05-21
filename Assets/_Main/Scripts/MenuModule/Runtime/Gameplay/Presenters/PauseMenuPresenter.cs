@@ -1,5 +1,4 @@
 using System;
-using AudioModule;
 using Zenject;
 
 namespace MenuModule
@@ -11,30 +10,19 @@ namespace MenuModule
         private readonly IGamePauseService _pauseService;
         private readonly IGameNavigationService _navigationService;
 
-        private readonly IAudioSettingsService _audioSettingsService;
-
-        private SettingsMenuPresenter _settingsPresenter;
-
         public PauseMenuPresenter(PauseMenuView view,
             IGamePauseService pauseService,
-            IGameNavigationService navigationService,
-            IAudioSettingsService audioSettingsService)
+            IGameNavigationService navigationService)
         {
             _view = view;
             _pauseService = pauseService;
             _navigationService = navigationService;
-            _audioSettingsService = audioSettingsService;
         }
 
         public void Initialize()
         {
-            _view.HideSettings();
             _view.Hide();
 
-            _settingsPresenter = new(_view.SettingsMenuView, _audioSettingsService);
-            _settingsPresenter.Initialize();
-
-            _view.SettingsClicked += OnSettingsClicked;
             _view.MainMenuClicked += OnMainMenuClicked;
 
             _pauseService.PauseStateChanged += OnPauseStateChanged;
@@ -42,15 +30,10 @@ namespace MenuModule
 
         public void Dispose()
         {
-            _view.SettingsClicked -= OnSettingsClicked;
             _view.MainMenuClicked -= OnMainMenuClicked;
 
             _pauseService.PauseStateChanged -= OnPauseStateChanged;
-
-            _settingsPresenter?.Dispose();
         }
-
-        private void OnSettingsClicked() => _view.SettingsMenuView?.Toggle();
 
         private void OnMainMenuClicked() => _navigationService.LoadMainMenu();
 
@@ -64,7 +47,6 @@ namespace MenuModule
                 return;
             }
 
-            _view.HideSettings();
             _view.Hide();
         }
     }

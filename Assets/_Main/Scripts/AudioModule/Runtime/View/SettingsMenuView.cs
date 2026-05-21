@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace AudioModule
@@ -8,18 +9,24 @@ namespace AudioModule
     {
         [SerializeField] private GameObject panel;
 
+        [SerializeField] private Button[] openButtons;
+        [SerializeField] private Button[] closeButtons;
+
         [SerializeField] private Slider musicVolumeSlider;
         [SerializeField] private Slider sfxVolumeSlider;
 
         public event Action<float> MusicVolumeChanged;
         public event Action<float> SfxVolumeChanged;
 
-        public bool IsVisible => Target.activeSelf;
+        public bool IsVisible => _target.activeSelf;
 
-        private GameObject Target => panel != null ? panel : gameObject;
+        private GameObject _target => panel ? panel : gameObject;
 
         private void OnEnable()
         {
+            AddListeners(openButtons, OnOpenClicked);
+            AddListeners(closeButtons, OnCloseClicked);
+
             if (musicVolumeSlider != null)
                 musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
 
@@ -29,6 +36,9 @@ namespace AudioModule
 
         private void OnDisable()
         {
+            RemoveListeners(openButtons, OnOpenClicked);
+            RemoveListeners(closeButtons, OnCloseClicked);
+
             if (musicVolumeSlider != null)
                 musicVolumeSlider.onValueChanged.RemoveListener(OnMusicVolumeChanged);
 
@@ -36,11 +46,11 @@ namespace AudioModule
                 sfxVolumeSlider.onValueChanged.RemoveListener(OnSfxVolumeChanged);
         }
 
-        public void Show() => Target.SetActive(true);
+        public void Show() => _target?.SetActive(true);
 
-        public void Hide() => Target.SetActive(false);
+        public void Hide() => _target?.SetActive(false);
 
-        public void SetVisible(bool isVisible) => Target.SetActive(isVisible);
+        public void SetVisible(bool isVisible) => _target.SetActive(isVisible);
 
         public void Toggle() => SetVisible(!IsVisible);
 
@@ -59,5 +69,21 @@ namespace AudioModule
         private void OnMusicVolumeChanged(float value) => MusicVolumeChanged?.Invoke(value);
 
         private void OnSfxVolumeChanged(float value) => SfxVolumeChanged?.Invoke(value);
+
+        private void OnOpenClicked() => Show();
+
+        private void OnCloseClicked() => Hide();
+
+        private void AddListeners(Button[] buttons, UnityAction action)
+        {
+            foreach (var button in buttons)
+                button.onClick.AddListener(action);
+        }
+
+        private void RemoveListeners(Button[] buttons, UnityAction action)
+        {
+            foreach (var button in buttons)
+                button.onClick.RemoveListener(action);
+        }
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using AudioModule;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,42 +7,27 @@ namespace MenuModule
     public class PauseMenuView : MonoBehaviour
     {
         [SerializeField] private GameObject panel;
-        [SerializeField] private Button settingsButton;
         [SerializeField] private Button mainMenuButton;
-        [SerializeField] private SettingsMenuView settingsMenuView;
 
-        public event Action SettingsClicked;
         public event Action MainMenuClicked;
 
-        public SettingsMenuView SettingsMenuView => settingsMenuView;
-
-        private GameObject Target => panel != null ? panel : gameObject;
+        private GameObject _target => panel != null ? panel : gameObject;
 
         private void OnEnable()
         {
-            if (settingsButton != null)
-                settingsButton.onClick.AddListener(OnSettingsClicked);
-
             if (mainMenuButton != null)
                 mainMenuButton.onClick.AddListener(OnMainMenuClicked);
         }
 
         private void OnDisable()
         {
-            if (settingsButton != null)
-                settingsButton.onClick.RemoveListener(OnSettingsClicked);
-
             if (mainMenuButton != null)
                 mainMenuButton.onClick.RemoveListener(OnMainMenuClicked);
         }
 
-        public void Show() => Target.SetActive(true);
+        public void Show() => _target?.SetActive(true);
 
-        public void Hide() => Target.SetActive(false);
-
-        public void HideSettings() => settingsMenuView?.Hide();
-
-        private void OnSettingsClicked() => SettingsClicked?.Invoke();
+        public void Hide() => _target?.SetActive(false);
 
         private void OnMainMenuClicked() => MainMenuClicked?.Invoke();
     }

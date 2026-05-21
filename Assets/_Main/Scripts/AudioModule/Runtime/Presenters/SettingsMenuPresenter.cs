@@ -1,14 +1,12 @@
 using System;
-using AudioModule;
+using Zenject;
 
 namespace AudioModule
 {
-    public class SettingsMenuPresenter : IDisposable
+    public class SettingsMenuPresenter : IInitializable, IDisposable
     {
         private readonly SettingsMenuView _view;
         private readonly IAudioSettingsService _audioSettingsService;
-
-        private bool _isInitialized;
 
         public SettingsMenuPresenter(SettingsMenuView view, IAudioSettingsService audioSettingsService)
         {
@@ -18,10 +16,7 @@ namespace AudioModule
 
         public void Initialize()
         {
-            if (_isInitialized || _view == null || _audioSettingsService == null)
-                return;
-
-            _isInitialized = true;
+            _view.Hide();
 
             _view.SetMusicVolume(_audioSettingsService.GetVolume(AudioMixerChannel.Music));
             _view.SetSfxVolume(_audioSettingsService.GetVolume(AudioMixerChannel.Sfx));
@@ -34,15 +29,10 @@ namespace AudioModule
 
         public void Dispose()
         {
-            if (!_isInitialized || _view == null || _audioSettingsService == null)
-                return;
-
             _view.MusicVolumeChanged -= OnMusicVolumeChanged;
             _view.SfxVolumeChanged -= OnSfxVolumeChanged;
 
             _audioSettingsService.VolumeChanged -= OnVolumeChangedFromService;
-
-            _isInitialized = false;
         }
 
         private void OnMusicVolumeChanged(float value) => _audioSettingsService.SetVolume(AudioMixerChannel.Music, value);
@@ -60,6 +50,9 @@ namespace AudioModule
                 case AudioMixerChannel.Sfx:
                     _view.SetSfxVolume(volume);
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(channel), channel, null);
             }
         }
     }
