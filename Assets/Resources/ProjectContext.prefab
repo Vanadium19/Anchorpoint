@@ -46,7 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Zenject::Zenject.ProjectContext
   _scriptableObjectInstallers:
+  - {fileID: 11400000, guid: 6da29d6917a8a4b0b81a5c7b04a517fc, type: 2}
   - {fileID: 11400000, guid: 41ec2cac59065e0469865b2429ee7a92, type: 2}
+  - {fileID: 11400000, guid: 7a0b829bebb2a458ea9facd85b5767af, type: 2}
   _monoInstallers:
   - {fileID: -7506741358313061942}
   _installerPrefabs: []
@@ -75,4 +77,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc26eb5205eae5645ab953c22622a1d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SaveModule::SaveModule.SaveModuleInstaller
-  saveFilePath: Assets/_Main/Saves/camp.json
+  gameSaveFilePath: Assets/_Main/Saves/GameSave.json
+  settingsSaveFilePath: Assets/_Main/Saves/SettingsSave.json

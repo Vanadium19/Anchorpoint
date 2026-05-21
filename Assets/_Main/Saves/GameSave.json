@@ -1,0 +1,7 @@
+{
+  "State": {
+    "camp": "{\"BasePoints\":0,\"Buildings\":[]}",
+    "inventory": "{\"inventory\":\"{\\\"Items\\\":[],\\\"GridWidth\\\":4,\\\"GridHeight\\\":2}\",\"equipment\":\"{\\\"Slots\\\":[]}\"}",
+    "player_buffs": "{\"Buffs\":[]}"
+  }
+}
