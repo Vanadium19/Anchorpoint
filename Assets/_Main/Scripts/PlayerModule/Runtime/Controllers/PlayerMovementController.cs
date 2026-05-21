@@ -13,6 +13,7 @@ namespace PlayerModule
         private readonly ILeanComponent _leaner;
         private readonly IInputMap _inputMap;
         private readonly PlayerConfig _config;
+        private readonly bool _isLeanEnabled;
 
         public PlayerMovementController(
             IMoveComponent mover,
@@ -20,7 +21,8 @@ namespace PlayerModule
             ICrouchComponent croucher,
             ILeanComponent leaner,
             IInputMap inputMap,
-            PlayerConfig config)
+            PlayerConfig config,
+            bool isLeanEnabled)
         {
             _mover = mover;
             _rotation = rotation;
@@ -28,10 +30,14 @@ namespace PlayerModule
             _leaner = leaner;
             _inputMap = inputMap;
             _config = config;
+            _isLeanEnabled = isLeanEnabled;
         }
 
         public void Tick()
         {
+            if (_inputMap.IsUIMode)
+                return;
+
             Move();
             Rotate();
 
@@ -74,7 +80,8 @@ namespace PlayerModule
 
         private void Lean()
         {
-            _leaner.Lean(_inputMap.LeanInput);
+            var leanInput = _isLeanEnabled ? _inputMap.LeanInput : 0f;
+            _leaner.Lean(leanInput);
         }
     }
 }

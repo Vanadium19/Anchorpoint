@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
+using NpcBaseModule;
 
 [Serializable]
 public sealed class FriendlyNpcSettings
@@ -15,4 +17,9 @@ public sealed class FriendlyNpcSettings
     [Min(0f)] public float MaxWait = 2f;
 
     [TextArea] public string MessageText;
+
+    [Header("Dialogue")]
+    public string NpcName = "NPC";
+    public int StartRelationshipLevel;
+    public List<NpcDialogueLine> DialogueLines = new();
 }

@@ -9,6 +9,8 @@ namespace NpcBaseModule
         [SerializeField] private NavMeshAgent agent;
         [SerializeField] private Transform headPoint;
         [SerializeField] private NpcWorldTextView worldText;
+        [SerializeField] private NpcDialoguePresenter dialoguePresenter;
+        [SerializeField] private Animator animator;
 
         private FriendlyNpcController _controller;
 
@@ -19,11 +21,14 @@ namespace NpcBaseModule
         public NavMeshAgent Agent => agent;
         public Transform HeadPoint => headPoint;
         public NpcWorldTextView WorldText => worldText;
+        public Animator Animator => animator;
+        public NpcDialoguePresenter DialoguePresenter => dialoguePresenter;
 
         private void Awake()
         {
             agent ??= GetComponent<NavMeshAgent>();
             worldText ??= GetComponentInChildren<NpcWorldTextView>(true);
+            animator ??= GetComponentInChildren<Animator>(true);
         }
 
         public void SetController(FriendlyNpcController controller) => _controller = controller;
