@@ -1,7 +1,8 @@
+using AudioModule;
 using UnityEngine;
 using Zenject;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class GameplayMenuInstaller : MonoInstaller
     {

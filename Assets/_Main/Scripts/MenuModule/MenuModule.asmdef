@@ -1,14 +1,13 @@
 {
-    "name": "GameCycleModule",
+    "name": "MenuModule",
     "rootNamespace": "",
     "references": [
         "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
-        "GUID:4c830bbd515e4f61bf5d288ad29d17db",
-        "GUID:ad92713fd5884a16a1e7ccde1a579228",
         "GUID:5a8d3845af48dc54db440d2b68ad43e7",
         "GUID:ba2f6c8082fa68b45b0e32eb1b701c1c",
-        "GUID:f952cb0599c86ac4794b61418ea81496",
-        "GUID:0295c660ebb4cb24a94248db9e149782"
+        "GUID:a1b2c3d4e5f6789012345678abcdef01",
+        "GUID:daae1ddd35d0442cbfb46cefc4b0d286",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

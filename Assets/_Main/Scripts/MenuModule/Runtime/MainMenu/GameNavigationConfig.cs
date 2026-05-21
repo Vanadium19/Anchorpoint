@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     [CreateAssetMenu(fileName = "GameNavigationConfig", menuName = "Game/Configs/GameNavigationConfig")]
     public class GameNavigationConfig : ScriptableObject

@@ -1,8 +1,9 @@
 using System;
+using AudioModule;
 using UnityEngine;
 using Zenject;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class MainMenuPresenter : IInitializable, IDisposable
     {

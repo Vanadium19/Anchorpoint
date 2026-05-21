@@ -1,6 +1,7 @@
 using System;
+using AudioModule;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class SettingsMenuPresenter : IDisposable
     {

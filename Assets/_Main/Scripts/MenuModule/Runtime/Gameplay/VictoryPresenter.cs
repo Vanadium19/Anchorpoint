@@ -3,7 +3,7 @@ using BaseModule;
 using InputModule;
 using Zenject;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class VictoryPresenter : IInitializable, IDisposable
     {

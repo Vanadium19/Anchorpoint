@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class PauseMenuView : MonoBehaviour
     {

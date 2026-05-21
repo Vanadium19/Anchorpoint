@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public enum GamePauseReason
     {

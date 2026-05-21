@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public class VictoryView : MonoBehaviour
     {

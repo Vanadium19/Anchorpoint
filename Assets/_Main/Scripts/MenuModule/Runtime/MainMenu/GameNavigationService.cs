@@ -7,7 +7,7 @@ using Zenject;
 using UnityEditor;
 #endif
 
-namespace GameCycleModule
+namespace MenuModule
 {
     public interface IGameNavigationService
     {
