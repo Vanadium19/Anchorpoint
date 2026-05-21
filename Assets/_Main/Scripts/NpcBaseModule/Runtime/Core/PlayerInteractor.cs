@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace NpcBaseModule
 {
@@ -7,49 +8,52 @@ namespace NpcBaseModule
         [SerializeField] private Camera playerCamera;
         [SerializeField] private float maxDistance = 4f;
         [SerializeField] private LayerMask interactMask = ~0;
-        [SerializeField] private KeyCode interactKey = KeyCode.E;
         [SerializeField] private Transform interactorRoot;
+
+        private InputAction _interactAction;
 
         private void Awake()
         {
             playerCamera ??= Camera.main;
             interactorRoot ??= transform;
+
+            _interactAction = new InputAction(
+                name: "Interact",
+                type: InputActionType.Button,
+                binding: "<Keyboard>/e"
+            );
         }
+
+        private void OnEnable() => _interactAction?.Enable();
+
+        private void OnDisable() => _interactAction?.Disable();
+
+        private void OnDestroy() => _interactAction?.Dispose();
 
         private void Update()
         {
-            if (!Input.GetKeyDown(interactKey))
+            if (_interactAction == null || !_interactAction.WasPressedThisFrame())
                 return;
 
-            if (playerCamera == null)
+            if (!TryGetInteractable(out var interactable))
                 return;
 
-            var ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-
-            if (!Physics.Raycast(ray, out var hit, maxDistance, ~0, QueryTriggerInteraction.Ignore))
-                return;
-
-            var interactable = hit.collider.GetComponentInParent<IInteractable>();
-
-            if (interactable == null)
-                return;
-
-            bool canInteract = interactable.CanInteract(interactorRoot);
-
-            if (!canInteract)
+            if (!interactable.CanInteract(interactorRoot))
                 return;
 
             interactable.Interact(interactorRoot);
         }
 
-        //FIXME: Remove unused method
         private bool TryGetInteractable(out IInteractable interactable)
         {
             interactable = null;
 
+            if (playerCamera == null)
+                return false;
+
             var ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
 
-            if (!Physics.Raycast(ray, out var hit, maxDistance, interactMask, QueryTriggerInteraction.Ignore))
+            if (!Physics.Raycast(ray, out var hit, maxDistance, interactMask, QueryTriggerInteraction.Collide))
                 return false;
 
             interactable = hit.collider.GetComponentInParent<IInteractable>();

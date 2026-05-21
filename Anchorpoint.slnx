@@ -11,8 +11,8 @@
   <Project Path="ComponentsModule.csproj" />
   <Project Path="CampSaveModule.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="VFXModule.csproj" />
   <Project Path="SpawnModule.csproj" />
+  <Project Path="VFXModule.csproj" />
   <Project Path="InputModule.csproj" />
   <Project Path="FSMModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />

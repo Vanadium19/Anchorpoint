@@ -18,6 +18,7 @@ namespace PlayerModule
 
         [Header("Settings")]
         [SerializeField] private PlayerConfig config;
+        [SerializeField] private bool isLeanEnabled = true;
 
         [Header("UI")]
         [SerializeField] private InteractionHUDView interactionHUDView;
@@ -79,6 +80,7 @@ namespace PlayerModule
 
             Container.BindInterfacesTo<PlayerMovementController>()
                 .AsSingle()
+                .WithArguments(isLeanEnabled)
                 .NonLazy();
 
             Container.BindInterfacesAndSelfTo<PlayerInteractionController>()

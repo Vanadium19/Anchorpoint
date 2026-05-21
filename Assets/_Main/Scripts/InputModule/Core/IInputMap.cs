@@ -5,6 +5,7 @@ namespace InputModule
     public interface IInputMap
     {
         bool IsBuildMode { get; }
+        bool IsUIMode { get; }
         Vector2 MoveInput { get; }
         Vector2 LookInput { get; }
         bool IsJumpPressed { get; }

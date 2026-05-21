@@ -8,8 +8,10 @@ namespace InputModule
     {
         private readonly InputSystem_Actions _actions;
         private bool _isBuildMode;
+        private bool _isUIMode;
 
         public bool IsBuildMode => _isBuildMode;
+        public bool IsUIMode => _isUIMode;
 
         public GameInputService()
         {
@@ -18,9 +20,11 @@ namespace InputModule
             _actions.Global.Enable();
             _actions.Build.Enable();
         }
-        
+
         public void SetUIMode(bool isActive)
         {
+            _isUIMode = isActive;
+
             if (isActive)
             {
                 _actions.Player.Disable();
@@ -38,9 +42,10 @@ namespace InputModule
                 Cursor.visible = false;
             }
         }
-        
+
         public void SetBuildMode(bool isActive)
         {
+            _isUIMode = false;
             _isBuildMode = isActive;
 
             if (isActive)
@@ -62,7 +67,7 @@ namespace InputModule
                 Cursor.visible = false;
             }
         }
-        
+
         public Vector2 MoveInput => _actions.Player.Move.ReadValue<Vector2>();
         public Vector2 LookInput => _actions.Player.Look.ReadValue<Vector2>();
         public bool IsJumpPressed => _actions.Player.Jump.WasPressedThisFrame();
@@ -139,6 +144,9 @@ namespace InputModule
 
         public void Reset()
         {
+            _isUIMode = false;
+            _isBuildMode = false;
+
             _actions.Player.Enable();
             _actions.Global.Enable();
             _actions.Build.Disable();
