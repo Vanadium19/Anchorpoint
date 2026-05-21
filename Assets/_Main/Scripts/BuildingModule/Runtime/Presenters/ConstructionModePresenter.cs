@@ -14,8 +14,7 @@ namespace BuildingModule
         private readonly GridView _gridView;
         private readonly bool _useGrid;
 
-        public ConstructionModePresenter(
-            IConstructionModeService service,
+        public ConstructionModePresenter(IConstructionModeService service,
             IInputService inputService,
             GameObject constructionPanel,
             GridView gridView,
@@ -28,14 +27,27 @@ namespace BuildingModule
             _useGrid = useGrid;
         }
 
-        public void Initialize() => _service.ActiveChanged += OnActiveChanged;
+        public void Initialize()
+        {
+            _service.ActiveChanged += OnActiveChanged;
+            ApplyHudVisibility(_service.IsActive);
+        }
 
         public void Dispose() => _service.ActiveChanged -= OnActiveChanged;
 
         private void OnActiveChanged(bool isActive)
         {
-            _gridView.gameObject.SetActive(isActive && _useGrid);
+            ApplyHudVisibility(isActive);
             _inputService.SetBuildMode(isActive);
+        }
+
+        private void ApplyHudVisibility(bool isActive)
+        {
+            if (_constructionPanel != null)
+                _constructionPanel.SetActive(isActive);
+
+            if (_gridView != null)
+                _gridView.gameObject.SetActive(isActive && _useGrid);
         }
     }
 }

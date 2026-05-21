@@ -5,7 +5,8 @@ namespace SaveModule
 {
     public class SaveModuleInstaller : MonoInstaller
     {
-        [SerializeField] private string saveFilePath = "saves/camp.json";
+        [SerializeField] private string gameSaveFilePath = "Saves/GameSave.json";
+        [SerializeField] private string settingsSaveFilePath = "Saves/SettingsSave.json";
 
         public override void InstallBindings()
         {
@@ -14,9 +15,16 @@ namespace SaveModule
                 .AsSingle();
 
             Container.Bind<IGameSaveLoader>()
+                .WithId(GameSaveLoaderIds.Game)
                 .To<GameSaveLoader>()
-                .AsSingle()
-                .WithArguments(saveFilePath);
+                .AsCached()
+                .WithArguments(gameSaveFilePath);
+
+            Container.Bind<IGameSaveLoader>()
+                .WithId(GameSaveLoaderIds.Settings)
+                .To<GameSaveLoader>()
+                .AsCached()
+                .WithArguments(settingsSaveFilePath);
 
             Container.Bind<AutoSaveHandler>()
                 .AsSingle()

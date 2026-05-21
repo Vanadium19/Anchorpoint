@@ -1323,6 +1323,15 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Escape"",
+                    ""type"": ""Button"",
+                    ""id"": ""15ea832d-9b58-4bc1-befc-8f570bed7cde"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1367,6 +1376,17 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""SplitStack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fbdf5dc0-b02c-46bb-97bf-6606868550ca"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Escape"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1796,6 +1816,7 @@ namespace InputModule.Configs
             m_Global_ToggleInventory = m_Global.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Global_RotateItem = m_Global.FindAction("RotateItem", throwIfNotFound: true);
             m_Global_SplitStack = m_Global.FindAction("SplitStack", throwIfNotFound: true);
+            m_Global_Escape = m_Global.FindAction("Escape", throwIfNotFound: true);
             // Build
             m_Build = asset.FindActionMap("Build", throwIfNotFound: true);
             m_Build_Build = m_Build.FindAction("Build", throwIfNotFound: true);
@@ -2375,6 +2396,7 @@ namespace InputModule.Configs
         private readonly InputAction m_Global_ToggleInventory;
         private readonly InputAction m_Global_RotateItem;
         private readonly InputAction m_Global_SplitStack;
+        private readonly InputAction m_Global_Escape;
         /// <summary>
         /// Provides access to input actions defined in input action map "Global".
         /// </summary>
@@ -2398,6 +2420,10 @@ namespace InputModule.Configs
             /// Provides access to the underlying input action "Global/SplitStack".
             /// </summary>
             public InputAction @SplitStack => m_Wrapper.m_Global_SplitStack;
+            /// <summary>
+            /// Provides access to the underlying input action "Global/Escape".
+            /// </summary>
+            public InputAction @Escape => m_Wrapper.m_Global_Escape;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -2433,6 +2459,9 @@ namespace InputModule.Configs
                 @SplitStack.started += instance.OnSplitStack;
                 @SplitStack.performed += instance.OnSplitStack;
                 @SplitStack.canceled += instance.OnSplitStack;
+                @Escape.started += instance.OnEscape;
+                @Escape.performed += instance.OnEscape;
+                @Escape.canceled += instance.OnEscape;
             }
 
             /// <summary>
@@ -2453,6 +2482,9 @@ namespace InputModule.Configs
                 @SplitStack.started -= instance.OnSplitStack;
                 @SplitStack.performed -= instance.OnSplitStack;
                 @SplitStack.canceled -= instance.OnSplitStack;
+                @Escape.started -= instance.OnEscape;
+                @Escape.performed -= instance.OnEscape;
+                @Escape.canceled -= instance.OnEscape;
             }
 
             /// <summary>
@@ -3019,6 +3051,13 @@ namespace InputModule.Configs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnSplitStack(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Escape" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnEscape(InputAction.CallbackContext context);
         }
         /// <summary>
         /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Build" which allows adding and removing callbacks.

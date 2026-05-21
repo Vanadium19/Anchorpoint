@@ -4,7 +4,10 @@ namespace SaveModule
     {
         void Save();
         void Load();
+
         void RegisterSaveable(ISaveable saveable);
         void UnregisterSaveable(ISaveable saveable);
+
+        void DeleteSave();
     }
 }

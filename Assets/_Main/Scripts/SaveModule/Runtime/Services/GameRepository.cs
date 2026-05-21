@@ -31,5 +31,14 @@ namespace SaveModule
             var json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(filePath, json);
         }
+
+        public void Delete(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                throw new ArgumentNullException(nameof(filePath));
+
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
     }
 }

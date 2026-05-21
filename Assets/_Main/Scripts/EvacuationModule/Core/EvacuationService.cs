@@ -5,6 +5,7 @@ using InputModule;
 using SaveModule;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 namespace EvacuationModule
 {
@@ -20,7 +21,10 @@ namespace EvacuationModule
         public event Action Completed;
         public event Action<float> TimerChanged;
 
-        public EvacuationService(EvacuationConfig config, IInputService input, IGameSaveLoader gameSaveLoader)
+        public EvacuationService(
+            EvacuationConfig config,
+            IInputService input,
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _config = config;
             _input = input;

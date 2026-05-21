@@ -6,6 +6,9 @@ namespace BaseModule
     {
         private readonly int[] _deltaThresholds;
         private readonly int[] _cumulativeThresholds;
+
+        private readonly int _targetVictoryLevel;
+
         private int _currentPoints;
 
         public event Action<int, int> LevelChanged;
@@ -15,6 +18,8 @@ namespace BaseModule
         {
             _deltaThresholds = (int[])config.LevelThresholds.Clone();
             _cumulativeThresholds = CalculateCumulativeThresholds(_deltaThresholds);
+
+            _targetVictoryLevel = config.TargetVictoryLevel;
         }
 
         public int CurrentLevel => CalculateLevel(_currentPoints);
@@ -50,6 +55,9 @@ namespace BaseModule
         }
 
         public bool HasNextLevel => CurrentLevel - 1 < _deltaThresholds.Length;
+
+        public int TargetVictoryLevel => _targetVictoryLevel;
+        public bool IsTargetLevelReached => CurrentLevel >= TargetVictoryLevel;
 
         public void AddPoints(int amount)
         {
@@ -152,10 +160,7 @@ namespace BaseModule
             if (index < 0)
                 return 0;
 
-            if (index >= _cumulativeThresholds.Length)
-                return _cumulativeThresholds[_cumulativeThresholds.Length - 1];
-
-            return _cumulativeThresholds[index];
+            return index >= _cumulativeThresholds.Length ? _cumulativeThresholds[^1] : _cumulativeThresholds[index];
         }
 
         private int GetPointsInLevel(int points, int level)
@@ -174,7 +179,7 @@ namespace BaseModule
 
             var cumulative = new int[deltas.Length];
             cumulative[0] = deltas[0];
-            
+
             for (var i = 1; i < deltas.Length; i++)
                 cumulative[i] = cumulative[i - 1] + deltas[i];
 

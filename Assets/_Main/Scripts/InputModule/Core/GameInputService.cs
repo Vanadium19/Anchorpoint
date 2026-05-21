@@ -86,6 +86,7 @@ namespace InputModule
         public bool IsInventoryPressed => _actions.Global.ToggleInventory.WasPressedThisFrame();
         public bool IsRotatePressed => _actions.Global.RotateItem.WasPressedThisFrame();
         public bool IsSplitPressed => _actions.Global.SplitStack.IsPressed();
+        public bool IsPausePressed => _actions.Global.Escape.WasPressedThisFrame();
         
         public bool IsBuildPressed => _actions.Player.Build.WasPressedThisFrame() ||
                                 _actions.Build.Build.WasPressedThisFrame();

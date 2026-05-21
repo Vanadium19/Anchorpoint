@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: BaseLevelConfig
   m_EditorClassIdentifier: BaseModule::BaseModule.BaseLevelConfig
   levelThresholds: 140000001e0000003200000046000000640000008200000096000000c8000000fa000000
+  targetVictoryLevel: 5
