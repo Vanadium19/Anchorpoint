@@ -60,7 +60,6 @@ namespace MenuModule
 
             _activeReasons.Clear();
             Time.timeScale = _timeScaleBeforePause;
-            PauseStateChanged?.Invoke(false);
         }
     }
 }

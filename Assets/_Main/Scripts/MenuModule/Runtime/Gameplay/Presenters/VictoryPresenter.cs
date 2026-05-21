@@ -39,14 +39,6 @@ namespace MenuModule
         public void Dispose()
         {
             _baseLevelService.LevelChanged -= OnLevelChanged;
-
-            if (!_isShown)
-                return;
-
-            _pauseService.Resume(GamePauseReason.Victory);
-
-            if (!_pauseService.IsPaused)
-                _inputService.SetUIMode(false);
         }
 
         private void OnLevelChanged(int oldLevel, int newLevel) => ShowIfTargetReached();

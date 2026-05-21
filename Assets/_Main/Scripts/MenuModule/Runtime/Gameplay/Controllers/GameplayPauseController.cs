@@ -40,11 +40,6 @@ namespace MenuModule
         public void Dispose()
         {
             _pauseService.PauseStateChanged -= OnPauseStateChanged;
-
-            if (_pauseService.HasReason(GamePauseReason.UserPause))
-                _pauseService.Resume(GamePauseReason.UserPause);
-
-            ApplyInputMode();
         }
 
         private void OnPauseStateChanged(bool isPaused) => ApplyInputMode();
