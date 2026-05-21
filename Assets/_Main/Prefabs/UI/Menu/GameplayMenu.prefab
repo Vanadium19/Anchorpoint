@@ -407,7 +407,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba5b4b3f4584047bde1eb10801ac539, type: 3}
   m_Name: 
   m_EditorClassIdentifier: MenuModule::MenuModule.GameplayMenuInstaller
-  navigationConfig: {fileID: 11400000, guid: 59ff6ed556b1a4bc6bcf480d4714046e, type: 2}
   pauseMenuView: {fileID: 1290401270535210250}
   victoryView: {fileID: 0}
 --- !u!1 &3949135994129054469
@@ -427,7 +426,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8611910004538093961
 RectTransform:
   m_ObjectHideFlags: 0
@@ -658,9 +657,9 @@ RectTransform:
   - {fileID: 8090560139992740994}
   m_Father: {fileID: 2022771449971354870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 125, y: -195}
   m_SizeDelta: {x: 250, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3938257183056638609
@@ -779,9 +778,9 @@ RectTransform:
   - {fileID: 4525774132792064165}
   m_Father: {fileID: 2022771449971354870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 125, y: -295}
   m_SizeDelta: {x: 250, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &981786418464515261
