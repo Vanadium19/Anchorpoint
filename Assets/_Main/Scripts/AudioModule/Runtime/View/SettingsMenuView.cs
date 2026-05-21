@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MenuModule
+namespace AudioModule
 {
     public class SettingsMenuView : MonoBehaviour
     {

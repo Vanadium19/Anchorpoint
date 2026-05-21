@@ -1,7 +1,7 @@
 using System;
 using AudioModule;
 
-namespace MenuModule
+namespace AudioModule
 {
     public class SettingsMenuPresenter : IDisposable
     {
