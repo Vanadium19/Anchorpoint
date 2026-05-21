@@ -25,6 +25,7 @@ namespace InputModule
         bool IsInventoryPressed { get; }
         bool IsRotatePressed { get; }
         bool IsSplitPressed { get; }
+        bool IsPausePressed { get; }
 
         bool IsBuildPressed { get; }
 
