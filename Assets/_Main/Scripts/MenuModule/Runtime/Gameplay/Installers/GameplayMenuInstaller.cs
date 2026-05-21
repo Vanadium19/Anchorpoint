@@ -5,67 +5,37 @@ namespace MenuModule
 {
     public class GameplayMenuInstaller : MonoInstaller
     {
-        [SerializeField] private GameNavigationConfig navigationConfig;
         [SerializeField] private PauseMenuView pauseMenuView;
         [SerializeField] private VictoryView victoryView;
 
         public override void InstallBindings()
         {
-            InstallSharedServices();
+            Container.Bind<PauseMenuView>()
+                .FromInstance(pauseMenuView)
+                .AsSingle();
 
-            if (pauseMenuView != null)
-            {
-                Container.Bind<PauseMenuView>()
-                    .FromInstance(pauseMenuView)
-                    .AsSingle();
-
-                Container.BindInterfacesTo<PauseMenuPresenter>()
-                    .AsSingle()
-                    .NonLazy();
-
-                Container.BindInterfacesTo<GameplayPauseController>()
-                    .AsSingle()
-                    .NonLazy();
-            }
-
-            if (victoryView != null)
-            {
-                Container.Bind<VictoryView>()
-                    .FromInstance(victoryView)
-                    .AsSingle();
-
-                Container.BindInterfacesTo<VictoryPresenter>()
-                    .AsSingle()
-                    .NonLazy();
-
-                Container.BindInterfacesTo<VictorySaveDeleteController>()
-                    .AsSingle()
-                    .NonLazy();
-            }
-        }
-
-        private void InstallSharedServices()
-        {
-            Container.Bind<GameNavigationConfig>()
-                .FromInstance(GetNavigationConfig())
+            Container.BindInterfacesTo<PauseMenuPresenter>()
                 .AsSingle()
-                .IfNotBound();
+                .NonLazy();
 
-            Container.Bind<IGameNavigationService>()
-                .To<GameNavigationService>()
+            Container.BindInterfacesTo<GameplayPauseController>()
                 .AsSingle()
-                .IfNotBound();
+                .NonLazy();
 
-            Container.BindInterfacesAndSelfTo<GamePauseService>()
+            if (victoryView == null)
+                return;
+
+            Container.Bind<VictoryView>()
+                .FromInstance(victoryView)
+                .AsSingle();
+
+            Container.BindInterfacesTo<VictoryPresenter>()
                 .AsSingle()
-                .IfNotBound();
-        }
+                .NonLazy();
 
-        private GameNavigationConfig GetNavigationConfig()
-        {
-            return navigationConfig != null
-                ? navigationConfig
-                : ScriptableObject.CreateInstance<GameNavigationConfig>();
+            Container.BindInterfacesTo<VictorySaveDeleteController>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

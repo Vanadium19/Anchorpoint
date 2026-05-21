@@ -4,25 +4,6 @@ using UnityEngine;
 
 namespace MenuModule
 {
-    public enum GamePauseReason
-    {
-        UserPause = 0,
-        Victory = 1,
-    }
-
-    public interface IGamePauseService
-    {
-        event Action<bool> PauseStateChanged;
-
-        bool IsPaused { get; }
-        IReadOnlyCollection<GamePauseReason> ActiveReasons { get; }
-
-        bool HasReason(GamePauseReason reason);
-        void Pause(GamePauseReason reason);
-        void Resume(GamePauseReason reason);
-        void ToggleUserPause();
-    }
-
     public class GamePauseService : IGamePauseService, IDisposable
     {
         private readonly HashSet<GamePauseReason> _activeReasons = new();

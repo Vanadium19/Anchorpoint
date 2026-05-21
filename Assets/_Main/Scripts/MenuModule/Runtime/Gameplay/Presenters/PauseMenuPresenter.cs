@@ -8,11 +8,11 @@ namespace MenuModule
         private readonly PauseMenuView _view;
 
         private readonly IGamePauseService _pauseService;
-        private readonly IGameNavigationService _navigationService;
+        private readonly IMenuNavigationService _navigationService;
 
         public PauseMenuPresenter(PauseMenuView view,
             IGamePauseService pauseService,
-            IGameNavigationService navigationService)
+            IMenuNavigationService navigationService)
         {
             _view = view;
             _pauseService = pauseService;

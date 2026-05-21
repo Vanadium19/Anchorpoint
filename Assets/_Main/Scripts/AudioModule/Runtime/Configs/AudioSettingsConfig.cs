@@ -9,8 +9,7 @@ namespace AudioModule
     {
         [SerializeField] private AudioMixer mixer;
 
-        [Header("Volume Parameters")]
-        [SerializeField] private string musicVolumeParameter = "MusicVolume";
+        [Header("Volume Parameters")] [SerializeField] private string musicVolumeParameter = "MusicVolume";
         [SerializeField] private string sfxVolumeParameter = "SfxVolume";
 
         public AudioMixer Mixer => mixer;

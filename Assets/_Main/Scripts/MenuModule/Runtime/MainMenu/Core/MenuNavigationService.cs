@@ -9,30 +9,23 @@ using UnityEditor;
 
 namespace MenuModule
 {
-    public interface IGameNavigationService
+    public class MenuNavigationService : IMenuNavigationService
     {
-        void LoadHeadquarters();
-        void LoadMainMenu(bool saveBeforeLoad = true);
-        void QuitGame();
-    }
-
-    public class GameNavigationService : IGameNavigationService
-    {
-        private readonly GameNavigationConfig _config;
+        private readonly MenuNavigationConfig _config;
         private readonly IGameSaveLoader _gameSaveLoader;
 
-        public GameNavigationService(
-            GameNavigationConfig config,
+        public MenuNavigationService(MenuNavigationConfig config,
             [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _config = config;
             _gameSaveLoader = gameSaveLoader;
         }
 
-        public void LoadHeadquarters()
+        public void LoadGameFromMenu()
         {
             Time.timeScale = 1f;
-            SceneManager.LoadScene(GetHeadquartersSceneName());
+            var sceneName = _config.CampSceneName;
+            SceneManager.LoadScene(sceneName);
         }
 
         public void LoadMainMenu(bool saveBeforeLoad = true)
@@ -41,7 +34,8 @@ namespace MenuModule
                 _gameSaveLoader?.Save();
 
             Time.timeScale = 1f;
-            SceneManager.LoadScene(GetMainMenuSceneName());
+            var sceneName = _config.MainMenuSceneName;
+            SceneManager.LoadScene(sceneName);
         }
 
         public void QuitGame()
@@ -52,13 +46,5 @@ namespace MenuModule
             Application.Quit();
 #endif
         }
-
-        private string GetMainMenuSceneName() => _config != null
-            ? _config.MainMenuSceneName
-            : "MainMenu";
-
-        private string GetHeadquartersSceneName() => _config != null
-            ? _config.HeadquartersSceneName
-            : "Camp";
     }
 }

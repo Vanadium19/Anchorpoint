@@ -7,10 +7,10 @@ namespace MenuModule
     public class MainMenuPresenter : IInitializable, IDisposable
     {
         private readonly MainMenuView _view;
-        private readonly IGameNavigationService _navigationService;
+        private readonly IMenuNavigationService _navigationService;
 
         public MainMenuPresenter(MainMenuView view,
-            IGameNavigationService navigationService)
+            IMenuNavigationService navigationService)
         {
             _view = view;
             _navigationService = navigationService;
@@ -36,7 +36,7 @@ namespace MenuModule
 
         private void OnStartGameClicked()
         {
-            _navigationService.LoadHeadquarters();
+            _navigationService.LoadGameFromMenu();
         }
 
         private void OnExitClicked() => _navigationService.QuitGame();
