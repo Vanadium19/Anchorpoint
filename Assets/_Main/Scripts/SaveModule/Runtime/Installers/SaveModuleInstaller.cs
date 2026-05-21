@@ -5,7 +5,7 @@ namespace SaveModule
 {
     public class SaveModuleInstaller : MonoInstaller
     {
-        [SerializeField] private string saveFilePath = "saves/camp.json";
+        [SerializeField] private string saveFilePath = "saves/GameSave.json";
 
         public override void InstallBindings()
         {

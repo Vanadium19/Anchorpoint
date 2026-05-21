@@ -15,8 +15,11 @@ namespace AudioModule
                 .AsSingle()
                 .IfNotBound();
 
-            Container.Bind<IAudioSettingsService>()
-                .To<AudioMixerSettingsService>()
+            Container.BindInterfacesTo<AudioMixerSettingsService>()
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesTo<AudioSettingsSaveService>()
                 .AsSingle()
                 .NonLazy();
         }

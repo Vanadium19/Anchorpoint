@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace AudioModule
 {
-    public class AudioMixerSettingsService : IAudioSettingsService
+    public class AudioMixerSettingsService : IAudioSettingsService, IAudioSettingsMemento
     {
         private const float MinDecibels = -80f;
         private const float MutedVolumeThreshold = 0.0001f;
@@ -21,12 +21,19 @@ namespace AudioModule
 
             if (!_config.Mixer)
                 throw new NullReferenceException(nameof(_config.Mixer));
-
-            SetVolume(AudioMixerChannel.Music, 1f);
-            SetVolume(AudioMixerChannel.Sfx, 1f);
         }
 
         public float GetVolume(AudioMixerChannel channel) => _volumes[channel];
+
+        public AudioSettingsData CreateSnapshot() => new(GetVolume(AudioMixerChannel.Music), GetVolume(AudioMixerChannel.Sfx));
+
+        public void SetSnapshot(AudioSettingsData data)
+        {
+            data ??= new();
+
+            SetVolume(AudioMixerChannel.Music, data.MusicVolume);
+            SetVolume(AudioMixerChannel.Sfx, data.SfxVolume);
+        }
 
         public void SetVolume(AudioMixerChannel channel, float volume)
         {
