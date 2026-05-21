@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MenuModule
 {
-    public class GamePauseService : IGamePauseService, IDisposable
+    public class GamePauseService : IGamePauseService
     {
         private readonly HashSet<GamePauseReason> _activeReasons = new();
         private float _timeScaleBeforePause = 1f;
@@ -53,7 +53,7 @@ namespace MenuModule
                 Pause(GamePauseReason.UserPause);
         }
 
-        public void Dispose()
+        public void Clear()
         {
             if (!IsPaused)
                 return;

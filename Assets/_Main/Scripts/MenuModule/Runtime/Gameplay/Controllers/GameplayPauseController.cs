@@ -40,6 +40,8 @@ namespace MenuModule
         public void Dispose()
         {
             _pauseService.PauseStateChanged -= OnPauseStateChanged;
+            _inputService.SetUIMode(false);
+            _pauseService.Clear();
         }
 
         private void OnPauseStateChanged(bool isPaused) => ApplyInputMode();

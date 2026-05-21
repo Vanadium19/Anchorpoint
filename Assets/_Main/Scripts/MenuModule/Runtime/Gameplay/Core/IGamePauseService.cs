@@ -14,5 +14,7 @@ namespace MenuModule
         void Pause(GamePauseReason reason);
         void Resume(GamePauseReason reason);
         void ToggleUserPause();
+
+        void Clear();
     }
 }
