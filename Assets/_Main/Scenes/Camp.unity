@@ -1539,7 +1539,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -20}
+  m_AnchoredPosition: {x: 0, y: -20.000122}
   m_SizeDelta: {x: 0, y: -40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &366641876
@@ -2713,7 +2713,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -100.00012, y: 47.00003}
+  m_AnchoredPosition: {x: -100, y: 47}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &548259972
@@ -5976,6 +5976,7 @@ MonoBehaviour:
   itemCatalog: {fileID: 11400000, guid: 92501a77e0aef534eabcfea7101354ba, type: 2}
   inventoryUI: {fileID: 1539802521}
   externalPanel: {fileID: 58877744}
+  playerUI: {fileID: 458067496}
   characterInventory: {fileID: 1085248790}
   mainCanvas: {fileID: 770494282}
   playerTransform: {fileID: 1085248789}
@@ -6464,7 +6465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1539802522
 Transform:
   m_ObjectHideFlags: 0

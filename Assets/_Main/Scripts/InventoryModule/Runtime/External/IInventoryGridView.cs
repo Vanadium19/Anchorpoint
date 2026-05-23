@@ -2,9 +2,8 @@ using System.Collections.Generic;
 
 namespace InventoryModule
 {
-    public interface IInventoryContainer
+    public interface IInventoryGridView
     {
-        string DisplayName { get; }
         IReadOnlyList<GridTable> Grids { get; }
     }
 }

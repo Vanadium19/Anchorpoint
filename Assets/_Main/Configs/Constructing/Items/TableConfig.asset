@@ -16,7 +16,9 @@ MonoBehaviour:
   category: 2
   prefab: {fileID: 9073956356888515507, guid: 966205d8f9ee49845832ebe91efc6f7c, type: 3}
   price:
-    value: []
+    value:
+    - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+      Count: 4
   icon: {fileID: 371250376, guid: 45d89d1d68544f54bb0edd3d96989617, type: 3}
   order: 2
   allowedBuildLayers:

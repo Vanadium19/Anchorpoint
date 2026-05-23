@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace InventoryModule
 {
-    public interface IContainerUI : IInventoryContainer
+    public interface IExternalUI
     {
+        string DisplayName { get; }
         GameObject UIPrefab { get; }
     }
 }

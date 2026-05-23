@@ -6,9 +6,9 @@
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="SimpleFolderIcon.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="InventoryModule.csproj" />
   <Project Path="WeaponModule.csproj" />
   <Project Path="ComponentsModule.csproj" />
+  <Project Path="InventoryModule.csproj" />
   <Project Path="CampSaveModule.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="VFXModule.csproj" />
@@ -16,10 +16,10 @@
   <Project Path="InputModule.csproj" />
   <Project Path="FSMModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="BaseModule.csproj" />
   <Project Path="BuildingModule.csproj" />
   <Project Path="EvacuationModule.csproj" />
   <Project Path="UIModule.csproj" />
-  <Project Path="BaseModule.csproj" />
   <Project Path="PlayerModule.csproj" />
   <Project Path="CommandsModule.csproj" />
   <Project Path="SaveModule.csproj" />

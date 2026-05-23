@@ -11,6 +11,7 @@ namespace BaseModule
         {
             Container.Bind<BaseLevelConfig>().FromInstance(baseLevelConfig).AsSingle();
             Container.Bind<IBaseLevelService>().To<BaseLevelService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<CraftService>().AsSingle();
         }
     }
 }

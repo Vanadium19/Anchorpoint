@@ -46,12 +46,12 @@ namespace BuildingModule
 
         private void SerializeContainers(BuildingView building, BuildingSnapshot snapshot)
         {
-            var containerUI = building.GetComponent<IContainerUI>();
+            var gridView = building.GetComponent<IInventoryGridView>();
 
-            if (containerUI == null)
+            if (gridView == null)
                 return;
 
-            foreach (var grid in containerUI.Grids)
+            foreach (var grid in gridView.Grids)
             {
                 var containerMemento = new ContainerMemento();
 
@@ -78,10 +78,10 @@ namespace BuildingModule
             var building = Object.Instantiate(config.Prefab, position, rotation);
             _registry.RegisterBuilding(building);
 
-            var containerUI = building.GetComponent<IContainerUI>();
+            var gridView = building.GetComponent<IInventoryGridView>();
 
-            if (containerUI != null && snapshot.Containers.Count > 0)
-                RestoreContainerItems(containerUI, snapshot.Containers);
+            if (gridView != null && snapshot.Containers.Count > 0)
+                RestoreContainerItems(gridView, snapshot.Containers);
 
             return building;
         }
@@ -120,7 +120,7 @@ namespace BuildingModule
             return null;
         }
 
-        private void RestoreContainerItems(IContainerUI container, List<ContainerMemento> containers)
+        private void RestoreContainerItems(IInventoryGridView container, List<ContainerMemento> containers)
         {
             var grids = container.Grids;
 

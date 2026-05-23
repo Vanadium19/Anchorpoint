@@ -4,13 +4,12 @@ using InventoryModule;
 
 namespace BaseModule
 {
-    public class ChestContainer : MonoBehaviour, IContainerUI
+    public class Chest : MonoBehaviour, IExternalUI, IInventoryGridView
     {
         [SerializeField] private string displayName = "Chest";
         [SerializeField] private GameObject uiPrefab;
         [SerializeField] private int gridWidth = 8;
         [SerializeField] private int gridHeight = 4;
-        [SerializeField] private Collider interactionCollider;
 
         private readonly List<GridTable> _grids = new();
 
@@ -19,7 +18,6 @@ namespace BaseModule
         public string DisplayName => displayName;
         public GameObject UIPrefab => uiPrefab;
         public IReadOnlyList<GridTable> Grids => _grids;
-        public Collider InteractionCollider => interactionCollider;
 
         private void Awake()
         {
