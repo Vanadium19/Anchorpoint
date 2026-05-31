@@ -1,0 +1,21 @@
+# ComponentsModule
+
+## Назначение
+
+Модуль содержит переиспользуемые компоненты сущностей. Они применяются игроком и противниками без зависимости от конкретной игровой роли.
+
+## Основные части
+
+- `IEntity` и `Entity` предоставляют доступ к компонентам объекта через локальный `GameObjectContext`.
+- `IHealthComponent` и `HealthComponent` реализуют здоровье, урон, лечение и события смерти.
+- `IMoveComponent`, `IRotationComponent`, `ICrouchComponent` и `ILeanComponent` покрывают перемещение игрока.
+- `IPathMoveComponent`, `ITargetRotationComponent`, `ILineOfSightComponent` и `ICoverFinderComponent` покрывают навигацию AI.
+- `IRangedAttackComponent`, `ProjectileAttackComponent` и `IProjectile` задают дальнюю атаку.
+
+## Использование
+
+Конкретная сущность регистрирует нужные интерфейсы в своем Zenject-контексте. Остальной код зависит от узких интерфейсов компонентов.
+
+## Расширение
+
+Добавляйте сюда поведение только когда оно действительно переиспользуется несколькими типами сущностей. Специфичную оркестрацию держите в модуле владельца.
