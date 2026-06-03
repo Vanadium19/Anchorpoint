@@ -5,17 +5,6 @@ using UnityEngine;
 
 namespace InventoryModule
 {
-    // TODO: Код взят из ассета
-    public enum GridResponse
-    {
-        Inserted,
-        OutOfBounds,
-        Overlapping,
-        InventoryFull,
-        InsertInsideYourself,
-        AlreadyInserted,
-    }
-
     [Serializable]
     public class GridTable
     {

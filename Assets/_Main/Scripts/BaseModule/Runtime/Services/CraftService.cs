@@ -256,33 +256,4 @@ namespace BaseModule
             return Array.Empty<RecipeConfig>();
         }
     }
-
-    public class WorkbenchCraftQueue
-    {
-        public List<CraftBatch> Batches { get; } = new();
-        public List<ReadyCraft> ReadyItems { get; } = new();
-        public int NextBatchId;
-        public int NextReadyId;
-    }
-
-    public class CraftBatch
-    {
-        public int BatchId { get; set; }
-        public RecipeConfig Recipe { get; set; }
-        public int TotalCount { get; set; }
-        public int CompletedCount { get; set; }
-        public float CurrentCraftTime { get; set; }
-        public float Progress => Recipe != null && Recipe.CraftTime > 0f
-            ? Mathf.Clamp01(CurrentCraftTime / Recipe.CraftTime)
-            : 0f;
-        public int RemainingToCraft => TotalCount - CompletedCount;
-    }
-
-    public class ReadyCraft
-    {
-        public int ReadyId { get; set; }
-        public int SourceBatchId { get; set; }
-        public RecipeConfig Recipe { get; set; }
-        public int Count { get; set; } = 1;
-    }
 }

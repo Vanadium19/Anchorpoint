@@ -14,9 +14,9 @@
   <Project Path="VFXModule.csproj" />
   <Project Path="SpawnModule.csproj" />
   <Project Path="InputModule.csproj" />
+  <Project Path="BaseModule.csproj" />
   <Project Path="FSMModule.csproj" />
   <Project Path="DOTween.Modules.csproj" />
-  <Project Path="BaseModule.csproj" />
   <Project Path="BuildingModule.csproj" />
   <Project Path="EvacuationModule.csproj" />
   <Project Path="UIModule.csproj" />

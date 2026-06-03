@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
-  m_Name: 5.45x39 30 ammo pack
+  m_Name: 5.45x39mm 30pcs
   m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
-  displayName: 5.45x39 30 ammo pack
+  displayName: 5.45x39mm 30pcs
   description: 
   icon: {fileID: 1764416746, guid: a79b0a3d3416fa542828022a17c43edd, type: 3}
   dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
