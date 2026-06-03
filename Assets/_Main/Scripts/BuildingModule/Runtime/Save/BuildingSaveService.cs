@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using BaseModule;
 using InventoryModule;
 
 namespace BuildingModule
@@ -39,6 +40,11 @@ namespace BuildingModule
                 RotationY = building.transform.rotation.eulerAngles.y
             };
 
+            var hasId = building.GetComponent<IHasInstanceId>();
+
+            if (hasId != null)
+                snapshot.InstanceId = hasId.InstanceId;
+
             SerializeContainers(building, snapshot);
 
             return snapshot;
@@ -77,6 +83,11 @@ namespace BuildingModule
 
             var building = Object.Instantiate(config.Prefab, position, rotation);
             _registry.RegisterBuilding(building);
+
+            var hasId = building.GetComponent<IHasInstanceId>();
+
+            if (hasId != null && !string.IsNullOrEmpty(snapshot.InstanceId))
+                hasId.InstanceId = snapshot.InstanceId;
 
             var gridView = building.GetComponent<IInventoryGridView>();
 

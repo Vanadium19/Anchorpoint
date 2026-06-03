@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using InventoryModule;
 
@@ -11,7 +12,7 @@ namespace BaseModule
         IReadOnlyList<CraftBatch> ActiveBatches { get; }
         IReadOnlyList<ReadyCraft> ReadyItems { get; }
 
-        event System.Action StateChanged;
+        event Action StateChanged;
 
         void OpenWorkbench(IExternalUI workbench);
         void CloseWorkbench();
@@ -19,5 +20,8 @@ namespace BaseModule
         void CancelBatch(int batchId);
         void ClaimReady(int readyItemId);
         int GetMaxCraftable(RecipeConfig recipe);
+
+        List<WorkbenchQueueMemento> GetQueuesSaveData();
+        void SetQueuesSaveData(List<WorkbenchQueueMemento> queues, TimeSpan elapsed, Func<string, RecipeConfig> recipeResolver);
     }
 }

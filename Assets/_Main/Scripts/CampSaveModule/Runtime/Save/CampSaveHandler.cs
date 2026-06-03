@@ -12,17 +12,20 @@ namespace CampSaveModule
         private readonly CampSaveable _campSaveable;
         private readonly InventorySaveable _inventorySaveable;
         private readonly BuffSaveable _buffSaveable;
+        private readonly WorkbenchSaveable _workbenchSaveable;
 
         public CampSaveHandler(
             IGameSaveLoader gameSaveLoader,
             CampSaveable campSaveable,
             InventorySaveable inventorySaveable,
-            BuffSaveable buffSaveable)
+            BuffSaveable buffSaveable,
+            WorkbenchSaveable workbenchSaveable)
         {
             _gameSaveLoader = gameSaveLoader;
             _campSaveable = campSaveable;
             _inventorySaveable = inventorySaveable;
             _buffSaveable = buffSaveable;
+            _workbenchSaveable = workbenchSaveable;
         }
 
         public void Initialize()
@@ -30,6 +33,7 @@ namespace CampSaveModule
             _gameSaveLoader.RegisterSaveable(_campSaveable);
             _gameSaveLoader.RegisterSaveable(_inventorySaveable);
             _gameSaveLoader.RegisterSaveable(_buffSaveable);
+            _gameSaveLoader.RegisterSaveable(_workbenchSaveable);
             _gameSaveLoader.Load();
         }
 
@@ -38,6 +42,7 @@ namespace CampSaveModule
             _gameSaveLoader.UnregisterSaveable(_campSaveable);
             _gameSaveLoader.UnregisterSaveable(_inventorySaveable);
             _gameSaveLoader.UnregisterSaveable(_buffSaveable);
+            _gameSaveLoader.UnregisterSaveable(_workbenchSaveable);
         }
     }
 }
