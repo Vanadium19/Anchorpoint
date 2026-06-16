@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingConfig
   id: Table
   category: 2
-  prefab: {fileID: 9073956356888515507, guid: 966205d8f9ee49845832ebe91efc6f7c, type: 3}
+  prefab: {fileID: 8674869408317067219, guid: 966205d8f9ee49845832ebe91efc6f7c, type: 3}
   price:
     value: []
   icon: {fileID: 371250376, guid: 45d89d1d68544f54bb0edd3d96989617, type: 3}
