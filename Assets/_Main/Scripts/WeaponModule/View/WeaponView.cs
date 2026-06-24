@@ -23,6 +23,8 @@ namespace WeaponModule
         private WeaponConfig _config;
         private float _currentAimBlend = 0f;
         private CharacterController _playerCharacter;
+        private Vector3 _recoilBasePosition;
+        private Quaternion _recoilBaseRotation;
 
         private Transform _cameraTransform;
 
@@ -35,6 +37,9 @@ namespace WeaponModule
             //TODO: Через SerializeField
             _playerCharacter = GetComponentInParent<CharacterController>();
             _cameraTransform = Camera.main!.transform.parent;
+
+            _recoilBasePosition = recoilPivot.localPosition;
+            _recoilBaseRotation = recoilPivot.localRotation;
         }
 
         //FIXME: Unused method
@@ -123,13 +128,12 @@ namespace WeaponModule
             _weaponRecoil.Update(deltaTime);
             _cameraRecoil.Update(deltaTime);
             _sway.Update(lookInput, _config.Sway, deltaTime, isAiming);
-            recoilPivot.localPosition = _weaponRecoil.CurrentPosition + _sway.OutputPosition;
-            recoilPivot.localRotation = Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation;
+
+            recoilPivot.localPosition = _recoilBasePosition + _weaponRecoil.CurrentPosition + _sway.OutputPosition;
+            recoilPivot.localRotation = _recoilBaseRotation * Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation;
 
             if (_cameraTransform != null)
-            {
                 _cameraTransform.localRotation = Quaternion.Euler(_cameraRecoil.CurrentRotation);
-            }
         }
 
         public void SpawnBullet(float damage, float speed)
