@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,10 @@ namespace InventoryModule
     {
         private readonly List<DeathLootPileData> _piles = new();
 
+        internal event Action PilesChanged;
+
+        internal IReadOnlyList<DeathLootPileData> Piles => _piles;
+
         public DeathLootPileData CreatePile(string sceneName, Vector3 position, List<ItemTable> items)
         {
             var pile = new DeathLootPileData(sceneName, position, items);
@@ -15,6 +20,8 @@ namespace InventoryModule
                 return null;
 
             _piles.Add(pile);
+            PilesChanged?.Invoke();
+
             return pile;
         }
 
@@ -48,10 +55,30 @@ namespace InventoryModule
                 if (pile == null)
                     continue;
 
-                var removed = pile.RemoveItem(item);
+                if (!pile.RemoveItem(item))
+                    continue;
 
-                if (removed && !pile.HasItems)
+                if (!pile.HasItems)
                     _piles.RemoveAt(i);
+
+                PilesChanged?.Invoke();
+                return;
+            }
+        }
+
+        internal void ReplacePiles(IReadOnlyList<DeathLootPileData> piles)
+        {
+            _piles.Clear();
+
+            if (piles == null)
+                return;
+
+            for (var i = 0; i < piles.Count; i++)
+            {
+                var pile = piles[i];
+
+                if (pile != null && pile.HasItems)
+                    _piles.Add(pile);
             }
         }
     }

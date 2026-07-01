@@ -1,10 +1,9 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Zenject;
 
 namespace InventoryModule
 {
-    public class DeathLootSpawner : IDeathLootSpawner, IInitializable
+    public class DeathLootSpawner : IDeathLootSpawner
     {
         private readonly IDropService _dropService;
         private readonly IDeathLootStorage _storage;
@@ -23,7 +22,7 @@ namespace InventoryModule
             _spawnOffsetY = spawnOffsetY;
         }
 
-        public void Initialize()
+        public void SpawnStoredPiles()
         {
             var sceneName = SceneManager.GetActiveScene().name;
             var piles = _storage.GetPiles(sceneName);
