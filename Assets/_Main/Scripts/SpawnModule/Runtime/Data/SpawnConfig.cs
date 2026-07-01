@@ -1,12 +1,22 @@
-using UnityEngine;
-
 namespace SpawnModule
 {
-    public class SpawnConfig
+    public sealed class SpawnConfig
     {
-        public int EnemyCount;
-        public int WaitTime;
-        public int SpawnInterval;
-        // В будущем можно добавить разные типы врагов
+        public SpawnConfig(
+            int initialEnemyCount,
+            int enemiesPerWave,
+            int firstWaveDelay,
+            int waveInterval)
+        {
+            InitialEnemyCount = initialEnemyCount;
+            EnemiesPerWave = enemiesPerWave;
+            FirstWaveDelay = firstWaveDelay;
+            WaveInterval = waveInterval;
+        }
+
+        public int InitialEnemyCount { get; }
+        public int EnemiesPerWave { get; }
+        public int FirstWaveDelay { get; }
+        public int WaveInterval { get; }
     }
 }

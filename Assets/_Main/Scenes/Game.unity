@@ -2069,9 +2069,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpawnModule::_Main.Scripts.SpawnModule.SpawnInstaller
   spawnPointsView: {fileID: 207961830}
   enemyPrefab: {fileID: 4278790717967130169, guid: 114a32f62fee04559abff222e97c533e, type: 3}
-  enemyCount: 3
-  waitTime: 5
-  spawnInterval: 30
+  initialEnemyCount: 2
+  enemiesPerWave: 1
+  firstWaveDelay: 5
+  waveInterval: 30
 --- !u!114 &489959977
 MonoBehaviour:
   m_ObjectHideFlags: 0
