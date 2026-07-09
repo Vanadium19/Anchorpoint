@@ -1,3 +1,4 @@
+using EffectModule;
 using InputModule;
 using InventoryModule;
 using System;
@@ -15,6 +16,8 @@ namespace PlayerModule
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
         private readonly IDeathLootStorage _deathLootStorage;
+        private readonly IItemUseHandler _itemUseHandler;
+        private readonly IPrimaryBuffTargetService _primaryBuffTargetService;
 
         public event Action<LootItemView> LootHoverChanged;
         public event Action<IContainerUI> ContainerHoverChanged;
@@ -29,7 +32,9 @@ namespace PlayerModule
             IBuildingContainerService buildingContainerService,
             Camera camera,
             PlayerConfig config,
-            IDeathLootStorage deathLootStorage)
+            IDeathLootStorage deathLootStorage,
+            IItemUseHandler itemUseHandler,
+            IPrimaryBuffTargetService primaryBuffTargetService)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
@@ -37,9 +42,12 @@ namespace PlayerModule
             _camera = camera;
             _config = config;
             _deathLootStorage = deathLootStorage;
+            _itemUseHandler = itemUseHandler ?? throw new ArgumentNullException(nameof(itemUseHandler));
+            _primaryBuffTargetService = primaryBuffTargetService ?? throw new ArgumentNullException(nameof(primaryBuffTargetService));
         }
 
         public void Initialize() { }
+
         public void Dispose() { }
 
         public void Tick()
@@ -82,7 +90,7 @@ namespace PlayerModule
                 }
 
                 var loot = current.GetComponent<LootItemView>();
-                
+
                 if (loot != null)
                 {
                     UpdateHover(loot, null);
@@ -130,44 +138,75 @@ namespace PlayerModule
             if (itemData == null)
                 return;
 
-            bool success;
+            if (itemData.PickupBehavior == ItemPickupBehavior.UseImmediately)
+            {
+                TryUseImmediately(loot, itemData);
+                return;
+            }
 
+            if (TryStoreInInventory(loot, itemData))
+                CompletePickup(loot);
+        }
+
+        private void TryUseImmediately(LootItemView loot, ItemDataSo itemData)
+        {
+            var effectTarget = _primaryBuffTargetService.PrimaryTarget;
+            var effectData = itemData.EffectData;
+
+            if (effectTarget == null || effectData == null)
+                return;
+
+            var item = loot.ItemTable ?? new ItemTable(itemData) { StackCount = loot.Amount };
+            var availableAmount = Mathf.Max(1, loot.Amount);
+            var usedAmount = 0;
+
+            while (usedAmount < availableAmount && effectData.CanApply(effectTarget))
+            {
+                _itemUseHandler.UseItem(item, effectTarget);
+                usedAmount++;
+            }
+
+            if (usedAmount == 0)
+                return;
+
+            var remainingAmount = availableAmount - usedAmount;
+
+            if (remainingAmount > 0)
+            {
+                loot.SetAmount(remainingAmount);
+                loot.PlayCollectEffects();
+                return;
+            }
+
+            CompletePickup(loot);
+        }
+
+        private bool TryStoreInInventory(LootItemView loot, ItemDataSo itemData)
+        {
             if (itemData.IsEquippable)
             {
-                if (loot.ItemTable != null)
-                    success = _inventoryManager.TryAutoEquipItem(loot.ItemTable);
-                else
-                {
-                    var newItem = new ItemTable(itemData) { StackCount = loot.Amount };
-                    success = _inventoryManager.TryAutoEquipItem(newItem);
-                }
+                var isEquipped = loot.ItemTable != null
+                    ? _inventoryManager.TryAutoEquipItem(loot.ItemTable)
+                    : _inventoryManager.TryAutoEquipItem(new ItemTable(itemData) { StackCount = loot.Amount });
 
-                if (!success)
-                {
-                    if (loot.ItemTable != null)
-                        success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
-                    else
-                        success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
-                }
-            }
-            else
-            {
-                if (loot.ItemTable != null)
-                    success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
-                else
-                    success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
+                if (isEquipped)
+                    return true;
             }
 
-            if (success)
-            {
-                if (loot.ItemTable != null)
-                    _deathLootStorage.RemoveItem(loot.ItemTable);
+            return loot.ItemTable != null
+                ? _inventoryManager.AddExistingItemToInventory(loot.ItemTable)
+                : _inventoryManager.AddItemToInventory(itemData, loot.Amount);
+        }
 
-                loot.PlayCollectEffects();
-                _lastHitCollider = null;
-                UpdateHover(null, null);
-                UnityEngine.Object.Destroy(loot.gameObject);
-            }
+        private void CompletePickup(LootItemView loot)
+        {
+            if (loot.ItemTable != null)
+                _deathLootStorage.RemoveItem(loot.ItemTable);
+
+            loot.PlayCollectEffects();
+            _lastHitCollider = null;
+            UpdateHover(null, null);
+            UnityEngine.Object.Destroy(loot.gameObject);
         }
     }
 }

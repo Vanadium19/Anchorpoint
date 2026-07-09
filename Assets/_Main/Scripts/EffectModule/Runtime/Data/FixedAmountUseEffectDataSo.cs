@@ -1,6 +1,8 @@
+using ComponentsModule;
+using InventoryModule;
 using System.Collections.Generic;
 using UnityEngine;
-using InventoryModule;
+using WeaponModule;
 
 namespace EffectModule
 {
@@ -17,7 +19,39 @@ namespace EffectModule
 
         public override bool CanApply(object target)
         {
-            return true;
+            var entity = target as IEntity;
+
+            if (entity == null)
+                return false;
+
+            if (HasApplicableEffect(entity))
+                return true;
+
+            return buffs != null && buffs.Count > 0;
+        }
+
+        private bool HasApplicableEffect(IEntity entity)
+        {
+            for (var i = 0; i < effects.Count; i++)
+            {
+                var effect = effects[i];
+
+                if (effect == null)
+                    continue;
+
+                if (!(effect is AmmoEffectDataSo))
+                    return true;
+
+                if (!entity.TryGet<IWeaponInventory>(out var weaponInventory))
+                    continue;
+
+                var currentWeapon = weaponInventory.CurrentWeapon;
+
+                if (currentWeapon != null && currentWeapon.Model.GetReserveSpace() > 0)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

@@ -22,6 +22,14 @@ namespace InventoryModule
             amount = item.StackCount;
         }
 
+        public void SetAmount(int newAmount)
+        {
+            amount = Mathf.Max(0, newAmount);
+
+            if (_itemTable != null)
+                _itemTable.StackCount = amount;
+        }
+
         public void PlayCollectEffects()
         {
             if (collectEffect != null)
