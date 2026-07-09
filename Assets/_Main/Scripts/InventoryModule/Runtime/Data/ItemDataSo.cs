@@ -18,6 +18,9 @@ namespace InventoryModule
         [SerializeField] private EquipmentSlotType equipmentSlotType = EquipmentSlotType.None;
         [SerializeField] private bool isEquippable = false;
 
+        [Header("Pickup")]
+        [SerializeField] private ItemPickupBehavior pickupBehavior = ItemPickupBehavior.StoreInInventory;
+
         [Header("Settings")]
         [SerializeField] private bool isStackable = false;
         [SerializeField] private int maxStackSize = 1;
@@ -44,6 +47,7 @@ namespace InventoryModule
         public Sprite Icon => icon;
         public EquipmentSlotType EquipmentSlotType => equipmentSlotType;
         public bool IsEquippable => isEquippable;
+        public ItemPickupBehavior PickupBehavior => pickupBehavior;
         public bool IsStackable => isStackable;
         public int MaxStackSize => maxStackSize;
         public bool IsContainer => isContainer;

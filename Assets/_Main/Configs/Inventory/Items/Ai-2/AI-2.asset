@@ -18,6 +18,7 @@ MonoBehaviour:
   dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
   equipmentSlotType: 0
   isEquippable: 0
+  pickupBehavior: 1
   isStackable: 0
   maxStackSize: 1
   isContainer: 0
