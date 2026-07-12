@@ -8,7 +8,8 @@ namespace InventoryModule
         Chest = 2,
         Backpack = 4,
         Pockets = 8,
-        WeaponPrimary = 16,
+        PrimaryWeapon1 = 16,
+        PrimaryWeapon2 = 64,
         WeaponSecondary = 32,
     }
 }

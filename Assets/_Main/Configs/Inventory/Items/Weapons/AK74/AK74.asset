@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e21c02e219010640a2793823d0f9d5e, type: 3}
+  m_Name: AK74
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.WeaponItemSo
+  displayName: AK74
+  description: 
+  icon: {fileID: 21300000, guid: 875bc41d2d9c08f448eeef2d1858ce7d, type: 3}
+  dimensionsSo: {fileID: 11400000, guid: 10ccfe3c31ca7034aace03d080fdec3f, type: 2}
+  equipmentSlotType: 80
+  isEquippable: 1
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 0
+  effectData: {fileID: 0}
+  isDropable: 1
+  worldPrefab: {fileID: 3517526947254892658, guid: 1ef3ff91ee48e394dbe0845f00c9836c, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}
+  weaponConfig: {fileID: 11400000, guid: 5309943ae07ff444db9df9d05328c630, type: 2}
+  weaponViewPrefab: {fileID: 7674212183257812187, guid: 1f0f3593ebc096943bb513daa2bb6713, type: 3}

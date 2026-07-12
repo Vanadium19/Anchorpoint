@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using InputModule;
+using InventoryModule;
 using UnityEngine;
 using Zenject;
 
@@ -12,8 +12,9 @@ namespace WeaponModule
         private readonly WeaponConfig _config;
         private readonly WeaponModel _model;
         private readonly WeaponView _view;
-        private readonly IInputMap _input;
-        private readonly AmmoReserveService _ammoReserveService;
+        private readonly IWeaponStatsProvider _statsProvider;
+        private readonly IWeaponViewFactory _viewFactory;
+        private readonly IBulletFactory _bulletFactory;
 
         private float _nextFireTime;
         private bool _isReloading;
@@ -21,20 +22,35 @@ namespace WeaponModule
         private bool _isAimToggleActive;
         private bool _shouldShootFrame;
 
+        private Vector2 _moveInput;
+        private Vector2 _lookInput;
+        private Vector3 _playerVelocity;
+        private bool _isFireHeld;
+        private bool _isReloadPressed;
+        private bool _isAimPressed;
+        private bool _isAimTriggered;
+
         private CancellationTokenSource _tokenSource;
+
+        private WeaponItemSo _weaponItem;
+        private ItemTable _itemTable;
+
+        public WeaponView GetView() => _view;
 
         public WeaponController(
             WeaponConfig config,
             WeaponModel model,
             WeaponView view,
-            IInputMap input,
-            AmmoReserveService ammoReserveService)
+            IWeaponStatsProvider statsProvider,
+            IWeaponViewFactory viewFactory,
+            IBulletFactory bulletFactory)
         {
             _config = config;
             _model = model;
             _view = view;
-            _input = input;
-            _ammoReserveService = ammoReserveService;
+            _statsProvider = statsProvider;
+            _viewFactory = viewFactory;
+            _bulletFactory = bulletFactory;
 
             _tokenSource = new();
         }
@@ -43,15 +59,48 @@ namespace WeaponModule
 
         public void Initialize()
         {
-            _ammoReserveService.GetAmmoState(
-                _config.name,
-                _config.MagazineCapacity,
-                _config.InitialReserveAmmo,
-                out int currentMagazineAmmo,
-                out int reserveAmmo);
+            _model.Initialize(_config.MagazineCapacity, _config.MagazineCapacity, _config.InitialReserveAmmo);
+            _view.Initialize(_config);
+        }
+
+        public void InitializeFromItem(WeaponItemSo weaponItem, int currentMagazineAmmo, int reserveAmmo)
+        {
+            _weaponItem = weaponItem;
 
             _model.Initialize(_config.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
             _view.Initialize(_config);
+        }
+
+        public void SetWeaponItem(WeaponItemSo weaponItem) => _weaponItem = weaponItem;
+
+        public WeaponItemSo GetWeaponItem() => _weaponItem;
+
+        public void SetItemTable(ItemTable itemTable) => _itemTable = itemTable;
+
+        public ItemTable GetItemTable() => _itemTable;
+
+        public void SetAmmo(int magazineAmmo, int reserveAmmo) => _model.SetAmmo(magazineAmmo, reserveAmmo);
+
+        public void SetMovementInput(Vector2 input) => _moveInput = input;
+
+        public void SetLookInput(Vector2 input) => _lookInput = input;
+
+        public void SetFireInput(bool isHeld) => _isFireHeld = isHeld;
+
+        public void SetReloadInput(bool isPressed) => _isReloadPressed = isPressed;
+
+        public void SetPlayerVelocity(Vector3 velocity) => _playerVelocity = velocity;
+
+        public void SetAimInput(bool isPressed, bool isTriggered)
+        {
+            _isAimPressed = isPressed;
+            _isAimTriggered = isTriggered;
+        }
+
+        public void GetAmmoState(out int currentMagazineAmmo, out int reserveAmmo)
+        {
+            currentMagazineAmmo = _model.CurrentMagazineAmmo;
+            reserveAmmo = _model.ReserveAmmo;
         }
 
         public void Equip()
@@ -63,19 +112,19 @@ namespace WeaponModule
             _isAimToggleActive = false;
             _shouldShootFrame = false;
 
+            _view.ResetVisuals();
             DrawWeaponRoutine().Forget();
         }
 
         public async UniTask Unequip()
         {
-            SaveAmmoState();
             CancelCurrentActions();
 
             _view.SetHolsterState(true);
 
-            bool canceled = await UniTask.Delay(
-                TimeSpan.FromSeconds(_config.DrawTime),
-                cancellationToken: _tokenSource.Token).SuppressCancellationThrow();
+            bool canceled = await UniTask
+                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
+                .SuppressCancellationThrow();
 
             if (!canceled)
                 _view.gameObject.SetActive(false);
@@ -84,12 +133,12 @@ namespace WeaponModule
         public void Hide()
         {
             CancelCurrentActions();
+            _view.ResetVisuals();
             _view.gameObject.SetActive(false);
         }
 
         public void Dispose()
         {
-            SaveAmmoState();
             CancelCurrentActions();
             _tokenSource.Dispose();
         }
@@ -122,8 +171,7 @@ namespace WeaponModule
 
         private void HandleProceduralAnimation()
         {
-            Vector2 lookDelta = _input.LookInput;
-            _view.UpdateProcedural(Time.deltaTime, lookDelta, _isAiming);
+            _view.UpdateProcedural(Time.deltaTime, _lookInput, _isAiming);
         }
 
         private void HandleAimingState()
@@ -137,14 +185,14 @@ namespace WeaponModule
             {
                 if (_config.AimIsToggle)
                 {
-                    if (_input.IsAimTriggered)
+                    if (_isAimTriggered)
                         _isAimToggleActive = !_isAimToggleActive;
 
                     _isAiming = _isAimToggleActive;
                 }
                 else
                 {
-                    _isAiming = _input.IsAimPressed;
+                    _isAiming = _isAimPressed;
                 }
             }
 
@@ -156,7 +204,7 @@ namespace WeaponModule
             if (_isReloading)
                 return;
 
-            if (_input.IsFireHeld && Time.time >= _nextFireTime)
+            if (_isFireHeld && Time.time >= _nextFireTime)
             {
                 if (_model.CurrentMagazineAmmo > 0)
                 {
@@ -171,10 +219,9 @@ namespace WeaponModule
             if (!_model.TryConsumeAmmo())
                 return;
 
-            SaveAmmoState();
-
             _view.PlayFireEffects(_isAiming);
-            _view.SpawnBullet(_config.Damage, _config.BulletSpeed);
+            _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, _view.FirePoint.rotation,
+                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity);
 
             if (_model.IsMagazineEmpty && _model.CanReload)
                 ReloadRoutine(true, _config.EmptyReloadDelay).Forget();
@@ -185,20 +232,19 @@ namespace WeaponModule
             if (_isReloading)
                 return;
 
-            if (_input.IsReloadPressed && _model.CanReload)
+            if (_isReloadPressed && _model.CanReload)
                 ReloadRoutine(_model.IsMagazineEmpty, 0f).Forget();
         }
 
         private void HandleMovementAnim()
         {
-            Vector2 input = _input.MoveInput;
-            bool isMoving = input.magnitude > 0.1f;
-            _view.SetMovementState(isMoving, input);
+            bool isMoving = _moveInput.magnitude > 0.1f;
+            _view.SetMovementState(isMoving, _moveInput);
         }
 
         private void HandleTriggerFinger()
         {
-            _view.SetTriggerHold(_input.IsFireHeld);
+            _view.SetTriggerHold(_isFireHeld);
         }
 
         private async UniTaskVoid ReloadRoutine(bool isEmptyReload, float delayBeforeReload)
@@ -238,10 +284,7 @@ namespace WeaponModule
                 .SuppressCancellationThrow();
 
             if (!reloadCanceled)
-            {
                 _model.Reload();
-                SaveAmmoState();
-            }
 
             _isReloading = false;
         }
@@ -257,14 +300,6 @@ namespace WeaponModule
 
             if (!canceled)
                 _isReloading = false;
-        }
-
-        private void SaveAmmoState()
-        {
-            _ammoReserveService.SetAmmoState(
-                _config.name,
-                _model.CurrentMagazineAmmo,
-                _model.ReserveAmmo);
         }
 
         private void CancelCurrentActions()

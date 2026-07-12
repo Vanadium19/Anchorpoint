@@ -1,59 +1,84 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using InventoryModule;
+using UnityEngine;
+using Zenject;
 
 namespace WeaponModule
 {
-    public class WeaponInventory : IWeaponInventory
+    public class WeaponInventory : IWeaponInventory, IInitializable, IDisposable
     {
-        private readonly WeaponFactory _weaponFactory;
-        private readonly List<WeaponSetupData> _loadout;
+        private readonly IWeaponViewFactory _viewFactory;
+        private readonly IWeaponStatsProvider _statsProvider;
+        private readonly IEquipmentSlotService _slotService;
+        private readonly DiContainer _container;
 
-        private readonly List<IWeapon> _weapons = new();
+        private readonly Dictionary<ItemTable, WeaponController> _weaponMap = new();
+        private readonly Dictionary<ItemTable, WeaponController> _weaponCache = new();
+        private readonly List<EquipmentSlot> _subscribedSlots = new();
 
-        private IWeapon _currentWeapon;
-        private int _currentIndex = -1;
-        private int _lastEquippedIndex;
+        private WeaponController _currentWeapon;
 
         public event Action<IWeapon> CurrentWeaponChanged;
 
-        public WeaponInventory(WeaponFactory weaponFactory, List<WeaponSetupData> loadout)
+        public WeaponInventory(
+            IWeaponViewFactory viewFactory,
+            IWeaponStatsProvider statsProvider,
+            IEquipmentSlotService slotService,
+            DiContainer container)
         {
-            _weaponFactory = weaponFactory;
-            _loadout = loadout;
+            _viewFactory = viewFactory;
+            _statsProvider = statsProvider;
+            _slotService = slotService;
+            _container = container;
         }
 
         public IWeapon CurrentWeapon => _currentWeapon;
 
-        public int WeaponsCount => _weapons.Count;
+        public int WeaponsCount => _weaponMap.Count;
 
         public void Initialize()
         {
-            foreach (var setup in _loadout)
-            {
-                var weapon = _weaponFactory.Create(setup.Config, setup.View);
-                weapon.Initialize();
-                setup.View.gameObject.SetActive(false);
-                _weapons.Add(weapon);
-            }
+            SubscribeToSlots();
+            ScanEquippedWeapons();
         }
 
-        public void EquipWeapon(int index)
+        public void Dispose()
         {
-            if (index < 0 || index >= _weapons.Count)
+            foreach (var slot in _subscribedSlots)
+            {
+                slot.ItemEquipped -= OnItemEquipped;
+                slot.ItemUnequipped -= OnItemUnequipped;
+            }
+
+            _subscribedSlots.Clear();
+
+            DestroyAllWeapons();
+        }
+
+        public void EquipWeapon(ItemTable item)
+        {
+            if (item == null)
                 return;
 
-            if (_weapons[index] == _currentWeapon)
+            if (!_weaponMap.TryGetValue(item, out var target))
+                return;
+
+            if (target == _currentWeapon)
             {
                 UnequipCurrentWeapon();
                 return;
             }
 
             if (_currentWeapon != null)
-                HideWeapon(_currentWeapon);
+            {
+                SaveAmmoToItem(_currentWeapon);
+                _currentWeapon.Hide();
+            }
 
-            _currentIndex = index;
-            _currentWeapon = _weapons[index];
+            _currentWeapon = target;
+            RestoreAmmoFromItem(_currentWeapon);
             _currentWeapon.Equip();
             CurrentWeaponChanged?.Invoke(_currentWeapon);
         }
@@ -63,23 +88,170 @@ namespace WeaponModule
             if (_currentWeapon == null)
                 return;
 
-            _lastEquippedIndex = _currentIndex;
+            SaveAmmoToItem(_currentWeapon);
             _currentWeapon.Unequip().Forget();
             _currentWeapon = null;
-            _currentIndex = -1;
-            CurrentWeaponChanged?.Invoke(_currentWeapon);
+            CurrentWeaponChanged?.Invoke(null);
         }
 
-        public void EquipLastWeapon()
+        private void SubscribeToSlots()
         {
-            if (_lastEquippedIndex >= 0 && _lastEquippedIndex < _weapons.Count)
-                EquipWeapon(_lastEquippedIndex);
+            foreach (var slot in _slotService.GetAllSlots())
+                SubscribeSlot(slot);
         }
 
-        private void HideWeapon(IWeapon weapon)
+        private void ScanEquippedWeapons()
         {
-            if (weapon is WeaponController controller)
-                controller.Hide();
+            foreach (var slot in _slotService.GetAllSlots())
+            {
+                if (slot.EquippedItem?.ItemDataSo is WeaponItemSo)
+                    OnItemEquipped(slot.EquippedItem);
+            }
+        }
+
+        private void SubscribeSlot(EquipmentSlot slot)
+        {
+            if (_subscribedSlots.Contains(slot))
+                return;
+
+            slot.ItemEquipped += OnItemEquipped;
+            slot.ItemUnequipped += OnItemUnequipped;
+            _subscribedSlots.Add(slot);
+        }
+
+        private void OnItemEquipped(ItemTable item)
+        {
+            if (item?.ItemDataSo is not WeaponItemSo weaponItem)
+                return;
+
+            if (_weaponMap.ContainsKey(item))
+                return;
+
+            if (_weaponCache.TryGetValue(item, out var cached))
+            {
+                _weaponCache.Remove(item);
+                _weaponMap[item] = cached;
+
+                if (_currentWeapon != null && _currentWeapon != cached)
+                {
+                    SaveAmmoToItem(_currentWeapon);
+                    _currentWeapon.Hide();
+                }
+
+                _currentWeapon = cached;
+                RestoreAmmoFromItem(cached);
+                cached.Equip();
+                CurrentWeaponChanged?.Invoke(cached);
+                return;
+            }
+
+            var config = _statsProvider.GetConfig(weaponItem);
+
+            if (config == null)
+                return;
+
+            var model = _container.Instantiate<WeaponModel>();
+            var view = _viewFactory.CreateView(weaponItem);
+
+            if (view == null)
+                return;
+
+            var controller = _container.Instantiate<WeaponController>(
+                new object[] { config, model, view });
+
+            controller.SetWeaponItem(weaponItem);
+            controller.SetItemTable(item);
+
+            int magAmmo = config.MagazineCapacity;
+            int reserveAmmo = config.InitialReserveAmmo;
+
+            if (item.WeaponAmmoMetadata != null)
+            {
+                magAmmo = item.WeaponAmmoMetadata.CurrentMagazineAmmo;
+                reserveAmmo = item.WeaponAmmoMetadata.ReserveAmmo;
+            }
+            else
+            {
+                item.InitializeWeaponAmmo(config.MagazineCapacity, config.InitialReserveAmmo);
+            }
+
+            controller.InitializeFromItem(weaponItem, magAmmo, reserveAmmo);
+
+            _weaponMap[item] = controller;
+
+            if (_currentWeapon != null && _currentWeapon != controller)
+            {
+                SaveAmmoToItem(_currentWeapon);
+                _currentWeapon.Hide();
+            }
+
+            _currentWeapon = controller;
+            controller.Equip();
+            CurrentWeaponChanged?.Invoke(controller);
+        }
+
+        private void OnItemUnequipped(ItemTable item)
+        {
+            if (!_weaponMap.TryGetValue(item, out var controller))
+                return;
+
+            SaveAmmoToItem(controller);
+
+            if (_currentWeapon == controller)
+            {
+                _currentWeapon = null;
+                CurrentWeaponChanged?.Invoke(null);
+            }
+
+            _weaponMap.Remove(item);
+            controller.Hide();
+            _weaponCache[item] = controller;
+        }
+
+        private void SaveAmmoToItem(WeaponController controller)
+        {
+            var itemTable = controller.GetItemTable();
+
+            if (itemTable?.WeaponAmmoMetadata == null)
+                return;
+
+            controller.GetAmmoState(out int magAmmo, out int reserveAmmo);
+            itemTable.WeaponAmmoMetadata.CurrentMagazineAmmo = magAmmo;
+            itemTable.WeaponAmmoMetadata.ReserveAmmo = reserveAmmo;
+        }
+
+        private void RestoreAmmoFromItem(WeaponController controller)
+        {
+            var itemTable = controller.GetItemTable();
+
+            if (itemTable?.WeaponAmmoMetadata == null)
+                return;
+
+            controller.SetAmmo(
+                itemTable.WeaponAmmoMetadata.CurrentMagazineAmmo,
+                itemTable.WeaponAmmoMetadata.ReserveAmmo);
+        }
+
+        private void DestroyAllWeapons()
+        {
+            foreach (var pair in _weaponMap)
+            {
+                pair.Value.Dispose();
+
+                if (pair.Value.GetView() != null)
+                    UnityEngine.Object.Destroy(pair.Value.GetView().gameObject);
+            }
+
+            foreach (var pair in _weaponCache)
+            {
+                pair.Value.Dispose();
+                
+                if (pair.Value.GetView() != null)
+                    UnityEngine.Object.Destroy(pair.Value.GetView().gameObject);
+            }
+
+            _weaponMap.Clear();
+            _weaponCache.Clear();
         }
     }
 }

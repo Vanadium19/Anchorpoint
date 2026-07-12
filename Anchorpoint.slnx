@@ -1,13 +1,14 @@
 ﻿<Solution>
+  <Project Path="AudioModule.csproj" />
   <Project Path="EffectModule.csproj" />
   <Project Path="Zenject.csproj" />
   <Project Path="NpcBaseModule.csproj" />
   <Project Path="EnemyModule.csproj" />
+  <Project Path="WeaponModule.csproj" />
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="SimpleFolderIcon.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="InventoryModule.csproj" />
-  <Project Path="WeaponModule.csproj" />
   <Project Path="ComponentsModule.csproj" />
   <Project Path="CampSaveModule.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
@@ -18,11 +19,14 @@
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="BuildingModule.csproj" />
   <Project Path="EvacuationModule.csproj" />
+  <Project Path="MenuModule.csproj" />
   <Project Path="UIModule.csproj" />
   <Project Path="BaseModule.csproj" />
-  <Project Path="PlayerModule.csproj" />
-  <Project Path="CommandsModule.csproj" />
   <Project Path="SaveModule.csproj" />
+  <Project Path="PlayerModule.csproj" />
+  <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
+  <Project Path="CommandsModule.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Project Path="GameCycleModule.csproj" />
   <Project Path="SharedData.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
