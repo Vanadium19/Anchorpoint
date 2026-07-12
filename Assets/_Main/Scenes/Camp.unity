@@ -7131,6 +7131,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 164088969367175991, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
+      propertyPath: slotName
+      value: Weapon Primary 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 164088969367175991, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
+      propertyPath: slotType
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 5272714159224080321, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7174,6 +7182,10 @@ PrefabInstance:
     - target: {fileID: 6920865317428132323, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
       propertyPath: m_Name
       value: InventoryUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 8140758583845519866, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
+      propertyPath: slotName
+      value: Weapon Primary1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
