@@ -38,6 +38,7 @@ namespace InputModule
         public void Dispose()
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;
+            _inputService.Disable();
         }
     }
 }

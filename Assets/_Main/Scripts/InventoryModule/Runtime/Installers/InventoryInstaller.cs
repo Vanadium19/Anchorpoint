@@ -1,8 +1,7 @@
-using UnityEngine;
-using Zenject;
-using SaveModule;
 using InventoryModule.ContextMenu;
 using InventoryModule.ContextMenu.UI;
+using UnityEngine;
+using Zenject;
 
 namespace InventoryModule
 {
@@ -14,6 +13,7 @@ namespace InventoryModule
         [Header("UI References")]
         [SerializeField] private GameObject inventoryUI;
         [SerializeField] private GameObject externalPanel;
+        [SerializeField] private GameObject playerUI;
         [SerializeField] private CharacterInventory characterInventory;
         [SerializeField] private Canvas mainCanvas;
 
@@ -32,6 +32,14 @@ namespace InventoryModule
 
             InstallGlobalBindings();
             InstallSceneBindings();
+        }
+
+        public override void Start()
+        {
+            var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
+
+            if (contextActionService != null)
+                contextActionService.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
         }
 
         private void InstallGlobalBindings()
@@ -67,9 +75,12 @@ namespace InventoryModule
                 .To<ContextActionService>()
                 .AsSingle();
 
-            Container.Bind<IDeathLootStorage>()
-                .To<DeathLootStorage>()
+            Container.BindInterfacesAndSelfTo<DeathLootStorage>()
                 .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<DeathLootSaveable>()
+                .AsSingle()
+                .NonLazy();
         }
 
         private void InstallSceneBindings()
@@ -77,9 +88,12 @@ namespace InventoryModule
             if (mainCanvas != null)
                 Container.Bind<Canvas>().FromInstance(mainCanvas).AsSingle();
 
-            Container.BindInterfacesTo<BuildingContainerService>()
+            Container.BindInterfacesAndSelfTo<ExternalUIManager>()
                 .AsSingle()
-                .WithArguments(externalPanel);
+                .WithArguments(externalPanel, playerUI);
+
+            Container.BindInterfacesTo<BuildingContainerHandler>()
+                .AsSingle();
 
             Container.Bind<IDropService>()
                 .To<DropService>()
@@ -92,19 +106,25 @@ namespace InventoryModule
                 .NonLazy();
 
             if (containerWindowPrefab != null)
+            {
                 Container.Bind<ContainerWindow>()
                     .FromInstance(containerWindowPrefab)
                     .AsSingle();
+            }
 
             if (gridPrefab != null)
+            {
                 Container.Bind<AbstractGrid>()
                     .FromInstance(gridPrefab)
                     .AsSingle();
+            }
 
             if (characterInventory != null)
+            {
                 Container.Bind<CharacterInventory>()
                     .FromInstance(characterInventory)
                     .AsSingle();
+            }
 
             if (inventoryUI != null)
             {
@@ -113,16 +133,8 @@ namespace InventoryModule
                     .FromInstance(inventoryUI);
             }
 
-        Container.BindInterfacesTo<InventoryStartup>()
-            .AsSingle();
-    }
-
-    public override void Start()
-        {
-            var contextActionService = Container.TryResolve<IContextActionService>() as ContextActionService;
-
-            if (contextActionService != null)
-                contextActionService.SetPrefabs(Container, containerWindowPrefab, gridPrefab, mainCanvas);
+            Container.BindInterfacesTo<InventoryStartup>()
+                .AsSingle();
         }
     }
 }

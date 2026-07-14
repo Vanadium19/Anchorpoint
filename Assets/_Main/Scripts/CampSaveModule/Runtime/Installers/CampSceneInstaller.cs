@@ -21,6 +21,9 @@ namespace CampSaveModule
             Container.Bind<CampSaveable>()
                 .AsSingle();
 
+            Container.Bind<WorkbenchSaveable>()
+                .AsSingle();
+
             Container.BindInterfacesTo<CampSaveHandler>()
                 .AsSingle();
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,6 +34,9 @@ namespace InventoryModule
         private IInventoryManager _inventoryManager;
         private IEquipmentSlotService _slotService;
         private DiContainer _diContainer;
+
+        public event Action<ItemTable> ItemEquipped;
+        public event Action<ItemTable> ItemUnequipped;
 
         public ItemTable EquippedItem { get; private set; }
         public EquipmentSlotType SlotType => slotType;
@@ -102,7 +106,10 @@ namespace InventoryModule
             if (!item.ItemDataSo.IsEquippable)
                 return false;
 
-            return item.ItemDataSo.EquipmentSlotType == slotType;
+            if (_slotService != null && _slotService.GetSlotForItem(item) != null)
+                return false;
+
+            return item.ItemDataSo.EquipmentSlotType.HasFlag(slotType);
         }
 
         public bool TryEquip(ItemTable item)
@@ -138,6 +145,9 @@ namespace InventoryModule
 
             UpdateVisuals();
 
+            if (!_isRestoring)
+                ItemEquipped?.Invoke(item);
+
             return true;
         }
 
@@ -145,6 +155,8 @@ namespace InventoryModule
         {
             if (EquippedItem == null)
                 return;
+
+            var unequippedItem = EquippedItem;
 
             RemoveContainerSection();
 
@@ -160,6 +172,9 @@ namespace InventoryModule
             }
 
             UpdateVisuals();
+
+            if (!_isRestoring)
+                ItemUnequipped?.Invoke(unequippedItem);
         }
 
         public ItemTable ExtractItem(out EquipmentSlot extractedFromSlot)
@@ -180,6 +195,7 @@ namespace InventoryModule
             _inventoryManager?.RemoveEquippedItem(slotType);
 
             UpdateVisuals();
+            ItemUnequipped?.Invoke(item);
             return item;
         }
 

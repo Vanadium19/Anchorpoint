@@ -1,5 +1,5 @@
-using SharedData;
 using UnityEngine;
+using Zenject;
 
 namespace WeaponModule
 {
@@ -15,16 +15,21 @@ namespace WeaponModule
         [SerializeField] private GameObject bulletPrefab;
 
         private readonly RecoilProcessor _weaponRecoil = new();
-        private readonly RecoilProcessor _cameraRecoil = new();
         private readonly SwayProcessor _sway = new();
+        private ICameraRecoilService _cameraRecoil;
 
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
         private WeaponConfig _config;
         private float _currentAimBlend = 0f;
-        private CharacterController _playerCharacter;
 
         private Transform _cameraTransform;
+
+        [Inject]
+        private void Construct(ICameraRecoilService cameraRecoil)
+        {
+            _cameraRecoil = cameraRecoil;
+        }
 
         public void Initialize(WeaponConfig config)
         {
@@ -33,12 +38,11 @@ namespace WeaponModule
             _hipRotation = aimPivot.localRotation;
 
             //TODO: Через SerializeField
-            _playerCharacter = GetComponentInParent<CharacterController>();
             _cameraTransform = Camera.main!.transform.parent;
         }
 
-        //FIXME: Unused method
-        public void SetActive(bool isActive) => gameObject.SetActive(isActive);
+        public GameObject BulletPrefab => bulletPrefab;
+        public Transform FirePoint => firePoint;
 
         public void SetTriggerHold(bool isHeld)
         {
@@ -132,17 +136,16 @@ namespace WeaponModule
             }
         }
 
-        public void SpawnBullet(float damage, float speed)
+        public void ResetVisuals()
         {
-            if (bulletPrefab == null || firePoint == null) return;
+            _weaponRecoil.Reset();
+            _sway.Reset();
 
-            GameObject bulletObj = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
-
-            if (bulletObj.TryGetComponent(out Bullet bulletScript))
-            {
-                Vector3 playerVelocity = _playerCharacter != null ? _playerCharacter.velocity : Vector3.zero;
-                bulletScript.Setup(damage, speed, _config.InheritVelocity, playerVelocity);
-            }
+            if (handsAnimator)
+                handsAnimator.Rebind();
+            if (gunAnimator)
+                gunAnimator.Rebind();
         }
+
     }
 }

@@ -137,7 +137,12 @@ namespace InventoryModule
                         continue;
 
                     if (!Enum.TryParse<EquipmentSlotType>(slotMemento.SlotType, out var slotType))
-                        continue;
+                    {
+                        if (slotMemento.SlotType == "WeaponPrimary")
+                            slotType = EquipmentSlotType.PrimaryWeapon1;
+                        else
+                            continue;
+                    }
 
                     var slot = _slotService.GetSlot(slotType);
 

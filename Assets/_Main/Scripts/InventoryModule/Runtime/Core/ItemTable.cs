@@ -36,6 +36,7 @@ namespace InventoryModule
 
         public InventoryMetadata InventoryMetadata { get; private set; }
         public DurabilityMetadata DurabilityMetadata { get; private set; }
+        public WeaponAmmoMetadata WeaponAmmoMetadata { get; private set; }
 
         public int Width => IsRotated ? ItemDataSo.Height : ItemDataSo.Width;
 
@@ -117,6 +118,15 @@ namespace InventoryModule
             UIUpdated?.Invoke();
         }
 
+        public void InitializeWeaponAmmo(int magazineCapacity, int reserveAmmo)
+        {
+            if (WeaponAmmoMetadata != null)
+                return;
+
+            WeaponAmmoMetadata = new WeaponAmmoMetadata();
+            WeaponAmmoMetadata.SetInitialValues(magazineCapacity, reserveAmmo);
+        }
+
         public T GetMetadata<T>() where T : InventoryMetadata
         {
             if (InventoryMetadata is T containerMeta)
@@ -124,6 +134,9 @@ namespace InventoryModule
 
             if (DurabilityMetadata is T durabilityMeta)
                 return durabilityMeta;
+
+            if (WeaponAmmoMetadata is T weaponMeta)
+                return weaponMeta;
 
             return null;
         }

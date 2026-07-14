@@ -24,6 +24,14 @@ namespace WeaponModule
             _currentPosition = Vector3.Lerp(_currentPosition, _targetPosition, _snappiness * deltaTime);
         }
 
+        public void Reset()
+        {
+            _targetRotation = Vector3.zero;
+            _currentRotation = Vector3.zero;
+            _targetPosition = Vector3.zero;
+            _currentPosition = Vector3.zero;
+        }
+
         public void Fire(RecoilSettings settings)
         {
             _snappiness = settings.Snappiness;

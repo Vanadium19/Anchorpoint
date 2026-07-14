@@ -10,6 +10,12 @@ namespace WeaponModule
         public Vector3 OutputPosition => _currentPos;
         public Quaternion OutputRotation => _currentRot;
 
+        public void Reset()
+        {
+            _currentPos = Vector3.zero;
+            _currentRot = Quaternion.identity;
+        }
+
         public void Update(Vector2 inputDelta, SwaySettings settings, float deltaTime, bool isAiming)
         {
             //FIXME: Magic numbers

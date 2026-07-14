@@ -8,6 +8,7 @@ namespace BuildingModule
     public class BuildingSnapshot
     {
         public string BuildingId;
+        public string InstanceId;
         public float PositionX;
         public float PositionY;
         public float PositionZ;

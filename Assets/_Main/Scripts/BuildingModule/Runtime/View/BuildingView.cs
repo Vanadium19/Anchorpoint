@@ -8,7 +8,7 @@ namespace BuildingModule
         [SerializeField] private Collider collisionCollider;
 
         public Collider CollisionCollider => collisionCollider;
-        public IContainerUI ContainerUI => GetComponent<IContainerUI>();
+        public IExternalUI ExternalUI => GetComponent<IExternalUI>();
 
         public MeshRenderer[] GetAllMeshRenderers()
         {

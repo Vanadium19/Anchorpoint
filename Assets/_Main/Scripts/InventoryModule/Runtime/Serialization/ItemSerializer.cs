@@ -22,6 +22,12 @@ namespace InventoryModule
             if (item.HasDurability && item.DurabilityMetadata != null)
                 memento.DurabilityCurrent = item.DurabilityMetadata.Current;
 
+            if (item.WeaponAmmoMetadata != null)
+            {
+                memento.MagazineAmmo = item.WeaponAmmoMetadata.CurrentMagazineAmmo;
+                memento.ReserveAmmo = item.WeaponAmmoMetadata.ReserveAmmo;
+            }
+
             if (item.IsContainer)
             {
                 var metadata = item.GetMetadata<ContainerMetadata>();
@@ -61,6 +67,13 @@ namespace InventoryModule
 
             if (item.HasDurability && item.DurabilityMetadata != null && memento.DurabilityCurrent > 0)
                 item.DurabilityMetadata.SetCurrent(memento.DurabilityCurrent);
+
+            if (memento.MagazineAmmo > 0 || memento.ReserveAmmo > 0)
+            {
+                item.InitializeWeaponAmmo(memento.MagazineAmmo, memento.ReserveAmmo);
+                item.WeaponAmmoMetadata.CurrentMagazineAmmo = memento.MagazineAmmo;
+                item.WeaponAmmoMetadata.ReserveAmmo = memento.ReserveAmmo;
+            }
 
             return item;
         }
