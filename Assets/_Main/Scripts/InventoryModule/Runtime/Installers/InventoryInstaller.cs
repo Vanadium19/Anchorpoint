@@ -14,6 +14,7 @@ namespace InventoryModule
         [Header("UI References")]
         [SerializeField] private GameObject inventoryUI;
         [SerializeField] private GameObject externalPanel;
+        [SerializeField] private GameObject playerUI;
         [SerializeField] private CharacterInventory characterInventory;
         [SerializeField] private Canvas mainCanvas;
 
@@ -77,9 +78,12 @@ namespace InventoryModule
             if (mainCanvas != null)
                 Container.Bind<Canvas>().FromInstance(mainCanvas).AsSingle();
 
-            Container.BindInterfacesTo<BuildingContainerService>()
+            Container.BindInterfacesAndSelfTo<ExternalUIManager>()
                 .AsSingle()
-                .WithArguments(externalPanel);
+                .WithArguments(externalPanel, playerUI);
+
+            Container.BindInterfacesTo<BuildingContainerHandler>()
+                .AsSingle();
 
             Container.Bind<IDropService>()
                 .To<DropService>()

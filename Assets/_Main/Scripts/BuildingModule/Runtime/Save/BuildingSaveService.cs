@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using BaseModule;
 using InventoryModule;
 
 namespace BuildingModule
@@ -39,6 +40,11 @@ namespace BuildingModule
                 RotationY = building.transform.rotation.eulerAngles.y
             };
 
+            var hasId = building.GetComponent<IHasInstanceId>();
+
+            if (hasId != null)
+                snapshot.InstanceId = hasId.InstanceId;
+
             SerializeContainers(building, snapshot);
 
             return snapshot;
@@ -46,12 +52,12 @@ namespace BuildingModule
 
         private void SerializeContainers(BuildingView building, BuildingSnapshot snapshot)
         {
-            var containerUI = building.GetComponent<IContainerUI>();
+            var gridView = building.GetComponent<IInventoryGridView>();
 
-            if (containerUI == null)
+            if (gridView == null)
                 return;
 
-            foreach (var grid in containerUI.Grids)
+            foreach (var grid in gridView.Grids)
             {
                 var containerMemento = new ContainerMemento();
 
@@ -78,10 +84,15 @@ namespace BuildingModule
             var building = Object.Instantiate(config.Prefab, position, rotation);
             _registry.RegisterBuilding(building);
 
-            var containerUI = building.GetComponent<IContainerUI>();
+            var hasId = building.GetComponent<IHasInstanceId>();
 
-            if (containerUI != null && snapshot.Containers.Count > 0)
-                RestoreContainerItems(containerUI, snapshot.Containers);
+            if (hasId != null && !string.IsNullOrEmpty(snapshot.InstanceId))
+                hasId.InstanceId = snapshot.InstanceId;
+
+            var gridView = building.GetComponent<IInventoryGridView>();
+
+            if (gridView != null && snapshot.Containers.Count > 0)
+                RestoreContainerItems(gridView, snapshot.Containers);
 
             return building;
         }
@@ -120,7 +131,7 @@ namespace BuildingModule
             return null;
         }
 
-        private void RestoreContainerItems(IContainerUI container, List<ContainerMemento> containers)
+        private void RestoreContainerItems(IInventoryGridView container, List<ContainerMemento> containers)
         {
             var grids = container.Grids;
 

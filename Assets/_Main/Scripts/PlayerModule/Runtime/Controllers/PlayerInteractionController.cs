@@ -11,29 +11,29 @@ namespace PlayerModule
     {
         private readonly IInputMap _input;
         private readonly IInventoryManager _inventoryManager;
-        private readonly IBuildingContainerService _buildingContainerService;
+        private readonly ExternalUIManager _externalUIManager;
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
         private readonly IDeathLootStorage _deathLootStorage;
 
         public event Action<LootItemView> LootHoverChanged;
-        public event Action<IContainerUI> ContainerHoverChanged;
+        public event Action<IExternalUI> ExternalUIHoverChanged;
 
         private LootItemView _currentHoveredLoot;
-        private IContainerUI _currentHoveredContainer;
+        private IExternalUI _currentHoveredExternalUI;
         private Collider _lastHitCollider;
 
         public PlayerInteractionController(
             IInputMap input,
             IInventoryManager inventoryManager,
-            IBuildingContainerService buildingContainerService,
+            ExternalUIManager externalUIManager,
             Camera camera,
             PlayerConfig config,
             IDeathLootStorage deathLootStorage)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
-            _buildingContainerService = buildingContainerService;
+            _externalUIManager = externalUIManager;
             _camera = camera;
             _config = config;
             _deathLootStorage = deathLootStorage;
@@ -73,11 +73,11 @@ namespace PlayerModule
 
             while (current != null)
             {
-                var container = current.GetComponent<IContainerUI>();
+                var externalUI = current.GetComponent<IExternalUI>();
 
-                if (container != null)
+                if (externalUI != null)
                 {
-                    UpdateHover(null, container);
+                    UpdateHover(null, externalUI);
                     return;
                 }
 
@@ -97,30 +97,27 @@ namespace PlayerModule
 
         private void HandleInteraction()
         {
-            if (_currentHoveredContainer != null)
-                TryInteractWithContainer(_currentHoveredContainer);
+            if (_currentHoveredExternalUI != null)
+                TryInteractWithExternalUI(_currentHoveredExternalUI);
             else if (_currentHoveredLoot != null)
                 TryPickUpLoot(_currentHoveredLoot);
         }
 
-        private void UpdateHover(LootItemView newLoot, IContainerUI newContainer)
+        private void UpdateHover(LootItemView newLoot, IExternalUI newExternalUI)
         {
-            if (_currentHoveredLoot == newLoot && _currentHoveredContainer == newContainer)
+            if (_currentHoveredLoot == newLoot && _currentHoveredExternalUI == newExternalUI)
                 return;
 
             _currentHoveredLoot = newLoot;
-            _currentHoveredContainer = newContainer;
+            _currentHoveredExternalUI = newExternalUI;
 
             LootHoverChanged?.Invoke(newLoot);
-            ContainerHoverChanged?.Invoke(newContainer);
+            ExternalUIHoverChanged?.Invoke(newExternalUI);
         }
 
-        private void TryInteractWithContainer(IContainerUI container)
+        private void TryInteractWithExternalUI(IExternalUI externalUI)
         {
-            if (!_inventoryManager.IsInventoryOpen)
-                _inventoryManager.OpenInventory();
-
-            _buildingContainerService.OpenContainer(container);
+            _externalUIManager.Open(externalUI);
         }
 
         private void TryPickUpLoot(LootItemView loot)

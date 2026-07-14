@@ -11,14 +11,14 @@ namespace InventoryModule
         [SerializeField] private List<AbstractGrid> presetGrids = new();
 
         private readonly List<AbstractGrid> _grids = new();
-        private IContainerUI _container;
+        private IExternalUI _container;
         private IInventoryManager _inventoryManager;
         private DiContainer _diContainer;
         private bool _isInitialized;
 
-        public IContainerUI Container => _container;
+        public IExternalUI Container => _container;
 
-        public void Initialize(IContainerUI container, IInventoryManager inventoryManager, DiContainer diContainer)
+        public void Initialize(IExternalUI container, IInventoryManager inventoryManager, DiContainer diContainer)
         {
             if (_isInitialized && _container == container)
                 return;
@@ -38,7 +38,10 @@ namespace InventoryModule
 
             var gridIndex = 0;
 
-            foreach (var gridTable in _container.Grids)
+            if (!(_container is IInventoryGridView gridView))
+                return;
+
+            foreach (var gridTable in gridView.Grids)
             {
                 AbstractGrid grid;
 
@@ -69,9 +72,12 @@ namespace InventoryModule
             if (_container == null || _inventoryManager == null || _grids.Count == 0)
                 return;
 
-            for (int i = 0; i < _grids.Count && i < _container.Grids.Count; i++)
+            if (!(_container is IInventoryGridView gridView))
+                return;
+
+            for (int i = 0; i < _grids.Count && i < gridView.Grids.Count; i++)
             {
-                var gridTable = _container.Grids[i];
+                var gridTable = gridView.Grids[i];
                 var grid = _grids[i];
 
                 grid.SetGridTableOnly(gridTable);
@@ -84,7 +90,10 @@ namespace InventoryModule
             if (_container == null || _inventoryManager == null)
                 return;
 
-            foreach (var gridTable in _container.Grids)
+            if (!(_container is IInventoryGridView gridView))
+                return;
+
+            foreach (var gridTable in gridView.Grids)
             {
                 _inventoryManager.UnregisterAdditionalGrid(gridTable);
             }

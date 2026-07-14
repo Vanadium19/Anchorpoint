@@ -11,7 +11,7 @@ namespace PlayerModule
         private readonly InteractionHUDView _view;
         private readonly PlayerConfig _config;
         private LootItemView _lastLoot;
-        private IContainerUI _lastContainer;
+        private IExternalUI _lastExternalUI;
 
         public InteractionPresenter(
             PlayerInteractionController controller,
@@ -28,13 +28,13 @@ namespace PlayerModule
             _view.Show("");
             _view.Hide();
             _controller.LootHoverChanged += OnLootHoverChanged;
-            _controller.ContainerHoverChanged += OnContainerHoverChanged;
+            _controller.ExternalUIHoverChanged += OnExternalUIHoverChanged;
         }
 
         public void Dispose()
         {
             _controller.LootHoverChanged -= OnLootHoverChanged;
-            _controller.ContainerHoverChanged -= OnContainerHoverChanged;
+            _controller.ExternalUIHoverChanged -= OnExternalUIHoverChanged;
         }
 
         private void OnLootHoverChanged(LootItemView loot)
@@ -43,7 +43,7 @@ namespace PlayerModule
             {
                 _lastLoot = null;
 
-                if (_lastContainer == null)
+                if (_lastExternalUI == null)
                     _view.Hide();
 
                 return;
@@ -58,11 +58,11 @@ namespace PlayerModule
             _view.Show(message);
         }
 
-        private void OnContainerHoverChanged(IContainerUI container)
+        private void OnExternalUIHoverChanged(IExternalUI externalUI)
         {
-            if (container == null)
+            if (externalUI == null)
             {
-                _lastContainer = null;
+                _lastExternalUI = null;
 
                 if (_lastLoot == null)
                     _view.Hide();
@@ -70,9 +70,9 @@ namespace PlayerModule
                 return;
             }
 
-            _lastContainer = container;
+            _lastExternalUI = externalUI;
             var message = string.Format(_config.ContainerHintFormat,
-                container.DisplayName);
+                externalUI.DisplayName);
             _view.Show(message);
         }
     }

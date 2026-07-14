@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8776940336746235579}
   - component: {fileID: 9073956356888515507}
+  - component: {fileID: -6949563239718337279}
   m_Layer: 0
   m_Name: Table
   m_TagString: Untagged
@@ -46,6 +47,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingView
   collisionCollider: {fileID: 3005456430059036003}
+--- !u!114 &-6949563239718337279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1193714027369651425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96051174d3180404b8b36b233fa932cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BaseModule::BaseModule.Workbench
+  displayName: Workbench
+  uiPrefab: {fileID: 6687326268205152755, guid: f2ac4464bc3ac92418408404e29a5910, type: 3}
+  recipes:
+  - {fileID: 11400000, guid: 3d7f76b632f484c4c85dc0860b0b43f6, type: 2}
+  - {fileID: 11400000, guid: dc67b19b073fd58439d1c2411b62c483, type: 2}
+  - {fileID: 11400000, guid: 5cf55b83ddf816f41b254befd7657fda, type: 2}
+  - {fileID: 11400000, guid: f6f83b4935967e342a3f3d64537cbf51, type: 2}
+  - {fileID: 11400000, guid: 5fc98d22ee4241e4d9f98d6eb1eeefca, type: 2}
+  - {fileID: 11400000, guid: 89ca2055130c1d54a8bda55e6edbd3a8, type: 2}
+  - {fileID: 11400000, guid: 56061caf7ffb2b4479828f7968a480a0, type: 2}
+  - {fileID: 11400000, guid: 2027b15d78636f949825dcee3ef2eea0, type: 2}
+  - {fileID: 11400000, guid: 7971b6b2d864bf344984f1ae78f398c9, type: 2}
 --- !u!1 &1820183032517582878
 GameObject:
   m_ObjectHideFlags: 0
