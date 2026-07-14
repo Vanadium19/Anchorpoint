@@ -2121,6 +2121,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: SpawnModule::SpawnModule.LootSpawnInstaller
   spawnPointsView: {fileID: 2041455789}
+  playerSpawnPoint: {fileID: 1150780799}
+  minimumPlayerSpawnDistance: 10
+  floorLayer:
+    serializedVersion: 2
+    m_Bits: 531
+  floorCheckHeight: 2
+  floorCheckDistance: 5
+  maximumFloorAngle: 45
+  floorOffset: 0.05
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  clearanceRadius: 0.35
+  clearanceHeight: 0.7
+  minimumLootSpacing: 0.75
+  positionSearchAttempts: 20
 --- !u!1001 &502489095
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3365,6 +3381,10 @@ PrefabInstance:
     - target: {fileID: 2639797715039207605, guid: 9b7c0bbbe8c34454880cd7baccb214e0, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3829617690783208469, guid: 9b7c0bbbe8c34454880cd7baccb214e0, type: 3}
+      propertyPath: m_BlockingMask.m_Bits
+      value: 2039
       objectReference: {fileID: 0}
     - target: {fileID: 3949135994129054469, guid: 9b7c0bbbe8c34454880cd7baccb214e0, type: 3}
       propertyPath: m_IsActive
