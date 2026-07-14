@@ -11,3 +11,4 @@ namespace InventoryModule
         EquipmentSlot GetSlot(EquipmentSlotType slotType);
     }
 }
+

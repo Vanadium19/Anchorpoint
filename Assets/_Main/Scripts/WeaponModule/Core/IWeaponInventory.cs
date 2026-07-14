@@ -1,3 +1,5 @@
+using InventoryModule;
+
 namespace WeaponModule
 {
     public interface IWeaponInventory
@@ -6,8 +8,7 @@ namespace WeaponModule
         int WeaponsCount { get; }
 
         void Initialize();
-        void EquipWeapon(int index);
+        void EquipWeapon(ItemTable item);
         void UnequipCurrentWeapon();
-        void EquipLastWeapon();
     }
 }
