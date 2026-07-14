@@ -21,7 +21,7 @@ namespace CampSaveModule
             CampSaveable campSaveable,
             InventorySaveable inventorySaveable,
             BuffSaveable buffSaveable,
-            WorkbenchSaveable workbenchSaveable)
+            WorkbenchSaveable workbenchSaveable,
             DeathLootSaveable deathLootSaveable,
             IDeathLootSpawner deathLootSpawner)
         {
