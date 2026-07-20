@@ -18,7 +18,6 @@ namespace MenuModule
 
         public void Initialize()
         {
-            Time.timeScale = 1f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 

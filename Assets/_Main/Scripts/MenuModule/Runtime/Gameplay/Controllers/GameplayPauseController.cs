@@ -1,3 +1,4 @@
+using BaseModule;
 using System;
 using InputModule;
 using Zenject;
@@ -8,11 +9,11 @@ namespace MenuModule
     {
         private readonly IInputMap _inputMap;
         private readonly IInputService _inputService;
-        private readonly IGamePauseService _pauseService;
+        private readonly IPauseManager _pauseService;
 
         public GameplayPauseController(IInputMap inputMap,
             IInputService inputService,
-            IGamePauseService pauseService)
+            IPauseManager pauseService)
         {
             _inputMap = inputMap;
             _inputService = inputService;
@@ -30,7 +31,7 @@ namespace MenuModule
             if (!_inputMap.IsPausePressed)
                 return;
 
-            if (_pauseService.HasReason(GamePauseReason.Victory))
+            if (_pauseService.HasReason(PauseReason.Victory))
                 return;
 
             _pauseService.ToggleUserPause();
@@ -48,7 +49,7 @@ namespace MenuModule
 
         private void ApplyInputMode()
         {
-            if (_pauseService.HasReason(GamePauseReason.UserPause))
+            if (_pauseService.HasReason(PauseReason.UserPause))
             {
                 _inputService.SetUIMode(true);
                 return;

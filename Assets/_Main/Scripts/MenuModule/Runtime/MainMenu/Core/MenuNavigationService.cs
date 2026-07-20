@@ -23,7 +23,6 @@ namespace MenuModule
 
         public void LoadGameFromMenu()
         {
-            Time.timeScale = 1f;
             var sceneName = _config.CampSceneName;
             SceneManager.LoadScene(sceneName);
         }
@@ -33,7 +32,6 @@ namespace MenuModule
             if (saveBeforeLoad)
                 _gameSaveLoader?.Save();
 
-            Time.timeScale = 1f;
             var sceneName = _config.MainMenuSceneName;
             SceneManager.LoadScene(sceneName);
         }

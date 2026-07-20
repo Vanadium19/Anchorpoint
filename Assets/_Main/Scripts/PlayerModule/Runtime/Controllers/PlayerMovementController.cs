@@ -1,3 +1,5 @@
+using System;
+using BaseModule;
 using ComponentsModule;
 using InputModule;
 using UnityEngine;
@@ -5,7 +7,7 @@ using Zenject;
 
 namespace PlayerModule
 {
-    public class PlayerMovementController : ITickable
+    public class PlayerMovementController : IInitializable, ITickable, IDisposable, IPausable
     {
         private readonly IMoveComponent _mover;
         private readonly IRotationComponent _rotation;
@@ -14,6 +16,9 @@ namespace PlayerModule
         private readonly IInputMap _inputMap;
         private readonly PlayerConfig _config;
         private readonly bool _isLeanEnabled;
+        private readonly IPauseManager _pauseManager;
+
+        private bool _isPaused;
 
         public PlayerMovementController(
             IMoveComponent mover,
@@ -22,6 +27,7 @@ namespace PlayerModule
             ILeanComponent leaner,
             IInputMap inputMap,
             PlayerConfig config,
+            IPauseManager pauseManager,
             bool isLeanEnabled)
         {
             _mover = mover;
@@ -30,12 +36,19 @@ namespace PlayerModule
             _leaner = leaner;
             _inputMap = inputMap;
             _config = config;
+            _pauseManager = pauseManager;
             _isLeanEnabled = isLeanEnabled;
         }
 
+        public void Initialize() => _pauseManager.Register(this);
+
+        public void Dispose() => _pauseManager.Unregister(this);
+
+        public void SetPaused(bool isPaused) => _isPaused = isPaused;
+
         public void Tick()
         {
-            if (_inputMap.IsUIMode)
+            if (_isPaused || _inputMap.IsUIMode)
                 return;
 
             Move();

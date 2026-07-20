@@ -1,3 +1,4 @@
+using BaseModule;
 using InputModule;
 using InventoryModule;
 using System;
@@ -7,7 +8,7 @@ using Zenject;
 
 namespace PlayerModule
 {
-    public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable
+    public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable, IPausable
     {
         private readonly IInputMap _input;
         private readonly IInventoryManager _inventoryManager;
@@ -15,6 +16,7 @@ namespace PlayerModule
         private readonly Camera _camera;
         private readonly PlayerConfig _config;
         private readonly IDeathLootStorage _deathLootStorage;
+        private readonly IPauseManager _pauseManager;
 
         public event Action<LootItemView> LootHoverChanged;
         public event Action<IContainerUI> ContainerHoverChanged;
@@ -22,6 +24,7 @@ namespace PlayerModule
         private LootItemView _currentHoveredLoot;
         private IContainerUI _currentHoveredContainer;
         private Collider _lastHitCollider;
+        private bool _isPaused;
 
         public PlayerInteractionController(
             IInputMap input,
@@ -29,7 +32,8 @@ namespace PlayerModule
             IBuildingContainerService buildingContainerService,
             Camera camera,
             PlayerConfig config,
-            IDeathLootStorage deathLootStorage)
+            IDeathLootStorage deathLootStorage,
+            IPauseManager pauseManager)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
             _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
@@ -37,13 +41,29 @@ namespace PlayerModule
             _camera = camera;
             _config = config;
             _deathLootStorage = deathLootStorage;
+            _pauseManager = pauseManager;
         }
 
-        public void Initialize() { }
-        public void Dispose() { }
+        public void Initialize() => _pauseManager.Register(this);
+
+        public void Dispose() => _pauseManager.Unregister(this);
+
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
+
+            if (isPaused)
+            {
+                _lastHitCollider = null;
+                UpdateHover(null, null);
+            }
+        }
 
         public void Tick()
         {
+            if (_isPaused)
+                return;
+
             var ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
             if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))

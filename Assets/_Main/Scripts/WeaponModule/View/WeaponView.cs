@@ -25,6 +25,8 @@ namespace WeaponModule
         private CharacterController _playerCharacter;
 
         private Transform _cameraTransform;
+        private bool _isPaused;
+        private bool _wasMuzzleFlashPlaying;
 
         public void Initialize(WeaponConfig config)
         {
@@ -39,6 +41,30 @@ namespace WeaponModule
 
         //FIXME: Unused method
         public void SetActive(bool isActive) => gameObject.SetActive(isActive);
+
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
+
+            if (handsAnimator != null)
+                handsAnimator.speed = isPaused ? 0f : 1f;
+
+            if (gunAnimator != null)
+                gunAnimator.speed = isPaused ? 0f : 1f;
+
+            if (muzzleFlash != null)
+            {
+                if (isPaused)
+                {
+                    _wasMuzzleFlashPlaying = muzzleFlash.isPlaying;
+                    muzzleFlash.Pause(true);
+                }
+                else if (_wasMuzzleFlashPlaying)
+                {
+                    muzzleFlash.Play(true);
+                }
+            }
+        }
 
         public void SetTriggerHold(bool isHeld)
         {
@@ -120,6 +146,9 @@ namespace WeaponModule
 
         public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
         {
+            if (_isPaused)
+                return;
+
             _weaponRecoil.Update(deltaTime);
             _cameraRecoil.Update(deltaTime);
             _sway.Update(lookInput, _config.Sway, deltaTime, isAiming);

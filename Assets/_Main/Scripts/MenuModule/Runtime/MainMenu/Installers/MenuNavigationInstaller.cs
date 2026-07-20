@@ -1,3 +1,4 @@
+using BaseModule;
 using UnityEngine;
 using Zenject;
 
@@ -10,7 +11,7 @@ namespace MenuModule
 
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<GamePauseService>()
+            Container.BindInterfacesAndSelfTo<PauseManager>()
                 .AsSingle()
                 .NonLazy();
 

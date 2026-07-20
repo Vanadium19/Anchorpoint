@@ -11,8 +11,6 @@ namespace MenuModule
 
         public event Action MainMenuClicked;
 
-        private GameObject _target => panel != null ? panel : gameObject;
-
         private void OnEnable()
         {
             if (mainMenuButton != null)
@@ -25,9 +23,23 @@ namespace MenuModule
                 mainMenuButton.onClick.RemoveListener(OnMainMenuClicked);
         }
 
-        public void Show() => _target?.SetActive(true);
+        public void Show() => SetTargetActive(true);
 
-        public void Hide() => _target?.SetActive(false);
+        public void Hide() => SetTargetActive(false);
+
+        private void SetTargetActive(bool isActive)
+        {
+            if (this == null)
+                return;
+
+            if (panel != null)
+            {
+                panel.SetActive(isActive);
+                return;
+            }
+
+            gameObject.SetActive(isActive);
+        }
 
         private void OnMainMenuClicked() => MainMenuClicked?.Invoke();
     }

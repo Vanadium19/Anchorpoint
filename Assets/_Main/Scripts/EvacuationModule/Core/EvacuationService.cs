@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using BaseModule;
 using Cysharp.Threading.Tasks;
 using InputModule;
 using SaveModule;
@@ -9,13 +10,15 @@ using Zenject;
 
 namespace EvacuationModule
 {
-    public class EvacuationService : IDisposable, IEvacuationService
+    public class EvacuationService : IDisposable, IEvacuationService, IPausable
     {
         private readonly EvacuationConfig _config;
         private readonly IInputService _input;
         private readonly IGameSaveLoader _gameSaveLoader;
+        private readonly IPauseManager _pauseManager;
 
         private CancellationTokenSource _tokenSource;
+        private bool _isPaused;
 
         public event Action Canceled;
         public event Action Completed;
@@ -24,14 +27,21 @@ namespace EvacuationModule
         public EvacuationService(
             EvacuationConfig config,
             IInputService input,
+            IPauseManager pauseManager,
             [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
         {
             _config = config;
             _input = input;
+            _pauseManager = pauseManager;
             _gameSaveLoader = gameSaveLoader;
+            _pauseManager.Register(this);
         }
 
-        public void Dispose() => CancelTimer();
+        public void Dispose()
+        {
+            _pauseManager.Unregister(this);
+            CancelTimer();
+        }
 
         public void ChangeZoneState(bool isInside)
         {
@@ -40,6 +50,8 @@ namespace EvacuationModule
             else
                 CancelTimer();
         }
+
+        public void SetPaused(bool isPaused) => _isPaused = isPaused;
 
         private void CancelTimer()
         {
@@ -68,6 +80,9 @@ namespace EvacuationModule
 
                 if (canceled)
                     return;
+
+                if (_isPaused)
+                    continue;
 
                 timer -= Time.deltaTime;
             }

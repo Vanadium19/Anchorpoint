@@ -1,3 +1,4 @@
+using BaseModule;
 using System;
 using Zenject;
 
@@ -7,11 +8,11 @@ namespace MenuModule
     {
         private readonly PauseMenuView _view;
 
-        private readonly IGamePauseService _pauseService;
+        private readonly IPauseManager _pauseService;
         private readonly IMenuNavigationService _navigationService;
 
         public PauseMenuPresenter(PauseMenuView view,
-            IGamePauseService pauseService,
+            IPauseManager pauseService,
             IMenuNavigationService navigationService)
         {
             _view = view;
@@ -21,6 +22,9 @@ namespace MenuModule
 
         public void Initialize()
         {
+            if (_view == null)
+                return;
+
             _view.Hide();
 
             _view.MainMenuClicked += OnMainMenuClicked;
@@ -30,7 +34,8 @@ namespace MenuModule
 
         public void Dispose()
         {
-            _view.MainMenuClicked -= OnMainMenuClicked;
+            if (_view != null)
+                _view.MainMenuClicked -= OnMainMenuClicked;
 
             _pauseService.PauseStateChanged -= OnPauseStateChanged;
         }
@@ -41,7 +46,10 @@ namespace MenuModule
 
         private void ApplyUserPauseState()
         {
-            if (_pauseService.HasReason(GamePauseReason.UserPause))
+            if (_view == null)
+                return;
+
+            if (_pauseService.HasReason(PauseReason.UserPause))
             {
                 _view.Show();
                 return;

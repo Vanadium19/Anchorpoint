@@ -5,7 +5,8 @@
         "Zenject",
         "EnemyModule",
         "UniTask",
-        "InventoryModule"
+        "InventoryModule",
+        "BaseModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
