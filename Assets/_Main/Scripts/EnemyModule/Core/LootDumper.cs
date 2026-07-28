@@ -31,7 +31,6 @@ namespace EnemyModule
         private void DropLoot()
         {
             var count = _config.GetRandomDropCount();
-            Debug.Log($"Dropping {count} loot items.");
 
             for (int i = 0; i < count; i++)
             {
@@ -53,7 +52,6 @@ namespace EnemyModule
 
             var lootInstance = Object.Instantiate(item.WorldPrefab, spawnPosition, Quaternion.identity);
             lootInstance.SetItemTable(new(item));
-            Debug.Log($"Spawned {lootInstance}.");
         }
     }
 }

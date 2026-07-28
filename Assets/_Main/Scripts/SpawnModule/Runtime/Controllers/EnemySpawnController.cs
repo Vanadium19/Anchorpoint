@@ -2,16 +2,17 @@ using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Zenject;
 
 namespace SpawnModule
 {
-    public sealed class EnemySpawnController : IInitializable, IDisposable
+    public sealed class EnemySpawnController
     {
         private readonly LevelSpawnPointsView _view;
         private readonly IEnemyFactory _factory;
         private readonly SpawnConfig _config;
+
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _isSessionStarted;
         private bool _isSpawning;
 
         public EnemySpawnController(
@@ -24,8 +25,12 @@ namespace SpawnModule
             _config = config;
         }
 
-        public void Initialize()
+        public void StartSession()
         {
+            if (_isSessionStarted)
+                return;
+
+            _isSessionStarted = true;
             Spawn(_config.InitialEnemyCount);
             StartSpawning();
         }
@@ -43,6 +48,12 @@ namespace SpawnModule
 
         public void Spawn() => Spawn(_config.EnemiesPerWave);
 
+        public void StopSession()
+        {
+            _isSessionStarted = false;
+            StopSpawning();
+        }
+
         public void StopSpawning()
         {
             _isSpawning = false;
@@ -55,8 +66,6 @@ namespace SpawnModule
             _cancellationTokenSource = null;
         }
 
-        public void Dispose() => StopSpawning();
-
         private void Spawn(int enemyCount)
         {
             if (enemyCount <= 0)
@@ -65,8 +74,10 @@ namespace SpawnModule
             var points = _view.SpawnPoints;
 
             if (enemyCount > points.Count)
+            {
                 throw new InvalidOperationException(
                     $"Enemy count ({enemyCount}) is greater than spawn point count ({points.Count}).");
+            }
 
             var shuffledPoints = points
                 .OrderBy(_ => UnityEngine.Random.value)

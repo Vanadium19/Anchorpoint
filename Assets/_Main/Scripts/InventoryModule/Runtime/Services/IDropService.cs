@@ -6,5 +6,6 @@ namespace InventoryModule
     {
         bool TryDropItem(ItemTable item);
         bool TryDropItem(ItemTable item, Vector3 worldPosition);
+        bool TryDropItem(ItemTable item, Vector3 worldPosition, bool isPlayerDeathLoot);
     }
 }
