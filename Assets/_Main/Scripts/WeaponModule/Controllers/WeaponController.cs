@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using BaseModule;
 using Cysharp.Threading.Tasks;
 using InventoryModule;
 using UnityEngine;
@@ -7,7 +8,7 @@ using Zenject;
 
 namespace WeaponModule
 {
-    public class WeaponController : IWeapon, IInitializable, ITickable, ILateTickable, IDisposable
+    public class WeaponController : IWeapon, IInitializable, ITickable, ILateTickable, IDisposable, IPausable
     {
         private readonly WeaponConfig _config;
         private readonly WeaponModel _model;
@@ -15,12 +16,14 @@ namespace WeaponModule
         private readonly IWeaponStatsProvider _statsProvider;
         private readonly IWeaponViewFactory _viewFactory;
         private readonly IBulletFactory _bulletFactory;
+        private readonly IPauseManager _pauseManager;
 
         private float _nextFireTime;
         private bool _isReloading;
         private bool _isAiming;
         private bool _isAimToggleActive;
         private bool _shouldShootFrame;
+        private bool _isPaused;
 
         private Vector2 _moveInput;
         private Vector2 _lookInput;
@@ -43,7 +46,8 @@ namespace WeaponModule
             WeaponView view,
             IWeaponStatsProvider statsProvider,
             IWeaponViewFactory viewFactory,
-            IBulletFactory bulletFactory)
+            IBulletFactory bulletFactory,
+            IPauseManager pauseManager)
         {
             _config = config;
             _model = model;
@@ -51,8 +55,10 @@ namespace WeaponModule
             _statsProvider = statsProvider;
             _viewFactory = viewFactory;
             _bulletFactory = bulletFactory;
+            _pauseManager = pauseManager;
 
             _tokenSource = new();
+            _pauseManager.Register(this);
         }
 
         public WeaponModel Model => _model;
@@ -122,9 +128,7 @@ namespace WeaponModule
 
             _view.SetHolsterState(true);
 
-            bool canceled = await UniTask
-                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
-                .SuppressCancellationThrow();
+            bool canceled = await WaitWhilePlayableAsync(_config.DrawTime, _tokenSource.Token);
 
             if (!canceled)
                 _view.gameObject.SetActive(false);
@@ -139,13 +143,21 @@ namespace WeaponModule
 
         public void Dispose()
         {
+            _pauseManager.Unregister(this);
             CancelCurrentActions();
             _tokenSource.Dispose();
         }
 
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
+            _shouldShootFrame = false;
+            _view.SetPaused(isPaused);
+        }
+
         public void Tick()
         {
-            if (!_view.gameObject.activeSelf)
+            if (_isPaused || !_view.gameObject.activeSelf)
                 return;
 
             HandleAimingState();
@@ -157,7 +169,7 @@ namespace WeaponModule
 
         public void LateTick()
         {
-            if (!_view.gameObject.activeSelf)
+            if (_isPaused || !_view.gameObject.activeSelf)
                 return;
 
             HandleProceduralAnimation();
@@ -260,9 +272,7 @@ namespace WeaponModule
 
             if (delayBeforeReload > 0f)
             {
-                bool delayCanceled = await UniTask
-                    .Delay(TimeSpan.FromSeconds(delayBeforeReload), cancellationToken: _tokenSource.Token)
-                    .SuppressCancellationThrow();
+                bool delayCanceled = await WaitWhilePlayableAsync(delayBeforeReload, _tokenSource.Token);
 
                 if (delayCanceled)
                 {
@@ -279,9 +289,7 @@ namespace WeaponModule
 
             _view.PlayReload(isEmptyReload);
 
-            bool reloadCanceled = await UniTask
-                .Delay(TimeSpan.FromSeconds(_config.ReloadTime), cancellationToken: _tokenSource.Token)
-                .SuppressCancellationThrow();
+            bool reloadCanceled = await WaitWhilePlayableAsync(_config.ReloadTime, _tokenSource.Token);
 
             if (!reloadCanceled)
                 _model.Reload();
@@ -294,12 +302,31 @@ namespace WeaponModule
             _view.SetHolsterState(false);
             _isReloading = true;
 
-            bool canceled = await UniTask
-                .Delay(TimeSpan.FromSeconds(_config.DrawTime), cancellationToken: _tokenSource.Token)
-                .SuppressCancellationThrow();
+            bool canceled = await WaitWhilePlayableAsync(_config.DrawTime, _tokenSource.Token);
 
             if (!canceled)
                 _isReloading = false;
+        }
+
+        private async UniTask<bool> WaitWhilePlayableAsync(float duration, CancellationToken token)
+        {
+            var remainingTime = Mathf.Max(0f, duration);
+
+            while (remainingTime > 0f)
+            {
+                var canceled = await UniTask.Yield(PlayerLoopTiming.Update, token)
+                    .SuppressCancellationThrow();
+
+                if (canceled)
+                    return true;
+
+                if (_isPaused)
+                    continue;
+
+                remainingTime -= Time.deltaTime;
+            }
+
+            return false;
         }
 
         private void CancelCurrentActions()

@@ -10,7 +10,7 @@ namespace MenuModule
     {
         private readonly VictoryView _view;
         private readonly IBaseLevelService _baseLevelService;
-        private readonly IGamePauseService _pauseService;
+        private readonly IPauseManager _pauseService;
         private readonly IInputService _inputService;
         private readonly IConstructionModeService _constructionModeService;
         private readonly IBaseLevelPresenter _baseLevelPresenter;
@@ -19,7 +19,7 @@ namespace MenuModule
 
         public VictoryPresenter(VictoryView view,
             IBaseLevelService baseLevelService,
-            IGamePauseService pauseService,
+            IPauseManager pauseService,
             IInputService inputService,
             IConstructionModeService constructionModeService,
             IBaseLevelPresenter baseLevelPresenter = null)
@@ -54,7 +54,7 @@ namespace MenuModule
             _isShown = true;
             _constructionModeService?.SetActive(false);
             _baseLevelPresenter?.HideImmediately();
-            _pauseService.Pause(GamePauseReason.Victory);
+            _pauseService.Pause(PauseReason.Victory);
             _inputService.SetUIMode(true);
             _view.Show();
         }

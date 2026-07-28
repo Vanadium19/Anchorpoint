@@ -2,6 +2,8 @@
   "State": {
     "camp": "{\"BasePoints\":0,\"Buildings\":[]}",
     "inventory": "{\"inventory\":\"{\\\"Items\\\":[],\\\"GridWidth\\\":4,\\\"GridHeight\\\":2}\",\"equipment\":\"{\\\"Slots\\\":[]}\"}",
-    "player_buffs": "{\"Buffs\":[]}"
+    "player_buffs": "{\"Buffs\":[]}",
+    "workbench_queues": "{\"SavedAtUnixMs\":1785246397864,\"Queues\":[]}",
+    "death_loot": "{\"Piles\":[{\"SceneName\":\"Game\",\"PositionX\":1.54726851,\"PositionY\":3.08,\"PositionZ\":-14.9031153,\"Items\":[{\"ItemDataName\":\"MetalScrapData\",\"X\":0,\"Y\":0,\"StackCount\":1,\"IsRotated\":false,\"DurabilityCurrent\":0,\"MagazineAmmo\":0,\"ReserveAmmo\":0,\"NestedContainers\":[]},{\"ItemDataName\":\"AK74\",\"X\":0,\"Y\":0,\"StackCount\":1,\"IsRotated\":false,\"DurabilityCurrent\":0,\"MagazineAmmo\":30,\"ReserveAmmo\":90,\"NestedContainers\":[]},{\"ItemDataName\":\"AK74\",\"X\":0,\"Y\":0,\"StackCount\":1,\"IsRotated\":false,\"DurabilityCurrent\":0,\"MagazineAmmo\":20,\"ReserveAmmo\":90,\"NestedContainers\":[]}]}]}"
   }
 }

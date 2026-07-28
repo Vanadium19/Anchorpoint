@@ -1,17 +1,46 @@
 using System;
 using System.Collections.Generic;
+using BaseModule;
 using ComponentsModule;
 using Zenject;
 
 namespace EffectModule
 {
-    public class BuffService : IBuffService, global::Zenject.ITickable
+    public class BuffService : IBuffService, global::Zenject.IInitializable, global::Zenject.ITickable, IDisposable, IPausable
     {
         private readonly Dictionary<IEntity, List<ActiveBuff>> _activeBuffs = new();
+        private readonly IPauseManager _pauseManager;
+
+        private bool _isPaused;
+
+        public BuffService(IPauseManager pauseManager)
+        {
+            _pauseManager = pauseManager;
+        }
 
         public event Action<ActiveBuff> BuffAdded;
         public event Action<ActiveBuff> BuffRemoved;
         public event Action<ActiveBuff> BuffUpdated;
+
+        public void Initialize() => _pauseManager.Register(this);
+
+        public void Dispose() => _pauseManager.Unregister(this);
+
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
+
+            foreach (var kvp in _activeBuffs)
+            {
+                for (var i = 0; i < kvp.Value.Count; i++)
+                {
+                    if (isPaused)
+                        kvp.Value[i].Buff.Pause();
+                    else
+                        kvp.Value[i].Buff.Resume();
+                }
+            }
+        }
 
         public IReadOnlyList<ActiveBuff> GetActiveBuffs(IEntity target)
         {
@@ -41,6 +70,10 @@ namespace EffectModule
             var activeBuff = new ActiveBuff(buff, buffData);
             buff.Completed += OnBuffCompleted;
             buff.Apply(target);
+
+            if (_isPaused)
+                buff.Pause();
+
             _activeBuffs[target].Add(activeBuff);
 
             BuffAdded?.Invoke(activeBuff);
@@ -110,6 +143,9 @@ namespace EffectModule
 
         public void Tick()
         {
+            if (_isPaused)
+                return;
+
             foreach (var kvp in _activeBuffs)
             {
                 var buffs = kvp.Value;

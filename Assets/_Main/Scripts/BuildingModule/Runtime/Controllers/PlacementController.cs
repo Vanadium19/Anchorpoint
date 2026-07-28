@@ -1,11 +1,12 @@
 using System;
+using BaseModule;
 using ComponentsModule;
 using UnityEngine;
 using Zenject;
 
 namespace BuildingModule
 {
-    public class PlacementController : IInitializable, ITickable, IDisposable
+    public class PlacementController : IInitializable, ITickable, IDisposable, IPausable
     {
         private static readonly Vector3 ViewportCenter = new(0.5f, 0.5f);
 
@@ -19,6 +20,7 @@ namespace BuildingModule
         private readonly Camera _camera;
         private readonly LayerMask _raycastLayers;
         private readonly bool _useGrid;
+        private readonly IPauseManager _pauseManager;
 
         private bool _isActive;
         private float _relativeRotation;
@@ -27,6 +29,7 @@ namespace BuildingModule
         private Vector3 _smoothedPosition;
         private Vector3 _targetPosition;
         private bool _hasGroundSupport;
+        private bool _isPaused;
 
         public PlacementController(
             IConstructionModeService constructionModeService,
@@ -37,6 +40,7 @@ namespace BuildingModule
             PlacementConfig config,
             BuildingCatalog catalog,
             Camera camera,
+            IPauseManager pauseManager,
             LayerMask raycastLayers = default,
             bool useGrid = true)
         {
@@ -48,16 +52,21 @@ namespace BuildingModule
             _config = config;
             _catalog = catalog;
             _camera = camera;
+            _pauseManager = pauseManager;
             _raycastLayers = raycastLayers;
             _useGrid = useGrid;
             _currentPlacementDistance = config.MaxPlacementDistance;
         }
 
-        public void Initialize() => _constructionModeService.ActiveChanged += OnActiveChanged;
+        public void Initialize()
+        {
+            _pauseManager.Register(this);
+            _constructionModeService.ActiveChanged += OnActiveChanged;
+        }
 
         public void Tick()
         {
-            if (!_isActive)
+            if (_isPaused || !_isActive)
                 return;
 
             HandleRotation();
@@ -67,7 +76,19 @@ namespace BuildingModule
             HandlePlace();
         }
 
-        public void Dispose() => _constructionModeService.ActiveChanged -= OnActiveChanged;
+        public void Dispose()
+        {
+            _constructionModeService.ActiveChanged -= OnActiveChanged;
+            _pauseManager.Unregister(this);
+        }
+
+        public void SetPaused(bool isPaused)
+        {
+            _isPaused = isPaused;
+
+            if (isPaused)
+                _placementService.Cancel();
+        }
 
         private void HandleRotation()
         {

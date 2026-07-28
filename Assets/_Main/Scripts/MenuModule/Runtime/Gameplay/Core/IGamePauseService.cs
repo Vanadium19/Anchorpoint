@@ -1,20 +1,10 @@
 using System;
-using System.Collections.Generic;
+using BaseModule;
 
 namespace MenuModule
 {
-    public interface IGamePauseService
+    [Obsolete("Use IPauseManager instead.")]
+    public interface IGamePauseService : IPauseManager
     {
-        event Action<bool> PauseStateChanged;
-
-        bool IsPaused { get; }
-        IReadOnlyCollection<GamePauseReason> ActiveReasons { get; }
-
-        bool HasReason(GamePauseReason reason);
-        void Pause(GamePauseReason reason);
-        void Resume(GamePauseReason reason);
-        void ToggleUserPause();
-
-        void Clear();
     }
 }

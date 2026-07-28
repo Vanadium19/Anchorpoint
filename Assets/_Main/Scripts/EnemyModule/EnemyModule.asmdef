@@ -10,7 +10,8 @@
         "GUID:4c830bbd515e4f61bf5d288ad29d17db",
         "GUID:03729e6f50a1b48838b86974171707ac",
         "GUID:fea480186142456eb5c538f765c70e1c",
-        "GUID:b0fa729549014d43954d903977c86e8a"
+        "GUID:b0fa729549014d43954d903977c86e8a",
+        "BaseModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

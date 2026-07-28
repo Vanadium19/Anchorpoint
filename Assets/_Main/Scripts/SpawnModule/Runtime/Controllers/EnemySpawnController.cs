@@ -1,31 +1,39 @@
 using System;
 using System.Linq;
 using System.Threading;
+using BaseModule;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 using Zenject;
 
 namespace SpawnModule
 {
-    public sealed class EnemySpawnController : IInitializable, IDisposable
+    public sealed class EnemySpawnController : IInitializable, IDisposable, IPausable
     {
         private readonly LevelSpawnPointsView _view;
         private readonly IEnemyFactory _factory;
         private readonly SpawnConfig _config;
+        private readonly IPauseManager _pauseManager;
+
         private CancellationTokenSource _cancellationTokenSource;
         private bool _isSpawning;
+        private bool _isPaused;
 
         public EnemySpawnController(
             LevelSpawnPointsView view,
             IEnemyFactory factory,
-            SpawnConfig config)
+            SpawnConfig config,
+            IPauseManager pauseManager)
         {
             _view = view;
             _factory = factory;
             _config = config;
+            _pauseManager = pauseManager;
         }
 
         public void Initialize()
         {
+            _pauseManager.Register(this);
             Spawn(_config.InitialEnemyCount);
             StartSpawning();
         }
@@ -55,7 +63,13 @@ namespace SpawnModule
             _cancellationTokenSource = null;
         }
 
-        public void Dispose() => StopSpawning();
+        public void SetPaused(bool isPaused) => _isPaused = isPaused;
+
+        public void Dispose()
+        {
+            _pauseManager.Unregister(this);
+            StopSpawning();
+        }
 
         private void Spawn(int enemyCount)
         {
@@ -78,24 +92,42 @@ namespace SpawnModule
 
         private async UniTaskVoid SpawnLoopAsync(CancellationToken token)
         {
-            try
-            {
-                await UniTask.WaitForSeconds(
-                    _config.FirstWaveDelay,
-                    cancellationToken: token);
+            var canceled = await WaitWhilePlayableAsync(_config.FirstWaveDelay, token);
 
-                while (!token.IsCancellationRequested && _isSpawning)
-                {
+            if (canceled)
+                return;
+
+            while (!token.IsCancellationRequested && _isSpawning)
+            {
+                if (!_isPaused)
                     Spawn();
 
-                    await UniTask.WaitForSeconds(
-                        _config.WaveInterval,
-                        cancellationToken: token);
-                }
+                canceled = await WaitWhilePlayableAsync(_config.WaveInterval, token);
+
+                if (canceled)
+                    return;
             }
-            catch (OperationCanceledException)
+        }
+
+        private async UniTask<bool> WaitWhilePlayableAsync(float duration, CancellationToken token)
+        {
+            var remainingTime = Mathf.Max(0f, duration);
+
+            while (remainingTime > 0f)
             {
+                var canceled = await UniTask.Yield(PlayerLoopTiming.Update, token)
+                    .SuppressCancellationThrow();
+
+                if (canceled)
+                    return true;
+
+                if (_isPaused)
+                    continue;
+
+                remainingTime -= Time.deltaTime;
             }
+
+            return false;
         }
     }
 }
