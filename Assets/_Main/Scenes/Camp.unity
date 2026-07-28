@@ -1443,7 +1443,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 1
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1542,11 +1542,11 @@ RectTransform:
   - {fileID: 519017408}
   m_Father: {fileID: 458067501}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 730, y: -401.00003}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -30, y: 90}
   m_SizeDelta: {x: 400, y: 30}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_Pivot: {x: 1, y: 0}
 --- !u!114 &458101395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5148,6 +5148,7 @@ MonoBehaviour:
   itemCatalog: {fileID: 11400000, guid: 92501a77e0aef534eabcfea7101354ba, type: 2}
   inventoryUI: {fileID: 1539802521}
   externalPanel: {fileID: 58877744}
+  playerUI: {fileID: 0}
   characterInventory: {fileID: 1085248790}
   mainCanvas: {fileID: 770494282}
   playerTransform: {fileID: 1085248789}
@@ -5549,7 +5550,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 62.65
+  m_fontSize: 34.95
   m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7139,6 +7140,10 @@ PrefabInstance:
       propertyPath: slotType
       value: 64
       objectReference: {fileID: 0}
+    - target: {fileID: 1188632433002363069, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5272714159224080321, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7182,6 +7187,10 @@ PrefabInstance:
     - target: {fileID: 6920865317428132323, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
       propertyPath: m_Name
       value: InventoryUI
+      objectReference: {fileID: 0}
+    - target: {fileID: 6920865317428132323, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8140758583845519866, guid: e3bfaa180d56e5840bc8c73aa6a8ac7e, type: 3}
       propertyPath: slotName

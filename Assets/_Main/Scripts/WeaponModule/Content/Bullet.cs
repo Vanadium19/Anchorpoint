@@ -12,6 +12,7 @@ namespace WeaponModule
         private float _damage;
         private Rigidbody _rigidbody;
         private TrailRenderer _trail;
+        private GameObject _owner;
 
         private void Awake()
         {
@@ -23,9 +24,10 @@ namespace WeaponModule
                 _trail.enabled = false;
         }
 
-        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity)
+        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity, GameObject owner)
         {
             _damage = damage;
+            _owner = owner;
 
             if (_rigidbody != null)
             {
@@ -48,6 +50,12 @@ namespace WeaponModule
 
         private void OnCollisionEnter(Collision collision)
         {
+            if (_owner != null && collision.transform.IsChildOf(_owner.transform))
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             var entity = collision.gameObject.GetComponentInParent<IEntity>();
 
             if (entity != null && entity.TryGet<IDamageable>(out var damageable))
