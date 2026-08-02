@@ -1,0 +1,21 @@
+Copyright © Tiny Teacup Studio, 2025
+
+You are granted the following rights when purchasing or downloading this asset pack:
+
+You can:
+- Use the assets in personal and commercial projects, including games, videos, and interactive applications.
+- Modify, remix, or combine these assets with your own work.
+- Distribute or sell your finished projects that include these assets (e.g., a game).
+
+You cannot:
+- Resell, redistribute, or repackage these assets in their original or modified form, whether free or paid.
+- Include these assets in another asset pack, template, or tool meant for redistribution.
+- Claim authorship or ownership of these assets.
+
+Attribution (optional but appreciated)
+Credit is not required, but if you wish to give credit, please mention:
+“Environment models by Tiny Teacup Studio”
+
+Legal
+This license is non-exclusive and non-transferable.
+All assets are provided “as is,” without warranty. Tiny Teacup Studio retains full copyright ownership.
