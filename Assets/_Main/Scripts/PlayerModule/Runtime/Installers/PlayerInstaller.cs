@@ -12,6 +12,7 @@ namespace PlayerModule
         [SerializeField] private CharacterController characterController;
         [SerializeField] private Transform cameraRoot;
         [SerializeField] private Transform player;
+        [SerializeField] private PlayerFootstepView footstepView;
 
         [Header("Health")]
         [SerializeField] private HealthView healthView;
@@ -82,6 +83,17 @@ namespace PlayerModule
                 .AsSingle()
                 .WithArguments(isLeanEnabled)
                 .NonLazy();
+
+            if (footstepView != null)
+            {
+                Container.Bind<PlayerFootstepView>()
+                    .FromInstance(footstepView)
+                    .AsSingle();
+
+                Container.BindInterfacesTo<PlayerFootstepController>()
+                    .AsSingle()
+                    .NonLazy();
+            }
 
             Container.BindInterfacesAndSelfTo<PlayerInteractionController>()
                 .AsSingle()

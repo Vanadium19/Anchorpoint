@@ -18,11 +18,23 @@ namespace VFXModule
 
         public void Initialize(EffectId id) => _id = id;
 
-        public void Play() => FinishAsync().Forget();
+        public void Play()
+        {
+            if (particleSystem == null)
+            {
+                Finished?.Invoke(this);
+                return;
+            }
+
+            particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            particleSystem.Play(true);
+            FinishAsync().Forget();
+        }
 
         private async UniTaskVoid FinishAsync()
         {
-            await UniTask.WaitWhile(() => particleSystem.IsAlive());
+            await UniTask.Yield();
+            await UniTask.WaitWhile(() => particleSystem != null && particleSystem.IsAlive(true));
             Finished?.Invoke(this);
         }
     }

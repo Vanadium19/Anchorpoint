@@ -25,17 +25,15 @@ namespace VFXModule
         {
             var effects = _effects[effectId];
 
-            if (!effects.TryDequeue(out EffectView effect))
+            if (!effects.TryDequeue(out var effect))
                 effect = Spawn(effectId);
 
-            effect.gameObject.SetActive(true);
-            effect.transform.SetPositionAndRotation(position, rotation);
-            
-            if (parent != null)
-                effect.transform.SetParent(parent);
-
-            effect.Play();
+            effect.Finished -= OnEffectFinished;
             effect.Finished += OnEffectFinished;
+            effect.transform.SetParent(parent != null ? parent : _container, true);
+            effect.transform.SetPositionAndRotation(position, rotation);
+            effect.gameObject.SetActive(true);
+            effect.Play();
         }
 
         private EffectView Spawn(EffectId effectId)
@@ -48,10 +46,10 @@ namespace VFXModule
 
         private void OnEffectFinished(EffectView effect)
         {
-            effect.gameObject.SetActive(false);
-            _effects[effect.Id].Enqueue(effect);
-            effect.transform.SetParent(_container);
             effect.Finished -= OnEffectFinished;
+            effect.gameObject.SetActive(false);
+            effect.transform.SetParent(_container, true);
+            _effects[effect.Id].Enqueue(effect);
         }
     }
 }
