@@ -25,38 +25,6 @@ namespace InventoryModule
 
         public void Initialize()
         {
-            SetupSectionsContainer();
-        }
-
-        private void SetupSectionsContainer()
-        {
-            if (sectionsContainer == null) 
-                return;
-
-            var vlg = sectionsContainer.GetComponent<VerticalLayoutGroup>();
-
-            if (vlg == null)
-                vlg = sectionsContainer.gameObject.AddComponent<VerticalLayoutGroup>();
-
-            var csf = sectionsContainer.GetComponent<ContentSizeFitter>();
-
-            if (csf == null)
-                csf = sectionsContainer.gameObject.AddComponent<ContentSizeFitter>();
-        }
-
-        public void EnsureSectionHasLayoutElement(ContainerSection section)
-        {
-            if (section == null) 
-                return;
-
-            var layoutElement = section.GetComponent<LayoutElement>();
-
-            if (layoutElement == null)
-                layoutElement = section.gameObject.AddComponent<LayoutElement>();
-
-            layoutElement.minHeight = 40f;
-            layoutElement.preferredHeight = -1;
-            layoutElement.flexibleHeight = 0;
         }
 
         public void AddContainerSection(ContainerSection section)

@@ -49,9 +49,6 @@ namespace InventoryModule
             _rectTransform = GetComponent<RectTransform>();
             _layoutElement = GetComponent<LayoutElement>();
 
-            if (_layoutElement == null)
-                _layoutElement = gameObject.AddComponent<LayoutElement>();
-
             if (toggleButton != null)
                 toggleButton.onClick.AddListener(OnToggleClicked);
         }
@@ -124,13 +121,6 @@ namespace InventoryModule
                     if (panelPrefab != null)
                     {
                         var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
-
-                        var layoutElement = panelInstance.GetComponent<LayoutElement>();
-
-                        if (layoutElement == null)
-                            layoutElement = panelInstance.AddComponent<LayoutElement>();
-
-                        layoutElement.ignoreLayout = true;
 
                         var panelGrids = containerGrids.GetGridsFromPanel(panelInstance);
 
@@ -245,13 +235,6 @@ namespace InventoryModule
                 if (panelPrefab != null)
                 {
                     var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
-
-                    var layoutElement = panelInstance.GetComponent<LayoutElement>();
-
-                    if (layoutElement == null)
-                        layoutElement = panelInstance.AddComponent<LayoutElement>();
-
-                    layoutElement.ignoreLayout = true;
 
                     var panelGrids = panelInstance.GetComponentsInChildren<AbstractGrid>();
 

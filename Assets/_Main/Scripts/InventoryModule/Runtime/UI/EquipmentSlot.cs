@@ -274,7 +274,6 @@ namespace InventoryModule
             _linkedSection = _diContainer != null
                 ? _diContainer.InstantiatePrefabForComponent<ContainerSection>(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer)
                 : Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
-            inventoryPanel.EnsureSectionHasLayoutElement(_linkedSection);
             _linkedSection.InitializeContainer(item, metadata, containerGridPrefab);
             inventoryPanel.AddContainerSection(_linkedSection);
         }
