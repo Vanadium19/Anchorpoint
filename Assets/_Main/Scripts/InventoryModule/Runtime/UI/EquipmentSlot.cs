@@ -29,16 +29,13 @@ namespace InventoryModule
         private InventoryItem _equippedItemUI;
         private ContainerSection _linkedSection;
 
-        private bool _isRestoring;
-
-        private IInventoryManager _inventoryManager;
         private IEquipmentSlotService _slotService;
         private DiContainer _diContainer;
 
         public event Action<ItemTable> ItemEquipped;
         public event Action<ItemTable> ItemUnequipped;
 
-        public ItemTable EquippedItem { get; private set; }
+        public ItemTable EquippedItem { get; set; }
         public EquipmentSlotType SlotType => slotType;
         public bool IsEquipped => EquippedItem != null;
 
@@ -76,54 +73,50 @@ namespace InventoryModule
             }
 
             UpdateVisuals();
-            RestoreEquippedItem();
-            _slotService?.RegisterSlot(this);
+
+            if (_slotService != null)
+            {
+                _slotService.RestoreSavedItem(this);
+                _slotService.RegisterSlot(this);
+            }
         }
 
         private void OnDestroy()
         {
-            SaveEquippedItem();
-            _slotService?.UnregisterSlot(this);
+            if (_slotService != null)
+            {
+                _slotService.SaveEquippedItem(this);
+                _slotService.UnregisterSlot(this);
+            }
         }
 
-
         [Inject]
-        private void Construct(IInventoryManager inventoryManager, IEquipmentSlotService slotService, DiContainer diContainer)
+        private void Construct(IEquipmentSlotService slotService, DiContainer diContainer)
         {
-            _inventoryManager = inventoryManager;
             _slotService = slotService;
             _diContainer = diContainer;
         }
 
-        public bool CanEquip(ItemTable item)
+        public void OnDrop(PointerEventData eventData)
         {
-            if (item == null)
-                return false;
+            var draggedItem = eventData.pointerDrag?.GetComponent<AbstractItem>();
 
-            if (IsEquipped)
-                return false;
+            if (draggedItem == null || draggedItem.Item == null)
+                return;
 
-            if (!item.ItemDataSo.IsEquippable)
-                return false;
+            if (_slotService == null || !_slotService.TryEquip(this, draggedItem.Item))
+                return;
 
-            if (_slotService != null && _slotService.GetSlotForItem(item) != null)
-                return false;
+            draggedItem.Item.RemoveItselfFromLocation();
 
-            return item.ItemDataSo.EquipmentSlotType.HasFlag(slotType);
+            if (draggedItem.gameObject != gameObject && (_equippedItemUI == null || draggedItem.gameObject != _equippedItemUI.gameObject))
+                Destroy(draggedItem.gameObject);
         }
 
-        public bool TryEquip(ItemTable item)
+        public void ShowItemUI(ItemTable item)
         {
-            if (!CanEquip(item))
-                return false;
-
-            if (item.IsRotated)
-                item.Rotate();
-
-            EquippedItem = item;
-
-            if (!_isRestoring)
-                _inventoryManager?.SaveEquippedItem(slotType, item);
+            if (item == null)
+                return;
 
             if (itemPrefab != null)
             {
@@ -144,72 +137,14 @@ namespace InventoryModule
                 CreateContainerSection(item);
 
             UpdateVisuals();
-
-            if (!_isRestoring)
-                ItemEquipped?.Invoke(item);
-
-            return true;
         }
 
-        public void Unequip()
+        public void RestoreItemUI(ItemTable item, InventoryItem existingUI)
         {
-            if (EquippedItem == null)
+            if (item == null)
                 return;
 
-            var unequippedItem = EquippedItem;
-
-            RemoveContainerSection();
-
-            EquippedItem = null;
-
-            if (!_isRestoring)
-                _inventoryManager?.RemoveEquippedItem(slotType);
-
-            if (_equippedItemUI != null && _equippedItemUI.gameObject != null && _equippedItemUI.gameObject != gameObject)
-            {
-                Destroy(_equippedItemUI.gameObject);
-                _equippedItemUI = null;
-            }
-
-            UpdateVisuals();
-
-            if (!_isRestoring)
-                ItemUnequipped?.Invoke(unequippedItem);
-        }
-
-        public ItemTable ExtractItem(out EquipmentSlot extractedFromSlot)
-        {
-            if (EquippedItem == null)
-            {
-                extractedFromSlot = null;
-                return null;
-            }
-
-            extractedFromSlot = this;
-            var item = EquippedItem;
-
-            RemoveContainerSection();
-
-            EquippedItem = null;
-
-            _inventoryManager?.RemoveEquippedItem(slotType);
-
-            UpdateVisuals();
-            ItemUnequipped?.Invoke(item);
-            return item;
-        }
-
-        public void OnItemPlacedToInventory()
-        {
-            RemoveContainerSection();
-        }
-
-        public void ReturnItemToSlotWithUI(ItemTable item, InventoryItem existingUI)
-        {
-            EquippedItem = item;
             _equippedItemUI = existingUI;
-
-            _inventoryManager?.SaveEquippedItem(slotType, item);
 
             if (item.IsContainer)
                 CreateContainerSection(item);
@@ -217,47 +152,48 @@ namespace InventoryModule
             UpdateVisuals();
         }
 
-        public void OnDrop(PointerEventData eventData)
+        public void HideItemUI()
         {
-            var draggedItem = eventData.pointerDrag?.GetComponent<AbstractItem>();
-
-            if (draggedItem == null || draggedItem.Item == null)
-                return;
-
-            if (!TryEquip(draggedItem.Item))
-                return;
-
-            draggedItem.Item.RemoveItselfFromLocation();
-
-            if (draggedItem.gameObject != gameObject && (_equippedItemUI == null || draggedItem.gameObject != _equippedItemUI.gameObject))
-                Destroy(draggedItem.gameObject);
-        }
-
-        public ItemTable GetItem() => EquippedItem;
-
-        private void RestoreEquippedItem()
-        {
-            if (_inventoryManager == null)
-                return;
-
-            var savedItem = _inventoryManager.GetEquippedItem(slotType);
-
-            if (savedItem != null && !IsEquipped)
+            if (_equippedItemUI != null && _equippedItemUI.gameObject != null && _equippedItemUI.gameObject != gameObject)
             {
-                _isRestoring = true;
-                TryEquip(savedItem);
-                _isRestoring = false;
+                Destroy(_equippedItemUI.gameObject);
+                _equippedItemUI = null;
             }
+
+            UpdateVisuals();
         }
 
-        private void SaveEquippedItem()
+        public void DetachItemUI()
         {
-            if (_inventoryManager == null)
+            _equippedItemUI = null;
+            UpdateVisuals();
+        }
+
+        public void RemoveContainerSection()
+        {
+            if (_linkedSection == null)
                 return;
 
-            if (IsEquipped)
-                _inventoryManager.SaveEquippedItem(slotType, EquippedItem);
+            if (inventoryPanel != null)
+                inventoryPanel.RemoveContainerSection(_linkedSection);
+
+            _linkedSection.Close();
+            _linkedSection = null;
         }
+
+        public void OnItemPlacedToInventory()
+        {
+            RemoveContainerSection();
+        }
+
+        public void RefreshVisuals()
+        {
+            UpdateVisuals();
+        }
+
+        public void RaiseEquipped(ItemTable item) => ItemEquipped?.Invoke(item);
+
+        public void RaiseUnequipped(ItemTable item) => ItemUnequipped?.Invoke(item);
 
         private void CreateContainerSection(ItemTable item)
         {
@@ -276,18 +212,6 @@ namespace InventoryModule
                 : Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
             _linkedSection.InitializeContainer(item, metadata, containerGridPrefab);
             inventoryPanel.AddContainerSection(_linkedSection);
-        }
-
-        private void RemoveContainerSection()
-        {
-            if (_linkedSection == null)
-                return;
-
-            if (inventoryPanel != null)
-                inventoryPanel.RemoveContainerSection(_linkedSection);
-
-            _linkedSection.Close();
-            _linkedSection = null;
         }
 
         private void ScaleItemToFitSlot(RectTransform itemRect)

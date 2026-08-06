@@ -71,6 +71,12 @@ namespace InventoryModule
                 .AsSingle()
                 .NonLazy();
 
+            Container.Bind<DragPlacementController>()
+                .AsSingle();
+
+            Container.BindInterfacesAndSelfTo<ContainerGridFactory>()
+                .AsSingle();
+
             Container.Bind<IContextActionService>()
                 .To<ContextActionService>()
                 .AsSingle();

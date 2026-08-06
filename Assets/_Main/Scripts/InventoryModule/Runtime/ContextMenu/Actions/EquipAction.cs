@@ -22,9 +22,9 @@ namespace InventoryModule.ContextMenu.Actions
 
             foreach (var slot in _slotService.GetAllSlots())
             {
-                if (slot.CanEquip(Item) && !slot.IsEquipped)
+                if (_slotService.CanEquip(slot, Item) && !slot.IsEquipped)
                 {
-                    slot.TryEquip(Item);
+                    _slotService.TryEquip(slot, Item);
                     Item.RemoveItselfFromLocation();
                     return;
                 }
@@ -38,7 +38,7 @@ namespace InventoryModule.ContextMenu.Actions
 
             foreach (var slot in _slotService.GetAllSlots())
             {
-                if (slot.CanEquip(Item))
+                if (_slotService.CanEquip(slot, Item))
                     return true;
             }
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -9,9 +8,6 @@ namespace InventoryModule
 {
     public class ContainerSection : MonoBehaviour
     {
-        private const int MaxRefreshAttempts = 5;
-        private const float MinRefreshInterval = 0.016f;
-
         [Header("References")]
         [SerializeField] private RectTransform headerRect;
         [SerializeField] private RectTransform contentContainer;
@@ -24,25 +20,13 @@ namespace InventoryModule
         [SerializeField] private Sprite collapsedIcon;
         [SerializeField] private float collapsedHeight = 30f;
 
-        private readonly List<AbstractGrid> _contentGrids = new();
-
-        private ContainerMetadata _containerMetadata;
-        private GridTable _cContainerGrid;
+        private ContainerSectionPresenter _presenter;
         private bool _isExpanded = true;
-
-        private IInventoryManager _inventoryManager;
-        private DiContainer _diContainer;
 
         private RectTransform _rectTransform;
         private LayoutElement _layoutElement;
 
-        private bool _pendingLayoutUpdate;
-        private float _lastRefreshTime;
-
-        private bool _needsLateRefresh;
-        private int _refreshAttempts;
-
-        public ItemTable ContainerItem { get; private set; }
+        public ItemTable ContainerItem => _presenter?.ContainerItem;
 
         private void Awake()
         {
@@ -55,18 +39,10 @@ namespace InventoryModule
 
         private void LateUpdate()
         {
-            if (!_needsLateRefresh || !gameObject.activeInHierarchy)
+            if (_presenter == null || !gameObject.activeInHierarchy)
                 return;
 
-            _refreshAttempts++;
-
-            var contentHeight = CalculateContentHeight();
-
-            if (!(contentHeight > 0) && _refreshAttempts < MaxRefreshAttempts)
-                return;
-
-            RefreshVisuals();
-            _needsLateRefresh = false;
+            _presenter.TickLateRefresh(RefreshVisuals);
         }
 
         private void OnDestroy()
@@ -76,380 +52,82 @@ namespace InventoryModule
         }
 
         [Inject]
-        public void Construct(IInventoryManager inventoryManager, DiContainer container)
+        public void Construct(IInventoryManager inventoryManager, IContainerGridFactory gridFactory)
         {
-            _inventoryManager = inventoryManager;
-            _diContainer = container;
-        }
-
-        private AbstractGrid InstantiateGrid(AbstractGrid prefab, Transform parent)
-        {
-            return _diContainer != null
-                ? _diContainer.InstantiatePrefabForComponent<AbstractGrid>(prefab, parent)
-                : Instantiate(prefab, parent);
-        }
-
-        private GameObject InstantiatePanel(GameObject prefab, Transform parent)
-        {
-            return _diContainer != null
-                ? _diContainer.InstantiatePrefab(prefab, parent)
-                : Instantiate(prefab, parent);
+            _presenter = new ContainerSectionPresenter(inventoryManager, gridFactory);
+            _presenter.SetLayoutTargetGetter(() => transform.parent as RectTransform);
         }
 
         public void InitializeContainer(ItemTable itemTable, ContainerMetadata metadata, AbstractGrid gridPrefab)
         {
-            ContainerItem = itemTable;
-            _containerMetadata = metadata;
-
-            if (metadata?.Inventories?.Count > 0)
-                _cContainerGrid = metadata.Inventories[0];
-
-            if (_cContainerGrid != null)
-                _inventoryManager?.RegisterAdditionalGrid(_cContainerGrid);
+            _presenter.InitializeContainer(itemTable, metadata, gridPrefab, contentContainer);
 
             if (titleText != null)
                 titleText.text = itemTable.ItemDataSo.DisplayName;
 
-            if (contentContainer != null)
-            {
-                var containerGrids = itemTable.ItemDataSo.ContainerGrids;
-
-                if (containerGrids != null)
-                {
-                    var panelPrefab = containerGrids.ContainerPanelPrefab;
-
-                    if (panelPrefab != null)
-                    {
-                        var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
-
-                        var panelGrids = containerGrids.GetGridsFromPanel(panelInstance);
-
-                        if (panelGrids != null && panelGrids.Length > 0 && metadata.Inventories.Count > 0)
-                        {
-                            for (int i = 0; i < panelGrids.Length && i < metadata.Inventories.Count; i++)
-                            {
-                                var grid = panelGrids[i];
-                                var gridTable = metadata.Inventories[i];
-
-                                if (grid != null && gridTable != null)
-                                {
-                                    grid.SetGridTableOnly(gridTable);
-                                    _contentGrids.Add(grid);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        containerGrids.InitializeGrids();
-                        var prefabGrids = containerGrids.Grids;
-
-                        if (prefabGrids != null && prefabGrids.Length > 0 && metadata.Inventories.Count > 0)
-                        {
-                            for (int i = 0; i < prefabGrids.Length && i < metadata.Inventories.Count; i++)
-                            {
-                                var prefabGrid = prefabGrids[i];
-                                var gridTable = metadata.Inventories[i];
-
-                                if (prefabGrid != null && gridTable != null)
-                                {
-                                    var grid = InstantiateGrid(prefabGrid, contentContainer);
-                                    grid.transform.localPosition = prefabGrid.transform.localPosition;
-                                    grid.RefreshGridFromTable(gridTable);
-                                    _contentGrids.Add(grid);
-                                }
-                            }
-                        }
-                        else if (gridPrefab != null && _cContainerGrid != null)
-                        {
-                            var grid = InstantiateGrid(gridPrefab, contentContainer);
-                            grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
-                            grid.RefreshGridFromTable(_cContainerGrid);
-                            _contentGrids.Add(grid);
-                        }
-                    }
-                }
-                else if (gridPrefab != null && _cContainerGrid != null)
-                {
-                    var grid = InstantiateGrid(gridPrefab, contentContainer);
-                    grid.OverrideGridSize(_cContainerGrid.Width, _cContainerGrid.Height);
-                    grid.RefreshGridFromTable(_cContainerGrid);
-                    _contentGrids.Add(grid);
-                }
-            }
-
             _isExpanded = true;
 
             RefreshVisuals();
 
-            var contentHeight = CalculateContentHeight();
-
-            if (!(contentHeight <= 0))
-                return;
-
-            _needsLateRefresh = true;
-            _refreshAttempts = 0;
+            if (!(_presenter.CalculateContentHeight() > 0))
+                _presenter.RequestLateRefresh();
         }
 
         public void InitializeAsMainInventory(string sectionName, GridTable grid, AbstractGrid gridPrefab)
         {
-            ContainerItem = null;
-            _cContainerGrid = grid;
+            _presenter.InitializeAsMainInventory(grid, gridPrefab, contentContainer);
 
             if (titleText != null)
                 titleText.text = sectionName;
-
-            if (contentContainer != null && gridPrefab != null)
-            {
-                var newGrid = InstantiateGrid(gridPrefab, contentContainer);
-                newGrid.OverrideGridSize(grid.Width, grid.Height);
-                newGrid.RefreshGridFromTable(grid);
-                _contentGrids.Add(newGrid);
-            }
 
             _isExpanded = true;
 
             RefreshVisuals();
 
-            var contentHeight = CalculateContentHeight();
-
-            if (contentHeight <= 0)
-            {
-                _needsLateRefresh = true;
-                _refreshAttempts = 0;
-            }
+            if (_presenter.CalculateContentHeight() <= 0)
+                _presenter.RequestLateRefresh();
         }
 
         public void InitializeAsMainInventoryWithPanel(string sectionName, ContainerGridsData containerPanelPrefab, AbstractGrid fallbackGridPrefab, GridTable existingGrid)
         {
-            ContainerItem = null;
-            _cContainerGrid = existingGrid;
+            _presenter.InitializeAsMainInventoryWithPanel(containerPanelPrefab, fallbackGridPrefab, existingGrid, contentContainer);
 
             if (titleText != null)
                 titleText.text = sectionName;
-
-            if (contentContainer != null && containerPanelPrefab != null)
-            {
-                var panelPrefab = containerPanelPrefab.ContainerPanelPrefab;
-
-                if (panelPrefab != null)
-                {
-                    var panelInstance = InstantiatePanel(panelPrefab, contentContainer);
-
-                    var panelGrids = panelInstance.GetComponentsInChildren<AbstractGrid>();
-
-                    if (panelGrids != null && panelGrids.Length > 0)
-                    {
-                        foreach (var grid in panelGrids)
-                        {
-                            if (grid != null)
-                            {
-                                GridTable gridTable;
-
-                                if (existingGrid != null)
-                                    gridTable = existingGrid;
-                                else
-                                {
-                                    gridTable = new GridTable(grid.GridWidth, grid.GridHeight);
-
-                                    if (_cContainerGrid == null)
-                                        _cContainerGrid = gridTable;
-                                }
-
-                                grid.SetGridTableOnly(gridTable);
-                                _contentGrids.Add(grid);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    containerPanelPrefab.InitializeGrids();
-                    var prefabGrids = containerPanelPrefab.Grids;
-
-                    if (prefabGrids != null && prefabGrids.Length > 0)
-                    {
-                        foreach (var prefabGrid in prefabGrids)
-                        {
-                            if (prefabGrid != null)
-                            {
-                                AbstractGrid grid = InstantiateGrid(prefabGrid, contentContainer);
-                                grid.transform.localPosition = prefabGrid.transform.localPosition;
-
-                                GridTable gridTable;
-
-                                if (existingGrid != null)
-                                    gridTable = existingGrid;
-                                else
-                                {
-                                    gridTable = new(prefabGrid.GridWidth, prefabGrid.GridHeight);
-
-                                    if (_cContainerGrid == null)
-                                        _cContainerGrid = gridTable;
-                                }
-
-                                grid.RefreshGridFromTable(gridTable);
-                                _contentGrids.Add(grid);
-                            }
-                        }
-                    }
-                    else if (fallbackGridPrefab != null)
-                    {
-                        AbstractGrid grid = InstantiateGrid(fallbackGridPrefab, contentContainer);
-                        GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
-                        _cContainerGrid = gridTable;
-                        grid.RefreshGridFromTable(gridTable);
-                        _contentGrids.Add(grid);
-                    }
-                }
-            }
-            else if (fallbackGridPrefab != null)
-            {
-                AbstractGrid grid = InstantiateGrid(fallbackGridPrefab, contentContainer);
-                GridTable gridTable = existingGrid ?? new GridTable(grid.GridWidth, grid.GridHeight);
-                _cContainerGrid = gridTable;
-                grid.RefreshGridFromTable(gridTable);
-                _contentGrids.Add(grid);
-            }
 
             _isExpanded = true;
 
             RefreshVisuals();
 
-            var contentHeight = CalculateContentHeight();
-
-            if (contentHeight <= 0)
-            {
-                _needsLateRefresh = true;
-                _refreshAttempts = 0;
-            }
+            if (_presenter.CalculateContentHeight() <= 0)
+                _presenter.RequestLateRefresh();
         }
 
         public void RefreshGridUI()
         {
-            if (_contentGrids == null || _containerMetadata == null)
-                return;
-
-            for (int i = 0; i < _contentGrids.Count && i < _containerMetadata.Inventories.Count; i++)
-            {
-                var grid = _contentGrids[i];
-                var gridTable = _containerMetadata.Inventories[i];
-
-                if (grid != null && gridTable != null)
-                    grid.RefreshGridFromTable(gridTable);
-            }
-
-            RefreshVisuals();
+            if (_presenter.RefreshGridUI())
+                RefreshVisuals();
         }
 
         public void RefreshGridUISafe()
         {
-            if (!gameObject.activeInHierarchy)
-            {
-                RefreshGridUI();
-                return;
-            }
-
-            var now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval)
-            {
-                if (!_pendingLayoutUpdate)
-                    DelayedRefreshAsync().Forget();
-
-                return;
-            }
-
-            _lastRefreshTime = now;
-            RefreshGridUI();
+            _presenter.RefreshGridUISafe(() => gameObject.activeInHierarchy, RefreshVisuals);
         }
 
         public void RefreshVisualsSafe()
         {
-            if (!gameObject.activeInHierarchy)
-            {
-                RefreshVisuals();
-                return;
-            }
-
-            var now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval)
-            {
-                if (!_pendingLayoutUpdate)
-                    DelayedVisualRefreshAsync().Forget();
-
-                return;
-            }
-
-            _lastRefreshTime = now;
-            RefreshVisuals();
+            _presenter.RefreshVisualsSafe(() => gameObject.activeInHierarchy, RefreshVisuals);
         }
 
         public void Close()
         {
-            if (_cContainerGrid != null)
-                _inventoryManager?.UnregisterAdditionalGrid(_cContainerGrid);
-
-            if (_contentGrids != null)
-            {
-                foreach (var grid in _contentGrids)
-                {
-                    if (grid != null)
-                        Destroy(grid.gameObject);
-                }
-
-                _contentGrids.Clear();
-            }
-
+            _presenter.Close();
             Destroy(gameObject);
-        }
-
-        private float CalculateContentHeight()
-        {
-            if (_contentGrids == null || _contentGrids.Count == 0)
-                return 0f;
-
-            var maxHeight = 0f;
-
-            foreach (var grid in _contentGrids)
-            {
-                if (grid == null)
-                    continue;
-
-                var gridRect = grid.GetRectTransform();
-
-                if (gridRect == null)
-                    continue;
-
-                var gridHeight = Mathf.Abs(gridRect.anchoredPosition.y) + gridRect.sizeDelta.y;
-
-                if (gridHeight > maxHeight)
-                    maxHeight = gridHeight;
-            }
-
-            return maxHeight;
-        }
-
-        private void ForceUpdateParentLayout()
-        {
-            if (_pendingLayoutUpdate)
-                return;
-
-            var now = Time.unscaledTime;
-
-            if (now - _lastRefreshTime < MinRefreshInterval)
-                return;
-
-            _pendingLayoutUpdate = true;
-            _lastRefreshTime = now;
-
-            LayoutUpdateAsync().Forget();
         }
 
         private void RefreshVisuals()
         {
-            if (_rectTransform == null || _layoutElement == null)
+            if (_rectTransform == null || _layoutElement == null || _presenter == null)
                 return;
 
             if (!_isExpanded)
@@ -458,11 +136,11 @@ namespace InventoryModule
             }
             else
             {
-                var contentHeight = CalculateContentHeight();
+                var contentHeight = _presenter.CalculateContentHeight();
                 _layoutElement.preferredHeight = collapsedHeight + contentHeight;
             }
 
-            ForceUpdateParentLayout();
+            _presenter.ForceUpdateParentLayout();
         }
 
         private void OnToggleClicked()
@@ -486,52 +164,10 @@ namespace InventoryModule
                 RefreshVisuals();
         }
 
-        private async UniTaskVoid DelayedVisualRefreshAsync()
-        {
-            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
-            _lastRefreshTime = Time.unscaledTime;
-            RefreshVisuals();
-        }
-
-        private async UniTaskVoid DelayedRefreshAsync()
-        {
-            await UniTask.Delay((int)(MinRefreshInterval * 1000), true);
-            _lastRefreshTime = Time.unscaledTime;
-            RefreshGridUI();
-        }
-
         private async UniTaskVoid RefreshAfterFrame()
         {
             await UniTask.DelayFrame(1);
             RefreshVisuals();
-        }
-
-        private async UniTaskVoid LayoutUpdateAsync()
-        {
-            await UniTask.DelayFrame(1);
-
-            var parent = transform.parent as RectTransform;
-
-            if (parent != null)
-            {
-                var vlg = parent.GetComponent<VerticalLayoutGroup>();
-
-                if (vlg != null)
-                {
-                    vlg.SetLayoutHorizontal();
-                    vlg.SetLayoutVertical();
-                }
-
-                var csf = parent.GetComponent<ContentSizeFitter>();
-
-                if (csf != null)
-                {
-                    csf.SetLayoutHorizontal();
-                    csf.SetLayoutVertical();
-                }
-            }
-
-            _pendingLayoutUpdate = false;
         }
     }
 }
