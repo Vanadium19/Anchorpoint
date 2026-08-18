@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SaveModule
 {
@@ -60,7 +62,12 @@ namespace SaveModule
                 state[saveable.SaveKey] = saveable.CreateMemento();
             }
 
-            var saveData = new GameSaveData { State = state };
+            var saveData = new GameSaveData
+            {
+                SchemaVersion = GameSaveData.CurrentSchemaVersion,
+                State = state
+            };
+
             _repository.Save(saveData, _filePath);
         }
 
@@ -73,10 +80,22 @@ namespace SaveModule
             if (saveData?.State == null || saveData.State.Count == 0)
                 return;
 
+            if (saveData.SchemaVersion > GameSaveData.CurrentSchemaVersion)
+                return;
+
             foreach (var saveable in _saveables)
             {
-                if (saveData.State.TryGetValue(saveable.SaveKey, out var data))
+                if (!saveData.State.TryGetValue(saveable.SaveKey, out var data))
+                    continue;
+
+                try
+                {
                     saveable.RestoreMemento(data);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
             }
         }
 
