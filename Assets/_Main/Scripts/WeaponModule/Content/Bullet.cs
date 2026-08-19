@@ -6,27 +6,29 @@ namespace WeaponModule
 {
     public class Bullet : MonoBehaviour, IProjectile, IPausable
     {
-        [Header("Settings")]
+        [Header("References")]
+        [SerializeField] private Rigidbody rigidbodyComponent;
+        [SerializeField] private TrailRenderer trailRenderer;
+
+        [Header("Lifetime")]
         [SerializeField] private float lifeTime = 3f;
+
+        [Header("Hit Feedback")]
         [SerializeField] private GameObject hitEffect;
+        [SerializeField] private float hitEffectLifetime = 2f;
+        [SerializeField] private AudioSource hitAudioSource;
 
         private float _damage;
         private float _remainingLifeTime;
-        private Rigidbody _rigidbody;
-        private TrailRenderer _trail;
         private Vector3 _pausedVelocity;
         private Vector3 _pausedAngularVelocity;
         private bool _isPaused;
         private bool _hasSetup;
 
-        private void Awake()
+        private void OnValidate()
         {
-            //FIXME: Через SerializeField
-            _rigidbody = GetComponent<Rigidbody>();
-            _trail = GetComponent<TrailRenderer>();
-
-            if (_trail != null)
-                _trail.enabled = false;
+            rigidbodyComponent ??= GetComponent<Rigidbody>();
+            trailRenderer ??= GetComponent<TrailRenderer>();
         }
 
         private void OnEnable()
@@ -57,20 +59,20 @@ namespace WeaponModule
             _remainingLifeTime = lifeTime;
             _hasSetup = true;
 
-            if (_rigidbody != null)
+            if (rigidbodyComponent != null)
             {
-                _rigidbody.linearVelocity = Vector3.zero;
-                _rigidbody.angularVelocity = Vector3.zero;
+                rigidbodyComponent.linearVelocity = Vector3.zero;
+                rigidbodyComponent.angularVelocity = Vector3.zero;
 
-                Vector3 bulletVel = transform.forward * bulletSpeed;
-                Vector3 playerVel = shooterVelocity * inheritFactor;
-                _rigidbody.linearVelocity = bulletVel + playerVel;
+                var bulletVelocity = transform.forward * bulletSpeed;
+                var inheritedVelocity = shooterVelocity * inheritFactor;
+                rigidbodyComponent.linearVelocity = bulletVelocity + inheritedVelocity;
             }
 
-            if (_trail != null)
+            if (trailRenderer != null)
             {
-                _trail.Clear();
-                _trail.enabled = true;
+                trailRenderer.Clear();
+                trailRenderer.enabled = true;
             }
 
             SetPaused(PauseState.IsPaused);
@@ -83,26 +85,26 @@ namespace WeaponModule
 
             _isPaused = isPaused;
 
-            if (_rigidbody != null)
+            if (rigidbodyComponent != null)
             {
                 if (isPaused)
                 {
-                    _pausedVelocity = _rigidbody.linearVelocity;
-                    _pausedAngularVelocity = _rigidbody.angularVelocity;
-                    _rigidbody.linearVelocity = Vector3.zero;
-                    _rigidbody.angularVelocity = Vector3.zero;
-                    _rigidbody.isKinematic = true;
+                    _pausedVelocity = rigidbodyComponent.linearVelocity;
+                    _pausedAngularVelocity = rigidbodyComponent.angularVelocity;
+                    rigidbodyComponent.linearVelocity = Vector3.zero;
+                    rigidbodyComponent.angularVelocity = Vector3.zero;
+                    rigidbodyComponent.isKinematic = true;
                 }
                 else
                 {
-                    _rigidbody.isKinematic = false;
-                    _rigidbody.linearVelocity = _pausedVelocity;
-                    _rigidbody.angularVelocity = _pausedAngularVelocity;
+                    rigidbodyComponent.isKinematic = false;
+                    rigidbodyComponent.linearVelocity = _pausedVelocity;
+                    rigidbodyComponent.angularVelocity = _pausedAngularVelocity;
                 }
             }
 
-            if (_trail != null)
-                _trail.emitting = !isPaused;
+            if (trailRenderer != null)
+                trailRenderer.emitting = !isPaused;
         }
 
         private void OnCollisionEnter(Collision collision)
@@ -110,23 +112,63 @@ namespace WeaponModule
             if (_isPaused)
                 return;
 
+            if (collision.contactCount == 0)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            var contact = collision.GetContact(0);
             var entity = collision.gameObject.GetComponentInParent<IEntity>();
 
             if (entity != null && entity.TryGet<IDamageable>(out var damageable))
             {
-                Vector3 force = transform.forward * 10f;
-                damageable.TakeDamage(_damage, collision.contacts[0].point, force);
+                var force = transform.forward * 10f;
+                damageable.TakeDamage(_damage, contact.point, force);
             }
 
-            if (hitEffect != null)
-            {
-                ContactPoint contact = collision.contacts[0];
-                //FIXME: Magic numbers
-                GameObject effect = Instantiate(hitEffect, contact.point + contact.normal * 0.05f, Quaternion.LookRotation(contact.normal));
-                Destroy(effect, 2f);
-            }
-
+            PlayHitEffect(contact);
+            PlayHitSound(contact.point);
             Destroy(gameObject);
+        }
+
+        private void PlayHitEffect(ContactPoint contact)
+        {
+            if (hitEffect == null)
+                return;
+
+            var position = contact.point + contact.normal * 0.05f;
+            var rotation = Quaternion.LookRotation(contact.normal);
+            var effect = Instantiate(hitEffect, position, rotation);
+            Destroy(effect, hitEffectLifetime);
+        }
+
+        private void PlayHitSound(Vector3 position)
+        {
+            if (hitAudioSource == null || hitAudioSource.clip == null)
+                return;
+
+            var audioObject = new GameObject("HitSound");
+            audioObject.transform.position = position;
+
+            var audioSource = audioObject.AddComponent<AudioSource>();
+            CopyAudioSettings(hitAudioSource, audioSource);
+            audioSource.Play();
+
+            Destroy(audioObject, hitAudioSource.clip.length + 0.1f);
+        }
+
+        private static void CopyAudioSettings(AudioSource source, AudioSource target)
+        {
+            target.clip = source.clip;
+            target.outputAudioMixerGroup = source.outputAudioMixerGroup;
+            target.volume = source.volume;
+            target.pitch = source.pitch;
+            target.spatialBlend = source.spatialBlend;
+            target.rolloffMode = source.rolloffMode;
+            target.minDistance = source.minDistance;
+            target.maxDistance = source.maxDistance;
+            target.playOnAwake = false;
         }
     }
 }
