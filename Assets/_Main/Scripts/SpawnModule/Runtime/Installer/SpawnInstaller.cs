@@ -44,7 +44,13 @@ namespace SpawnModule
                 .AsSingle()
                 .WithArguments(enemyPrefab);
 
-            Container.BindInterfacesTo<EnemySpawnController>()
+            Container.Bind<EnemySpawnController>()
+                .AsSingle();
+
+            Container.Bind<WorldCleanupService>()
+                .AsSingle();
+
+            Container.BindInterfacesTo<WorldSessionController>()
                 .AsSingle()
                 .NonLazy();
         }

@@ -10,10 +10,12 @@ namespace InventoryModule
         [SerializeField] private AudioSource collectSound;
 
         private ItemTable _itemTable;
+        private bool _isPlayerDeathLoot;
 
         public ItemDataSo ItemData => itemData;
         public int Amount => amount;
         public ItemTable ItemTable => _itemTable;
+        public bool IsPlayerDeathLoot => _isPlayerDeathLoot;
 
         public void SetItemTable(ItemTable item)
         {
@@ -21,6 +23,9 @@ namespace InventoryModule
             itemData = item.ItemDataSo;
             amount = item.StackCount;
         }
+
+        public void SetPlayerDeathLoot(bool isPlayerDeathLoot) =>
+            _isPlayerDeathLoot = isPlayerDeathLoot;
 
         public void PlayCollectEffects()
         {

@@ -54,9 +54,8 @@ namespace SpawnModule
                 .To<LootFactory>()
                 .AsSingle();
 
-            Container.BindInterfacesTo<LootSpawnController>()
-                .AsSingle()
-                .NonLazy();
+            Container.Bind<LootSpawnController>()
+                .AsSingle();
         }
     }
 }
