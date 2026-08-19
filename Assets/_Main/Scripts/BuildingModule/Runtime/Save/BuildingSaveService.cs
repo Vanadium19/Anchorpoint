@@ -40,7 +40,7 @@ namespace BuildingModule
                 RotationY = building.transform.rotation.eulerAngles.y
             };
 
-            var hasId = building.GetComponent<IHasInstanceId>();
+            var hasId = building as IHasInstanceId;
 
             if (hasId != null)
                 snapshot.InstanceId = hasId.InstanceId;
@@ -82,9 +82,11 @@ namespace BuildingModule
             var rotation = Quaternion.Euler(0, snapshot.RotationY, 0);
 
             var building = Object.Instantiate(config.Prefab, position, rotation);
+
+            building.BuildingConfigId = config.Id;
             _registry.RegisterBuilding(building);
 
-            var hasId = building.GetComponent<IHasInstanceId>();
+            var hasId = building as IHasInstanceId;
 
             if (hasId != null && !string.IsNullOrEmpty(snapshot.InstanceId))
                 hasId.InstanceId = snapshot.InstanceId;
@@ -119,16 +121,12 @@ namespace BuildingModule
 
         private BuildingConfig GetBuildingConfig(BuildingView building)
         {
-            if (building == null)
+            if (building == null || string.IsNullOrEmpty(building.BuildingConfigId))
                 return null;
 
-            foreach (var config in _catalog.GetAll())
-            {
-                if (config.Prefab != null && building.name.StartsWith(config.Prefab.name))
-                    return config;
-            }
+            _catalog.TryGetConfig(building.BuildingConfigId, out var config);
 
-            return null;
+            return config;
         }
 
         private void RestoreContainerItems(IInventoryGridView container, List<ContainerMemento> containers)

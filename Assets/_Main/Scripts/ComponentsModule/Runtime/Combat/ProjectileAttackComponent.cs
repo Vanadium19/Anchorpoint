@@ -47,7 +47,7 @@ namespace ComponentsModule
             }
 
             _currentAmmo--;
-            projectile.Setup(damage, projectileSpeed, 0f, Vector3.zero);
+            projectile.Setup(damage, projectileSpeed, 0f, Vector3.zero, _firePoint.root.gameObject);
             Attacked?.Invoke();
             return true;
         }

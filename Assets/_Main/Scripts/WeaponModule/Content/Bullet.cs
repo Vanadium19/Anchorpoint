@@ -24,6 +24,7 @@ namespace WeaponModule
         private Vector3 _pausedAngularVelocity;
         private bool _isPaused;
         private bool _hasSetup;
+        private GameObject _owner;
 
         private void OnValidate()
         {
@@ -53,11 +54,12 @@ namespace WeaponModule
             PauseState.PauseChanged -= SetPaused;
         }
 
-        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity)
+        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity, GameObject owner)
         {
             _damage = damage;
             _remainingLifeTime = lifeTime;
             _hasSetup = true;
+            _owner = owner;
 
             if (rigidbodyComponent != null)
             {
@@ -111,6 +113,12 @@ namespace WeaponModule
         {
             if (_isPaused)
                 return;
+
+            if (_owner != null && collision.transform.IsChildOf(_owner.transform))
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             if (collision.contactCount == 0)
             {

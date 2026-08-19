@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BuildingModule
@@ -18,7 +19,10 @@ namespace BuildingModule
             if (!_catalog.TryGetConfig(id, out var config))
                 return null;
 
-            var view = Object.Instantiate(config.Prefab, position, rotation);
+            var view = UnityEngine.Object.Instantiate(config.Prefab, position, rotation);
+
+            view.BuildingConfigId = config.Id;
+            view.InstanceId = Guid.NewGuid().ToString();
 
             if (view.CollisionCollider != null)
                 view.CollisionCollider.enabled = false;
