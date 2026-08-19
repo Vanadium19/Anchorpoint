@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using Zenject;
 
@@ -5,8 +6,8 @@ namespace SaveModule
 {
     public class SaveModuleInstaller : MonoInstaller
     {
-        [SerializeField] private string gameSaveFilePath = "Saves/GameSave.json";
-        [SerializeField] private string settingsSaveFilePath = "Saves/SettingsSave.json";
+        [SerializeField] private string gameSaveFileName = "GameSave.json";
+        [SerializeField] private string settingsSaveFileName = "SettingsSave.json";
 
         public override void InstallBindings()
         {
@@ -18,17 +19,26 @@ namespace SaveModule
                 .WithId(GameSaveLoaderIds.Game)
                 .To<GameSaveLoader>()
                 .AsCached()
-                .WithArguments(gameSaveFilePath);
+                .WithArguments(GetSaveFilePath(gameSaveFileName));
 
             Container.Bind<IGameSaveLoader>()
                 .WithId(GameSaveLoaderIds.Settings)
                 .To<GameSaveLoader>()
                 .AsCached()
-                .WithArguments(settingsSaveFilePath);
+                .WithArguments(GetSaveFilePath(settingsSaveFileName));
+
+            Container.Bind<StarterSaveService>()
+                .AsSingle()
+                .WithArguments(GetSaveFilePath(gameSaveFileName));
 
             Container.Bind<AutoSaveHandler>()
                 .AsSingle()
                 .NonLazy();
+        }
+
+        private static string GetSaveFilePath(string fileName)
+        {
+            return Path.Combine(Application.persistentDataPath, "Saves", fileName);
         }
     }
 }

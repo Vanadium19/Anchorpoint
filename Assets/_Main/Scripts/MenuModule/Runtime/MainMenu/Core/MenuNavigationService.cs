@@ -13,16 +13,21 @@ namespace MenuModule
     {
         private readonly MenuNavigationConfig _config;
         private readonly IGameSaveLoader _gameSaveLoader;
+        private readonly StarterSaveService _starterSaveService;
 
         public MenuNavigationService(MenuNavigationConfig config,
-            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader,
+            StarterSaveService starterSaveService)
         {
             _config = config;
             _gameSaveLoader = gameSaveLoader;
+            _starterSaveService = starterSaveService;
         }
 
         public void LoadGameFromMenu()
         {
+            _starterSaveService.TryCreateStarterSave();
+
             var sceneName = _config.CampSceneName;
             SceneManager.LoadScene(sceneName);
         }
