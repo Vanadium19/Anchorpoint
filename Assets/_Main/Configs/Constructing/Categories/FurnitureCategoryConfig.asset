@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Furniture
   icon: {fileID: 1922104838, guid: 7e18b322499fdcf4ab086706184f2d7e, type: 3}
   order: 0
+  nameKey: category_furniture

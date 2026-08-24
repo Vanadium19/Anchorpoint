@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: 5.45x39mm 30pcs
   description: 
   icon: {fileID: 1764416746, guid: a79b0a3d3416fa542828022a17c43edd, type: 3}
+  nameKey: item_ammo_545_30
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
   equipmentSlotType: 0
   isEquippable: 0

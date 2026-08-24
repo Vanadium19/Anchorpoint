@@ -28,12 +28,12 @@ MonoBehaviour:
     - rid: 7132730415434956896
       type: {class: EquipActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
-        displayName: Equip
+        displayName: 
     - rid: 7132730415434956899
       type: {class: OpenActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
-        displayName: Open
+        displayName: 
     - rid: 7132730487505944659
       type: {class: DropActionConfig, ns: InventoryModule.ContextMenu.Configs, asm: InventoryModule}
       data:
-        displayName: Drop
+        displayName: 

@@ -1,3 +1,4 @@
+using ComponentsModule;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -23,6 +24,10 @@ namespace NpcBaseModule
         public NpcWorldTextView WorldText => worldText;
         public Animator Animator => animator;
         public NpcDialoguePresenter DialoguePresenter => dialoguePresenter;
+
+        public string DisplayName => settings != null ? settings.NpcName : string.Empty;
+
+        public string HintKey => InteractionHintKeys.Talk;
 
         private void Awake()
         {

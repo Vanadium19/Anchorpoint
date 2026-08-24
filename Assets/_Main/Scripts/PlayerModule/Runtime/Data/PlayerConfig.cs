@@ -30,8 +30,6 @@ namespace PlayerModule
         [Header("Interaction")]
         [SerializeField] private LayerMask interactionLayer;
         [SerializeField] private float interactionDistance = 3f;
-        [SerializeField] private string lootHintFormat = "Нажмите [F], чтобы подобрать {0} x{1}";
-        [SerializeField] private string containerHintFormat = "Нажмите [F], чтобы открыть {0}";
 
         public float MaxHealth => maxHealth;
         public float WalkSpeed => walkSpeed;
@@ -51,7 +49,5 @@ namespace PlayerModule
 
         public LayerMask InteractionLayer => interactionLayer;
         public float InteractionDistance => interactionDistance;
-        public string LootHintFormat => lootHintFormat;
-        public string ContainerHintFormat => containerHintFormat;
     }
 }

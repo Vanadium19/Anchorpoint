@@ -19,6 +19,7 @@ MonoBehaviour:
     value: []
   icon: {fileID: 1365463320, guid: 2d405e2dda75aef4995490dc417e69bd, type: 3}
   order: 0
+  nameKey: building_tent
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 512

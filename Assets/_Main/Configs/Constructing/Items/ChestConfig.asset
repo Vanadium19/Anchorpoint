@@ -21,6 +21,7 @@ MonoBehaviour:
       Count: 2
   icon: {fileID: 535954930, guid: ccd2088af21878447a9bfd9f35e09bb6, type: 3}
   order: 1
+  nameKey: building_chest
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 513

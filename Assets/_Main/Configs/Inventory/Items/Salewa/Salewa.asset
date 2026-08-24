@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Salewa
   description: 
   icon: {fileID: 1132903133, guid: 95074c1bd1cf15049b2dc077f4ae0585, type: 3}
+  nameKey: item_salewa
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: 010cc35743222824d84d93f3107c71f5, type: 2}
   equipmentSlotType: 0
   isEquippable: 0

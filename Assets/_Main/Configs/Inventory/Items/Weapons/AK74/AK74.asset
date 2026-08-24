@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: AK74
   description: 
   icon: {fileID: 21300000, guid: 875bc41d2d9c08f448eeef2d1858ce7d, type: 3}
+  nameKey: item_ak74
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: 10ccfe3c31ca7034aace03d080fdec3f, type: 2}
   equipmentSlotType: 80
   isEquippable: 1

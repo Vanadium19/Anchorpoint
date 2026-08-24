@@ -1,11 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UtilsModule;
 
 namespace BuildingModule
 {
     public class BuildingPricePanelView : MonoBehaviour
     {
+        private const string HeaderFormatKey = "price_header_format";
+        private const string AmountFormatKey = "price_amount_format";
+
         [Header("References")]
         [SerializeField] private TextMeshProUGUI headerText;
         [SerializeField] private RectTransform contentContainer;
@@ -41,13 +45,7 @@ namespace BuildingModule
             if (headerText == null)
                 return;
 
-            if (config == null)
-            {
-                headerText.text = $"{info.BuildingName} ({info.AvailableCount})";
-                return;
-            }
-
-            headerText.text = string.Format(config.HeaderFormat, info.BuildingName, info.AvailableCount);
+            headerText.text = LocalizedText.GetFormatted(HeaderFormatKey, info.BuildingName, info.AvailableCount);
         }
 
         private void UpdateItems(BuildPriceInfo info)
@@ -57,6 +55,8 @@ namespace BuildingModule
             if (contentContainer == null || itemPrefab == null || config == null)
                 return;
 
+            var amountFormat = LocalizedText.Get(AmountFormatKey);
+
             for (int i = 0; i < info.Items.Count; i++)
             {
                 var item = Instantiate(itemPrefab, contentContainer);
@@ -65,7 +65,7 @@ namespace BuildingModule
                 if (rectTransform != null)
                     rectTransform.anchoredPosition = new Vector2(0, -i * config.ItemHeight);
 
-                item.SetData(info.Items[i], config.AmountFormat);
+                item.SetData(info.Items[i], amountFormat);
                 _items.Add(item);
             }
         }

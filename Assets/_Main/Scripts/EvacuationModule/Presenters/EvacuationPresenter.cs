@@ -1,18 +1,19 @@
 using System;
+using UtilsModule;
 using Zenject;
 
 namespace EvacuationModule
 {
     public class EvacuationPresenter : IInitializable, IDisposable
     {
+        private const string TimerFormatKey = "evac_timer_format";
+
         private readonly IEvacuationService _evacuationService;
-        private readonly EvacuationConfig _config;
         private readonly EvacuationView _view;
 
-        public EvacuationPresenter(IEvacuationService evacuationService, EvacuationView view, EvacuationConfig config)
+        public EvacuationPresenter(IEvacuationService evacuationService, EvacuationView view)
         {
             _evacuationService = evacuationService;
-            _config = config;
             _view = view;
         }
 
@@ -34,7 +35,7 @@ namespace EvacuationModule
 
         private void OnTimerChanged(float time)
         {
-            var text = string.Format(_config.TimerTextFormat, time);
+            var text = LocalizedText.GetFormatted(TimerFormatKey, time);
             _view.ShowTimer(text);
         }
     }

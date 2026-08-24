@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Blackrock
   description: 
   icon: {fileID: -83341640, guid: 9a3059305a0136642a59eec1687f1598, type: 3}
+  nameKey: item_blackrock
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: b1e414c9176b6ed429e1776447d3e10e, type: 2}
   equipmentSlotType: 2
   isEquippable: 1
@@ -23,6 +25,10 @@ MonoBehaviour:
   isContainer: 1
   containerGrids: {fileID: 6427057047484263632, guid: 261623e8afa6bd84e83432921ce3a197, type: 3}
   canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 1
+  effectData: {fileID: 0}
   isDropable: 1
   worldPrefab: {fileID: 657080748682000708, guid: 2a6743016d9e77345b36a791130b8e20, type: 3}
   contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

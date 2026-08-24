@@ -1,9 +1,12 @@
+using UtilsModule;
 using Zenject;
 
 namespace InventoryModule.ContextMenu.Actions
 {
     public class UseAction : ContextActionBase
     {
+        private const string TitleKey = "action_use";
+
         private readonly IItemUseHandler _useHandler;
         private readonly IEquipmentSlotService _slotService;
         private readonly object _effectTarget;
@@ -33,7 +36,7 @@ namespace InventoryModule.ContextMenu.Actions
             _effectTarget = null;
         }
 
-        public override string DisplayName => DisplayNameOverride ?? "Use";
+        public override string DisplayName => DisplayNameOverride ?? LocalizedText.Get(TitleKey);
 
         public override bool IsAvailable => CanUse();
 

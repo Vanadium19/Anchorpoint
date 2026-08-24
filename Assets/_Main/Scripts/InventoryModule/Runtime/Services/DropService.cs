@@ -8,15 +8,18 @@ namespace InventoryModule
         private readonly float _dropDistance;
         private readonly float _dropOffsetY;
         private readonly IContainerWindowService _windowService;
+        private readonly LootViewFactory _lootViewFactory;
 
         public DropService(
             Transform playerTransform,
             IContainerWindowService windowService,
+            LootViewFactory lootViewFactory,
             float dropDistance = 2f,
             float dropOffsetY = 0.5f)
         {
             _playerTransform = playerTransform;
             _windowService = windowService;
+            _lootViewFactory = lootViewFactory;
             _dropDistance = dropDistance;
             _dropOffsetY = dropOffsetY;
         }
@@ -48,7 +51,10 @@ namespace InventoryModule
             if (item.IsContainer)
                 _windowService.CloseAllWindowsForItem(item);
 
-            var lootInstance = Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+            var lootInstance = _lootViewFactory != null
+                ? _lootViewFactory.Create(prefab, worldPosition)
+                : Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+
             lootInstance.SetItemTable(item);
 
             return true;

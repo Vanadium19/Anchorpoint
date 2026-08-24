@@ -1,10 +1,13 @@
 using UnityEngine;
+using UtilsModule;
 using Zenject;
 
 namespace InventoryModule
 {
     public class CharacterInventory : MonoBehaviour
     {
+        private const string SectionTitleKey = "section_inventory";
+
         [Header("UI References")]
         [SerializeField] private InventoryPanel inventoryPanel;
         [SerializeField] private AbstractGrid containerGridPrefab;
@@ -66,9 +69,9 @@ namespace InventoryModule
             inventoryPanel.EnsureSectionHasLayoutElement(_mainSection);
 
             if (containerPanelPrefab != null)
-                _mainSection.InitializeAsMainInventoryWithPanel("Inventory", containerPanelPrefab, containerGridPrefab, _mainGrid);
+                _mainSection.InitializeAsMainInventoryWithPanel(LocalizedText.Get(SectionTitleKey), containerPanelPrefab, containerGridPrefab, _mainGrid);
             else
-                _mainSection.InitializeAsMainInventory("Inventory", _mainGrid, containerGridPrefab);
+                _mainSection.InitializeAsMainInventory(LocalizedText.Get(SectionTitleKey), _mainGrid, containerGridPrefab);
 
             inventoryPanel.AddSectionFirst(_mainSection);
         }

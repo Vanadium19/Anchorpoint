@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Backpack
   description: 
   icon: {fileID: 57356975, guid: 5918ac2df82c5b146bb6a0fbddd4e677, type: 3}
+  nameKey: item_backpack
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: fad4f600fe80e0d41975a6496284e0f5, type: 2}
   equipmentSlotType: 4
   isEquippable: 1

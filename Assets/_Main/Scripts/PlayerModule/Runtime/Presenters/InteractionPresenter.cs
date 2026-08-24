@@ -1,79 +1,85 @@
 using System;
-using Zenject;
-using UIModule;
+using ComponentsModule;
 using InventoryModule;
+using UIModule;
+using UtilsModule;
+using Zenject;
 
 namespace PlayerModule
 {
     public class InteractionPresenter : IInitializable, IDisposable
     {
+        private enum HintSource
+        {
+            None,
+            Interactable,
+            ExternalUI
+        }
+
         private readonly PlayerInteractionController _controller;
         private readonly InteractionHUDView _view;
-        private readonly PlayerConfig _config;
-        private LootItemView _lastLoot;
-        private IExternalUI _lastExternalUI;
+
+        private HintSource _activeSource;
 
         public InteractionPresenter(
             PlayerInteractionController controller,
-            InteractionHUDView view,
-            PlayerConfig config)
+            InteractionHUDView view)
         {
             _controller = controller;
             _view = view;
-            _config = config;
         }
 
         public void Initialize()
         {
             _view.Show("");
             _view.Hide();
-            _controller.LootHoverChanged += OnLootHoverChanged;
+            _controller.InteractableHoverChanged += OnInteractableHoverChanged;
             _controller.ExternalUIHoverChanged += OnExternalUIHoverChanged;
         }
 
         public void Dispose()
         {
-            _controller.LootHoverChanged -= OnLootHoverChanged;
+            _controller.InteractableHoverChanged -= OnInteractableHoverChanged;
             _controller.ExternalUIHoverChanged -= OnExternalUIHoverChanged;
         }
 
-        private void OnLootHoverChanged(LootItemView loot)
+        private void OnInteractableHoverChanged(IInteractable interactable)
         {
-            if (loot == null)
+            if (interactable == null)
             {
-                _lastLoot = null;
-
-                if (_lastExternalUI == null)
-                    _view.Hide();
-
+                Hide(HintSource.Interactable);
                 return;
             }
 
-            if (_lastLoot == loot)
-                return;
-
-            _lastLoot = loot;
-            var message = string.Format(_config.LootHintFormat,
-                loot.ItemData?.DisplayName ?? "Item", loot.Amount);
-            _view.Show(message);
+            Show(HintSource.Interactable,
+                LocalizedText.GetFormatted(interactable.HintKey, interactable.DisplayName));
         }
 
         private void OnExternalUIHoverChanged(IExternalUI externalUI)
         {
             if (externalUI == null)
             {
-                _lastExternalUI = null;
-
-                if (_lastLoot == null)
-                    _view.Hide();
-
+                Hide(HintSource.ExternalUI);
                 return;
             }
 
-            _lastExternalUI = externalUI;
-            var message = string.Format(_config.ContainerHintFormat,
-                externalUI.DisplayName);
+            Show(HintSource.ExternalUI,
+                LocalizedText.GetFormatted(InteractionHintKeys.Open, externalUI.DisplayName));
+        }
+
+        private void Show(HintSource source, string message)
+        {
+            _activeSource = source;
             _view.Show(message);
+        }
+
+        private void Hide(HintSource source)
+        {
+            if (_activeSource != source)
+                return;
+
+            _activeSource = HintSource.None;
+            _view.Hide();
         }
     }
 }

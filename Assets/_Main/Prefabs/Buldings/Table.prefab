@@ -71,6 +71,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 56061caf7ffb2b4479828f7968a480a0, type: 2}
   - {fileID: 11400000, guid: 2027b15d78636f949825dcee3ef2eea0, type: 2}
   - {fileID: 11400000, guid: 7971b6b2d864bf344984f1ae78f398c9, type: 2}
+  _instanceId: 
+  nameKey: world_workbench
 --- !u!1 &1820183032517582878
 GameObject:
   m_ObjectHideFlags: 0

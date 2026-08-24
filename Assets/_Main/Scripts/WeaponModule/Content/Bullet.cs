@@ -11,6 +11,7 @@ namespace WeaponModule
         [SerializeField] private GameObject hitEffect;
 
         private float _damage;
+        private GameObject _owner;
         private float _remainingLifeTime;
         private Rigidbody _rigidbody;
         private TrailRenderer _trail;
@@ -51,9 +52,10 @@ namespace WeaponModule
             PauseState.PauseChanged -= SetPaused;
         }
 
-        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity)
+        public void Setup(float damage, float bulletSpeed, float inheritFactor, Vector3 shooterVelocity, GameObject owner)
         {
             _damage = damage;
+            _owner = owner;
             _remainingLifeTime = lifeTime;
             _hasSetup = true;
 
@@ -109,6 +111,12 @@ namespace WeaponModule
         {
             if (_isPaused)
                 return;
+
+            if (_owner != null && collision.transform.IsChildOf(_owner.transform))
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             var entity = collision.gameObject.GetComponentInParent<IEntity>();
 

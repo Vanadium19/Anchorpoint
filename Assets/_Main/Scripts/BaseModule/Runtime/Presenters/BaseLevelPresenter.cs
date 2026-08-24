@@ -1,12 +1,19 @@
 using System;
 using DG.Tweening;
 using UnityEngine;
+using UtilsModule;
 using Zenject;
 
 namespace BaseModule
 {
     public class BaseLevelPresenter : IBaseLevelPresenter, IInitializable, IDisposable
     {
+        private const string LevelFormatKey = "level_format";
+        private const string LevelUpFormatKey = "level_up_format";
+        private const string PointsFormatKey = "points_format";
+        private const string PointsNoThresholdFormatKey = "points_no_threshold_format";
+        private const string PreviewPointsFormatKey = "preview_points_format";
+
         private readonly IBaseLevelService _baseLevelService;
         private readonly BaseLevelView _view;
         private readonly BaseLevelUIConfig _uiConfig;
@@ -32,7 +39,7 @@ namespace BaseModule
             _baseLevelService.LevelChanged += OnLevelChanged;
             _baseLevelService.PointsChanged += OnPointsChanged;
 
-            _view.SetPreviewPointsFormat(_uiConfig.PreviewPointsFormat);
+            _view.SetPreviewPointsFormat(LocalizedText.Get(PreviewPointsFormatKey));
 
             UpdateLevelText(_displayedLevel);
             UpdatePointsText(_displayedPointsInLevel);
@@ -66,17 +73,17 @@ namespace BaseModule
         {
             var preview = _baseLevelService.GetPreview(buildingPoints);
 
-            _view.SetPreviewPointsFormat(_uiConfig.PreviewPointsFormat);
+            _view.SetPreviewPointsFormat(LocalizedText.Get(PreviewPointsFormatKey));
             _view.ShowPreviewPoints(buildingPoints);
             _view.ShowPreviewFill();
 
             if (preview.WillLevelUp)
             {
                 var levelsGained = preview.NewLevel - preview.CurrentLevel;
-                _view.SetLevelText(string.Format(_uiConfig.LevelUpFormat, preview.NewLevel, levelsGained));
+                _view.SetLevelText(LocalizedText.GetFormatted(LevelUpFormatKey, preview.NewLevel, levelsGained));
             }
             else
-                _view.SetLevelText(string.Format(_uiConfig.LevelFormat, preview.CurrentLevel));
+                _view.SetLevelText(LocalizedText.GetFormatted(LevelFormatKey, preview.CurrentLevel));
 
             var totalPreviewPoints = preview.CurrentPointsInLevel + preview.PreviewPoints;
             var previewProgress = preview.PointsToNextLevel > 0
@@ -127,17 +134,17 @@ namespace BaseModule
 
         private void UpdateLevelText(int level)
         {
-            _view.SetLevelText(string.Format(_uiConfig.LevelFormat, level));
+            _view.SetLevelText(LocalizedText.GetFormatted(LevelFormatKey, level));
         }
 
         private void UpdatePointsText(int points)
         {
             var threshold = _baseLevelService.PointsToNextLevel;
-            
+
             if (threshold > 0)
-                _view.SetPointsText(string.Format(_uiConfig.PointsFormat, points, threshold));
+                _view.SetPointsText(LocalizedText.GetFormatted(PointsFormatKey, points, threshold));
             else
-                _view.SetPointsText(string.Format(_uiConfig.PointsNoThresholdFormat, points));
+                _view.SetPointsText(LocalizedText.GetFormatted(PointsNoThresholdFormatKey, points));
         }
 
         private void UpdateProgressBar()

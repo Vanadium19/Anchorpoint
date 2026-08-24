@@ -47,7 +47,7 @@ namespace BuildingModule
 
                 foreach (var config in sortedConfigs)
                 {
-                    var item = new BuildingMenuItem(config.Id, config.Category, false, config.Id, config.Icon, config.Order);
+                    var item = new BuildingMenuItem(config.Id, config.Category, false, config.DisplayName, config.Icon, config.Order);
                     categoryData.Items.Add(item);
                 }
 

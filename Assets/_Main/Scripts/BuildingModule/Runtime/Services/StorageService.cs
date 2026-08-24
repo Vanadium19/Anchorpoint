@@ -81,7 +81,7 @@ namespace BuildingModule
             var price = config.Price;
             var info = new BuildPriceInfo
             {
-                BuildingName = config.Id
+                BuildingName = config.DisplayName
             };
 
             if (price?.Values == null)

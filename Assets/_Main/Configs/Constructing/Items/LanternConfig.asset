@@ -19,6 +19,7 @@ MonoBehaviour:
     value: []
   icon: {fileID: -1525771883, guid: fc252ba1c818aa24da4e1e5146ceec13, type: 3}
   order: 0
+  nameKey: building_lantern
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 513

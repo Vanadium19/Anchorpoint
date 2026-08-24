@@ -1,0 +1,244 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Localization Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Localization
+  m_TableCollectionNameGuidString: f1fcf9d52adfb5e45815d75af9715c85
+  m_Entries:
+  - m_Id: 5057600286720
+    m_Key: hint_pickup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675328
+    m_Key: hint_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675329
+    m_Key: hint_talk
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675330
+    m_Key: level_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675331
+    m_Key: level_up_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675332
+    m_Key: points_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675333
+    m_Key: points_no_threshold_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675334
+    m_Key: preview_points_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675335
+    m_Key: evac_timer_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675336
+    m_Key: price_header_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675337
+    m_Key: price_amount_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869632
+    m_Key: section_inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869633
+    m_Key: action_use
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869634
+    m_Key: action_open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869635
+    m_Key: action_equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869636
+    m_Key: action_drop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364352
+    m_Key: menu_start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364353
+    m_Key: menu_settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364354
+    m_Key: menu_exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364355
+    m_Key: menu_back_to_main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364356
+    m_Key: game_over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364357
+    m_Key: evac_success
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364358
+    m_Key: btn_continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364359
+    m_Key: btn_restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364360
+    m_Key: world_workbench
+    m_Metadata:
+      m_Items: []
+  - m_Id: 392542243254272
+    m_Key: workbench_show_available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364362
+    m_Key: ui_craft
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398049544761344
+    m_Key: workbench_max
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364361
+    m_Key: world_chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364363
+    m_Key: inventory_drop_here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364364
+    m_Key: equipment_title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364365
+    m_Key: settings_sfx
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364366
+    m_Key: settings_music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364367
+    m_Key: victory_popup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433169785942016
+    m_Key: item_ammo_545_30
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433172537405440
+    m_Key: item_ammo_545_120
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433174257070080
+    m_Key: item_ai2
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433193181769728
+    m_Key: item_backpack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433193865441280
+    m_Key: item_blackrock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433194540724224
+    m_Key: item_metal_scrap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433195220201472
+    m_Key: item_military_backpack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433195933233152
+    m_Key: item_propital
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433196587544576
+    m_Key: item_salewa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433197313159168
+    m_Key: item_sj6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433198055550976
+    m_Key: item_ak74
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440149023911936
+    m_Key: building_campfire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440150881988608
+    m_Key: building_chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440157945196544
+    m_Key: building_lantern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440161426468864
+    m_Key: building_table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440162961584128
+    m_Key: building_tent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440174030352384
+    m_Key: building_watchtower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440176916033536
+    m_Key: category_furniture
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440179742994432
+    m_Key: category_structure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440185766014976
+    m_Key: category_utility
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 1229607476326564072
+  references:
+    version: 2
+    RefIds:
+    - rid: 1229607476326564072
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1787493114651

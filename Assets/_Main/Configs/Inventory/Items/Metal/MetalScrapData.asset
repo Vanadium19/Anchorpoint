@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Metal scrap
   description: 
   icon: {fileID: 1333562368, guid: d1350c1a9f0fade46841062845458ae0, type: 3}
+  nameKey: item_metal_scrap
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: f6383ee5efcb3684b9dc19d3347c6ba9, type: 2}
   equipmentSlotType: 0
   isEquippable: 0
@@ -23,6 +25,10 @@ MonoBehaviour:
   isContainer: 0
   containerGrids: {fileID: 0}
   canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 1
+  effectData: {fileID: 0}
   isDropable: 1
   worldPrefab: {fileID: 5447724562284511229, guid: 059ace23df0503449b05d7027cea4128, type: 3}
   contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

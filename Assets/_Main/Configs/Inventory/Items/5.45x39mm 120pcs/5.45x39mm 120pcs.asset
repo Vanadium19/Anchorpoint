@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: 5.45x39mm 120pcs
   description: 
   icon: {fileID: -1578851588, guid: 53def0fb9216f5b47b0f971d7a9f8cfb, type: 3}
+  nameKey: item_ammo_545_120
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: f6383ee5efcb3684b9dc19d3347c6ba9, type: 2}
   equipmentSlotType: 0
   isEquippable: 0

@@ -16,7 +16,7 @@ namespace InventoryModule
         public RectTransform SectionsContainer => sectionsContainer;
         public ContainerSection SectionPrefab => sectionPrefab;
 
-        private readonly Dictionary<string, ContainerSection> _sectionsByItemId = new Dictionary<string, ContainerSection>();
+        private readonly Dictionary<ItemDataSo, ContainerSection> _sectionsByItemId = new Dictionary<ItemDataSo, ContainerSection>();
         private List<ContainerSection> _sections = new List<ContainerSection>();
 
         private float _lastRefreshTime;
@@ -67,7 +67,7 @@ namespace InventoryModule
             _sections.Add(section);
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-                _sectionsByItemId[section.ContainerItem.ItemDataSo.DisplayName] = section;
+                _sectionsByItemId[section.ContainerItem.ItemDataSo] = section;
 
             if (section.ContainerItem != null)
                 section.RefreshGridUISafe();
@@ -86,7 +86,7 @@ namespace InventoryModule
             section.transform.SetAsFirstSibling();
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-                _sectionsByItemId[section.ContainerItem.ItemDataSo.DisplayName] = section;
+                _sectionsByItemId[section.ContainerItem.ItemDataSo] = section;
 
             if (section.ContainerItem != null)
                 section.RefreshGridUISafe();
@@ -102,8 +102,7 @@ namespace InventoryModule
                 return;
 
             if (section.ContainerItem != null && section.ContainerItem.ItemDataSo != null)
-                if (_sectionsByItemId.ContainsKey(section.ContainerItem.ItemDataSo.DisplayName))
-                    _sectionsByItemId.Remove(section.ContainerItem.ItemDataSo.DisplayName);
+                _sectionsByItemId.Remove(section.ContainerItem.ItemDataSo);
 
             _sections.Remove(section);
 

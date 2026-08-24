@@ -13,6 +13,6 @@ namespace InventoryModule.ContextMenu
 
         public abstract IContextAction Create(DiContainer container, ItemTable item);
 
-        public string GetDisplayName() => string.IsNullOrEmpty(displayName) ? ActionType : displayName;
+        public string GetDisplayName() => string.IsNullOrEmpty(displayName) ? null : displayName;
     }
 }

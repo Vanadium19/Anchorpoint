@@ -1,0 +1,303 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Localization_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: f1fcf9d52adfb5e45815d75af9715c85, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 5057600286720
+    m_Localized: Press [F] to pick up {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675328
+    m_Localized: Press [F] to open {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675329
+    m_Localized: Press [F] to talk to {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675330
+    m_Localized: LVL {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675331
+    m_Localized: LVL {0} (+{1})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675332
+    m_Localized: '{0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675333
+    m_Localized: '{0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675334
+    m_Localized: +{0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675335
+    m_Localized: 'EVAC IN: {0:F1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675336
+    m_Localized: '{0} ({1})'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057608675337
+    m_Localized: '{0}/{1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869632
+    m_Localized: Inventory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869633
+    m_Localized: Use
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869634
+    m_Localized: Open
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869635
+    m_Localized: Equip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5057612869636
+    m_Localized: Drop
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965440
+    m_Localized: Start Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965441
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965442
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965443
+    m_Localized: Back to main menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965444
+    m_Localized: Game over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965445
+    m_Localized: Successful evacuation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965446
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965447
+    m_Localized: Restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965448
+    m_Localized: Workbench
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965449
+    m_Localized: Chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965450
+    m_Localized: CRAFT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965451
+    m_Localized: Drop here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965452
+    m_Localized: Equipment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965453
+    m_Localized: Sfx
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965454
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 357803515965455
+    m_Localized: You have upgraded your base! (placeholder text)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364352
+    m_Localized: Start Game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364353
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364354
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364355
+    m_Localized: Back to main menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364356
+    m_Localized: Game over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364357
+    m_Localized: Successful evacuation
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364358
+    m_Localized: Continue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364359
+    m_Localized: Restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364360
+    m_Localized: Workbench
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364361
+    m_Localized: Chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364362
+    m_Localized: CRAFT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364363
+    m_Localized: Drop here
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364364
+    m_Localized: Equipment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364365
+    m_Localized: Sfx
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364366
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 360153387364367
+    m_Localized: You have upgraded your base!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 392542243254272
+    m_Localized: Show available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 398049544761344
+    m_Localized: MAX
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433172537405440
+    m_Localized: 5.45x39mm (120 pcs)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433169785942016
+    m_Localized: 5.45x39mm (30 pcs)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433174257070080
+    m_Localized: AI-2 medkit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433193181769728
+    m_Localized: Backpack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433193865441280
+    m_Localized: Blackrock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433194540724224
+    m_Localized: Metal scrap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433195220201472
+    m_Localized: Military backpack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433195933233152
+    m_Localized: Propital
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433196587544576
+    m_Localized: Salewa medkit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433197313159168
+    m_Localized: SJ6
+    m_Metadata:
+      m_Items: []
+  - m_Id: 433198055550976
+    m_Localized: AK-74
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440149023911936
+    m_Localized: Campfire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440150881988608
+    m_Localized: Chest
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440157945196544
+    m_Localized: Lantern
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440161426468864
+    m_Localized: Table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440162961584128
+    m_Localized: Tent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440174030352384
+    m_Localized: Watchtower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440176916033536
+    m_Localized: Furniture
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440179742994432
+    m_Localized: Structure
+    m_Metadata:
+      m_Items: []
+  - m_Id: 440185766014976
+    m_Localized: Utility
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

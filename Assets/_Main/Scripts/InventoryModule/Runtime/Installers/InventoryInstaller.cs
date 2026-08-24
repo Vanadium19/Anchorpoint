@@ -78,6 +78,9 @@ namespace InventoryModule
             Container.BindInterfacesAndSelfTo<DeathLootStorage>()
                 .AsSingle();
 
+            Container.Bind<LootPickupService>()
+                .AsSingle();
+
             Container.BindInterfacesAndSelfTo<DeathLootSaveable>()
                 .AsSingle()
                 .NonLazy();
@@ -93,6 +96,9 @@ namespace InventoryModule
                 .WithArguments(externalPanel, playerUI);
 
             Container.BindInterfacesTo<BuildingContainerHandler>()
+                .AsSingle();
+
+            Container.Bind<LootViewFactory>()
                 .AsSingle();
 
             Container.Bind<IDropService>()

@@ -16,3 +16,4 @@ MonoBehaviour:
   displayName: Utility
   icon: {fileID: 1050170244, guid: f5e4f1ff3f04bde449d149cb7b8abdd4, type: 3}
   order: 2
+  nameKey: category_utility

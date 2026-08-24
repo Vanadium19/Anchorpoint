@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Military backpack
   description: 
   icon: {fileID: -1530915760, guid: 4a83a1ac7787b204e93644061d4fd39b, type: 3}
+  nameKey: item_military_backpack
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: ce4c11f083a56ae4888966d51035f9b1, type: 2}
   equipmentSlotType: 4
   isEquippable: 1
@@ -23,6 +25,10 @@ MonoBehaviour:
   isContainer: 1
   containerGrids: {fileID: 8386518141351700561, guid: 697498aa6308ea346b591fb104b03343, type: 3}
   canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 1
+  effectData: {fileID: 0}
   isDropable: 1
   worldPrefab: {fileID: 5889574711864732792, guid: 1ef7cc37dea0d9943b76c9b8fd12db4c, type: 3}
   contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

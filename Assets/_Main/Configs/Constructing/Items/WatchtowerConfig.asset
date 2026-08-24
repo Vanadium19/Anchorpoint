@@ -19,6 +19,7 @@ MonoBehaviour:
     value: []
   icon: {fileID: 732579769, guid: cccb8aacab5f7da40ba22b8be358fec2, type: 3}
   order: 1
+  nameKey: building_watchtower
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 512

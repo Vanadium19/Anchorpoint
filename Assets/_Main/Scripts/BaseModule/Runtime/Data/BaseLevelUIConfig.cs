@@ -5,13 +5,6 @@ namespace BaseModule
     [CreateAssetMenu(fileName = "BaseLevelUIConfig", menuName = "Game/Configs/BaseLevelUIConfig")]
     public class BaseLevelUIConfig : ScriptableObject
     {
-        [Header("Text Formats")]
-        [SerializeField] private string levelFormat = "LVL {0}";
-        [SerializeField] private string levelUpFormat = "LVL {0} (+{1})";
-        [SerializeField] private string pointsFormat = "{0}/{1}";
-        [SerializeField] private string pointsNoThresholdFormat = "{0}";
-        [SerializeField] private string previewPointsFormat = "+{0}";
-
         [Header("Animation Durations")]
         [SerializeField] private float progressAnimationDuration = 0.5f;
         [SerializeField] private float previewProgressAnimationDuration = 0.3f;
@@ -25,11 +18,6 @@ namespace BaseModule
         [SerializeField] private float levelPunchElasticity = 0.5f;
         [SerializeField] private float slideOffset = 200f;
 
-        public string LevelFormat => levelFormat;
-        public string LevelUpFormat => levelUpFormat;
-        public string PointsFormat => pointsFormat;
-        public string PointsNoThresholdFormat => pointsNoThresholdFormat;
-        public string PreviewPointsFormat => previewPointsFormat;
         public float ProgressAnimationDuration => progressAnimationDuration;
         public float PreviewProgressAnimationDuration => previewProgressAnimationDuration;
         public float PointsCountUpDuration => pointsCountUpDuration;

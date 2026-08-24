@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using InventoryModule;
 using UnityEngine;
+using UtilsModule;
 
 namespace BaseModule
 {
@@ -12,7 +13,11 @@ namespace BaseModule
         [SerializeField] private List<RecipeConfig> recipes = new();
         [SerializeField] private string _instanceId;
 
-        public string DisplayName => displayName;
+        [Header("Localization")]
+        [SerializeField] private string nameKey = "";
+
+        public string DisplayName =>
+            string.IsNullOrEmpty(nameKey) ? displayName : LocalizedText.Get(nameKey);
         public GameObject UIPrefab => uiPrefab;
         public IReadOnlyList<RecipeConfig> Recipes => recipes;
         public string InstanceId { get => _instanceId; set => _instanceId = value; }

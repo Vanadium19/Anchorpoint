@@ -1,5 +1,6 @@
 using UnityEngine;
 using InventoryModule.ContextMenu.Presets;
+using UtilsModule;
 
 namespace InventoryModule
 {
@@ -10,6 +11,10 @@ namespace InventoryModule
         [SerializeField] private string displayName = "Item";
         [SerializeField, TextArea] private string description = "";
         [SerializeField] private Sprite icon;
+
+        [Header("Localization")]
+        [SerializeField] private string nameKey = "";
+        [SerializeField] private string descriptionKey = "";
 
         [Header("Dimensions")]
         [SerializeField] private DimensionsSo dimensionsSo;
@@ -40,7 +45,12 @@ namespace InventoryModule
         [Header("Context Menu")]
         [SerializeField] private ContextActionPreset contextActionPreset;
 
-        public string DisplayName => displayName;
+        public string DisplayName =>
+            string.IsNullOrEmpty(nameKey) ? displayName : LocalizedText.Get(nameKey);
+
+        public string Description =>
+            string.IsNullOrEmpty(descriptionKey) ? description : LocalizedText.Get(descriptionKey);
+
         public Sprite Icon => icon;
         public EquipmentSlotType EquipmentSlotType => equipmentSlotType;
         public bool IsEquippable => isEquippable;

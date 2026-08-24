@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UtilsModule;
 
 namespace BuildingModule
 {
@@ -11,8 +12,12 @@ namespace BuildingModule
         [SerializeField] private Sprite icon;
         [SerializeField] private int order;
 
+        [Header("Localization")]
+        [SerializeField] private string nameKey = "";
+
         public BuildingCategory Category => category;
-        public string DisplayName => displayName;
+        public string DisplayName =>
+            string.IsNullOrEmpty(nameKey) ? displayName : LocalizedText.Get(nameKey);
         public Sprite Icon => icon;
         public int Order => order;
     }

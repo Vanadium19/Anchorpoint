@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using InventoryModule;
+using UtilsModule;
 
 namespace BaseModule
 {
@@ -11,11 +12,15 @@ namespace BaseModule
         [SerializeField] private int gridWidth = 8;
         [SerializeField] private int gridHeight = 4;
 
+        [Header("Localization")]
+        [SerializeField] private string nameKey = "";
+
         private readonly List<GridTable> _grids = new();
 
         private GridTable _grid;
 
-        public string DisplayName => displayName;
+        public string DisplayName =>
+            string.IsNullOrEmpty(nameKey) ? displayName : LocalizedText.Get(nameKey);
         public GameObject UIPrefab => uiPrefab;
         public IReadOnlyList<GridTable> Grids => _grids;
 

@@ -1,7 +1,8 @@
+using System;
 using BaseModule;
+using ComponentsModule;
 using InputModule;
 using InventoryModule;
-using System;
 using UIModule;
 using UnityEngine;
 using Zenject;
@@ -11,36 +12,34 @@ namespace PlayerModule
     public sealed class PlayerInteractionController : IInitializable, ITickable, IDisposable, IPausable
     {
         private readonly IInputMap _input;
-        private readonly IInventoryManager _inventoryManager;
         private readonly ExternalUIManager _externalUIManager;
         private readonly Camera _camera;
+        private readonly Transform _playerTransform;
         private readonly PlayerConfig _config;
-        private readonly IDeathLootStorage _deathLootStorage;
         private readonly IPauseManager _pauseManager;
 
-        public event Action<LootItemView> LootHoverChanged;
+        public event Action<IInteractable> InteractableHoverChanged;
+
         public event Action<IExternalUI> ExternalUIHoverChanged;
 
-        private LootItemView _currentHoveredLoot;
+        private IInteractable _currentHoveredInteractable;
         private IExternalUI _currentHoveredExternalUI;
         private Collider _lastHitCollider;
         private bool _isPaused;
 
         public PlayerInteractionController(
             IInputMap input,
-            IInventoryManager inventoryManager,
             ExternalUIManager externalUIManager,
             Camera camera,
+            Transform playerTransform,
             PlayerConfig config,
-            IDeathLootStorage deathLootStorage,
             IPauseManager pauseManager)
         {
             _input = input ?? throw new ArgumentNullException(nameof(input));
-            _inventoryManager = inventoryManager ?? throw new ArgumentNullException(nameof(inventoryManager));
             _externalUIManager = externalUIManager;
             _camera = camera;
+            _playerTransform = playerTransform;
             _config = config;
-            _deathLootStorage = deathLootStorage;
             _pauseManager = pauseManager;
         }
 
@@ -79,11 +78,10 @@ namespace PlayerModule
             }
             else
             {
-                if (_lastHitCollider != null)
-                {
-                    _lastHitCollider = null;
+                if (_currentHoveredInteractable != null || _currentHoveredExternalUI != null)
                     UpdateHover(null, null);
-                }
+
+                _lastHitCollider = null;
             }
         }
 
@@ -101,11 +99,11 @@ namespace PlayerModule
                     return;
                 }
 
-                var loot = current.GetComponent<LootItemView>();
-                
-                if (loot != null)
+                var interactable = current.GetComponent<IInteractable>();
+
+                if (interactable != null)
                 {
-                    UpdateHover(loot, null);
+                    UpdateHover(interactable, null);
                     return;
                 }
 
@@ -118,73 +116,30 @@ namespace PlayerModule
         private void HandleInteraction()
         {
             if (_currentHoveredExternalUI != null)
-                TryInteractWithExternalUI(_currentHoveredExternalUI);
-            else if (_currentHoveredLoot != null)
-                TryPickUpLoot(_currentHoveredLoot);
-        }
+            {
+                _externalUIManager.Open(_currentHoveredExternalUI);
+                return;
+            }
 
-        private void UpdateHover(LootItemView newLoot, IExternalUI newExternalUI)
-        {
-            if (_currentHoveredLoot == newLoot && _currentHoveredExternalUI == newExternalUI)
+            if (_currentHoveredInteractable == null)
                 return;
 
-            _currentHoveredLoot = newLoot;
+            if (!_currentHoveredInteractable.CanInteract(_playerTransform))
+                return;
+
+            _currentHoveredInteractable.Interact(_playerTransform);
+        }
+
+        private void UpdateHover(IInteractable newInteractable, IExternalUI newExternalUI)
+        {
+            if (_currentHoveredInteractable == newInteractable && _currentHoveredExternalUI == newExternalUI)
+                return;
+
+            _currentHoveredInteractable = newInteractable;
             _currentHoveredExternalUI = newExternalUI;
 
-            LootHoverChanged?.Invoke(newLoot);
+            InteractableHoverChanged?.Invoke(newInteractable);
             ExternalUIHoverChanged?.Invoke(newExternalUI);
-        }
-
-        private void TryInteractWithExternalUI(IExternalUI externalUI)
-        {
-            _externalUIManager.Open(externalUI);
-        }
-
-        private void TryPickUpLoot(LootItemView loot)
-        {
-            var itemData = loot.ItemData;
-
-            if (itemData == null)
-                return;
-
-            bool success;
-
-            if (itemData.IsEquippable)
-            {
-                if (loot.ItemTable != null)
-                    success = _inventoryManager.TryAutoEquipItem(loot.ItemTable);
-                else
-                {
-                    var newItem = new ItemTable(itemData) { StackCount = loot.Amount };
-                    success = _inventoryManager.TryAutoEquipItem(newItem);
-                }
-
-                if (!success)
-                {
-                    if (loot.ItemTable != null)
-                        success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
-                    else
-                        success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
-                }
-            }
-            else
-            {
-                if (loot.ItemTable != null)
-                    success = _inventoryManager.AddExistingItemToInventory(loot.ItemTable);
-                else
-                    success = _inventoryManager.AddItemToInventory(itemData, loot.Amount);
-            }
-
-            if (success)
-            {
-                if (loot.ItemTable != null)
-                    _deathLootStorage.RemoveItem(loot.ItemTable);
-
-                loot.PlayCollectEffects();
-                _lastHitCollider = null;
-                UpdateHover(null, null);
-                UnityEngine.Object.Destroy(loot.gameObject);
-            }
         }
     }
 }

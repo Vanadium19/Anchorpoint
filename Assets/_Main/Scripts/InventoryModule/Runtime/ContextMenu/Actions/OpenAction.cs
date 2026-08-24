@@ -1,10 +1,13 @@
 using UnityEngine;
+using UtilsModule;
 using Zenject;
 
 namespace InventoryModule.ContextMenu.Actions
 {
     public class OpenAction : ContextActionBase
     {
+        private const string TitleKey = "action_open";
+
         private readonly ContainerWindow _containerWindowPrefab;
         private readonly AbstractGrid _gridPrefab;
         private readonly Canvas _canvas;
@@ -27,7 +30,7 @@ namespace InventoryModule.ContextMenu.Actions
             _diContainer = diContainer;
         }
 
-        public override string DisplayName => DisplayNameOverride ?? "Open";
+        public override string DisplayName => DisplayNameOverride ?? LocalizedText.Get(TitleKey);
         public override bool IsAvailable => Item.IsContainer && !_windowService.IsContainerOpen(Item);
 
         public override void Execute()

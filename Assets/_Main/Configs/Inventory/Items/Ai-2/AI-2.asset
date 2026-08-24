@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: AI-2
   description: 
   icon: {fileID: -1320140619, guid: ff6a5479cf317094190c344e62a71495, type: 3}
+  nameKey: item_ai2
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
   equipmentSlotType: 0
   isEquippable: 0

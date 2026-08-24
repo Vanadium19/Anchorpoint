@@ -6,8 +6,8 @@
 
 ## Основные части
 
-- `IInteractable` задает контракт интерактивного объекта.
-- `PlayerInteractor` ищет доступный объект взаимодействия.
+- `IInteractable` (из `ComponentsModule`) задает контракт интерактивного объекта.
+- Взаимодействие игрока с NPC обрабатывает общий `PlayerInteractionController` (PlayerModule).
 - `FriendlyNpcController` управляет сценарием NPC.
 - `FriendlyNpcSettings`, `NpcDialogueLine` и `NpcDialogueAnswer` описывают данные диалога.
 - `NpcDialoguePresenter` связывает контроллер с `NpcDialogueView`.

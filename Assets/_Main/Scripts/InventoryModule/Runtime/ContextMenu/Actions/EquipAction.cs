@@ -1,7 +1,11 @@
+using UtilsModule;
+
 namespace InventoryModule.ContextMenu.Actions
 {
     public class EquipAction : ContextActionBase
     {
+        private const string TitleKey = "action_equip";
+
         private readonly IEquipmentSlotService _slotService;
 
         public EquipAction(ItemTable item,
@@ -12,7 +16,7 @@ namespace InventoryModule.ContextMenu.Actions
             _slotService = slotService;
         }
 
-        public override string DisplayName => DisplayNameOverride ?? "Equip";
+        public override string DisplayName => DisplayNameOverride ?? LocalizedText.Get(TitleKey);
         public override bool IsAvailable => HasAvailableSlot();
 
         public override void Execute()

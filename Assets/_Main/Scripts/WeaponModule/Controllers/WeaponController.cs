@@ -17,6 +17,7 @@ namespace WeaponModule
         private readonly IWeaponViewFactory _viewFactory;
         private readonly IBulletFactory _bulletFactory;
         private readonly IPauseManager _pauseManager;
+        private readonly Transform _ownerRoot;
 
         private float _nextFireTime;
         private bool _isReloading;
@@ -47,7 +48,8 @@ namespace WeaponModule
             IWeaponStatsProvider statsProvider,
             IWeaponViewFactory viewFactory,
             IBulletFactory bulletFactory,
-            IPauseManager pauseManager)
+            IPauseManager pauseManager,
+            Transform ownerRoot)
         {
             _config = config;
             _model = model;
@@ -56,6 +58,7 @@ namespace WeaponModule
             _viewFactory = viewFactory;
             _bulletFactory = bulletFactory;
             _pauseManager = pauseManager;
+            _ownerRoot = ownerRoot;
 
             _tokenSource = new();
             _pauseManager.Register(this);
@@ -233,7 +236,7 @@ namespace WeaponModule
 
             _view.PlayFireEffects(_isAiming);
             _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, _view.FirePoint.rotation,
-                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity);
+                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject);
 
             if (_model.IsMagazineEmpty && _model.CanReload)
                 ReloadRoutine(true, _config.EmptyReloadDelay).Forget();

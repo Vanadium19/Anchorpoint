@@ -1,4 +1,5 @@
 using UnityEngine;
+using UtilsModule;
 
 namespace BuildingModule
 {
@@ -11,6 +12,9 @@ namespace BuildingModule
         [SerializeField] private Price price;
         [SerializeField] private Sprite icon;
         [SerializeField] private int order;
+
+        [Header("Localization")]
+        [SerializeField] private string nameKey = "";
         [Header("Placement Restrictions")]
         [SerializeField] private LayerMask allowedBuildLayers = ~0;
 
@@ -18,6 +22,8 @@ namespace BuildingModule
         [SerializeField] private int basePoints;
 
         public string Id => id;
+        public string DisplayName =>
+            string.IsNullOrEmpty(nameKey) ? id : LocalizedText.Get(nameKey);
         public BuildingCategory Category => category;
         public BuildingView Prefab => prefab;
         public Price Price => price;

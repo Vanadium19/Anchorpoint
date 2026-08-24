@@ -63,7 +63,7 @@ MonoBehaviour:
   uiPrefab: {fileID: 6687326268205152755, guid: 1ad51d2f62811f44c930415c32347883, type: 3}
   gridWidth: 8
   gridHeight: 8
-  interactionCollider: {fileID: 3938317775041088865}
+  nameKey: world_chest
 --- !u!1001 &1820407430620871529
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -157,10 +157,5 @@ BoxCollider:
 --- !u!4 &2218545723213749378 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0e49fae8ff93d7249bf6bbc4af28472c, type: 3}
-  m_PrefabInstance: {fileID: 1820407430620871529}
-  m_PrefabAsset: {fileID: 0}
---- !u!64 &3938317775041088865 stripped
-MeshCollider:
-  m_CorrespondingSourceObject: {fileID: 3451118302482216456, guid: 0e49fae8ff93d7249bf6bbc4af28472c, type: 3}
   m_PrefabInstance: {fileID: 1820407430620871529}
   m_PrefabAsset: {fileID: 0}

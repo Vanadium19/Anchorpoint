@@ -15,5 +15,7 @@ EditorBuildSettings:
     path: Assets/_Main/Scenes/Camp.unity
     guid: 0c606659cbb2ba54c9768d7d25be7e34
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 161404e5ae634854c9940c984b0c8f28, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: e4d4c31fa0bf5d74a936a1f373134de1, type: 2}
   m_UseUCBPForAssetBundles: 0

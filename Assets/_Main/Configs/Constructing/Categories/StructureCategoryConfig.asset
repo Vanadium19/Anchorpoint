@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: StructureCategoryConfig
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingCategoryConfig
   category: 1
-  displayName: Sctructure
+  displayName: Structure
   icon: {fileID: -485078022, guid: 0b9dbbb972d58024a9d77afa58badbad, type: 3}
   order: 1
+  nameKey: category_structure

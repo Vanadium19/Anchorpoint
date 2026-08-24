@@ -3,7 +3,6 @@ using ComponentsModule;
 using InventoryModule;
 using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 namespace EnemyModule
@@ -12,14 +11,16 @@ namespace EnemyModule
     {
         private readonly EnemyConfig _config;
         private readonly IHealthComponent _health;
+        private readonly LootViewFactory _lootViewFactory;
 
         private readonly Transform _transform;
 
-        public LootDumper(EnemyConfig config, IHealthComponent health, Transform transform)
+        public LootDumper(EnemyConfig config, IHealthComponent health, Transform transform, LootViewFactory lootViewFactory)
         {
             _config = config;
             _health = health;
             _transform = transform;
+            _lootViewFactory = lootViewFactory;
         }
 
         public void Initialize() => _health.Died += OnDied;
@@ -31,7 +32,6 @@ namespace EnemyModule
         private void DropLoot()
         {
             var count = _config.GetRandomDropCount();
-            Debug.Log($"Dropping {count} loot items.");
 
             for (int i = 0; i < count; i++)
             {
@@ -51,9 +51,8 @@ namespace EnemyModule
             var randomOffset = Random.insideUnitCircle * _config.LootScatterRadius;
             spawnPosition += new Vector3(randomOffset.x, 0f, randomOffset.y);
 
-            var lootInstance = Object.Instantiate(item.WorldPrefab, spawnPosition, Quaternion.identity);
+            var lootInstance = _lootViewFactory.Create(item.WorldPrefab, spawnPosition);
             lootInstance.SetItemTable(new(item));
-            Debug.Log($"Spawned {lootInstance}.");
         }
     }
 }

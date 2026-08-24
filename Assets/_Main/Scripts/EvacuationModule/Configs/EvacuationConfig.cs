@@ -6,7 +6,6 @@ namespace EvacuationModule
     public class EvacuationConfig : ScriptableObject
     {
         public float Duration = 5.0f;
-        public string TimerTextFormat = "EVAC IN: {0:F1}";
 
         public EvacuationCompleteMode CompleteMode = EvacuationCompleteMode.ShowSuccessScreen;
 

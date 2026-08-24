@@ -1,7 +1,11 @@
+using UtilsModule;
+
 namespace InventoryModule.ContextMenu.Actions
 {
     public class DropAction : ContextActionBase
     {
+        private const string TitleKey = "action_drop";
+
         private readonly IEquipmentSlotService _slotService;
         private readonly IDropService _dropService;
 
@@ -15,7 +19,7 @@ namespace InventoryModule.ContextMenu.Actions
             _slotService = slotService;
         }
 
-        public override string DisplayName => DisplayNameOverride ?? "Drop";
+        public override string DisplayName => DisplayNameOverride ?? LocalizedText.Get(TitleKey);
         public override bool IsAvailable => Item?.ItemDataSo?.IsDropable ?? false;
 
         public override void Execute()

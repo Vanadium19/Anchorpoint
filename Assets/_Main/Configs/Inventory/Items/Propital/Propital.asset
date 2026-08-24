@@ -15,6 +15,8 @@ MonoBehaviour:
   displayName: Propital
   description: 
   icon: {fileID: -1275963478, guid: 20828d17591110243ba8b10199295d93, type: 3}
+  nameKey: item_propital
+  descriptionKey: 
   dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
   equipmentSlotType: 0
   isEquippable: 0
