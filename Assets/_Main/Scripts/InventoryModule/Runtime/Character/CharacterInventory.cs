@@ -66,7 +66,6 @@ namespace InventoryModule
             _mainSection = _diContainer != null
                 ? _diContainer.InstantiatePrefabForComponent<ContainerSection>(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer)
                 : Instantiate(inventoryPanel.SectionPrefab, inventoryPanel.SectionsContainer);
-            inventoryPanel.EnsureSectionHasLayoutElement(_mainSection);
 
             if (containerPanelPrefab != null)
                 _mainSection.InitializeAsMainInventoryWithPanel(LocalizedText.Get(SectionTitleKey), containerPanelPrefab, containerGridPrefab, _mainGrid);

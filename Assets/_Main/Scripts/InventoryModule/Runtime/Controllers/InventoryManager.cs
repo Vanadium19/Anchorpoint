@@ -73,7 +73,7 @@ namespace InventoryModule
                 for (var i = 0; i < slots.Count; i++)
                 {
                     if (slots[i].IsEquipped)
-                        slots[i].Unequip();
+                        _slotService.Unequip(slots[i]);
                 }
             }
 
@@ -246,7 +246,7 @@ namespace InventoryModule
                 foreach (var slot in _slotService.GetAllSlots())
                 {
                     if (slot.IsEquipped)
-                        slot.Unequip();
+                        _slotService.Unequip(slot);
                 }
             }
 
@@ -329,10 +329,10 @@ namespace InventoryModule
 
             foreach (var slot in _slotService.GetAllSlots())
             {
-                if (slot.IsEquipped || !slot.CanEquip(item))
+                if (slot.IsEquipped || !_slotService.CanEquip(slot, item))
                     continue;
 
-                if (slot.TryEquip(item))
+                if (_slotService.TryEquip(slot, item))
                     return true;
             }
 
@@ -374,7 +374,9 @@ namespace InventoryModule
                         if (_slotService != null)
                         {
                             var slot = _slotService.GetSlotForItem(equippedItem);
-                            slot?.Unequip();
+
+                            if (slot != null)
+                                _slotService.Unequip(slot);
                         }
                     }
                     else

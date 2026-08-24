@@ -43,6 +43,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -97,6 +98,9 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# TextMesh Pro runtime-generated fallback asset
+/[Aa]ssets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
 
 # MacOS
 .DS_Store

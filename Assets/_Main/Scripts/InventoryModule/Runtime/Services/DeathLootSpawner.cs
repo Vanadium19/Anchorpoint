@@ -46,7 +46,10 @@ namespace InventoryModule
                     continue;
 
                 var spawnPosition = GetSpawnPosition(pile.Position);
-                _dropService.TryDropItem(item, spawnPosition);
+                _dropService.TryDropItem(
+                    item,
+                    spawnPosition,
+                    isPlayerDeathLoot: true);
             }
         }
 

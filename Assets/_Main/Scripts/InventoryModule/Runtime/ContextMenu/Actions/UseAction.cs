@@ -107,7 +107,7 @@ namespace InventoryModule.ContextMenu.Actions
             var slot = _slotService?.GetSlotForItem(Item);
 
             if (slot != null)
-                slot.Unequip();
+                _slotService.Unequip(slot);
             else
                 Item.RemoveItselfFromLocation();
         }

@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using InventoryModule;
 using UnityEngine;
-using Zenject;
 
 namespace SpawnModule
 {
-    public class LootSpawnController : IInitializable
+    public class LootSpawnController
     {
         private readonly LevelLootSpawnPointsView _spawnPointsView;
         private readonly ILootFactory _factory;
@@ -25,7 +24,7 @@ namespace SpawnModule
             _validationConfig = validationConfig;
         }
 
-        public void Initialize()
+        public void SpawnInitialLoot()
         {
             _playerSpawnPosition = _validationConfig.PlayerSpawnPoint.position;
             SpawnLoot();

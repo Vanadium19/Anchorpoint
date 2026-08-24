@@ -35,7 +35,9 @@ namespace InventoryModule.ContextMenu.Actions
             if (_slotService != null)
             {
                 var slot = _slotService.GetSlotForItem(Item);
-                slot?.Unequip();
+
+                if (slot != null)
+                    _slotService.Unequip(slot);
             }
         }
     }

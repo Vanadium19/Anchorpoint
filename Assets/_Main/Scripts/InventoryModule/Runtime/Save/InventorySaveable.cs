@@ -156,7 +156,7 @@ namespace InventoryModule
 
                     var item = ItemSerializer.Deserialize(slotMemento.Item, itemData);
 
-                    slot.TryEquip(item);
+                    _slotService.TryEquip(slot, item);
                     ItemSerializer.RestoreNestedContainers(item, slotMemento.Item, _itemCatalog);
                 }
             }

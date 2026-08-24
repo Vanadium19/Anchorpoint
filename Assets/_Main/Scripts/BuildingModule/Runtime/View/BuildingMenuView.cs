@@ -12,6 +12,8 @@ namespace BuildingModule
         [SerializeField] private RectTransform panelRect;
         [SerializeField] private GameObject itemPrefab;
 
+        [SerializeField] private RectTransform itemsContainer;
+
         private BuildingMenuConfig _config;
 
         private RectTransform _container;
@@ -130,7 +132,7 @@ namespace BuildingModule
             ClearItems();
 
             if (_container == null)
-                _container = CreateDefaultContainer();
+                _container = itemsContainer;
 
             var containerWidth = ItemSpacing;
             _container.sizeDelta = new Vector2(containerWidth, 0);
@@ -173,20 +175,6 @@ namespace BuildingModule
             }
 
             UpdateLayout();
-        }
-
-        private RectTransform CreateDefaultContainer()
-        {
-            var containerGo = new GameObject("ItemsContainer");
-            var container = containerGo.AddComponent<RectTransform>();
-            containerGo.AddComponent<CanvasRenderer>();
-            container.SetParent(transform, false);
-            container.anchorMin = new Vector2(0.5f, 0.5f);
-            container.anchorMax = new Vector2(0.5f, 0.5f);
-            container.pivot = new Vector2(0.5f, 0.5f);
-            container.anchoredPosition = Vector2.zero;
-            container.sizeDelta = new Vector2(0, 0);
-            return container;
         }
 
         public void SelectNext()

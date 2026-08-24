@@ -4,11 +4,10 @@ using System.Threading;
 using BaseModule;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Zenject;
 
 namespace SpawnModule
 {
-    public sealed class EnemySpawnController : IInitializable, IDisposable, IPausable
+    public sealed class EnemySpawnController : IPausable
     {
         private readonly LevelSpawnPointsView _view;
         private readonly IEnemyFactory _factory;
@@ -16,6 +15,7 @@ namespace SpawnModule
         private readonly IPauseManager _pauseManager;
 
         private CancellationTokenSource _cancellationTokenSource;
+        private bool _isSessionStarted;
         private bool _isSpawning;
         private bool _isPaused;
 
@@ -31,8 +31,12 @@ namespace SpawnModule
             _pauseManager = pauseManager;
         }
 
-        public void Initialize()
+        public void StartSession()
         {
+            if (_isSessionStarted)
+                return;
+
+            _isSessionStarted = true;
             _pauseManager.Register(this);
             Spawn(_config.InitialEnemyCount);
             StartSpawning();
@@ -51,6 +55,13 @@ namespace SpawnModule
 
         public void Spawn() => Spawn(_config.EnemiesPerWave);
 
+        public void StopSession()
+        {
+            _isSessionStarted = false;
+            _pauseManager.Unregister(this);
+            StopSpawning();
+        }
+
         public void StopSpawning()
         {
             _isSpawning = false;
@@ -65,12 +76,6 @@ namespace SpawnModule
 
         public void SetPaused(bool isPaused) => _isPaused = isPaused;
 
-        public void Dispose()
-        {
-            _pauseManager.Unregister(this);
-            StopSpawning();
-        }
-
         private void Spawn(int enemyCount)
         {
             if (enemyCount <= 0)
@@ -79,8 +84,10 @@ namespace SpawnModule
             var points = _view.SpawnPoints;
 
             if (enemyCount > points.Count)
+            {
                 throw new InvalidOperationException(
                     $"Enemy count ({enemyCount}) is greater than spawn point count ({points.Count}).");
+            }
 
             var shuffledPoints = points
                 .OrderBy(_ => UnityEngine.Random.value)

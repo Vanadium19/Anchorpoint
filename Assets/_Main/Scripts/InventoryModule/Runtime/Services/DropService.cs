@@ -38,7 +38,13 @@ namespace InventoryModule
             return TryDropItem(item, dropPosition);
         }
 
-        public bool TryDropItem(ItemTable item, Vector3 worldPosition)
+        public bool TryDropItem(ItemTable item, Vector3 worldPosition) =>
+            TryDropItem(item, worldPosition, false);
+
+        public bool TryDropItem(
+            ItemTable item,
+            Vector3 worldPosition,
+            bool isPlayerDeathLoot)
         {
             if (!CanDrop(item))
                 return false;
@@ -56,6 +62,7 @@ namespace InventoryModule
                 : Object.Instantiate(prefab, worldPosition, Quaternion.identity);
 
             lootInstance.SetItemTable(item);
+            lootInstance.SetPlayerDeathLoot(isPlayerDeathLoot);
 
             return true;
         }
