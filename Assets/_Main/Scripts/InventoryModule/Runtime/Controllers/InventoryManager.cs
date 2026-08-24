@@ -328,9 +328,6 @@ namespace InventoryModule
             return false;
         }
 
-            return false;
-        }
-
         private IEnumerable<GridTable> GetAllSections()
         {
             if (_mainGrid != null)
