@@ -258,40 +258,18 @@ namespace InventoryModule
             if (itemData == null)
                 return false;
 
-            if (_mainGrid != null)
+            if (itemData.IsStackable)
+                stackCount = TryStackIntoSections(itemData, stackCount);
+
+            while (stackCount > 0)
             {
-                if (itemData.IsStackable)
-                {
-                    var items = _mainGrid.GetAllItems();
+                var itemTable = new ItemTable(itemData);
+                itemTable.StackCount = Mathf.Min(stackCount, itemData.MaxStackSize);
 
-                    foreach (var item in items)
-                    {
-                        if (item.ItemDataSo != itemData || item.StackCount >= item.MaxStack)
-                            continue;
+                if (!TryPlaceInSection(itemTable))
+                    break;
 
-                        var remaining = item.TryAddToStack(stackCount);
-
-                        if (remaining == 0)
-                            return true;
-
-                        stackCount = remaining;
-                    }
-                }
-
-                while (stackCount > 0)
-                {
-                    var itemTable = new ItemTable(itemData);
-                    int toAdd = Mathf.Min(stackCount, itemData.MaxStackSize);
-                    itemTable.StackCount = toAdd;
-
-                    var pos = _mainGrid.FindSpaceForObjectAnyDirection(itemTable);
-
-                    if (pos == null)
-                        break;
-
-                    _mainGrid.PlaceItem(itemTable, pos.Value.x, pos.Value.y);
-                    stackCount -= toAdd;
-                }
+                stackCount -= itemTable.StackCount;
             }
 
             if (stackCount > 0)
@@ -307,13 +285,59 @@ namespace InventoryModule
 
             existingItem.RemoveItselfFromLocation();
 
-            var position = _mainGrid?.FindSpaceForObjectAnyDirection(existingItem);
+            if (TryPlaceInSection(existingItem))
+                return true;
 
-            if (position == null)
-                return TryAddExistingToContainers(existingItem);
+            return TryAddExistingToContainers(existingItem);
+        }
 
-            _mainGrid.PlaceItem(existingItem, position.Value.x, position.Value.y);
-            return true;
+        private int TryStackIntoSections(ItemDataSo itemData, int stackCount)
+        {
+            foreach (var grid in GetAllSections())
+            {
+                var items = grid.GetAllItems();
+
+                foreach (var item in items)
+                {
+                    if (item.ItemDataSo != itemData || item.StackCount >= item.MaxStack)
+                        continue;
+
+                    stackCount = item.TryAddToStack(stackCount);
+
+                    if (stackCount == 0)
+                        return 0;
+                }
+            }
+
+            return stackCount;
+        }
+
+        private bool TryPlaceInSection(ItemTable itemTable)
+        {
+            foreach (var grid in GetAllSections())
+            {
+                var position = grid.FindSpaceForObjectAnyDirection(itemTable);
+
+                if (position == null)
+                    continue;
+
+                grid.PlaceItem(itemTable, position.Value.x, position.Value.y);
+                return true;
+            }
+
+            return false;
+        }
+
+            return false;
+        }
+
+        private IEnumerable<GridTable> GetAllSections()
+        {
+            if (_mainGrid != null)
+                yield return _mainGrid;
+
+            foreach (var additionalGrid in _additionalGrids)
+                yield return additionalGrid;
         }
 
         public bool TryAutoEquipItem(ItemTable item)
@@ -494,8 +518,13 @@ namespace InventoryModule
 
         private int TryAddToContainers(ItemDataSo itemData, int stackCount)
         {
-            if (_mainGrid != null)
-                stackCount = TryAddToContainersInGrid(_mainGrid, itemData, stackCount);
+            foreach (var grid in GetAllSections())
+            {
+                if (stackCount <= 0)
+                    break;
+
+                stackCount = TryAddToContainersInGrid(grid, itemData, stackCount);
+            }
 
             if (stackCount <= 0 || _slotService == null)
                 return stackCount;
@@ -578,8 +607,8 @@ namespace InventoryModule
 
         private bool TryAddExistingToContainers(ItemTable existingItem)
         {
-            if (_mainGrid != null)
-                if (TryAddExistingToContainersInGrid(_mainGrid, existingItem))
+            foreach (var grid in GetAllSections())
+                if (TryAddExistingToContainersInGrid(grid, existingItem))
                     return true;
 
             if (_slotService == null)

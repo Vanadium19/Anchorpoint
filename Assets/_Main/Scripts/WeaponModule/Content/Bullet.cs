@@ -25,7 +25,6 @@ namespace WeaponModule
         private Vector3 _pausedAngularVelocity;
         private bool _isPaused;
         private bool _hasSetup;
-        private GameObject _owner;
 
         private void OnValidate()
         {
@@ -61,7 +60,6 @@ namespace WeaponModule
             _owner = owner;
             _remainingLifeTime = lifeTime;
             _hasSetup = true;
-            _owner = owner;
 
             if (rigidbodyComponent != null)
             {

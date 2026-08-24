@@ -52,8 +52,13 @@ namespace InventoryModule
             _contentGrids.Clear();
             _contentGrids.AddRange(result.Grids);
 
-            if (_cContainerGrid != null)
-                _inventoryManager?.RegisterAdditionalGrid(_cContainerGrid);
+            foreach (var grid in _contentGrids)
+            {
+                if (grid == null || grid.Grid == null)
+                    continue;
+
+                _inventoryManager?.RegisterAdditionalGrid(grid.Grid);
+            }
         }
 
         public void InitializeAsMainInventory(GridTable grid, AbstractGrid gridPrefab, Transform contentContainer)
@@ -64,8 +69,11 @@ namespace InventoryModule
 
             var result = _gridFactory.BuildMainInventoryGrid(grid, gridPrefab, contentContainer);
 
+            _cContainerGrid = result.PrimaryGrid;
             _contentGrids.Clear();
             _contentGrids.AddRange(result.Grids);
+
+            RegisterSectionGrids();
         }
 
         public void InitializeAsMainInventoryWithPanel(ContainerGridsData containerPanelPrefab, AbstractGrid fallbackGridPrefab, GridTable existingGrid, Transform contentContainer)
@@ -79,6 +87,19 @@ namespace InventoryModule
             _cContainerGrid = result.PrimaryGrid;
             _contentGrids.Clear();
             _contentGrids.AddRange(result.Grids);
+
+            RegisterSectionGrids();
+        }
+
+        private void RegisterSectionGrids()
+        {
+            foreach (var grid in _contentGrids)
+            {
+                if (grid == null || grid.Grid == null || grid.Grid == _cContainerGrid)
+                    continue;
+
+                _inventoryManager?.RegisterAdditionalGrid(grid.Grid);
+            }
         }
 
         public bool RefreshGridUI()
@@ -220,8 +241,13 @@ namespace InventoryModule
 
             foreach (var grid in _contentGrids)
             {
-                if (grid != null)
-                    UnityEngine.Object.Destroy(grid.gameObject);
+                if (grid == null)
+                    continue;
+
+                if (grid.Grid != null && grid.Grid != _cContainerGrid)
+                    _inventoryManager?.UnregisterAdditionalGrid(grid.Grid);
+
+                UnityEngine.Object.Destroy(grid.gameObject);
             }
 
             _contentGrids.Clear();

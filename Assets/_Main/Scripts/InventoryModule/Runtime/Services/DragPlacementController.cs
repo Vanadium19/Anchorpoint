@@ -85,7 +85,6 @@ namespace InventoryModule
             }
 
             var newStackTarget = _uiInputHandler.GetStackTargetUnderMouse(view, view.Item);
-
             if (newStackTarget != _stackTargetItem)
             {
                 ClearStackHighlight();
@@ -151,13 +150,15 @@ namespace InventoryModule
         {
             ShouldDestroyView = false;
 
+            var stackTarget = _stackTargetItem;
+
             HideAllHighlights();
 
             if (view == null || view.Item == null)
                 return PlacementOutcome.Returned;
 
-            if (_stackTargetItem != null && view.Item.IsStackable)
-                if (TryStackToTarget(view))
+            if (stackTarget != null && view.Item.IsStackable)
+                if (TryStackToTarget(view, stackTarget))
                     return PlacementOutcome.StackedPartially;
 
             if (IsOverDropZone)
@@ -301,13 +302,13 @@ namespace InventoryModule
                 ReturnToOriginal(view);
             }
         }
-        private bool TryStackToTarget(InventoryItem view)
+        private bool TryStackToTarget(InventoryItem view, InventoryItem stackTarget)
         {
-            if (_stackTargetItem == null || view.Item == null)
+            if (stackTarget == null || view.Item == null)
                 return false;
 
             var toAdd = view.Item.StackCount;
-            var remaining = _stackTargetItem.Item.TryAddToStack(toAdd);
+            var remaining = stackTarget.Item.TryAddToStack(toAdd);
 
             if (remaining >= view.Item.StackCount)
                 return false;

@@ -134,24 +134,19 @@ namespace InventoryModule
 
                     if (panelGrids != null && panelGrids.Length > 0)
                     {
-                        foreach (var grid in panelGrids)
+                        for (int i = 0; i < panelGrids.Length; i++)
                         {
+                            var grid = panelGrids[i];
+
                             if (grid == null)
                                 continue;
 
-                            GridTable gridTable;
+                            var gridTable = i == 0 && existingGrid != null
+                                ? existingGrid
+                                : new GridTable(grid.GridWidth, grid.GridHeight);
 
-                            if (existingGrid != null)
-                            {
-                                gridTable = existingGrid;
-                            }
-                            else
-                            {
-                                gridTable = new GridTable(grid.GridWidth, grid.GridHeight);
-
-                                if (result.PrimaryGrid == null)
-                                    result.PrimaryGrid = gridTable;
-                            }
+                            if (result.PrimaryGrid == null)
+                                result.PrimaryGrid = gridTable;
 
                             grid.SetGridTableOnly(gridTable);
                             result.Grids.Add(grid);
@@ -165,29 +160,24 @@ namespace InventoryModule
 
                     if (prefabGrids != null && prefabGrids.Length > 0)
                     {
-                        foreach (var prefabGrid in prefabGrids)
+                        for (int i = 0; i < prefabGrids.Length; i++)
                         {
+                            var prefabGrid = prefabGrids[i];
+
                             if (prefabGrid == null)
                                 continue;
 
                             var grid = InstantiateGrid(prefabGrid, contentContainer);
                             grid.transform.localPosition = prefabGrid.transform.localPosition;
 
-                            GridTable gridTable;
+                            var gridTable = i == 0 && existingGrid != null
+                                ? existingGrid
+                                : new GridTable(prefabGrid.GridWidth, prefabGrid.GridHeight);
 
-                            if (existingGrid != null)
-                            {
-                                gridTable = existingGrid;
-                            }
-                            else
-                            {
-                                gridTable = new(prefabGrid.GridWidth, prefabGrid.GridHeight);
+                            if (result.PrimaryGrid == null)
+                                result.PrimaryGrid = gridTable;
 
-                                if (result.PrimaryGrid == null)
-                                    result.PrimaryGrid = gridTable;
-                            }
-
-                            grid.RefreshGridFromTable(gridTable);
+                            grid.SetGridTableOnly(gridTable);
                             result.Grids.Add(grid);
                         }
                     }
