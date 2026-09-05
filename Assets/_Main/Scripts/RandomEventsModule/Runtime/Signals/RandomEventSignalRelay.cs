@@ -12,10 +12,10 @@ namespace RandomEventsModule
     public abstract class RandomEventSignalRelay : IInitializable, IDisposable
     {
         private readonly IRandomEventTriggerRunner _triggerRunner;
-        private readonly RandomEventKey _signal;
+        private readonly string _signal;
 
         /// <summary>Creates the relay bound to a trigger runner and the signal key it reports under.</summary>
-        protected RandomEventSignalRelay(IRandomEventTriggerRunner triggerRunner, RandomEventKey signal)
+        protected RandomEventSignalRelay(IRandomEventTriggerRunner triggerRunner, string signal)
         {
             _triggerRunner = triggerRunner;
             _signal = signal;

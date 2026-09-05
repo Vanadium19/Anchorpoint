@@ -64,7 +64,7 @@ namespace RandomEventsModule
         }
 
         /// <inheritdoc/>
-        public RandomEventStartResult ReportSignal(RandomEventKey signal, int amount = 1)
+        public RandomEventStartResult ReportSignal(string signal, int amount = 1)
         {
             _store.AddInt(signal, amount);
 

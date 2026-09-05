@@ -48,7 +48,7 @@ namespace RandomEventsModule
         }
 
         /// <summary>Whether a reported signal should poll this trigger immediately.</summary>
-        public bool HandlesSignal(RandomEventKey signal) => _source.HandlesSignal(signal);
+        public bool HandlesSignal(string signal) => _source.HandlesSignal(signal);
 
         /// <summary>Consumes the source's readiness, checks conditions and rolls the chance.</summary>
         public bool TryFire() => _source.TryFire() && _conditions.IsMet() && (_chance == null || _chance.Roll());

@@ -9,8 +9,9 @@
 ## Идентификация
 
 - Событие адресуется ссылкой на ассет `RandomEventDefinition` — отдельного поля `id` нет.
-- Ключ состояния и сигнала — ассет `RandomEventKey`; условие, действие и источник сигнала ссылаются на один и тот же ассет. `PersistentId` — GUID ассета, записывается при валидации в редакторе и уходит в сейв, поэтому переименование/перемещение ассета сохранённое состояние не ломает.
-- Единственные строки в модуле — ключи локализации (`displayNameKey`, `localizationKey`), их проверяет система локализации.
+- Ключ состояния и сигнала — обычная строка (`string`); условие, действие и источник сигнала должны использовать один и тот же литерал, совпадение проверяется по значению, а не по ссылке. Владеет строкой модуль-потребитель — публикуйте её как `[RandomEventSignalKey] public const string` на релее (см. «Расширение → 3»).
+- Инспекторные поля `signal`/`counterKey` (`StateScaledChanceAsset` и подобные) помечены `[RandomEventSignalPicker]`: вместо ручного набора строки редактор рисует выпадающий список из всех `[RandomEventSignalKey]`-констант в проекте (`RandomEventSignalPickerDrawer`, ищет их через `TypeCache`, ядро по-прежнему ни одной конкретной строки не знает). Опечатка невозможна — значение всегда берётся из существующей константы, а не набирается заново. Если в поле уже стоит строка без такой константы (устарела, переименовали), поле показывает обычный текст с пометкой «не найден», ничего не теряя.
+- Кроме ключей состояния — ключи локализации (`displayNameKey`, `localizationKey`), их проверяет система локализации.
 
 ## Конфигурация: скоуп → триггер → пул
 
@@ -81,7 +82,7 @@
 - `IRandomEventService`/`RandomEventService` — запуск (`Start`, `StartFromPool`), остановка (`Stop`, `StopAll`), события `EventStarted`/`EventFinished`, контроль эксклюзивности, кулдаунов, минимального интервала между событиями.
 - `IRandomEventTriggerRunner`/`RandomEventTriggerRunner` — держит рантайм-триггеры скоупа, опрашивает периодические и принимает внешние сигналы.
 - `IRandomEventClock`/`RandomEventClock` — ожидание, не считающее время на паузе; им пользуются действия с задержкой или таймаутом.
-- `IRandomEventStateStore`/`RandomEventStateStore` — сохраняемое хранилище `int`/`float`/`bool` по ключам-ассетам `RandomEventKey`.
+- `IRandomEventStateStore`/`RandomEventStateStore` — сохраняемое хранилище `int`/`float`/`bool` по строковым ключам.
 - `RandomEventSignalRelay` — база для адаптеров слоя оркестрации, превращающих факт игрового модуля в сигнал.
 - `RandomEventTriggerInstance` — рантайм-форма триггера: разрешённые источник, условия, шанс и пикер живут всё время жизни раннера, поэтому могут помнить прошлые срабатывания.
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток.
@@ -101,15 +102,15 @@
 
 ## Сохранение
 
-Единственное сохраняемое состояние — `IRandomEventStateStore` (словари `int`/`float`/`bool`, ключ — `RandomEventKey.PersistentId`, то есть GUID ассета-ключа). Активные события и кулдауны не сохраняются: смена сцены отменяет запущенные события.
+Единственное сохраняемое состояние — `IRandomEventStateStore` (словари `int`/`float`/`bool`, ключ — строковый литерал сигнала/счётчика). Активные события и кулдауны не сохраняются: смена сцены отменяет запущенные события.
 
 `RandomEventsSaveHandler` регистрирует `RandomEventsSaveable`; `Load()` вызывают сценовые хендлеры (`CampSaveHandler`/`GameSceneSaveHandler`), регистрация выполняется раньше загрузки за счёт `Container.BindExecutionOrder<RandomEventsSaveHandler>(-100)`.
 
-`SaveKey` `"random_events"` менять нельзя. Ассет `RandomEventKey` не удалять и не пересоздавать — новый ассет получит новый GUID, и накопленное состояние осиротеет.
+`SaveKey` `"random_events"` менять нельзя. Строковый ключ сигнала/счётчика тоже менять нельзя после того, как под ним накопилось сохранённое состояние — переименование литерала осиротит накопленное значение в сейве так же, как переименование поля.
 
 ## Подключение
 
-1. Создать ассеты через `Create → Game → Configs → RandomEvents`: по `RandomEventScope` на каждый скоуп, по `RandomEventKey` на каждый ключ состояния/сигнала, по `RandomEventDefinition` на каждое событие. Класть в `Assets/_Main/Configs/RandomEvents/`.
+1. Создать ассеты через `Create → Game → Configs → RandomEvents`: по `RandomEventScope` на каждый скоуп, по `RandomEventDefinition` на каждое событие. Класть в `Assets/_Main/Configs/RandomEvents/`. Ключи состояния/сигнала — не ассеты, а строковые константы модуля-потребителя (см. «Идентификация»); в инспекторные поля `signal`/`counterKey` набираются вручную тем же литералом.
 2. В каждом `RandomEventDefinition` собрать `sequence`, отметить `runInParallel` там, где нужно.
 3. В `RandomEventScope` завести по триггеру на каждый способ запуска: выбрать источник, при необходимости условия и шанс, заполнить пул событиями и весами.
 4. Добавить в сцены `Camp.unity` и `Game.unity` объект с `RandomEventsInstaller`, прописать в `SceneContext → Installers`: `scope` и `notificationView` — свои на сцену.
@@ -172,13 +173,12 @@ public interface IAlchemyService
 ```csharp
 public class AlchemyUsageRelay : RandomEventSignalRelay
 {
+    [RandomEventSignalKey] public const string SignalKey = "alchemy_table_usage";
+
     private readonly IAlchemyService _alchemy;
 
-    public AlchemyUsageRelay(
-        IRandomEventTriggerRunner triggerRunner,
-        RandomEventKey signal,
-        IAlchemyService alchemy)
-        : base(triggerRunner, signal)
+    public AlchemyUsageRelay(IRandomEventTriggerRunner triggerRunner, IAlchemyService alchemy)
+        : base(triggerRunner, SignalKey)
     {
         _alchemy = alchemy;
     }
@@ -192,10 +192,10 @@ public class AlchemyUsageRelay : RandomEventSignalRelay
 ```
 
 ```csharp
-Container.BindInterfacesTo<AlchemyUsageRelay>().AsSingle().WithArguments(alchemyUsageSignal).NonLazy();
+Container.BindInterfacesTo<AlchemyUsageRelay>().AsSingle().NonLazy();
 ```
 
-Тот же ассет `alchemyUsageSignal` кладётся в ассет источника триггера, который его ждёт (см. «Расширение → 5»).
+Ключ — константа на самом релее, а не инжектируемый аргумент, так что нет смысла городить биндинг ради значения, которое и так зашито в код. `[RandomEventSignalKey]` делает её видимой для `[RandomEventSignalPicker]` на поле `signal`/`counterKey` источника триггера, который её ждёт (см. «Расширение → 5») — там её выбирают из списка, а не перепечатывают.
 
 ### 4. Свой алгоритм выбора
 

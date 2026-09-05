@@ -8,7 +8,7 @@ namespace RandomEventsModule
     [Serializable]
     public class StateScaledChanceAsset : ZenjectRandomEventChanceAsset<StateScaledChance>
     {
-        [SerializeField] private RandomEventKey counterKey;
+        [SerializeField] [RandomEventSignalPicker] private string counterKey;
         [SerializeField] [Range(0f, 100f)] private float basePercent = 30f;
         [SerializeField] [Range(0f, 100f)] private float stepPercent = 10f;
         [SerializeField] [Range(0f, 100f)] private float maxPercent = 100f;
