@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RandomEventsModule
 {
-    /// <summary>In-memory <see cref="IRandomEventStateStore"/>, keyed by <see cref="RandomEventKey.PersistentId"/>.</summary>
+    /// <summary>In-memory <see cref="IRandomEventStateStore"/>, keyed by the raw string key.</summary>
     public class RandomEventStateStore : IRandomEventStateStore, IRandomEventsState
     {
         private readonly Dictionary<string, int> _ints = new();
@@ -11,109 +11,81 @@ namespace RandomEventsModule
         private readonly Dictionary<string, bool> _flags = new();
 
         /// <inheritdoc/>
-        public int GetInt(RandomEventKey key, int defaultValue = 0)
-        {
-            var id = Resolve(key);
-
-            return id != null && _ints.TryGetValue(id, out var value) ? value : defaultValue;
-        }
+        public int GetInt(string key, int defaultValue = 0) =>
+            !string.IsNullOrEmpty(key) && _ints.TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <inheritdoc/>
-        public void SetInt(RandomEventKey key, int value)
+        public void SetInt(string key, int value)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            _ints[id] = value;
+            _ints[key] = value;
         }
 
         /// <inheritdoc/>
-        public int AddInt(RandomEventKey key, int amount)
+        public int AddInt(string key, int amount)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return 0;
 
-            var newValue = (_ints.TryGetValue(id, out var value) ? value : 0) + amount;
-            _ints[id] = newValue;
+            var newValue = (_ints.TryGetValue(key, out var value) ? value : 0) + amount;
+            _ints[key] = newValue;
 
             return newValue;
         }
 
         /// <inheritdoc/>
-        public float GetFloat(RandomEventKey key, float defaultValue = 0f)
-        {
-            var id = Resolve(key);
-
-            return id != null && _floats.TryGetValue(id, out var value) ? value : defaultValue;
-        }
+        public float GetFloat(string key, float defaultValue = 0f) =>
+            !string.IsNullOrEmpty(key) && _floats.TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <inheritdoc/>
-        public void SetFloat(RandomEventKey key, float value)
+        public void SetFloat(string key, float value)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            _floats[id] = value;
+            _floats[key] = value;
         }
 
         /// <inheritdoc/>
-        public float AddFloat(RandomEventKey key, float amount)
+        public float AddFloat(string key, float amount)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return 0f;
 
-            var newValue = (_floats.TryGetValue(id, out var value) ? value : 0f) + amount;
-            _floats[id] = newValue;
+            var newValue = (_floats.TryGetValue(key, out var value) ? value : 0f) + amount;
+            _floats[key] = newValue;
 
             return newValue;
         }
 
         /// <inheritdoc/>
-        public bool GetBool(RandomEventKey key, bool defaultValue = false)
-        {
-            var id = Resolve(key);
-
-            return id != null && _flags.TryGetValue(id, out var value) ? value : defaultValue;
-        }
+        public bool GetBool(string key, bool defaultValue = false) =>
+            !string.IsNullOrEmpty(key) && _flags.TryGetValue(key, out var value) ? value : defaultValue;
 
         /// <inheritdoc/>
-        public void SetBool(RandomEventKey key, bool value)
+        public void SetBool(string key, bool value)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            _flags[id] = value;
+            _flags[key] = value;
         }
 
         /// <inheritdoc/>
-        public bool HasKey(RandomEventKey key)
-        {
-            var id = Resolve(key);
-
-            return id != null && (_ints.ContainsKey(id) || _floats.ContainsKey(id) || _flags.ContainsKey(id));
-        }
+        public bool HasKey(string key) =>
+            !string.IsNullOrEmpty(key) && (_ints.ContainsKey(key) || _floats.ContainsKey(key) || _flags.ContainsKey(key));
 
         /// <inheritdoc/>
-        public void Remove(RandomEventKey key)
+        public void Remove(string key)
         {
-            var id = Resolve(key);
-
-            if (id == null)
+            if (string.IsNullOrEmpty(key))
                 return;
 
-            _ints.Remove(id);
-            _floats.Remove(id);
-            _flags.Remove(id);
+            _ints.Remove(key);
+            _floats.Remove(key);
+            _flags.Remove(key);
         }
 
         /// <inheritdoc/>
@@ -154,16 +126,6 @@ namespace RandomEventsModule
             if (memento.Flags != null)
                 foreach (var pair in memento.Flags)
                     _flags[pair.Key] = pair.Value;
-        }
-
-        private static string Resolve(RandomEventKey key)
-        {
-            if (key == null)
-                return null;
-
-            var persistentId = key.PersistentId;
-
-            return string.IsNullOrEmpty(persistentId) ? null : persistentId;
         }
     }
 }

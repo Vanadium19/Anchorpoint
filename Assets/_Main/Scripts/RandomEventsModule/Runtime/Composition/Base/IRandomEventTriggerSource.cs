@@ -12,7 +12,7 @@ namespace RandomEventsModule
         float PollIntervalSeconds { get; }
 
         /// <summary>Whether a reported signal should poll this source immediately.</summary>
-        bool HandlesSignal(RandomEventKey signal);
+        bool HandlesSignal(string signal);
 
         /// <summary>Consumes readiness and returns whether the trigger may roll now.</summary>
         bool TryFire();

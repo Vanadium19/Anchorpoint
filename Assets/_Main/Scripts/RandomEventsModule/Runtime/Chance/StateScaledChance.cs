@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace RandomEventsModule
 {
-    /// <summary>A percentage that grows with a counter stored under a <see cref="RandomEventKey"/>.</summary>
+    /// <summary>A percentage that grows with a counter stored under a string key.</summary>
     /// <remarks>
     /// Rolls at <c>basePercent + stepPercent * counter</c>, capped at <c>maxPercent</c>. Whatever
     /// raises the counter defines what "another chance missed" means — a relay reporting a return
@@ -11,7 +11,7 @@ namespace RandomEventsModule
     public class StateScaledChance : IRandomEventChance
     {
         private readonly IRandomEventStateStore _store;
-        private readonly RandomEventKey _counterKey;
+        private readonly string _counterKey;
         private readonly float _basePercent;
         private readonly float _stepPercent;
         private readonly float _maxPercent;
@@ -19,7 +19,7 @@ namespace RandomEventsModule
         /// <summary>Creates the chance over one counter key.</summary>
         public StateScaledChance(
             IRandomEventStateStore store,
-            RandomEventKey counterKey,
+            string counterKey,
             float basePercent,
             float stepPercent,
             float maxPercent)

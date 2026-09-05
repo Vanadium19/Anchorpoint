@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RandomEventsModule
 {
-    /// <summary>Serializable snapshot of <see cref="IRandomEventStateStore"/>, keyed by <see cref="RandomEventKey.PersistentId"/>.</summary>
+    /// <summary>Serializable snapshot of <see cref="IRandomEventStateStore"/>, keyed by the raw string key.</summary>
     [Serializable]
     public class RandomEventsMemento
     {
