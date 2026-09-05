@@ -1,0 +1,18 @@
+{
+    "name": "RandomEventsModule.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:177e20cf69ffebe499e02f7f3a7eb5cf"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
