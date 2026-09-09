@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuildingModule.BuildingView
   collisionCollider: {fileID: 8950193732055976827}
+  boundsMeshFilter: {fileID: 1733492968491808776}
 --- !u!1001 &5210888433496683888
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106,6 +107,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8950193732055976827}
   m_SourcePrefab: {fileID: 100100000, guid: 5c7655b038be8654cbdc6eed46af55d5, type: 3}
+--- !u!33 &1733492968491808776 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 5791156057620712824, guid: 5c7655b038be8654cbdc6eed46af55d5, type: 3}
+  m_PrefabInstance: {fileID: 5210888433496683888}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2660098587293658391 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7834674530376931431, guid: 5c7655b038be8654cbdc6eed46af55d5, type: 3}

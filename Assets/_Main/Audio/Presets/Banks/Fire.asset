@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71c59311ed514f81aa536eb0ff91b011, type: 3}
+  m_Name: Fire
+  m_EditorClassIdentifier: AudioModule::AudioModule.AudioBank
+  identifier: Fire
+  codeGenPath: Assets/_Main/Scripts/AudioModule/Codegen
+  eventParameters:
+  - identifier: Ignition
+    value: {fileID: 11400000, guid: 7be9383d68f439f4abebb0f933b709a9, type: 2}
+  - identifier: Burning
+    value: {fileID: 11400000, guid: 55204826d7a0dc144931c2984db2cd79, type: 2}
+  - identifier: Extinguish
+    value: {fileID: 11400000, guid: 9400177ca5275ca48a90824a390383ce, type: 2}
+  boolParameters: []
+  intParameters: []
+  floatParameters: []
+  callbacks: []

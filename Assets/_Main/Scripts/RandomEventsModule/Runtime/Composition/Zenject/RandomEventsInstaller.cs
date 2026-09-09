@@ -9,12 +9,14 @@ namespace RandomEventsModule
     {
         [SerializeField] private RandomEventScope scope;
         [SerializeField] private RandomEventNotificationView notificationView;
+        [SerializeField] private RandomEventProgressHudView progressHudView;
 
         /// <summary>Binds the module services, keyed to this scene scope and notification view.</summary>
         public override void InstallBindings()
         {
             Container.BindInstance(scope).AsSingle();
             Container.BindInstance(notificationView).AsSingle();
+            Container.BindInstance(progressHudView).AsSingle();
 
             Container.BindInterfacesTo<RandomEventStateStore>().AsSingle();
             Container.BindInterfacesTo<RandomEventNotifier>().AsSingle();

@@ -21,19 +21,28 @@ namespace VFXModule
                 _effects[id] = new();
         }
 
-        public void Fire(EffectId effectId, Vector3 position, Quaternion rotation, Transform parent = null)
+        public IEffectHandle Fire(EffectId effectId, Vector3 position, Quaternion rotation, Transform parent = null, Vector3? scale = null)
         {
             var effects = _effects[effectId];
 
-            if (!effects.TryDequeue(out var effect))
+            EffectView effect = null;
+
+            // Skip pooled effects whose GameObject was destroyed (e.g. with the building they were parented to).
+            while (effect == null && effects.TryDequeue(out var pooled))
+                effect = pooled;
+
+            if (effect == null)
                 effect = Spawn(effectId);
 
             effect.Finished -= OnEffectFinished;
             effect.Finished += OnEffectFinished;
             effect.transform.SetParent(parent != null ? parent : _container, true);
             effect.transform.SetPositionAndRotation(position, rotation);
+            effect.SetScale(scale ?? Vector3.one);
             effect.gameObject.SetActive(true);
             effect.Play();
+
+            return effect;
         }
 
         private EffectView Spawn(EffectId effectId)
@@ -46,6 +55,9 @@ namespace VFXModule
 
         private void OnEffectFinished(EffectView effect)
         {
+            if (effect == null)
+                return;
+
             effect.Finished -= OnEffectFinished;
             effect.gameObject.SetActive(false);
             effect.transform.SetParent(_container, true);

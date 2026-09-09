@@ -74,6 +74,7 @@ namespace InputModule
         public bool IsCrouchPressed => _actions.Player.Crouch.IsPressed();
         public float LeanInput => _actions.Player.Lean.ReadValue<float>();
         public bool IsInteractPressed => _actions.Player.Interact.WasPressedThisFrame();
+        public bool IsInteractHeld => _actions.Player.Interact.ReadValue<float>() > 0.5f;
         
         public bool IsFirePressed => _actions.Player.Attack.WasPressedThisFrame();
         public bool IsFireHeld => _actions.Player.Attack.IsPressed();

@@ -18,6 +18,7 @@
 2. Добавьте `AudioSettingsInstaller` в общий контекст приложения.
 3. На сцене меню подключите `AudioSettingsMenuInstaller` и заполните ссылки `SettingsMenuView`.
 4. Для фонового звука меню добавьте `MainMenuAudioInstaller` и убедитесь, что аудио-банк с событием `Menu.Ambient` зарегистрирован.
+5. Для геймплейной сцены добавьте `AudioSystem`, укажите его `initialBanks` и подключите `AudioSystemInstaller` к её `SceneContext`, чтобы модули получали `IAudioSystem` через DI.
 
 ## Расширение
 

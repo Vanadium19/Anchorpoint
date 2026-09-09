@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingView
   collisionCollider: {fileID: 3005456430059036003}
+  boundsMeshFilter: {fileID: 8608254819212022598}
 --- !u!114 &-6949563239718337279
 MonoBehaviour:
   m_ObjectHideFlags: 0
