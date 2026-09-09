@@ -33,7 +33,10 @@ namespace RandomEventsModule
 
             while (iterator.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iterator, end))
             {
-                height += EditorGUI.GetPropertyHeight(iterator, true) + EditorGUIUtility.standardVerticalSpacing;
+                height += (iterator.propertyType == SerializedPropertyType.ManagedReference
+                             ? GetReferenceFieldHeight(iterator)
+                             : EditorGUI.GetPropertyHeight(iterator, true))
+                          + EditorGUIUtility.standardVerticalSpacing;
                 enterChildren = false;
             }
 
@@ -53,9 +56,20 @@ namespace RandomEventsModule
 
             while (iterator.NextVisible(enterChildren) && !SerializedProperty.EqualContents(iterator, end))
             {
-                var height = EditorGUI.GetPropertyHeight(iterator, true);
-                EditorGUI.PropertyField(new Rect(rect.x, y, rect.width, height), iterator, true);
-                y += height + EditorGUIUtility.standardVerticalSpacing;
+                if (iterator.propertyType == SerializedPropertyType.ManagedReference)
+                {
+                    var referenceProp = iterator.Copy();
+                    var referenceHeight = GetReferenceFieldHeight(referenceProp);
+                    DrawReferenceField(new Rect(rect.x, y, rect.width, referenceHeight), referenceProp, ResolveManagedReferenceFieldType(referenceProp), referenceProp.displayName);
+                    y += referenceHeight + EditorGUIUtility.standardVerticalSpacing;
+                }
+                else
+                {
+                    var height = EditorGUI.GetPropertyHeight(iterator, true);
+                    EditorGUI.PropertyField(new Rect(rect.x, y, rect.width, height), iterator, true);
+                    y += height + EditorGUIUtility.standardVerticalSpacing;
+                }
+
                 enterChildren = false;
             }
         }
@@ -87,6 +101,16 @@ namespace RandomEventsModule
             EditorGUI.indentLevel++;
             DrawBody(bodyRect, referenceProperty);
             EditorGUI.indentLevel--;
+        }
+
+        /// <summary>Resolves the declared field type of a <c>[SerializeReference]</c> property so its type picker can be scoped.</summary>
+        public static Type ResolveManagedReferenceFieldType(SerializedProperty referenceProperty)
+        {
+            var parts = referenceProperty.managedReferenceFieldTypename.Split(' ');
+
+            return parts.Length == 2
+                ? Type.GetType($"{parts[1]}, {parts[0]}") ?? typeof(object)
+                : typeof(object);
         }
 
         /// <summary>Opens the searchable type picker for a <c>[SerializeReference]</c> field.</summary>
