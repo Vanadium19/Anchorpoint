@@ -1,10 +1,11 @@
 using System;
+using BaseModule;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace VFXModule
 {
-    public class EffectView : MonoBehaviour, IEffectHandle
+    public class EffectView : MonoBehaviour, IEffectHandle, IPausable
     {
         [SerializeField] private ParticleSystem particleSystem;
 
@@ -17,6 +18,25 @@ namespace VFXModule
         public EffectId Id => _id;
 
         private void OnValidate() => particleSystem ??= GetComponent<ParticleSystem>();
+
+        private void OnEnable()
+        {
+            PauseState.PauseChanged += SetPaused;
+            SetPaused(PauseState.IsPaused);
+        }
+
+        private void OnDisable() => PauseState.PauseChanged -= SetPaused;
+
+        public void SetPaused(bool isPaused)
+        {
+            if (particleSystem == null)
+                return;
+
+            if (isPaused)
+                particleSystem.Pause(true);
+            else if (_isPlaying)
+                particleSystem.Play(true);
+        }
 
         public void Initialize(EffectId id) => _id = id;
 
