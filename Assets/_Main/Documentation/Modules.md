@@ -15,6 +15,7 @@
 - [MenuModule](../Scripts/MenuModule/Docs/README.md)
 - [NpcBaseModule](../Scripts/NpcBaseModule/Docs/README.md)
 - [PlayerModule](../Scripts/PlayerModule/Docs/README.md)
+- [RandomEventsModule](../Scripts/RandomEventsModule/Docs/README.md)
 - [SpawnModule](../Scripts/SpawnModule/Docs/README.md)
 - [UIModule](../Scripts/UIModule/Docs/README.md)
 - [VFXModule](../Scripts/VFXModule/Docs/README.md)
