@@ -16,6 +16,7 @@ namespace EvacuationModule
         private readonly IInputService _input;
         private readonly IGameSaveLoader _gameSaveLoader;
         private readonly IPauseManager _pauseManager;
+        private readonly IEvacuationGate _gate;
 
         private CancellationTokenSource _tokenSource;
         private bool _isPaused;
@@ -28,12 +29,14 @@ namespace EvacuationModule
             EvacuationConfig config,
             IInputService input,
             IPauseManager pauseManager,
-            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader)
+            [Inject(Id = GameSaveLoaderIds.Game)] IGameSaveLoader gameSaveLoader,
+            [InjectOptional] IEvacuationGate gate)
         {
             _config = config;
             _input = input;
             _pauseManager = pauseManager;
             _gameSaveLoader = gameSaveLoader;
+            _gate = gate;
             _pauseManager.Register(this);
         }
 
@@ -45,10 +48,16 @@ namespace EvacuationModule
 
         public void ChangeZoneState(bool isInside)
         {
-            if (isInside)
-                StartTimer().Forget();
-            else
+            if (!isInside)
+            {
                 CancelTimer();
+                return;
+            }
+
+            if (_gate != null && !_gate.TryEnterEvacuation())
+                return;
+
+            StartTimer().Forget();
         }
 
         public void SetPaused(bool isPaused) => _isPaused = isPaused;

@@ -28,23 +28,17 @@ MonoBehaviour:
         rid: 3583316206657470746
     - runInParallel: 0
       action:
-        rid: 3583316206657470745
+        rid: 3583316308396867584
+    - runInParallel: 0
+      action:
+        rid: 3583316308396867585
+    - runInParallel: 0
+      action:
+        rid: 3583316308652195840
   displayNameKey: randomEvents.fire.name
   references:
     version: 2
     RefIds:
-    - rid: 3583316206657470745
-      type: {class: FireEventActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
-        ignitionAudioEventId: Fire.Ignition
-        burningAudioEventId: Fire.Burning
-        extinguishAudioEventId: Fire.Extinguish
-        extinguishHintKey: randomEvents.fire.extinguishHint
-        spreadRadius: 6
-        spreadIntervalSeconds: 10
-        maxBurningBuildings: 3
-        extinguishRadius: 3
-        extinguishSeconds: 2
     - rid: 3583316206657470746
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -69,3 +63,29 @@ MonoBehaviour:
     - rid: 3583316305166991457
       type: {class: HasBuildingsConditionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data: 
+    - rid: 3583316308396867584
+      type: {class: BlockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.fire.extractionBlocked
+        messageDurationSeconds: 3
+        body:
+          steps:
+          - runInParallel: 0
+            action:
+              rid: 3583316308396867585
+    - rid: 3583316308396867585
+      type: {class: FireEventActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        ignitionAudioEventId: Fire.Ignition
+        burningAudioEventId: Fire.Burning
+        extinguishAudioEventId: Fire.Extinguish
+        extinguishHintKey: randomEvents.fire.extinguishHint
+        spreadRadius: 6
+        spreadIntervalSeconds: 10
+        maxBurningBuildings: 3
+        extinguishRadius: 3
+        extinguishSeconds: 2
+    - rid: 3583316308652195840
+      type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.fire.extractionBlocked

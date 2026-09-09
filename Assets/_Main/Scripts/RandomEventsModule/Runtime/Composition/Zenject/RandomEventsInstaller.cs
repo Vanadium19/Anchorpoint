@@ -20,6 +20,7 @@ namespace RandomEventsModule
 
             Container.BindInterfacesTo<RandomEventStateStore>().AsSingle();
             Container.BindInterfacesTo<RandomEventNotifier>().AsSingle();
+            Container.BindInterfacesTo<EvacuationBlocker>().AsSingle().NonLazy();
             Container.BindInterfacesTo<RandomEventClock>().AsSingle().NonLazy();
             Container.BindInterfacesTo<RandomEventService>().AsSingle();
             Container.BindInterfacesTo<RandomEventTriggerRunner>().AsSingle().NonLazy();
