@@ -1,4 +1,5 @@
 using BaseModule;
+using ComponentsModule;
 using UnityEngine;
 using Zenject;
 
@@ -34,6 +35,14 @@ namespace BuildingModule
 
             Container.Bind<IBuildingRegistry>()
                 .To<BuildingRegistry>()
+                .AsSingle();
+
+            Container.Bind<IBuildingDamageService>()
+                .To<BuildingDamageService>()
+                .AsSingle();
+
+            Container.Bind<IStructureTargetSource>()
+                .To<BuildingStructureTargetSource>()
                 .AsSingle();
 
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();

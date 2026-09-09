@@ -21,6 +21,9 @@ namespace BuildingModule
         [Header("Base Level")]
         [SerializeField] private int basePoints;
 
+        [Header("Health")]
+        [SerializeField] [Min(1f)] private float maxHealth = 100f;
+
         public string Id => id;
         public string DisplayName =>
             string.IsNullOrEmpty(nameKey) ? id : LocalizedText.Get(nameKey);
@@ -31,5 +34,6 @@ namespace BuildingModule
         public int Order => order;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
+        public float MaxHealth => maxHealth;
     }
 }
