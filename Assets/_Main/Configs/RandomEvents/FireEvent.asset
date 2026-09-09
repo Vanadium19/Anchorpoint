@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0308362cb1e95d04587ca2ce315457e4, type: 3}
+  m_Name: FireEvent
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
+  isEnabled: 1
+  isExclusive: 0
+  cooldownSeconds: 90
+  sequence:
+    steps:
+    - runInParallel: 0
+      action:
+        rid: 3583316305166991456
+    - runInParallel: 1
+      action:
+        rid: 3583316305166991445
+    - runInParallel: 0
+      action:
+        rid: 3583316206657470746
+    - runInParallel: 0
+      action:
+        rid: 3583316206657470745
+  displayNameKey: randomEvents.fire.name
+  references:
+    version: 2
+    RefIds:
+    - rid: 3583316206657470745
+      type: {class: FireEventActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        ignitionAudioEventId: Fire.Ignition
+        burningAudioEventId: Fire.Burning
+        extinguishAudioEventId: Fire.Extinguish
+        extinguishHintKey: randomEvents.fire.extinguishHint
+        spreadRadius: 6
+        spreadIntervalSeconds: 10
+        maxBurningBuildings: 3
+        extinguishRadius: 3
+        extinguishSeconds: 2
+    - rid: 3583316206657470746
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.fire.started
+        durationSeconds: 3
+    - rid: 3583316305166991445
+      type: {class: ChanceGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        chance:
+          rid: 3583316305166991446
+    - rid: 3583316305166991446
+      type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        percent: 50
+    - rid: 3583316305166991456
+      type: {class: ConditionGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        conditions:
+          conditionMatch: 0
+          conditions:
+          - rid: 3583316305166991457
+    - rid: 3583316305166991457
+      type: {class: HasBuildingsConditionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data: 

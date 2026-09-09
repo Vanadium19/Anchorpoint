@@ -231,6 +231,18 @@ MonoBehaviour:
     m_Key: category_utility
     m_Metadata:
       m_Items: []
+  - m_Id: 4763950582325248
+    m_Key: randomEvents.fire.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4763950636851200
+    m_Key: randomEvents.fire.started
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4780584713838592
+    m_Key: randomEvents.fire.extinguishHint
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

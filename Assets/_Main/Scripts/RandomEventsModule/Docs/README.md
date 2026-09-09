@@ -73,13 +73,14 @@
 - `FixedChance` — постоянный процент.
 - `StateScaledChance` — `basePercent + stepPercent * счётчик`, с потолком `maxPercent`. Что увеличивает и сбрасывает счётчик, решает конфигурация и действия модуля-потребителя.
 
-**Условия** (`Runtime/Conditions`): только композиция — `RandomEventConditionSet`/`RandomEventConditionGroup` (AND/OR над `IRandomEventConditionAsset[]`). Сами условия — расширение.
+**Условия** (`Runtime/Conditions`): композиция — `RandomEventConditionSet`/`RandomEventConditionGroup` (AND/OR над `IRandomEventConditionAsset[]`) — плюс одно доменное условие, которое уже подключает модуль: `HasBuildingsCondition` (`IBuildingRegistry.Buildings.Count > 0`) — используется, чтобы событие не стартовало, когда на базе нечему гореть.
 
 **Действия** (`Runtime/Actions`):
 
 - `NotifyAction` — показать локализованное сообщение через `IRandomEventNotifier`.
 - `ChanceGateAction` — доменно-нейтральный гейт: крутит `IRandomEventChance` и гасит остаток последовательности при неудаче. В отличие от `RandomEventTrigger.chance` (общий на все события пула), это шанс конкретного события — ставится первым шагом его `sequence`.
 - `ConditionGateAction` — доменно-нейтральный гейт по состоянию: держит свой `RandomEventConditionSet` (тот же блок AND/OR над `IRandomEventConditionAsset[]`, что и у триггера) и возвращает `false`, если условия не выполнены, гася остаток последовательности без назначения кулдауна. Пустой набор всегда проходит. Ставится шагом `sequence`, когда условие проверяется на момент запуска действия, а не триггера.
+- `FireEventAction` — поджигает случайное здание из `IBuildingRegistry`, раз в `spreadIntervalSeconds` перекидывает огонь на ближайшее незагоревшееся здание в радиусе `spreadRadius` (не больше `maxBurningBuildings` одновременно). Здание тушится, когда игрок держит кнопку взаимодействия в `extinguishRadius` от него суммарно `extinguishSeconds`; прогресс сбрасывается, стоит отпустить кнопку или отойти. Само здание не гаснет и урона не получает — горит, пока игрок не потушит. Пока игрок в `extinguishRadius` от горящего здания, `RandomEventProgressHudView` показывает шкалу прогресса тушения. VFX и звук горения — через `IEffectsService` и `IAudioSystem`, живут, пока горит здание.
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток; не действие, а движок, на котором строятся все действия.
 
 **Выбор** (`Runtime/Picking`): `WeightedRandomPicker` — взвешенный бросок по весам пула, используется автоматически, если `picker` не назначен.
@@ -96,6 +97,7 @@
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток.
 - Слой композиции: `IRandomEventCondition`, `IRandomEventAction`, `IRandomEventPicker`, `IRandomEventChance`, `IRandomEventTriggerSource`, `RandomEventActionBase`, их ассет-интерфейсы и Zenject-базы `ZenjectRandomEvent*Asset<T>`, `RandomEventConditionSet`/`RandomEventConditionGroup`.
 - Уведомления: `IRandomEventNotifier`/`RandomEventNotifier`, `RandomEventNotificationPresenter`, `RandomEventNotificationView` (MVP, очередь сообщений).
+- `RandomEventProgressHudView` — HUD-подсказка + шкала прогресса для действий вида «держи кнопку рядом с чем-то»; используется `FireEventAction` для тушения. Биндится в `RandomEventsInstaller` как `progressHudView`, показывается/скрывается и обновляется напрямую из действия, без презентера.
 - Сохранение: `RandomEventsSaveable`, `RandomEventsSaveHandler`, `RandomEventsMemento`.
 
 ## Семантика проверки
@@ -121,9 +123,10 @@
 1. Создать ассеты через `Create → Game → Configs → RandomEvents`: по `RandomEventScope` на каждый скоуп, по `RandomEventDefinition` на каждое событие. Класть в `Assets/_Main/Configs/RandomEvents/`. Ключи состояния/сигнала — не ассеты, а строковые константы модуля-потребителя (см. «Идентификация»); в инспекторные поля `signal`/`counterKey` набираются вручную тем же литералом.
 2. В каждом `RandomEventDefinition` собрать `sequence`, отметить `runInParallel` там, где нужно.
 3. В `RandomEventScope` завести по триггеру на каждый способ запуска: выбрать источник, при необходимости условия и шанс, заполнить пул событиями и весами.
-4. Добавить в сцены `Camp.unity` и `Game.unity` объект с `RandomEventsInstaller`, прописать в `SceneContext → Installers`: `scope` и `notificationView` — свои на сцену.
+4. Добавить в сцены `Camp.unity` и `Game.unity` объект с `RandomEventsInstaller`, прописать в `SceneContext → Installers`: `scope`, `notificationView` и `progressHudView` — свои на сцену.
 5. Создать на HUD-канвасе объект уведомления: `CanvasGroup` + `TMP_Text`, повесить `RandomEventNotificationView`, проставить ссылки.
-6. Завести в `Assets/Locales` ключи локализации для текстов, которые покажет `NotifyAction`.
+6. Создать на HUD-канвасе объект прогресс-подсказки: `CanvasGroup` + `TMP_Text` (подсказка) + `Image` (заполняемая шкала), повесить `RandomEventProgressHudView`, проставить ссылки.
+7. Завести в `Assets/Locales` ключи локализации для текстов, которые покажет `NotifyAction` или прогресс-подсказка.
 
 ## Расширение
 

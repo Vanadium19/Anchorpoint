@@ -298,6 +298,18 @@ MonoBehaviour:
     m_Localized: Utility
     m_Metadata:
       m_Items: []
+  - m_Id: 4763950582325248
+    m_Localized: Fire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4763950636851200
+    m_Localized: A fire has started at the base!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4780584713838592
+    m_Localized: Hold [F] to extinguish
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
