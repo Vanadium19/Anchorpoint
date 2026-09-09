@@ -34,6 +34,11 @@ namespace EnemyModule
         public float BulletSpeed = 30f;
         public float Damage = 10f;
 
+        [Header("Structures")]
+        public float StructureAttackRange = 4f;
+        public float StructureDamage = 10f;
+        public float StructureAttackRate = 1f;
+
         [Header("Patrol")]
         public float PatrolWaitTime = 3f;
         public float LookInterval = 2f;

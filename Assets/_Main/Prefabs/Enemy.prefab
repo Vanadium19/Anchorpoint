@@ -1136,6 +1136,15 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 3583316307384991748
+      type: {class: AttackStructureStateAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 3583316307384991749
+      type: {class: PatrolToAttackStructureTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
+    - rid: 3583316307384991750
+      type: {class: AttackStructureToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data: 
     - rid: 8156811036537651343
       type: {class: AutoStateMachineAsset, ns: EnemyModule, asm: EnemyModule}
       data:
@@ -1153,6 +1162,9 @@ MonoBehaviour:
         - key: 3
           state:
             rid: 8156811036537651347
+        - key: 4
+          state:
+            rid: 3583316307384991748
         transitions:
         - rid: 8156811036537651348
         - rid: 8156811036537651349
@@ -1160,6 +1172,8 @@ MonoBehaviour:
         - rid: 8156811036537651351
         - rid: 8156811036537651352
         - rid: 8156811036537651353
+        - rid: 3583316307384991749
+        - rid: 3583316307384991750
     - rid: 8156811036537651344
       type: {class: PatrolStateAsset, ns: EnemyModule, asm: EnemyModule}
       data: 

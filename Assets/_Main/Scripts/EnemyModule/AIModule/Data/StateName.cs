@@ -6,5 +6,6 @@ namespace EnemyModule
         Chase,
         Attack,
         Reload,
+        AttackStructure,
     }
 }
