@@ -17,6 +17,7 @@ namespace RandomEventsModule
     public class RadiationSurgeAction : RandomEventActionBase
     {
         private readonly PlayerProvider _player;
+        private readonly IRandomEventClock _clock;
         private readonly IEffectsService _effects;
         private readonly IAudioSystem _audioSystem;
         private readonly float _durationSeconds;
@@ -29,6 +30,7 @@ namespace RandomEventsModule
         /// <summary>Creates the action with its damage and effect timing.</summary>
         public RadiationSurgeAction(
             PlayerProvider player,
+            IRandomEventClock clock,
             IEffectsService effects,
             IAudioSystem audioSystem,
             float durationSeconds,
@@ -37,6 +39,7 @@ namespace RandomEventsModule
             string geigerAudioEventId)
         {
             _player = player;
+            _clock = clock;
             _effects = effects;
             _audioSystem = audioSystem;
             _durationSeconds = durationSeconds;
@@ -62,6 +65,9 @@ namespace RandomEventsModule
 
                 if (canceled)
                     break;
+
+                if (_clock.IsPaused)
+                    continue;
 
                 var deltaTime = Time.deltaTime;
                 elapsedTime += deltaTime;
