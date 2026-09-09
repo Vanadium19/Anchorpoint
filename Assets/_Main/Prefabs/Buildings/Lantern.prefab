@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingView
   collisionCollider: {fileID: 3032969213615586518}
+  boundsMeshFilter: {fileID: 5336780130279923810}
 --- !u!1001 &8806067417982748716
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -106,6 +107,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 3032969213615586518}
   m_SourcePrefab: {fileID: 100100000, guid: 16f8913686ada4f42bb8d6cc52545e91, type: 3}
+--- !u!33 &5336780130279923810 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: -5754084199372789682, guid: 16f8913686ada4f42bb8d6cc52545e91, type: 3}
+  m_PrefabInstance: {fileID: 8806067417982748716}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8571483107974051197 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 16f8913686ada4f42bb8d6cc52545e91, type: 3}

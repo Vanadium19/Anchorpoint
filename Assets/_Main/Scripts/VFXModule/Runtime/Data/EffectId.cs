@@ -4,5 +4,6 @@ namespace VFXModule
     {
         Shoot = 0,
         Blood,
+        Fire,
     }
 }
