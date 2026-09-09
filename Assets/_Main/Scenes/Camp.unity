@@ -6653,6 +6653,7 @@ MonoBehaviour:
   initOnAwake: 1
   initialBanks:
   - {fileID: 11400000, guid: c54fc3c17c94af848a4d61965308e679, type: 2}
+  - {fileID: 11400000, guid: b2d8f5a0c3e4597fb1f26d9e8c5f3a21, type: 2}
 --- !u!4 &1376416657
 Transform:
   m_ObjectHideFlags: 0

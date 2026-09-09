@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0308362cb1e95d04587ca2ce315457e4, type: 3}
+  m_Name: RadiationEvent
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
+  isEnabled: 1
+  isExclusive: 0
+  cooldownSeconds: 180
+  sequence:
+    steps:
+    - runInParallel: 0
+      action:
+        rid: 4692874549521934567
+    - runInParallel: 0
+      action:
+        rid: 4692874549521934568
+    - runInParallel: 0
+      action:
+        rid: 4692874549521934569
+  displayNameKey: randomEvents.radiation.name
+  references:
+    version: 2
+    RefIds:
+    - rid: 4692874549521934567
+      type: {class: ChanceGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        chance:
+          rid: 4692874549521934570
+    - rid: 4692874549521934568
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.radiation.started
+        durationSeconds: 3
+    - rid: 4692874549521934569
+      type: {class: RadiationSurgeActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        durationSeconds: 15
+        damagePerTick: 5
+        tickIntervalSeconds: 1
+        geigerAudioEventId: Radiation.GeigerCounter
+    - rid: 4692874549521934570
+      type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        percent: 50
