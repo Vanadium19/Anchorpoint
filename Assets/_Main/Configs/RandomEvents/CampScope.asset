@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2dc4250049fb949acdb82e8b90be1c, type: 3}
+  m_Name: CampScope
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventScope
+  minIntervalBetweenEventsSeconds: 0
+  triggers:
+  - source:
+      rid: 3583316206657470743
+    conditions:
+      conditionMatch: 0
+      conditions: []
+    chance:
+      rid: -2
+    pool:
+      picker:
+        rid: -2
+      entries: []
+  - source:
+      rid: 3583316206657470744
+    conditions:
+      conditionMatch: 0
+      conditions: []
+    chance:
+      rid: -2
+    pool:
+      picker:
+        rid: -2
+      entries: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3583316206657470743
+      type: {class: IntervalTriggerSourceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        pollIntervalSeconds: 60
+    - rid: 3583316206657470744
+      type: {class: SignalCountTriggerSourceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        signal: workbench_usage
+        requiredCount: 3
