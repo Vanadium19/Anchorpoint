@@ -31,6 +31,8 @@ MonoBehaviour:
         weight: 2
       - definition: {fileID: 11400000, guid: b42bade683479e947bc98f15d6269a7f, type: 2}
         weight: 2
+      - definition: {fileID: 11400000, guid: e8d03bdaee269644b94d3aabec33857a, type: 2}
+        weight: 3
   references:
     version: 2
     RefIds:

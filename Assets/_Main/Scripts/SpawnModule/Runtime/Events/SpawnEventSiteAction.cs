@@ -15,6 +15,7 @@ namespace SpawnModule
     /// several origins are tried in turn until <see cref="WorldPlacementService"/> accepts one or all are
     /// exhausted. Once placed, guards and loot use the site's own <see cref="EventSiteView"/> points when it has
     /// any, falling back to scattering around the site otherwise; a site prefab without the view scatters both.
+    /// Guards are the scene's default enemy unless the action names its own guard prefab.
     /// The action completes immediately after spawning and returns <c>true</c>. It returns <c>false</c> without
     /// spawning anything when there is no site prefab, no scene spawn point, or no valid placement, so a map with
     /// nowhere to put the site does not burn the event's cooldown.
@@ -31,6 +32,7 @@ namespace SpawnModule
         private readonly WorldPlacementService _placement;
         private readonly DiContainer _container;
         private readonly GameObject _sitePrefab;
+        private readonly GameObject _guardPrefab;
         private readonly int _guardCount;
         private readonly float _guardScatterRadius;
         private readonly GameObject _occupantPrefab;
@@ -50,6 +52,7 @@ namespace SpawnModule
             WorldPlacementService placement,
             DiContainer container,
             GameObject sitePrefab,
+            GameObject guardPrefab,
             int guardCount,
             float guardScatterRadius,
             GameObject occupantPrefab,
@@ -67,6 +70,7 @@ namespace SpawnModule
             _placement = placement;
             _container = container;
             _sitePrefab = sitePrefab;
+            _guardPrefab = guardPrefab;
             _guardCount = guardCount;
             _guardScatterRadius = guardScatterRadius;
             _occupantPrefab = occupantPrefab;
@@ -149,7 +153,10 @@ namespace SpawnModule
                 if (!_placement.TryProjectToNavMesh(position, out var navMeshPosition))
                     continue;
 
-                _enemyFactory.Create(navMeshPosition);
+                if (_guardPrefab != null)
+                    _enemyFactory.Create(_guardPrefab, navMeshPosition);
+                else
+                    _enemyFactory.Create(navMeshPosition);
             }
         }
 
