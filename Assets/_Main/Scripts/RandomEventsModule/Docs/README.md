@@ -67,6 +67,7 @@
 
 - `IntervalTriggerSource` — готов по истечении фиксированного интервала, сигналов не слушает. Пока скоуп активен только в своей сцене (см. «Подключение», п. 4), это и есть проверка «по времени нахождения на базе».
 - `SignalCountTriggerSource` — готов, когда счётчик под ключом сигнала достиг `requiredCount`; счётчик — тот же, что копит `ReportSignal`, отдельного ключа не заводит и сам сбрасывает его при срабатывании. Подходит для «после N использований X» — источник сигнала описывается отдельно (см. «Расширение → 3»).
+- `SessionCountTriggerSource` — считает вылазки: счётчик под `counterKey` растёт на единицу при каждом создании скоупа, то есть на каждом входе в сцену, источник готов на каждой X-й и сам обнуляет счётчик при срабатывании. `pollIntervalSeconds` — задержка до первой проверки внутри сессии. Счётчик сохраняемый и переживает вылазки, пока не наберётся `requiredCount`.
 
 **Шансы** (`Runtime/Chance`):
 
@@ -96,9 +97,9 @@
 - `IRandomEventClock`/`RandomEventClock` — единственный ответ модуля на вопрос «сколько времени реально прошло»: `DelayAsync` не считает паузу, `ElapsedSeconds` копит только непаузное время, `IsPaused` отвечает на него прямо. На нём же считаются кулдауны событий и общий минимальный интервал, поэтому пауза их не сжигает, а длинные действия (`FireEventAction`, `RadiationSurgeAction`) на паузе не тикают.
 - `IRandomEventStateStore`/`RandomEventStateStore` — сохраняемое хранилище `int`/`float`/`bool` по строковым ключам.
 - `IEvacuationBlocker`/`EvacuationBlocker` — набор запретов на эвакуацию по ключам; реализует `IEvacuationGate` из `EvacuationModule`, поэтому сценовая эвакуация спрашивает его сама, и показывает сообщение самого свежего запрета. Брошенные запреты снимаются сами, когда завершилось последнее активное событие, — забытый или пропущенный гейтом `UnblockEvacuationAction` не запирает сцену насовсем.
-- `RandomEventSignalRelay` — база для адаптеров слоя оркестрации, превращающих факт игрового модуля в сигнал.
+- `RandomEventSignalRelay` — база для адаптеров слоя оркестрации, превращающих факт игрового модуля в сигнал. Сами релеи биндит `RandomEventSignalsInstaller`, отдельный от `RandomEventsInstaller`: скоуп нужен каждой сцене с событиями, релеи — только сцене, которой принадлежит факт.
 - `RaidChanceRelay` — на уходе игрока с базы поднимает счётчик `raid_missed_returns`, если визит прошёл без рейда; сам рейд отмечает визит ключом `raid_occurred` и обнуляет счётчик шагами `SetStateAction`. Зависимость от `IEvacuationService` необязательна, поэтому на сцене без эвакуации релей молчит.
-- `WorkbenchUsageRelay` — репортит сигнал `"workbench_usage"` на каждое открытие верстака (`ICraftService.IsWorkbenchOpen`); зависимость от `ICraftService` необязательна ([InjectOptional]), поэтому сцена без верстака (шутер) релей просто не активирует. Заглушка под будущий алхимический стол (`RandomEventsInstaller` регистрирует его сам, отдельного модуля-владельца сигнала пока нет).
+- `WorkbenchUsageRelay` — репортит сигнал `"workbench_usage"` на каждое открытие верстака (`ICraftService.IsWorkbenchOpen`); зависимость от `ICraftService` необязательна ([InjectOptional]), поэтому сцена без верстака (шутер) релей просто не активирует. Заглушка под будущий алхимический стол (`RandomEventSignalsInstaller` регистрирует его сам, отдельного модуля-владельца сигнала пока нет).
 - `RandomEventTriggerInstance` — рантайм-форма триггера: разрешённые источник, условия, шанс и пикер живут всё время жизни раннера, поэтому могут помнить прошлые срабатывания.
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток.
 - Слой композиции: `IRandomEventCondition`, `IRandomEventAction`, `IRandomEventPicker`, `IRandomEventChance`, `IRandomEventTriggerSource`, `RandomEventActionBase`, их ассет-интерфейсы и Zenject-базы `ZenjectRandomEvent*Asset<T>`, `RandomEventConditionSet`/`RandomEventConditionGroup`.
@@ -130,8 +131,8 @@
 2. В каждом `RandomEventDefinition` собрать `sequence`, отметить `runInParallel` там, где нужно.
 3. В `RandomEventScope` завести по триггеру на каждый способ запуска: выбрать источник, при необходимости условия и шанс, заполнить пул событиями и весами.
 4. Добавить в сцены `Camp.unity` и `Game.unity` объект с `RandomEventsInstaller`, прописать в `SceneContext → Installers`: `scope`, `notificationView` и `progressHudView` — свои на сцену.
-5. Создать на HUD-канвасе объект уведомления: `CanvasGroup` + `TMP_Text`, повесить `RandomEventNotificationView`, проставить ссылки.
-6. Создать на HUD-канвасе объект прогресс-подсказки: `CanvasGroup` + `TMP_Text` (подсказка) + `Image` (заполняемая шкала), повесить `RandomEventProgressHudView`, проставить ссылки.
+5. Добавить `RandomEventSignalsInstaller` в ту сцену, которой принадлежат факты релеев — базу `Camp.unity`. В шутере его нет: релей, поднятый в двух сценах сразу, засчитает один и тот же факт дважды.
+6. Повесить на HUD-канвас префабы `Assets/_Main/Prefabs/UI/RandomEvents/`: `RandomEventNotification` (`CanvasGroup` + `TMP_Text`, `RandomEventNotificationView`) и `RandomEventProgressHud` (`CanvasGroup` + `TMP_Text` подсказки + заполняемый `Image`, `RandomEventProgressHudView`).
 7. Завести в `Assets/Locales` ключи локализации для текстов, которые покажет `NotifyAction` или прогресс-подсказка.
 
 ## Расширение
