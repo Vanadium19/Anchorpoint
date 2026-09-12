@@ -17,6 +17,7 @@
 - [PlayerModule](../Scripts/PlayerModule/Docs/README.md)
 - [RandomEventsModule](../Scripts/RandomEventsModule/Docs/README.md)
 - [SpawnModule](../Scripts/SpawnModule/Docs/README.md)
+- [TradeModule](../Scripts/TradeModule/Docs/README.md)
 - [UIModule](../Scripts/UIModule/Docs/README.md)
 - [VFXModule](../Scripts/VFXModule/Docs/README.md)
 - [WeaponModule](../Scripts/WeaponModule/Docs/README.md)

@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8b3d4b400c83224898e6fa36085ae1d, type: 3}
+  m_Name: TradeOffer_CrateForSupplies
+  m_EditorClassIdentifier: TradeModule::TradeModule.TradeOfferConfig
+  titleKey: trade.offer.crateForSupplies
+  requested:
+  - item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+    count: 8
+  - item: {fileID: 11400000, guid: 515e48603b0ff8642970a55761d978d0, type: 2}
+    count: 4
+  offered:
+  - item: {fileID: 11400000, guid: 5021c6f27732d974d9b250100331e880, type: 2}
+    count: 1
+  - item: {fileID: 11400000, guid: 1b74f7db953a0bd4db49c7f1bda01918, type: 2}
+    count: 2
