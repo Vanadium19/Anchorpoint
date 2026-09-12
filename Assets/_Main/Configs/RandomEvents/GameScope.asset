@@ -27,6 +27,8 @@ MonoBehaviour:
       entries:
       - definition: {fileID: 11400000, guid: a5c61b47a7d84a74584560ea072c289f, type: 2}
         weight: 3
+      - definition: {fileID: 11400000, guid: 6befbc4ee09352341b0f6c3951c15599, type: 2}
+        weight: 2
   references:
     version: 2
     RefIds:
