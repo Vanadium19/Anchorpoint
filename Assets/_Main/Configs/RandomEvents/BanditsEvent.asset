@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0308362cb1e95d04587ca2ce315457e4, type: 3}
+  m_Name: BanditsEvent
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
+  isEnabled: 1
+  isExclusive: 1
+  cooldownSeconds: 0
+  sequence:
+    steps:
+    - runInParallel: 0
+      action:
+        rid: 3583316369149263964
+    - runInParallel: 0
+      action:
+        rid: 3583316369149263965
+  displayNameKey: randomEvents.bandits.name
+  references:
+    version: 2
+    RefIds:
+    - rid: 3583316369149263964
+      type: {class: SpawnEventSiteActionAsset, ns: SpawnModule, asm: SpawnModule}
+      data:
+        sitePrefab: {fileID: 3431769661338566658, guid: a8994a99c474a4c40834a11a65bfb5db, type: 3}
+        guardPrefab: {fileID: 2214721963767831808, guid: 54f46068837364e4ebb292672e6aacde, type: 3}
+        guardCount: 5
+        guardScatterRadius: 6
+        lootEntries:
+        - item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+          weight: 4
+          minCount: 1
+          maxCount: 3
+          isStacked: 1
+        - item: {fileID: 11400000, guid: 0201489d340f0b54baa0b7ecf8a66490, type: 2}
+          weight: 3
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        - item: {fileID: 11400000, guid: 515e48603b0ff8642970a55761d978d0, type: 2}
+          weight: 3
+          minCount: 1
+          maxCount: 2
+          isStacked: 1
+        - item: {fileID: 11400000, guid: 30d463e17828de04089ed6329d39ace5, type: 2}
+          weight: 1
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        minimumLootDrops: 2
+        maximumLootDrops: 4
+        searchRadius: 30
+        minimumPlayerDistance: 25
+    - rid: 3583316369149263965
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.bandits.spotted
+        durationSeconds: 5

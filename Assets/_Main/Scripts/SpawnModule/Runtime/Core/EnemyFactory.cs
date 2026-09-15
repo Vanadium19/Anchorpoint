@@ -1,4 +1,3 @@
-using EnemyModule;
 using UnityEngine;
 using Zenject;
 
@@ -15,9 +14,14 @@ namespace SpawnModule
             _prefab = prefab;
         }
 
-        public GameObject Create(Vector3 position)
+        public GameObject Create(Vector3 position) => Create(_prefab, position);
+
+        public GameObject Create(GameObject prefab, Vector3 position)
         {
-            return _container.InstantiatePrefab(_prefab, position, Quaternion.identity, null);
+            if (prefab == null)
+                return null;
+
+            return _container.InstantiatePrefab(prefab, position, Quaternion.identity, null);
         }
     }
 }

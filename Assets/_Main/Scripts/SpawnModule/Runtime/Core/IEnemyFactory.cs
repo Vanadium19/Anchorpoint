@@ -1,4 +1,3 @@
-using EnemyModule;
 using UnityEngine;
 
 namespace SpawnModule
@@ -6,5 +5,7 @@ namespace SpawnModule
     public interface IEnemyFactory
     {
         GameObject Create(Vector3 position);
+
+        GameObject Create(GameObject prefab, Vector3 position);
     }
 }
