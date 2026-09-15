@@ -22,9 +22,6 @@ MonoBehaviour:
         rid: 3583316307831685125
     - runInParallel: 0
       action:
-        rid: 3583316307384991744
-    - runInParallel: 0
-      action:
         rid: 3583316308396867588
     - runInParallel: 0
       action:
@@ -34,14 +31,20 @@ MonoBehaviour:
         rid: 3583316309664595969
     - runInParallel: 0
       action:
+        rid: 3583316307384991744
+    - runInParallel: 1
+      action:
         rid: 3583316309664595970
     - runInParallel: 0
       action:
         rid: 3583316309664595971
     - runInParallel: 0
       action:
-        rid: 3583316309664595972
+        rid: 3583316309664595978
     - runInParallel: 0
+      action:
+        rid: 3583316309664595972
+    - runInParallel: 1
       action:
         rid: 3583316309664595973
     - runInParallel: 0
@@ -49,10 +52,10 @@ MonoBehaviour:
         rid: 3583316309664595974
     - runInParallel: 0
       action:
-        rid: 3583316309664595975
+        rid: 3583316309664595979
     - runInParallel: 0
       action:
-        rid: 3583316309664595976
+        rid: 3583316309664595980
     - runInParallel: 0
       action:
         rid: 3583316309664595977
@@ -97,12 +100,17 @@ MonoBehaviour:
     - rid: 3583316309664595970
       type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
       data:
-        enemyCount: 3
+        enemyCount: 2
         spawnScatterRadius: 2
     - rid: 3583316309664595971
       type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         durationSeconds: 5
+    - rid: 3583316309664595978
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.waveEnded
+        durationSeconds: 3
     - rid: 3583316309664595972
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -111,22 +119,22 @@ MonoBehaviour:
     - rid: 3583316309664595973
       type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
       data:
-        enemyCount: 5
+        enemyCount: 3
         spawnScatterRadius: 2
     - rid: 3583316309664595974
       type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         durationSeconds: 5
-    - rid: 3583316309664595975
+    - rid: 3583316309664595979
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
-        localizationKey: randomEvents.raid.nextWave
+        localizationKey: randomEvents.raid.waveEnded
         durationSeconds: 3
-    - rid: 3583316309664595976
-      type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
+    - rid: 3583316309664595980
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
-        enemyCount: 7
-        spawnScatterRadius: 2
+        localizationKey: randomEvents.raid.ended
+        durationSeconds: 4
     - rid: 3583316309664595977
       type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
