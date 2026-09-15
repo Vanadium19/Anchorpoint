@@ -31,6 +31,9 @@ MonoBehaviour:
   ReloadTime: 3
   BulletSpeed: 100
   Damage: 10
+  StructureAttackRange: 4
+  StructureDamage: 10
+  StructureAttackRate: 1
   PatrolWaitTime: 4
   LookInterval: 2
   LookTurnSpeed: 2

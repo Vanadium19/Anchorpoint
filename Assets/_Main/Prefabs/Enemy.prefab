@@ -1144,7 +1144,10 @@ MonoBehaviour:
       data: 
     - rid: 3583316307384991750
       type: {class: AttackStructureToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
-      data: 
+      data:
+    - rid: 3583316307384991751
+      type: {class: AttackStructureToPatrolTransitionAsset, ns: EnemyModule, asm: EnemyModule}
+      data:
     - rid: 8156811036537651343
       type: {class: AutoStateMachineAsset, ns: EnemyModule, asm: EnemyModule}
       data:
@@ -1174,6 +1177,7 @@ MonoBehaviour:
         - rid: 8156811036537651353
         - rid: 3583316307384991749
         - rid: 3583316307384991750
+        - rid: 3583316307384991751
     - rid: 8156811036537651344
       type: {class: PatrolStateAsset, ns: EnemyModule, asm: EnemyModule}
       data: 
