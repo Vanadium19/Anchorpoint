@@ -14,6 +14,8 @@ namespace EnemyModule
     /// </remarks>
     public sealed class AttackStructureState : IState
     {
+        private const float FullCircleAngle = 360f;
+
         private readonly EnemyConfig _config;
         private readonly Transform _transform;
 
@@ -124,6 +126,11 @@ namespace EnemyModule
         /// <summary>
         /// Checks if the player is visible and reports it through the blackboard.
         /// </summary>
+        /// <remarks>
+        /// While attacking a structure the enemy faces the building, not the player, so the usual view
+        /// cone would miss a player standing right next to it; a close-range omnidirectional check
+        /// (<see cref="EnemyConfig.CloseRangeNoticeDistance"/>) catches that case regardless of facing.
+        /// </remarks>
         public bool TrySpotPlayer()
         {
             _player ??= _playerProvider.Get<Transform>();
@@ -136,6 +143,13 @@ namespace EnemyModule
                 _config.ViewAngle,
                 _config.ViewMask,
                 out var targetPosition);
+
+            if (!canSeePlayer)
+                canSeePlayer = _lineOfSight.CheckLineOfSight(_player,
+                    _config.CloseRangeNoticeDistance,
+                    FullCircleAngle,
+                    _config.ViewMask,
+                    out targetPosition);
 
             if (!canSeePlayer)
                 return false;

@@ -6,6 +6,7 @@ namespace VFXModule
     public class VfxServiceInstaller : MonoInstaller
     {
         [SerializeField] private EffectsCatalog effectsCatalog;
+        [SerializeField] private ScreenEffectsCatalog screenEffectsCatalog;
         [SerializeField] private Transform effectsContainer;
 
         public override void InstallBindings()
@@ -18,6 +19,10 @@ namespace VFXModule
                 .AsSingle()
                 .WithArguments(effectsContainer)
                 .NonLazy();
+
+            Container.BindInterfacesTo<RadiationScreenEffect>()
+                .AsSingle()
+                .WithArguments(screenEffectsCatalog, effectsContainer);
         }
     }
 }

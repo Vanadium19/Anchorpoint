@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0308362cb1e95d04587ca2ce315457e4, type: 3}
+  m_Name: OutpostEvent
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
+  isEnabled: 1
+  isExclusive: 1
+  cooldownSeconds: 0
+  sequence:
+    steps:
+    - runInParallel: 0
+      action:
+        rid: 3583316369149263956
+    - runInParallel: 0
+      action:
+        rid: 3583316369149263957
+  displayNameKey: randomEvents.outpost.name
+  references:
+    version: 2
+    RefIds:
+    - rid: 3583316369149263956
+      type: {class: SpawnEventSiteActionAsset, ns: SpawnModule, asm: SpawnModule}
+      data:
+        sitePrefab: {fileID: 623760402860505993, guid: 8c3a816c221fc6744824567808d915e9, type: 3}
+        unitEntries:
+        - prefab: {fileID: 4278790717967130169, guid: 114a32f62fee04559abff222e97c533e, type: 3}
+          weight: 1
+        unitCount: 6
+        unitScatterRadius: 9
+        lootEntries:
+        - item: {fileID: 11400000, guid: 0201489d340f0b54baa0b7ecf8a66490, type: 2}
+          weight: 4
+          minCount: 1
+          maxCount: 2
+          isStacked: 0
+        - item: {fileID: 11400000, guid: 5021c6f27732d974d9b250100331e880, type: 2}
+          weight: 2
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        - item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+          weight: 4
+          minCount: 1
+          maxCount: 3
+          isStacked: 1
+        - item: {fileID: 11400000, guid: 5e4a0a65cb97c5f48bdea1cc011a741a, type: 2}
+          weight: 2
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        - item: {fileID: 11400000, guid: f8db5991171631e4395ce7f6b313bf4c, type: 2}
+          weight: 2
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        - item: {fileID: 11400000, guid: 30d463e17828de04089ed6329d39ace5, type: 2}
+          weight: 1
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        - item: {fileID: 11400000, guid: 7bf40cd2ff0fa10448c15044aee0110f, type: 2}
+          weight: 1
+          minCount: 1
+          maxCount: 1
+          isStacked: 0
+        minimumLootDrops: 4
+        maximumLootDrops: 6
+        searchRadius: 35
+        minimumPlayerDistance: 30
+    - rid: 3583316369149263957
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.outpost.discovered
+        durationSeconds: 5

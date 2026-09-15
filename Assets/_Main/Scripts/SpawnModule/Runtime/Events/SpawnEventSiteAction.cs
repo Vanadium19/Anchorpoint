@@ -9,13 +9,15 @@ using Random = UnityEngine.Random;
 
 namespace SpawnModule
 {
-    /// <summary>Spawns an event site prefab with its guarding enemies and loot at a valid, reachable map position.</summary>
+    /// <summary>Spawns an event site prefab with its units and loot at a valid, reachable map position.</summary>
     /// <remarks>
     /// The origin for the placement search is a random scene spawn point from <see cref="LevelSpawnPointsView"/>;
     /// several origins are tried in turn until <see cref="WorldPlacementService"/> accepts one or all are
-    /// exhausted. Once placed, guards and loot use the site's own <see cref="EventSiteView"/> points when it has
+    /// exhausted. Once placed, units and loot use the site's own <see cref="EventSiteView"/> points when it has
     /// any, falling back to scattering around the site otherwise; a site prefab without the view scatters both.
-    /// Guards are the scene's default enemy unless the action names its own guard prefab.
+    /// Each unit is picked by weight from <see cref="UnitEntry"/> entries — guards, occupants, or a mix of
+    /// both, since a unit's hostility comes entirely from its own prefab, not from this action. An entry with
+    /// no prefab, or an empty list, skips that unit.
     /// The action completes immediately after spawning and returns <c>true</c>. It returns <c>false</c> without
     /// spawning anything when there is no site prefab, no scene spawn point, or no valid placement, so a map with
     /// nowhere to put the site does not burn the event's cooldown.
@@ -26,56 +28,44 @@ namespace SpawnModule
         private const float DefaultClearanceRadius = 2f;
         private const float DefaultClearanceHeight = 3f;
 
-        private readonly IEnemyFactory _enemyFactory;
         private readonly ILootFactory _lootFactory;
         private readonly LevelSpawnPointsView _spawnPoints;
         private readonly WorldPlacementService _placement;
         private readonly DiContainer _container;
         private readonly GameObject _sitePrefab;
-        private readonly GameObject _guardPrefab;
-        private readonly int _guardCount;
-        private readonly float _guardScatterRadius;
-        private readonly GameObject _occupantPrefab;
-        private readonly int _occupantCount;
-        private readonly float _occupantScatterRadius;
+        private readonly List<UnitEntry> _unitEntries;
+        private readonly int _unitCount;
+        private readonly float _unitScatterRadius;
         private readonly List<LootEntry> _lootEntries;
         private readonly int _minimumLootDrops;
         private readonly int _maximumLootDrops;
         private readonly float _searchRadius;
         private readonly float _minimumPlayerDistance;
 
-        /// <summary>Creates the action with its site prefab, guard and loot settings, and placement search range.</summary>
+        /// <summary>Creates the action with its site prefab, unit and loot settings, and placement search range.</summary>
         public SpawnEventSiteAction(
-            IEnemyFactory enemyFactory,
             ILootFactory lootFactory,
             LevelSpawnPointsView spawnPoints,
             WorldPlacementService placement,
             DiContainer container,
             GameObject sitePrefab,
-            GameObject guardPrefab,
-            int guardCount,
-            float guardScatterRadius,
-            GameObject occupantPrefab,
-            int occupantCount,
-            float occupantScatterRadius,
+            List<UnitEntry> unitEntries,
+            int unitCount,
+            float unitScatterRadius,
             List<LootEntry> lootEntries,
             int minimumLootDrops,
             int maximumLootDrops,
             float searchRadius,
             float minimumPlayerDistance)
         {
-            _enemyFactory = enemyFactory;
             _lootFactory = lootFactory;
             _spawnPoints = spawnPoints;
             _placement = placement;
             _container = container;
             _sitePrefab = sitePrefab;
-            _guardPrefab = guardPrefab;
-            _guardCount = guardCount;
-            _guardScatterRadius = guardScatterRadius;
-            _occupantPrefab = occupantPrefab;
-            _occupantCount = occupantCount;
-            _occupantScatterRadius = occupantScatterRadius;
+            _unitEntries = unitEntries;
+            _unitCount = unitCount;
+            _unitScatterRadius = unitScatterRadius;
             _lootEntries = lootEntries;
             _minimumLootDrops = minimumLootDrops;
             _maximumLootDrops = maximumLootDrops;
@@ -135,47 +125,61 @@ namespace SpawnModule
             var siteObject = _container.InstantiatePrefab(_sitePrefab, position, rotation, null);
             var siteView = siteObject.GetComponent<EventSiteView>();
 
-            SpawnGuards(position, siteView);
-            SpawnOccupants(position, siteView);
+            SpawnUnits(position, siteView);
             SpawnLoot(position, siteView);
         }
 
-        private void SpawnGuards(Vector3 sitePosition, EventSiteView siteView)
+        private void SpawnUnits(Vector3 sitePosition, EventSiteView siteView)
         {
-            var guardPoints = siteView != null ? siteView.GuardPoints : null;
-            var hasGuardPoints = guardPoints != null && guardPoints.Count > 0;
+            var totalWeight = GetUnitTotalWeight();
 
-            for (var guardIndex = 0; guardIndex < _guardCount; guardIndex++)
+            if (totalWeight == 0)
+                return;
+
+            var unitPoints = siteView != null ? siteView.UnitPoints : null;
+            var hasUnitPoints = unitPoints != null && unitPoints.Count > 0;
+
+            for (var unitIndex = 0; unitIndex < _unitCount; unitIndex++)
             {
-                var guardPoint = hasGuardPoints ? guardPoints[guardIndex % guardPoints.Count] : null;
-                var position = guardPoint != null ? guardPoint.position : sitePosition + GetScatterOffset(_guardScatterRadius);
+                var prefab = SelectUnitPrefab(totalWeight);
+
+                if (prefab == null)
+                    continue;
+
+                var unitPoint = hasUnitPoints ? unitPoints[unitIndex % unitPoints.Count] : null;
+                var position = unitPoint != null ? unitPoint.position : sitePosition + GetScatterOffset(_unitScatterRadius);
+                var rotation = unitPoint != null ? unitPoint.rotation : Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
 
                 if (!_placement.TryProjectToNavMesh(position, out var navMeshPosition))
                     continue;
 
-                if (_guardPrefab != null)
-                    _enemyFactory.Create(_guardPrefab, navMeshPosition);
-                else
-                    _enemyFactory.Create(navMeshPosition);
+                _container.InstantiatePrefab(prefab, navMeshPosition, rotation, null);
             }
         }
 
-        private void SpawnOccupants(Vector3 sitePosition, EventSiteView siteView)
+        private int GetUnitTotalWeight()
         {
-            if (_occupantPrefab == null)
-                return;
+            if (_unitEntries == null || _unitEntries.Count == 0)
+                return 0;
 
-            var occupantPoints = siteView != null ? siteView.OccupantPoints : null;
-            var hasOccupantPoints = occupantPoints != null && occupantPoints.Count > 0;
+            return _unitEntries.Sum(entry => Mathf.Max(entry.Weight, 0));
+        }
 
-            for (var occupantIndex = 0; occupantIndex < _occupantCount; occupantIndex++)
+        private GameObject SelectUnitPrefab(int totalWeight)
+        {
+            var randomWeight = Random.Range(1, totalWeight + 1);
+
+            for (var entryIndex = 0; entryIndex < _unitEntries.Count; entryIndex++)
             {
-                var occupantPoint = hasOccupantPoints ? occupantPoints[occupantIndex % occupantPoints.Count] : null;
-                var position = occupantPoint != null ? occupantPoint.position : sitePosition + GetScatterOffset(_occupantScatterRadius);
-                var rotation = occupantPoint != null ? occupantPoint.rotation : Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+                var entryWeight = Mathf.Max(_unitEntries[entryIndex].Weight, 0);
 
-                _container.InstantiatePrefab(_occupantPrefab, position, rotation, null);
+                if (randomWeight <= entryWeight)
+                    return _unitEntries[entryIndex].Prefab;
+
+                randomWeight -= entryWeight;
             }
+
+            return _unitEntries[_unitEntries.Count - 1].Prefab;
         }
 
         private void SpawnLoot(Vector3 sitePosition, EventSiteView siteView)
@@ -200,7 +204,7 @@ namespace SpawnModule
                     continue;
 
                 var lootPoint = hasLootPoints ? lootPoints[dropIndex % lootPoints.Count] : null;
-                var position = lootPoint != null ? lootPoint.position : sitePosition + GetScatterOffset(_guardScatterRadius);
+                var position = lootPoint != null ? lootPoint.position : sitePosition + GetScatterOffset(_unitScatterRadius);
                 var count = Random.Range(entry.MinCount, entry.MaxCount + 1);
 
                 _lootFactory.Create(position, entry.Item, count, entry.IsStacked);

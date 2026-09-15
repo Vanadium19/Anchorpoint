@@ -14,10 +14,10 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
-  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_Fog: 1
+  m_FogColor: {r: 0, g: 0, b: 0, a: 0}
   m_FogMode: 3
-  m_FogDensity: 0.01
+  m_FogDensity: 0
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
@@ -27,7 +27,7 @@ RenderSettings:
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
-  m_HaloStrength: 0.5
+  m_HaloStrength: 1
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
   m_HaloTexture: {fileID: 0}
@@ -6024,6 +6024,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: VFXModule::VFXModule.VfxServiceInstaller
   effectsCatalog: {fileID: 11400000, guid: 6828e79f36a3cfa4dba7941bb11e748e, type: 2}
+  screenEffectsCatalog: {fileID: 11400000, guid: 2eb644fca42258e49b2d8d5e1410e4e5, type: 2}
   effectsContainer: {fileID: 281424998}
 --- !u!114 &1121154652
 MonoBehaviour:
@@ -9551,6 +9552,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8375085304727711557, guid: 243b87adc87d4bd47b45f451e0acac6d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8905687770367858957, guid: 243b87adc87d4bd47b45f451e0acac6d, type: 3}
+      propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

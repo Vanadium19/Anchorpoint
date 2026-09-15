@@ -10,15 +10,14 @@ using Object = UnityEngine.Object;
 namespace RandomEventsModule
 {
     /// <summary>Emits radiation on the player at the base, dealing customizable damage over time with spatial effects.</summary>
-    /// <remarks>
-    /// Player health is accessed lazily via <see cref="PlayerProvider.TryGet{T}"/> to the sub-container's <see cref="IHealthComponent"/>.
-    /// The VFX is parented to the main camera so it fills the player's view; the looping Geiger-counter sound follows the player. Both are spawned once, held for the duration, then stopped through their handles.
-    /// </remarks>
     public class RadiationSurgeAction : RandomEventActionBase
     {
+        private const float ScreenEffectFadeSeconds = 3f;
+
         private readonly PlayerProvider _player;
         private readonly IRandomEventClock _clock;
         private readonly IEffectsService _effects;
+        private readonly IRadiationScreenEffect _screenEffect;
         private readonly IAudioSystem _audioSystem;
         private readonly float _durationSeconds;
         private readonly float _damagePerTick;
@@ -32,6 +31,7 @@ namespace RandomEventsModule
             PlayerProvider player,
             IRandomEventClock clock,
             IEffectsService effects,
+            IRadiationScreenEffect screenEffect,
             IAudioSystem audioSystem,
             float durationSeconds,
             float damagePerTick,
@@ -41,6 +41,7 @@ namespace RandomEventsModule
             _player = player;
             _clock = clock;
             _effects = effects;
+            _screenEffect = screenEffect;
             _audioSystem = audioSystem;
             _durationSeconds = durationSeconds;
             _damagePerTick = damagePerTick;
@@ -54,9 +55,9 @@ namespace RandomEventsModule
             var elapsedTime = 0f;
             var damageTimer = 0f;
 
-            var camera = Camera.main;
-            var effectPivot = camera != null ? camera.transform : _player.transform;
-            var effect = _effects.Fire(EffectId.Radiation, effectPivot.position, Quaternion.identity, effectPivot);
+            var playerTransform = _player.transform;
+
+            var effect = _effects.Fire(EffectId.Radiation, playerTransform.position,playerTransform.rotation, playerTransform);
             var hasGeiger = _audioSystem.PlayEvent(_geigerAudioEventId, _player.transform, out var geiger);
 
             while (elapsedTime < _durationSeconds && !_stopRequested)
@@ -73,12 +74,18 @@ namespace RandomEventsModule
                 elapsedTime += deltaTime;
                 damageTimer += deltaTime;
 
+                var fadeIn = elapsedTime / ScreenEffectFadeSeconds;
+                var fadeOut = (_durationSeconds - elapsedTime) / ScreenEffectFadeSeconds;
+                _screenEffect.SetIntensity(Mathf.Min(fadeIn, fadeOut));
+
                 if (damageTimer >= _tickIntervalSeconds)
                 {
                     damageTimer = 0f;
                     TakeDamage();
                 }
             }
+
+            _screenEffect.SetIntensity(0f);
 
             if (effect is Object effectObject && effectObject != null)
                 effect.Stop();

@@ -23,6 +23,7 @@ namespace EnemyModule
         public float ViewAngle = 120f;
         public LayerMask ViewMask;
         public float MemoryTime = 10f;
+        public float CloseRangeNoticeDistance = 3f;
 
         [Header("Combat")]
         public float AttackRange = 10f;
