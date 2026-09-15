@@ -30,9 +30,6 @@ namespace RandomEventsModule
             Container.BindExecutionOrder<RandomEventsSaveHandler>(-100);
 
             Container.BindInterfacesTo<RandomEventNotificationPresenter>().AsSingle().NonLazy();
-
-            Container.BindInterfacesTo<WorkbenchUsageRelay>().AsSingle().NonLazy();
-            Container.BindInterfacesTo<RaidChanceRelay>().AsSingle().NonLazy();
         }
     }
 }
