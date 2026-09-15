@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FireEvent
   m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
   isEnabled: 1
-  isExclusive: 0
+  isExclusive: 1
   cooldownSeconds: 90
   sequence:
     steps:
@@ -68,11 +68,6 @@ MonoBehaviour:
       data:
         blockedMessageKey: randomEvents.fire.extractionBlocked
         messageDurationSeconds: 3
-        body:
-          steps:
-          - runInParallel: 0
-            action:
-              rid: 3583316308396867585
     - rid: 3583316308396867585
       type: {class: FireEventActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
