@@ -342,6 +342,14 @@ MonoBehaviour:
     m_Localized: The next wave is coming!
     m_Metadata:
       m_Items: []
+  - m_Id: 7134993112059904
+    m_Localized: Crash site
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7134993195945984
+    m_Localized: A crash site has been spotted nearby
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -56,6 +56,9 @@ namespace SpawnModule
 
             Container.Bind<LootSpawnController>()
                 .AsSingle();
+
+            Container.Bind<WorldPlacementService>()
+                .AsSingle();
         }
     }
 }

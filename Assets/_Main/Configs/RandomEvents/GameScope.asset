@@ -24,12 +24,12 @@ MonoBehaviour:
     pool:
       picker:
         rid: 3584416206657470745
-      entries: []
+      entries:
+      - definition: {fileID: 11400000, guid: a5c61b47a7d84a74584560ea072c289f, type: 2}
+        weight: 3
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
     - rid: 3584416206657470743
       type: {class: SessionCountTriggerSourceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -42,4 +42,4 @@ MonoBehaviour:
         percent: 60
     - rid: 3584416206657470745
       type: {class: WeightedRandomPickerAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
+      data: 
