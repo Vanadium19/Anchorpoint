@@ -25,6 +25,9 @@ namespace RandomEventsModule
         }
 
         /// <inheritdoc/>
+        public event Action Blocked;
+
+        /// <inheritdoc/>
         public bool IsBlocked => _holds.Count > 0;
 
         /// <summary>Starts watching for finished events to drop abandoned holds.</summary>
@@ -36,6 +39,8 @@ namespace RandomEventsModule
             Unblock(blockedMessageKey);
 
             _holds.Add(new BlockedMessage(blockedMessageKey, messageDurationSeconds));
+
+            Blocked?.Invoke();
         }
 
         /// <inheritdoc/>
