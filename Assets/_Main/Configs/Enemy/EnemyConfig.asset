@@ -23,6 +23,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 65
   MemoryTime: 10
+  CloseRangeNoticeDistance: 3
   AttackRange: 20
   AttackExitRangeMultiplier: 1.2
   CombatTurnSpeed: 540
