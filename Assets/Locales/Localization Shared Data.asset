@@ -283,6 +283,14 @@ MonoBehaviour:
     m_Key: randomEvents.crash.discovered
     m_Metadata:
       m_Items: []
+  - m_Id: 7136123170803712
+    m_Key: randomEvents.outpost.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7136123183386624
+    m_Key: randomEvents.outpost.discovered
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -350,6 +350,14 @@ MonoBehaviour:
     m_Localized: A crash site has been spotted nearby
     m_Metadata:
       m_Items: []
+  - m_Id: 7136123170803712
+    m_Localized: Outpost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7136123183386624
+    m_Localized: A fortified outpost has been spotted nearby
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
