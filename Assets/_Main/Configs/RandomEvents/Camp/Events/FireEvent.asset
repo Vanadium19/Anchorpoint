@@ -52,7 +52,7 @@ MonoBehaviour:
     - rid: 3583316305166991446
       type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
-        percent: 50
+        percent: 40
     - rid: 3583316305166991456
       type: {class: ConditionGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:

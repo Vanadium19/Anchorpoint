@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 596d0b699d56f184cac260a2b90374e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: SpawnModule::SpawnModule.EventSiteView
-  guardPoints:
+  unitPoints:
   - {fileID: 5583816651654284814}
   - {fileID: 2926901523931668934}
   - {fileID: 1933850756434364553}
@@ -250,7 +250,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2926901523931668934}
   m_Layer: 0
-  m_Name: GuardPoint_2
+  m_Name: UnitPoint_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -374,7 +374,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2504578525301817047}
   m_Layer: 0
-  m_Name: GuardPoint_5
+  m_Name: UnitPoint_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -405,7 +405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5583816651654284814}
   m_Layer: 0
-  m_Name: GuardPoint_1
+  m_Name: UnitPoint_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -436,7 +436,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1933850756434364553}
   m_Layer: 0
-  m_Name: GuardPoint_3
+  m_Name: UnitPoint_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -467,7 +467,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7600867077857106352}
   m_Layer: 0
-  m_Name: GuardPoint_4
+  m_Name: UnitPoint_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -498,7 +498,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1029609561109931624}
   m_Layer: 0
-  m_Name: GuardPoint_6
+  m_Name: UnitPoint_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -571,7 +571,7 @@ GameObject:
   m_Component:
   - component: {fileID: 558118828163713819}
   m_Layer: 0
-  m_Name: GuardPoints
+  m_Name: UnitPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

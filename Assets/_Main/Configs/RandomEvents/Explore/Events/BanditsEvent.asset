@@ -31,9 +31,11 @@ MonoBehaviour:
       type: {class: SpawnEventSiteActionAsset, ns: SpawnModule, asm: SpawnModule}
       data:
         sitePrefab: {fileID: 3431769661338566658, guid: a8994a99c474a4c40834a11a65bfb5db, type: 3}
-        guardPrefab: {fileID: 2214721963767831808, guid: 54f46068837364e4ebb292672e6aacde, type: 3}
-        guardCount: 5
-        guardScatterRadius: 6
+        unitEntries:
+        - prefab: {fileID: 2214721963767831808, guid: 54f46068837364e4ebb292672e6aacde, type: 3}
+          weight: 1
+        unitCount: 5
+        unitScatterRadius: 6
         lootEntries:
         - item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
           weight: 4

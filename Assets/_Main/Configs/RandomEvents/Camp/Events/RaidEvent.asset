@@ -63,6 +63,11 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 3583316307384991744
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.started
+        durationSeconds: 4
     - rid: 3583316307831685125
       type: {class: ChanceGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -72,14 +77,9 @@ MonoBehaviour:
       type: {class: StateScaledChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         counterKey: raid_missed_returns
-        basePercent: 30
+        basePercent: 10
         stepPercent: 10
         maxPercent: 100
-    - rid: 3583316307384991744
-      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
-        localizationKey: randomEvents.raid.started
-        durationSeconds: 4
     - rid: 3583316308396867588
       type: {class: BlockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -106,11 +106,6 @@ MonoBehaviour:
       type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         durationSeconds: 5
-    - rid: 3583316309664595978
-      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
-        localizationKey: randomEvents.raid.waveEnded
-        durationSeconds: 3
     - rid: 3583316309664595972
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -125,6 +120,15 @@ MonoBehaviour:
       type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         durationSeconds: 5
+    - rid: 3583316309664595977
+      type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.raid.extractionBlocked
+    - rid: 3583316309664595978
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.waveEnded
+        durationSeconds: 3
     - rid: 3583316309664595979
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -135,7 +139,3 @@ MonoBehaviour:
       data:
         localizationKey: randomEvents.raid.ended
         durationSeconds: 4
-    - rid: 3583316309664595977
-      type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
-        blockedMessageKey: randomEvents.raid.extractionBlocked
