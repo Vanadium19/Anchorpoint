@@ -33,6 +33,9 @@ namespace SpawnModule
         private readonly GameObject _sitePrefab;
         private readonly int _guardCount;
         private readonly float _guardScatterRadius;
+        private readonly GameObject _occupantPrefab;
+        private readonly int _occupantCount;
+        private readonly float _occupantScatterRadius;
         private readonly List<LootEntry> _lootEntries;
         private readonly int _minimumLootDrops;
         private readonly int _maximumLootDrops;
@@ -49,6 +52,9 @@ namespace SpawnModule
             GameObject sitePrefab,
             int guardCount,
             float guardScatterRadius,
+            GameObject occupantPrefab,
+            int occupantCount,
+            float occupantScatterRadius,
             List<LootEntry> lootEntries,
             int minimumLootDrops,
             int maximumLootDrops,
@@ -63,6 +69,9 @@ namespace SpawnModule
             _sitePrefab = sitePrefab;
             _guardCount = guardCount;
             _guardScatterRadius = guardScatterRadius;
+            _occupantPrefab = occupantPrefab;
+            _occupantCount = occupantCount;
+            _occupantScatterRadius = occupantScatterRadius;
             _lootEntries = lootEntries;
             _minimumLootDrops = minimumLootDrops;
             _maximumLootDrops = maximumLootDrops;
@@ -123,6 +132,7 @@ namespace SpawnModule
             var siteView = siteObject.GetComponent<EventSiteView>();
 
             SpawnGuards(position, siteView);
+            SpawnOccupants(position, siteView);
             SpawnLoot(position, siteView);
         }
 
@@ -140,6 +150,24 @@ namespace SpawnModule
                     continue;
 
                 _enemyFactory.Create(navMeshPosition);
+            }
+        }
+
+        private void SpawnOccupants(Vector3 sitePosition, EventSiteView siteView)
+        {
+            if (_occupantPrefab == null)
+                return;
+
+            var occupantPoints = siteView != null ? siteView.OccupantPoints : null;
+            var hasOccupantPoints = occupantPoints != null && occupantPoints.Count > 0;
+
+            for (var occupantIndex = 0; occupantIndex < _occupantCount; occupantIndex++)
+            {
+                var occupantPoint = hasOccupantPoints ? occupantPoints[occupantIndex % occupantPoints.Count] : null;
+                var position = occupantPoint != null ? occupantPoint.position : sitePosition + GetScatterOffset(_occupantScatterRadius);
+                var rotation = occupantPoint != null ? occupantPoint.rotation : Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+
+                _container.InstantiatePrefab(_occupantPrefab, position, rotation, null);
             }
         }
 

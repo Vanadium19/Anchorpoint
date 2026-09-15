@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07e0d1bb3a840294489f125e4f512ac1, type: 3}
+  m_Name: WanderingTraderOffers
+  m_EditorClassIdentifier: TradeModule::TradeModule.TraderOffersConfig
+  traderNameKey: trade.trader.wandering
+  offers:
+  - {fileID: 11400000, guid: 2e69caea81c3a7343a60070b81cdf83d, type: 2}
+  - {fileID: 11400000, guid: 765d9a5c8442fc04d8e250951b9df77d, type: 2}
+  - {fileID: 11400000, guid: 8ea604948257aa04c810fc5d7201dff5, type: 2}
+  - {fileID: 11400000, guid: f30b76bec9e97f64e8ee3c0c25269c1d, type: 2}
