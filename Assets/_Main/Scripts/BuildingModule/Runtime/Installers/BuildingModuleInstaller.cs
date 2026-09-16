@@ -39,6 +39,8 @@ namespace BuildingModule
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
             Container.Bind<IStorageService>().To<StorageService>().AsSingle();
+            Container.BindFactory<BuildingView, BuildingConfig, BuildingController, BuildingControllerFactory>();
+            Container.BindInterfacesAndSelfTo<BuildingLifecycleService>().AsSingle().NonLazy();
             Container.Bind<BuildingFactory>().AsSingle();
 
             Container.Bind<IBuildingMenuService>().To<BuildingMenuService>().AsSingle();
