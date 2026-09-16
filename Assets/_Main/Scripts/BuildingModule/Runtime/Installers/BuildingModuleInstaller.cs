@@ -1,4 +1,5 @@
 using BaseModule;
+using ComponentsModule;
 using UnityEngine;
 using Zenject;
 
@@ -31,6 +32,7 @@ namespace BuildingModule
             Container.Bind<BuildingMenuConfig>().FromInstance(menuConfig).AsSingle();
 
             Container.Bind<IGrid>().FromInstance(grid).AsSingle();
+            Container.Bind<IInteractionFocusService>().To<InteractionFocusService>().AsSingle();
 
             Container.Bind<IBuildingRegistry>()
                 .To<BuildingRegistry>()
@@ -71,6 +73,7 @@ namespace BuildingModule
             Container.Bind<BuildingPriceUIConfig>().FromInstance(buildingPriceUIConfig).AsSingle();
             Container.Bind<BuildingPricePanelView>().FromInstance(buildingPricePanelView).AsSingle();
             Container.BindInterfacesTo<BuildingPricePresenter>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<BuildingRepairPresenter>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
 

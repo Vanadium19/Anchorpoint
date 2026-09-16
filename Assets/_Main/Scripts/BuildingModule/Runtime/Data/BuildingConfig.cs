@@ -18,6 +18,10 @@ namespace BuildingModule
         [SerializeField] private float maxHealth = 100f;
         [SerializeField, Range(0f, 1f)] private float brokenAlpha = 0.45f;
 
+        [Header("Repair")]
+        [SerializeField] private Price repairPrice;
+        [SerializeField] private float repairTime = 3f;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -38,6 +42,8 @@ namespace BuildingModule
         public float ConstructionTime => constructionTime;
         public float MaxHealth => maxHealth;
         public float BrokenAlpha => brokenAlpha;
+        public Price RepairPrice => repairPrice;
+        public float RepairTime => repairTime;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }
