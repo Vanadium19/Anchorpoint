@@ -8,21 +8,24 @@ namespace BuildingModule
         private readonly BuildingConfig _config;
         private readonly BuildingModel _model;
         private readonly IStorageService _storageService;
+        private readonly IRepairModifierService _repairModifierService;
 
         public BuildingController(
             BuildingView view,
             BuildingConfig config,
-            IStorageService storageService)
+            IStorageService storageService,
+            IRepairModifierService repairModifierService)
         {
             _view = view;
             _config = config;
             _storageService = storageService;
+            _repairModifierService = repairModifierService;
             _model = new BuildingModel(config.MaxHealth, config.ConstructionTime);
 
             _view.Initialize(_model);
             _view.ConfigureRepairInteraction(
                 config.DisplayName,
-                config.RepairTime,
+                GetRepairDuration,
                 CanRepair,
                 Repair);
             _model.StateChanged += OnStateChanged;
@@ -36,14 +39,18 @@ namespace BuildingModule
 
         public void Dispose() => _model.StateChanged -= OnStateChanged;
 
-        private bool CanRepair() => _model.CanRepair && _storageService.CanAfford(_config.RepairPrice);
+        private float GetRepairDuration() => _repairModifierService.GetRepairDuration(_config.RepairTime);
+
+        private bool CanRepair() =>
+            _model.CanRepair &&
+            _storageService.CanAfford(_config.RepairPrice, _repairModifierService.CostMultiplier);
 
         private void Repair()
         {
             if (!_model.CanRepair)
                 return;
 
-            if (!_storageService.Spend(_config.RepairPrice))
+            if (!_storageService.Spend(_config.RepairPrice, _repairModifierService.CostMultiplier))
                 return;
 
             _model.Repair();
