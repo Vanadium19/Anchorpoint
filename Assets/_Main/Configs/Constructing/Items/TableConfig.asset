@@ -21,6 +21,15 @@ MonoBehaviour:
       Count: 4
   icon: {fileID: 371250376, guid: 45d89d1d68544f54bb0edd3d96989617, type: 3}
   order: 2
+  constructionTime: 5
+  maxHealth: 100
+  brokenAlpha: 0.45
+  repairPrice:
+    value:
+    - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+      Count: 3
+  repairTime: 3
+  repairReductionPercent: 50
   nameKey: building_table
   allowedBuildLayers:
     serializedVersion: 2

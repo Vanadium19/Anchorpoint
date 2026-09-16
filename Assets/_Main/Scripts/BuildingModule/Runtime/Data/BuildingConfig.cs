@@ -13,8 +13,21 @@ namespace BuildingModule
         [SerializeField] private Sprite icon;
         [SerializeField] private int order;
 
+        [Header("Lifecycle")]
+        [SerializeField] private float constructionTime = 5f;
+        [SerializeField] private float maxHealth = 100f;
+        [SerializeField, Range(0f, 1f)] private float brokenAlpha = 0.45f;
+
+        [Header("Repair")]
+        [SerializeField] private Price repairPrice;
+        [SerializeField] private float repairTime = 3f;
+
+        [Header("Repair Support")]
+        [SerializeField, Range(0f, 100f)] private float repairReductionPercent;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
+
         [Header("Placement Restrictions")]
         [SerializeField] private LayerMask allowedBuildLayers = ~0;
 
@@ -29,6 +42,12 @@ namespace BuildingModule
         public Price Price => price;
         public Sprite Icon => icon;
         public int Order => order;
+        public float ConstructionTime => constructionTime;
+        public float MaxHealth => maxHealth;
+        public float BrokenAlpha => brokenAlpha;
+        public Price RepairPrice => repairPrice;
+        public float RepairTime => repairTime;
+        public float RepairReductionPercent => repairReductionPercent;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }

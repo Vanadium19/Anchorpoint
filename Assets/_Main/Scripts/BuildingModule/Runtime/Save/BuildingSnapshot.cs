@@ -13,6 +13,10 @@ namespace BuildingModule
         public float PositionY;
         public float PositionZ;
         public float RotationY;
+        public bool HasRuntimeState;
+        public BuildingState State;
+        public float CurrentHealth;
+        public float ConstructionRemainingTime;
         public List<ContainerMemento> Containers = new();
     }
 }
