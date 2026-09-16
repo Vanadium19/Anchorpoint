@@ -231,6 +231,10 @@ MonoBehaviour:
     m_Key: category_utility
     m_Metadata:
       m_Items: []
+  - m_Id: 8813199217102848
+    m_Key: hint_repair
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

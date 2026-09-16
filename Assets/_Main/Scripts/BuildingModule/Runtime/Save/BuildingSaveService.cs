@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
 using BaseModule;
 using InventoryModule;
+using UnityEngine;
 
 namespace BuildingModule
 {
@@ -10,16 +10,77 @@ namespace BuildingModule
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
         private readonly ItemCatalog _itemCatalog;
+        private readonly BuildingFactory _buildingFactory;
 
         public BuildingSaveService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
-            ItemCatalog itemCatalog)
+            ItemCatalog itemCatalog,
+            BuildingFactory buildingFactory)
         {
             _registry = registry;
             _catalog = catalog;
             _itemCatalog = itemCatalog;
+            _buildingFactory = buildingFactory;
         }
+
+        public BuildingView RestoreFromSnapshot(BuildingSnapshot snapshot)
+        {
+            if (snapshot == null || string.IsNullOrEmpty(snapshot.BuildingId))
+                return null;
+
+            if (!_catalog.TryGetConfig(snapshot.BuildingId, out var config))
+                return null;
+
+            var position = new Vector3(snapshot.PositionX, snapshot.PositionY, snapshot.PositionZ);
+            var rotation = Quaternion.Euler(0f, snapshot.RotationY, 0f);
+            var building = _buildingFactory.Create(config.Id, position, rotation);
+
+            if (building == null)
+                return null;
+
+            if (!string.IsNullOrEmpty(snapshot.InstanceId))
+                building.InstanceId = snapshot.InstanceId;
+
+            if (building.TryGet<BuildingModel>(out var model))
+            {
+                if (snapshot.HasRuntimeState)
+                {
+                    model.Restore(
+                        snapshot.State,
+                        snapshot.CurrentHealth,
+                        snapshot.ConstructionRemainingTime);
+                }
+                else
+                {
+                    model.Restore(BuildingState.Active, model.MaxHealth, 0f);
+                }
+            }
+
+            var gridView = building.GetComponent<IInventoryGridView>();
+
+            if (gridView != null && snapshot.Containers.Count > 0)
+                RestoreContainerItems(gridView, snapshot.Containers);
+
+            return building;
+        }
+
+        public IReadOnlyList<BuildingSnapshot> GetAllSnapshots()
+        {
+            var snapshots = new List<BuildingSnapshot>();
+
+            foreach (var building in _registry.Buildings)
+            {
+                var snapshot = CreateSnapshot(building);
+
+                if (snapshot != null)
+                    snapshots.Add(snapshot);
+            }
+
+            return snapshots;
+        }
+
+        public void ClearAll() => _registry.Clear();
 
         private BuildingSnapshot CreateSnapshot(BuildingView building)
         {
@@ -34,16 +95,20 @@ namespace BuildingModule
             var snapshot = new BuildingSnapshot
             {
                 BuildingId = config.Id,
+                InstanceId = building.InstanceId,
                 PositionX = building.transform.position.x,
                 PositionY = building.transform.position.y,
                 PositionZ = building.transform.position.z,
                 RotationY = building.transform.rotation.eulerAngles.y
             };
 
-            var hasId = building as IHasInstanceId;
-
-            if (hasId != null)
-                snapshot.InstanceId = hasId.InstanceId;
+            if (building.TryGet<BuildingModel>(out var model))
+            {
+                snapshot.HasRuntimeState = true;
+                snapshot.State = model.State;
+                snapshot.CurrentHealth = model.CurrentHealth;
+                snapshot.ConstructionRemainingTime = model.ConstructionRemainingTime;
+            }
 
             SerializeContainers(building, snapshot);
 
@@ -62,61 +127,10 @@ namespace BuildingModule
                 var containerMemento = new ContainerMemento();
 
                 foreach (var item in grid.GetAllItems())
-                {
                     containerMemento.Items.Add(ItemSerializer.Serialize(item));
-                }
 
                 snapshot.Containers.Add(containerMemento);
             }
-        }
-
-        public BuildingView RestoreFromSnapshot(BuildingSnapshot snapshot)
-        {
-            if (snapshot == null || string.IsNullOrEmpty(snapshot.BuildingId))
-                return null;
-
-            if (!_catalog.TryGetConfig(snapshot.BuildingId, out var config))
-                return null;
-
-            var position = new Vector3(snapshot.PositionX, snapshot.PositionY, snapshot.PositionZ);
-            var rotation = Quaternion.Euler(0, snapshot.RotationY, 0);
-
-            var building = Object.Instantiate(config.Prefab, position, rotation);
-
-            building.BuildingConfigId = config.Id;
-            _registry.RegisterBuilding(building);
-
-            var hasId = building as IHasInstanceId;
-
-            if (hasId != null && !string.IsNullOrEmpty(snapshot.InstanceId))
-                hasId.InstanceId = snapshot.InstanceId;
-
-            var gridView = building.GetComponent<IInventoryGridView>();
-
-            if (gridView != null && snapshot.Containers.Count > 0)
-                RestoreContainerItems(gridView, snapshot.Containers);
-
-            return building;
-        }
-
-        public IReadOnlyList<BuildingSnapshot> GetAllSnapshots()
-        {
-            var snapshots = new List<BuildingSnapshot>();
-
-            foreach (var building in _registry.Buildings)
-            {
-                var snapshot = CreateSnapshot(building);
-                
-                if (snapshot != null)
-                    snapshots.Add(snapshot);
-            }
-
-            return snapshots;
-        }
-
-        public void ClearAll()
-        {
-            _registry.Clear();
         }
 
         private BuildingConfig GetBuildingConfig(BuildingView building)
@@ -133,15 +147,13 @@ namespace BuildingModule
         {
             var grids = container.Grids;
 
-            for (int i = 0; i < containers.Count && i < grids.Count; i++)
+            for (var i = 0; i < containers.Count && i < grids.Count; i++)
             {
                 var grid = grids[i];
                 var containerMemento = containers[i];
 
                 foreach (var itemMemento in containerMemento.Items)
-                {
                     ItemSerializer.RestoreItem(grid, itemMemento, _itemCatalog);
-                }
             }
         }
     }
