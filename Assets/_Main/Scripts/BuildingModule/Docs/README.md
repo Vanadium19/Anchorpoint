@@ -16,7 +16,7 @@
 - `BuildingSaveService` создает и восстанавливает снимки построек и контейнеров.
 - `BuildingMenuPresenter`, `BuildingPricePresenter` и `BaseLevelPreviewBridge` связывают логику с UI.
 - `BuildingUpgradeService` хранит уровни построек, проверяет цену следующего уровня и меняет визуал через `BuildingView`.
-- `BuildingUpgradePresenter` открывает MVP-панель улучшения по интеракции здания или после открытия его внешнего UI.
+- `BuildingUpgradePresenter` открывает MVP-панель улучшения после открытия внешнего UI постройки.
 
 ## Подключение
 
