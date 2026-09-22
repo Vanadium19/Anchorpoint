@@ -1512,6 +1512,15 @@ namespace InputModule.Configs
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Upgrade"",
+                    ""type"": ""Button"",
+                    ""id"": ""b5831334-6833-4c21-b053-c42112f3bc2c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1712,6 +1721,17 @@ namespace InputModule.Configs
                     ""action"": ""Scroll"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""390bb71d-feaa-435e-8858-1d69851b066b"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""Upgrade"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1832,6 +1852,7 @@ namespace InputModule.Configs
             m_Build_CategoryDown = m_Build.FindAction("CategoryDown", throwIfNotFound: true);
             m_Build_Jump = m_Build.FindAction("Jump", throwIfNotFound: true);
             m_Build_Scroll = m_Build.FindAction("Scroll", throwIfNotFound: true);
+            m_Build_Upgrade = m_Build.FindAction("Upgrade", throwIfNotFound: true);
         }
 
         ~@InputSystem_Actions()
@@ -2535,6 +2556,7 @@ namespace InputModule.Configs
         private readonly InputAction m_Build_CategoryDown;
         private readonly InputAction m_Build_Jump;
         private readonly InputAction m_Build_Scroll;
+        private readonly InputAction m_Build_Upgrade;
         /// <summary>
         /// Provides access to input actions defined in input action map "Build".
         /// </summary>
@@ -2598,6 +2620,10 @@ namespace InputModule.Configs
             /// Provides access to the underlying input action "Build/Scroll".
             /// </summary>
             public InputAction @Scroll => m_Wrapper.m_Build_Scroll;
+            /// <summary>
+            /// Provides access to the underlying input action "Build/Upgrade".
+            /// </summary>
+            public InputAction @Upgrade => m_Wrapper.m_Build_Upgrade;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -2663,6 +2689,9 @@ namespace InputModule.Configs
                 @Scroll.started += instance.OnScroll;
                 @Scroll.performed += instance.OnScroll;
                 @Scroll.canceled += instance.OnScroll;
+                @Upgrade.started += instance.OnUpgrade;
+                @Upgrade.performed += instance.OnUpgrade;
+                @Upgrade.canceled += instance.OnUpgrade;
             }
 
             /// <summary>
@@ -2713,6 +2742,9 @@ namespace InputModule.Configs
                 @Scroll.started -= instance.OnScroll;
                 @Scroll.performed -= instance.OnScroll;
                 @Scroll.canceled -= instance.OnScroll;
+                @Upgrade.started -= instance.OnUpgrade;
+                @Upgrade.performed -= instance.OnUpgrade;
+                @Upgrade.canceled -= instance.OnUpgrade;
             }
 
             /// <summary>
@@ -3157,6 +3189,13 @@ namespace InputModule.Configs
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnScroll(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Upgrade" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnUpgrade(InputAction.CallbackContext context);
         }
     }
 }
