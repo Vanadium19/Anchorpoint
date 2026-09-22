@@ -43,6 +43,7 @@ namespace InputModule
         bool IsBuildCategoryUpPressed { get; }
         bool IsBuildCategoryDownPressed { get; }
         bool IsBuildUpgradePressed { get; }
+        bool IsBuildUpgradeHeld { get; }
         float BuildScroll { get; }
     }
 }

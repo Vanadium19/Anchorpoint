@@ -15,34 +15,49 @@ namespace InventoryModule
         private IInventoryManager _inventoryManager;
         private DiContainer _diContainer;
         private bool _isInitialized;
+        private bool _isGridViewSubscribed;
 
         public IExternalUI Container => _container;
+
+        private void OnEnable()
+        {
+            SubscribeToGridChanges();
+            CreateAndBindMissingGrids();
+            RegisterGrids();
+        }
+
+        private void OnDisable()
+        {
+            UnsubscribeFromGridChanges();
+            UnregisterGrids();
+        }
+
+        private void OnDestroy() => UnsubscribeFromGridChanges();
 
         public void Initialize(IExternalUI container, IInventoryManager inventoryManager, DiContainer diContainer)
         {
             if (_isInitialized && _container == container)
                 return;
 
+            UnsubscribeFromGridChanges();
             _container = container;
             _inventoryManager = inventoryManager;
             _diContainer = diContainer;
             _isInitialized = true;
 
-            CreateAndBindGrids();
+            SubscribeToGridChanges();
+            CreateAndBindMissingGrids();
+            RegisterGrids();
         }
 
-        private void CreateAndBindGrids()
+        private void CreateAndBindMissingGrids()
         {
-            if (_grids.Count > 0)
-                return;
-
-            var gridIndex = 0;
-
             if (!(_container is IInventoryGridView gridView))
                 return;
 
-            foreach (var gridTable in gridView.Grids)
+            for (var gridIndex = _grids.Count; gridIndex < gridView.Grids.Count; gridIndex++)
             {
+                var gridTable = gridView.Grids[gridIndex];
                 AbstractGrid grid;
 
                 if (gridIndex < presetGrids.Count && presetGrids[gridIndex] != null)
@@ -56,47 +71,60 @@ namespace InventoryModule
                 }
                 else
                 {
-                    gridIndex++;
                     continue;
                 }
 
                 grid.SetGridTableOnly(gridTable);
-                _inventoryManager.RegisterAdditionalGrid(gridTable);
                 _grids.Add(grid);
-                gridIndex++;
             }
         }
 
-        private void OnEnable()
+        private void RegisterGrids()
         {
-            if (_container == null || _inventoryManager == null || _grids.Count == 0)
+            if (_inventoryManager == null || !(_container is IInventoryGridView gridView))
                 return;
 
-            if (!(_container is IInventoryGridView gridView))
-                return;
-
-            for (int i = 0; i < _grids.Count && i < gridView.Grids.Count; i++)
+            for (var index = 0; index < _grids.Count && index < gridView.Grids.Count; index++)
             {
-                var gridTable = gridView.Grids[i];
-                var grid = _grids[i];
+                var grid = _grids[index];
+                var gridTable = gridView.Grids[index];
 
                 grid.SetGridTableOnly(gridTable);
                 _inventoryManager.RegisterAdditionalGrid(gridTable);
             }
         }
 
-        private void OnDisable()
+        private void UnregisterGrids()
         {
-            if (_container == null || _inventoryManager == null)
-                return;
-
-            if (!(_container is IInventoryGridView gridView))
+            if (_inventoryManager == null || !(_container is IInventoryGridView gridView))
                 return;
 
             foreach (var gridTable in gridView.Grids)
-            {
                 _inventoryManager.UnregisterAdditionalGrid(gridTable);
-            }
+        }
+
+        private void SubscribeToGridChanges()
+        {
+            if (_isGridViewSubscribed || !(_container is IInventoryGridView gridView))
+                return;
+
+            gridView.GridsChanged += OnGridsChanged;
+            _isGridViewSubscribed = true;
+        }
+
+        private void UnsubscribeFromGridChanges()
+        {
+            if (!_isGridViewSubscribed || !(_container is IInventoryGridView gridView))
+                return;
+
+            gridView.GridsChanged -= OnGridsChanged;
+            _isGridViewSubscribed = false;
+        }
+
+        private void OnGridsChanged()
+        {
+            CreateAndBindMissingGrids();
+            RegisterGrids();
         }
     }
 }

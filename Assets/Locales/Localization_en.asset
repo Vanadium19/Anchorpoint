@@ -319,7 +319,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 4800000000000004
-    m_Localized: Upgrade
+    m_Localized: Press and hold F to upgrade
     m_Metadata:
       m_Items: []
   - m_Id: 4800000000000005
@@ -344,6 +344,10 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 4800000000000010
     m_Localized: Alchemy Table
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10978827919118336
+    m_Localized: Not enough resources to upgrade
     m_Metadata:
       m_Items: []
   references:

@@ -279,6 +279,10 @@ MonoBehaviour:
     m_Key: world_alchemy_table
     m_Metadata:
       m_Items: []
+  - m_Id: 10978827919118336
+    m_Key: building_upgrade_insufficient
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -104,6 +104,7 @@ namespace InputModule
         public bool IsBuildCategoryUpPressed => _actions.Build.CategoryUp.WasPressedThisFrame();
         public bool IsBuildCategoryDownPressed => _actions.Build.CategoryDown.WasPressedThisFrame();
         public bool IsBuildUpgradePressed => _actions.Build.Upgrade.WasPressedThisFrame();
+        public bool IsBuildUpgradeHeld => _actions.Build.Upgrade.IsPressed();
         public float BuildScroll
         {
             get

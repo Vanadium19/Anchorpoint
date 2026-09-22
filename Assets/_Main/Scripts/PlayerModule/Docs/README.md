@@ -10,7 +10,7 @@
 - `PlayerMovementController` передает ввод компонентам движения, вращения, приседания и наклона.
 - `WeaponInputController` передает оружию стрельбу, перезарядку, прицеливание и переключение.
 - `PlayerInteractionController` ищет добычу и контейнеры перед игроком.
-- `InteractionPresenter` показывает подсказки через `InteractionHUDView`.
+- `InteractionPresenter` показывает подсказки через `InteractionHUDView`; в режиме строительства подсказки обычного взаимодействия скрываются.
 - `InventoryDeathHandler` переносит инвентарь погибшего игрока в мировую добычу.
 - `PlayerProvider` дает другим модулям доступ к объектам игрока.
 

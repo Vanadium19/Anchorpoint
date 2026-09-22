@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using BaseModule;
 using InventoryModule;
+using UnityEngine;
 using Zenject;
 
 namespace BuildingModule
@@ -10,6 +12,7 @@ namespace BuildingModule
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
         private readonly IInventoryManager _inventoryManager;
+        private readonly IBuildingDamageService _damageService;
 
         private readonly Dictionary<BuildingView, BuildingUpgradeModel> _models = new();
 
@@ -18,11 +21,13 @@ namespace BuildingModule
         public BuildingUpgradeService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
-            IInventoryManager inventoryManager)
+            IInventoryManager inventoryManager,
+            IBuildingDamageService damageService)
         {
             _registry = registry;
             _catalog = catalog;
             _inventoryManager = inventoryManager;
+            _damageService = damageService;
         }
 
         public void Initialize()
@@ -61,6 +66,7 @@ namespace BuildingModule
                 NextLevel = model.Level + 1,
                 CanUpgrade = model.CanUpgrade,
                 CanAfford = model.CanUpgrade && CanAfford(nextLevel?.Price),
+                NextVisualPrefab = nextLevel?.VisualPrefab,
                 PriceItems = priceItems
             };
 
@@ -78,7 +84,7 @@ namespace BuildingModule
                 return false;
 
             model.Upgrade();
-            RenderLevel(building, model);
+            ApplyLevel(building, model);
             BuildingUpgraded?.Invoke(building);
             return true;
         }
@@ -89,7 +95,7 @@ namespace BuildingModule
                 return;
 
             model.Restore(level);
-            RenderLevel(building, model);
+            ApplyLevel(building, model);
         }
 
         private void OnBuildingRegistered(BuildingView building) => RegisterBuilding(building);
@@ -106,7 +112,7 @@ namespace BuildingModule
 
             var model = new BuildingUpgradeModel(config.UpgradeConfig);
             _models.Add(building, model);
-            RenderLevel(building, model);
+            ApplyLevel(building, model);
         }
 
         private bool TryGetModel(BuildingView building, out BuildingUpgradeModel model)
@@ -176,9 +182,21 @@ namespace BuildingModule
             return items;
         }
 
-        private static void RenderLevel(BuildingView building, BuildingUpgradeModel model)
+        private void ApplyLevel(BuildingView building, BuildingUpgradeModel model)
         {
             building.RenderUpgradeVisual(model.CurrentLevel?.VisualPrefab);
+
+            foreach (var component in building.GetComponents<MonoBehaviour>())
+            {
+                if (component is IBuildingUpgradeReceiver receiver)
+                    receiver.ApplyUpgradeLevel(model.Level);
+            }
+
+            if (TryGetBuildingConfig(building, out var config))
+            {
+                var maxHealth = model.CurrentLevel?.MaxHealth ?? 0f;
+                _damageService.SetMaxHealth(building, maxHealth > 0f ? maxHealth : config.MaxHealth);
+            }
         }
     }
 }

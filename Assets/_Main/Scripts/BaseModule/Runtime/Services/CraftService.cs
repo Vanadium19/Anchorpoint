@@ -42,6 +42,9 @@ namespace BaseModule
 
         public void SelectRecipe(RecipeConfig recipe)
         {
+            if (!IsRecipeAvailable(recipe))
+                return;
+
             SelectedRecipe = recipe;
             StateChanged?.Invoke();
         }
@@ -51,7 +54,7 @@ namespace BaseModule
 
         public void StartBatch(RecipeConfig recipe, int count)
         {
-            if (recipe == null || count <= 0 || CurrentQueue == null)
+            if (!IsRecipeAvailable(recipe) || count <= 0 || CurrentQueue == null)
                 return;
 
             var maxCraftable = GetMaxCraftable(recipe);
@@ -327,7 +330,7 @@ namespace BaseModule
             var workbenchView = view.GetComponent<WorkbenchView>();
 
             if (workbenchView != null)
-                workbenchView.RefreshFromService();
+                workbenchView.RefreshFromService(GetRecipes(ui));
 
             StateChanged?.Invoke();
         }
@@ -432,6 +435,13 @@ namespace BaseModule
                 return provider.Recipes;
 
             return Array.Empty<RecipeConfig>();
+        }
+
+        private bool IsRecipeAvailable(RecipeConfig recipe)
+        {
+            return recipe != null
+                && _currentWorkbench is IRecipeProvider provider
+                && provider.Recipes.Contains(recipe);
         }
     }
 }

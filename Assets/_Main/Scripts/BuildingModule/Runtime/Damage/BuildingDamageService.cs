@@ -60,6 +60,15 @@ namespace BuildingModule
         }
 
         /// <inheritdoc/>
+        public void SetMaxHealth(BuildingView building, float maxHealth)
+        {
+            if (building == null)
+                return;
+
+            GetHealth(building).SetMaxHealth(maxHealth);
+        }
+
+        /// <inheritdoc/>
         public void Restore(BuildingView building)
         {
             if (building == null)

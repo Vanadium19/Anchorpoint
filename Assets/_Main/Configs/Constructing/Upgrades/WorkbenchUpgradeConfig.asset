@@ -21,8 +21,10 @@ MonoBehaviour:
       value:
       - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
         Count: 6
+    maxHealth: 150
   - visualPrefab: {fileID: 1000, guid: db90936971c14a129959f19f21970e13, type: 3}
     price:
       value:
       - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
         Count: 10
+    maxHealth: 200

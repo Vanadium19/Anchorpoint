@@ -6,7 +6,7 @@ namespace BuildingModule
     /// <remarks>A building with no health left counts as broken and stays broken until <see cref="Restore"/> is called.</remarks>
     public class BuildingHealth
     {
-        private readonly float _maxHealth;
+        private float _maxHealth;
 
         private float _currentHealth;
 
@@ -35,6 +35,17 @@ namespace BuildingModule
             _currentHealth = Mathf.Max(_currentHealth - amount, 0f);
 
             return IsBroken;
+        }
+
+        /// <summary>Updates maximum health while preserving its current proportion.</summary>
+        public void SetMaxHealth(float maxHealth)
+        {
+            if (maxHealth <= 0f)
+                return;
+
+            var healthRatio = _maxHealth > 0f ? _currentHealth / _maxHealth : 1f;
+            _maxHealth = maxHealth;
+            _currentHealth = Mathf.Clamp01(healthRatio) * _maxHealth;
         }
 
         /// <summary>Returns the building to full health.</summary>

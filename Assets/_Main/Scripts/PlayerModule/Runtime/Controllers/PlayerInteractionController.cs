@@ -63,6 +63,13 @@ namespace PlayerModule
             if (_isPaused)
                 return;
 
+            if (_input.IsBuildMode)
+            {
+                _lastHitCollider = null;
+                UpdateHover(null, null);
+                return;
+            }
+
             var ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
             if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))

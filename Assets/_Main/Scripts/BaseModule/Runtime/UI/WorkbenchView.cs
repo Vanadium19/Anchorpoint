@@ -62,8 +62,10 @@ namespace BaseModule
                 controlPanel.QuantityChanged -= OnQuantityChanged;
         }
 
-        public void RefreshFromService()
+        public void RefreshFromService(IReadOnlyList<RecipeConfig> recipes)
         {
+            _recipes = recipes;
+            ClearEntries();
             OnStateChanged();
         }
 
@@ -172,6 +174,14 @@ namespace BaseModule
             var entry = Instantiate(entryPrefab, entriesContainer);
             entry.Initialize(recipe, _craftService, _inventoryManager);
             _entries.Add(entry);
+        }
+
+        private void ClearEntries()
+        {
+            foreach (var entry in _entries)
+                Destroy(entry.gameObject);
+
+            _entries.Clear();
         }
     }
 }
