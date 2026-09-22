@@ -6012,6 +6012,7 @@ MonoBehaviour:
   baseLevelView: {fileID: 1610138064}
   buildingPricePanelView: {fileID: 1920946707}
   buildingPriceUIConfig: {fileID: 11400000, guid: 375915e494ca45f4ba0b90839a1981d1, type: 2}
+  buildingUpgradePanelView: {fileID: 1920946708}
   raycastLayers:
     serializedVersion: 2
     m_Bits: 513
@@ -8632,6 +8633,7 @@ GameObject:
   - component: {fileID: 1920946704}
   - component: {fileID: 1920946703}
   - component: {fileID: 1920946707}
+  - component: {fileID: 1920946708}
   m_Layer: 5
   m_Name: BuildingPriceUI
   m_TagString: Untagged
@@ -8738,6 +8740,24 @@ MonoBehaviour:
   contentContainer: {fileID: 753581714}
   itemPrefab: {fileID: 5595270597420416938, guid: e1f6f584ac71f654ca83c7cd3b20bec8, type: 3}
   config: {fileID: 11400000, guid: 375915e494ca45f4ba0b90839a1981d1, type: 2}
+--- !u!114 &1920946708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920946702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb0a3edb4474f5b8a152921dc50a1f1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingUpgradePanelView
+  buildingNameText: {fileID: 0}
+  levelText: {fileID: 0}
+  priceText: {fileID: 0}
+  upgradeButtonText: {fileID: 0}
+  upgradeButton: {fileID: 0}
+  closeButton: {fileID: 0}
 --- !u!1001 &1929153929
 PrefabInstance:
   m_ObjectHideFlags: 0

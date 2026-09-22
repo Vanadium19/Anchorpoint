@@ -101,7 +101,7 @@ namespace PlayerModule
 
                 var interactable = current.GetComponent<IInteractable>();
 
-                if (interactable != null)
+                if (interactable != null && interactable.CanInteract(_playerTransform))
                 {
                     UpdateHover(interactable, null);
                     return;

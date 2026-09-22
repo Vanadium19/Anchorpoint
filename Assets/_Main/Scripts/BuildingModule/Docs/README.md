@@ -15,11 +15,23 @@
 - `BuildingStructureTargetSource` и `BuildingStructureTarget` показывают целые постройки как цели для атакующих.
 - `BuildingSaveService` создает и восстанавливает снимки построек и контейнеров.
 - `BuildingMenuPresenter`, `BuildingPricePresenter` и `BaseLevelPreviewBridge` связывают логику с UI.
+- `BuildingUpgradeService` хранит уровни построек, проверяет цену следующего уровня и меняет визуал через `BuildingView`.
+- `BuildingUpgradePresenter` открывает MVP-панель улучшения по интеракции здания или после открытия его внешнего UI.
 
 ## Подключение
 
 `BuildingModuleInstaller` регистрирует сервисы и принимает сценовые ссылки, каталоги и конфиги. Для объектов с хранилищем prefab должен предоставлять `IContainerUI`.
 `BuildingView.boundsMeshFilter` должен ссылаться на визуальный `MeshFilter` постройки: его bounds используют эффекты, которым нужны габариты здания.
+
+## Улучшения построек
+
+`BuildingUpgradeConfig` содержит ровно три уровня. Первый уровень может оставить `visualPrefab` пустым и использовать исходный визуал постройки; у второго и третьего задаются `visualPrefab` и `Price`. Конфиг назначается в `BuildingConfig`.
+
+Чтобы смена визуала не затронула компоненты здания, `BuildingView.initialVisual` указывает на исходную модель, а `upgradeVisualContainer` — на дочерний контейнер для визуальных prefab. Улучшенные визуалы содержат только визуальную иерархию. Это позволяет добавлять цепочки конкретных ассетов без изменения runtime-кода.
+
+Для построек без `IExternalUI` `BuildingView` принимает обычную интеракцию и передает ее presenter. Если на том же объекте есть `IExternalUI` (верстак или сундук), приоритет остается у существующего окна; `BuildingUpgradePresenter` показывает панель после `ExternalUIManager.UIOpened` и не заменяет внешний UI.
+
+`BuildingSnapshot.UpgradeLevel` сохраняет уровень. Отсутствующее поле старого снимка имеет значение `0` и восстанавливается как первый уровень.
 
 ## Расширение
 

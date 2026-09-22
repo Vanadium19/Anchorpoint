@@ -15,6 +15,7 @@ namespace BuildingModule
         [SerializeField] private BaseLevelView baseLevelView;
         [SerializeField] private BuildingPricePanelView buildingPricePanelView;
         [SerializeField] private BuildingPriceUIConfig buildingPriceUIConfig;
+        [SerializeField] private BuildingUpgradePanelView buildingUpgradePanelView;
         [SerializeField] private LayerMask raycastLayers;
         [SerializeField] private bool useGrid = true;
 
@@ -49,6 +50,7 @@ namespace BuildingModule
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
             Container.Bind<IStorageService>().To<StorageService>().AsSingle();
             Container.Bind<BuildingFactory>().AsSingle();
+            Container.BindInterfacesAndSelfTo<BuildingUpgradeService>().AsSingle().NonLazy();
 
             Container.Bind<IBuildingMenuService>().To<BuildingMenuService>().AsSingle();
             Container.Bind<IConstructionModeService>().To<ConstructionModeService>().AsSingle();
@@ -78,6 +80,9 @@ namespace BuildingModule
             Container.Bind<BuildingPriceUIConfig>().FromInstance(buildingPriceUIConfig).AsSingle();
             Container.Bind<BuildingPricePanelView>().FromInstance(buildingPricePanelView).AsSingle();
             Container.BindInterfacesTo<BuildingPricePresenter>().AsSingle().NonLazy();
+
+            Container.Bind<BuildingUpgradePanelView>().FromInstance(buildingUpgradePanelView).AsSingle();
+            Container.BindInterfacesTo<BuildingUpgradePresenter>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
 
