@@ -318,10 +318,6 @@ MonoBehaviour:
     m_Localized: A radiation surge is sweeping the base!
     m_Metadata:
       m_Items: []
-  - m_Id: 4800000000000003
-    m_Localized: Press [F] to upgrade {0}
-    m_Metadata:
-      m_Items: []
   - m_Id: 4800000000000004
     m_Localized: Upgrade
     m_Metadata:

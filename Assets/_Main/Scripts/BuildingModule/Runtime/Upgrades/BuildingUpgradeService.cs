@@ -102,14 +102,10 @@ namespace BuildingModule
                 return;
 
             if (!TryGetBuildingConfig(building, out var config) || config.UpgradeConfig == null)
-            {
-                building.RenderUpgradeInteraction(false, string.Empty);
                 return;
-            }
 
             var model = new BuildingUpgradeModel(config.UpgradeConfig);
             _models.Add(building, model);
-            building.RenderUpgradeInteraction(true, config.DisplayName);
             RenderLevel(building, model);
         }
 

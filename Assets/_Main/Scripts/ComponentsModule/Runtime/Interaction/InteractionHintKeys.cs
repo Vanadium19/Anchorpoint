@@ -7,6 +7,5 @@ namespace ComponentsModule
         public const string Open = "hint_open";
 
         public const string Talk = "hint_talk";
-        public const string Upgrade = "hint_upgrade";
     }
 }

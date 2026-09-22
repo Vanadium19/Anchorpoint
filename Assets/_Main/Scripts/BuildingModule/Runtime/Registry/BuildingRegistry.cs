@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace BuildingModule
 {
@@ -34,7 +34,11 @@ namespace BuildingModule
 
         public void Clear()
         {
+            var buildings = new List<BuildingView>(_buildings);
             _buildings.Clear();
+
+            foreach (var building in buildings)
+                BuildingUnregistered?.Invoke(building);
         }
     }
 }

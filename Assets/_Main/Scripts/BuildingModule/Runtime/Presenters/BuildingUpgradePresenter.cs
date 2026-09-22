@@ -8,7 +8,6 @@ namespace BuildingModule
     public class BuildingUpgradePresenter : IInitializable, IDisposable
     {
         private readonly BuildingUpgradePanelView _view;
-        private readonly IBuildingRegistry _registry;
         private readonly IBuildingUpgradeService _upgradeService;
         private readonly ExternalUIManager _externalUIManager;
 
@@ -16,12 +15,10 @@ namespace BuildingModule
 
         public BuildingUpgradePresenter(
             BuildingUpgradePanelView view,
-            IBuildingRegistry registry,
             IBuildingUpgradeService upgradeService,
             ExternalUIManager externalUIManager)
         {
             _view = view;
-            _registry = registry;
             _upgradeService = upgradeService;
             _externalUIManager = externalUIManager;
         }
@@ -35,12 +32,6 @@ namespace BuildingModule
                 _view.Hide();
             }
 
-            _registry.BuildingRegistered += OnBuildingRegistered;
-            _registry.BuildingUnregistered += OnBuildingUnregistered;
-
-            foreach (var building in _registry.Buildings)
-                SubscribeToBuilding(building);
-
             _externalUIManager.UIOpened += OnUIOpened;
             _externalUIManager.UIClosed += OnUIClosed;
         }
@@ -53,24 +44,8 @@ namespace BuildingModule
                 _view.CloseRequested -= OnCloseRequested;
             }
 
-            _registry.BuildingRegistered -= OnBuildingRegistered;
-            _registry.BuildingUnregistered -= OnBuildingUnregistered;
-
-            foreach (var building in _registry.Buildings)
-                UnsubscribeFromBuilding(building);
-
             _externalUIManager.UIOpened -= OnUIOpened;
             _externalUIManager.UIClosed -= OnUIClosed;
-        }
-
-        private void OnBuildingRegistered(BuildingView building) => SubscribeToBuilding(building);
-
-        private void OnBuildingUnregistered(BuildingView building)
-        {
-            UnsubscribeFromBuilding(building);
-
-            if (_currentBuilding == building)
-                Hide();
         }
 
         private void OnUIOpened(IExternalUI externalUI)
@@ -92,20 +67,6 @@ namespace BuildingModule
         }
 
         private void OnCloseRequested() => Hide();
-
-        private void SubscribeToBuilding(BuildingView building)
-        {
-            if (building != null)
-                building.UpgradeRequested += OnBuildingUpgradeRequested;
-        }
-
-        private void UnsubscribeFromBuilding(BuildingView building)
-        {
-            if (building != null)
-                building.UpgradeRequested -= OnBuildingUpgradeRequested;
-        }
-
-        private void OnBuildingUpgradeRequested(BuildingView building) => Show(building);
 
         private void Show(BuildingView building)
         {
