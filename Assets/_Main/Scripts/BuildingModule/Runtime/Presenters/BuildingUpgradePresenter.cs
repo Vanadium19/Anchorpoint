@@ -34,6 +34,9 @@ namespace BuildingModule
 
             _externalUIManager.UIOpened += OnUIOpened;
             _externalUIManager.UIClosed += OnUIClosed;
+
+            if (_externalUIManager.Current != null)
+                OnUIOpened(_externalUIManager.Current);
         }
 
         public void Dispose()
