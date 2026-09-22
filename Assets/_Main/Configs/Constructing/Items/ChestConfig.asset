@@ -19,6 +19,7 @@ MonoBehaviour:
     value:
     - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
       Count: 2
+  upgradeConfig: {fileID: 11400000, guid: 39dc181685dc4a3a8d9d84c2cb42b4dc, type: 2}
   icon: {fileID: 535954930, guid: ccd2088af21878447a9bfd9f35e09bb6, type: 3}
   order: 1
   nameKey: building_chest

@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4000}
+  m_Layer: 0
+  m_Name: WorkbenchLevel2
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4000
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4001}
+  - {fileID: 4002}
+  - {fileID: 4003}
+  m_Father: {fileID: 0}
+--- !u!1 &1001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4001}
+  - component: {fileID: 3301}
+  - component: {fileID: 2301}
+  m_Layer: 0
+  m_Name: Workbench
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4001
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
+--- !u!33 &3301
+MeshFilter:
+  m_GameObject: {fileID: 1001}
+  m_Mesh: {fileID: -2462114457430353783, guid: a98078f2fd9a09b47adbff5711682518, type: 3}
+--- !u!23 &2301
+MeshRenderer:
+  m_GameObject: {fileID: 1001}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4002}
+  - component: {fileID: 3302}
+  - component: {fileID: 2302}
+  m_Layer: 0
+  m_Name: Pallet
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4002
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.65, y: 0, z: -0.45}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
+--- !u!33 &3302
+MeshFilter:
+  m_GameObject: {fileID: 1002}
+  m_Mesh: {fileID: -1490547213791274099, guid: a4e716dc033017f4b8f3fe9be3dd65cc, type: 3}
+--- !u!23 &2302
+MeshRenderer:
+  m_GameObject: {fileID: 1002}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4003}
+  - component: {fileID: 3303}
+  - component: {fileID: 2303}
+  m_Layer: 0
+  m_Name: Barrel
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4003
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.9, y: 0, z: 0.25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
+--- !u!33 &3303
+MeshFilter:
+  m_GameObject: {fileID: 1003}
+  m_Mesh: {fileID: 8967326690461673748, guid: 5268200bc6db80845af09eb0823e211e, type: 3}
+--- !u!23 &2303
+MeshRenderer:
+  m_GameObject: {fileID: 1003}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+  - {fileID: 2100000, guid: 66b58e89bf028224cbb736d6be2c8539, type: 2}

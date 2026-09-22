@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f90ea6b76b54f00982db4d94663c1e8, type: 3}
+  m_Name: AlchemyTableUpgradeConfig
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingUpgradeConfig
+  levels:
+  - visualPrefab: {fileID: 0}
+    price:
+      value: []
+  - visualPrefab: {fileID: 1000, guid: 108df8cf7817446a963f3d5142d7d08c, type: 3}
+    price:
+      value:
+      - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+        Count: 10
+  - visualPrefab: {fileID: 1000, guid: 79ea614c42394da5983432ee1cf7a7a5, type: 3}
+    price:
+      value:
+      - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+        Count: 14

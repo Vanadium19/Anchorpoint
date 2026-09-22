@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4000}
+  m_Layer: 0
+  m_Name: AlchemyTableLevel3
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4000
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4001}
+  - {fileID: 4002}
+  - {fileID: 4003}
+  - {fileID: 4004}
+  - {fileID: 4005}
+  m_Father: {fileID: 0}
+--- !u!1 &1001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4001}
+  - component: {fileID: 3301}
+  - component: {fileID: 2301}
+  m_Layer: 0
+  m_Name: Workbench
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4001
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
+--- !u!33 &3301
+MeshFilter:
+  m_GameObject: {fileID: 1001}
+  m_Mesh: {fileID: -2462114457430353783, guid: a98078f2fd9a09b47adbff5711682518, type: 3}
+--- !u!23 &2301
+MeshRenderer:
+  m_GameObject: {fileID: 1001}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4002}
+  - component: {fileID: 3302}
+  - component: {fileID: 2302}
+  m_Layer: 0
+  m_Name: Flask
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4002
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.25, y: 0.55, z: 0.1}
+  m_LocalScale: {x: 0.45, y: 0.45, z: 0.45}
+  m_Father: {fileID: 4000}
+--- !u!33 &3302
+MeshFilter:
+  m_GameObject: {fileID: 1002}
+  m_Mesh: {fileID: -1388986636967069719, guid: 0c70a1c8c591d1f4caf785297bccc393, type: 3}
+--- !u!23 &2302
+MeshRenderer:
+  m_GameObject: {fileID: 1002}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4003}
+  - component: {fileID: 3303}
+  - component: {fileID: 2303}
+  m_Layer: 0
+  m_Name: MedicalKit
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4003
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.35, y: 0.48, z: 0.12}
+  m_LocalScale: {x: 0.55, y: 0.55, z: 0.55}
+  m_Father: {fileID: 4000}
+--- !u!33 &3303
+MeshFilter:
+  m_GameObject: {fileID: 1003}
+  m_Mesh: {fileID: 5304385175697405907, guid: c6468f1b90f616a449318c252b93051f, type: 3}
+--- !u!23 &2303
+MeshRenderer:
+  m_GameObject: {fileID: 1003}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4004}
+  - component: {fileID: 3304}
+  - component: {fileID: 2304}
+  m_Layer: 0
+  m_Name: Canister
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4004
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.85, y: 0.1, z: -0.35}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
+  m_Father: {fileID: 4000}
+--- !u!33 &3304
+MeshFilter:
+  m_GameObject: {fileID: 1004}
+  m_Mesh: {fileID: 628173359873181412, guid: a0dd0354caf5c0049b89be3049d07eb5, type: 3}
+--- !u!23 &2304
+MeshRenderer:
+  m_GameObject: {fileID: 1004}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1005
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4005}
+  - component: {fileID: 3305}
+  - component: {fileID: 2305}
+  m_Layer: 0
+  m_Name: OpenBarrel
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4005
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1005}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.9, y: 0, z: 0.25}
+  m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
+  m_Father: {fileID: 4000}
+--- !u!33 &3305
+MeshFilter:
+  m_GameObject: {fileID: 1005}
+  m_Mesh: {fileID: 5561153613933351484, guid: 8cc7fba1aa2e29b4cad954fe3783ea89, type: 3}
+--- !u!23 &2305
+MeshRenderer:
+  m_GameObject: {fileID: 1005}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: f56e297c4d79d854295e2047536db3f0, type: 2}
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
