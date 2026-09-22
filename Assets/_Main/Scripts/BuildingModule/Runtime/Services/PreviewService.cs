@@ -71,7 +71,7 @@ namespace BuildingModule
                 return;
 
             _currentPreviewId = id;
-            _preview = _factory.Create(id, Vector3.zero, Quaternion.identity);
+            _preview = _factory.CreatePreview(id, Vector3.zero, Quaternion.identity);
 
             if (!_preview)
                 return;
