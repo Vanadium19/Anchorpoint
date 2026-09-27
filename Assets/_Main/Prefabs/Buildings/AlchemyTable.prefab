@@ -1,0 +1,167 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4000}
+  - component: {fileID: 1140}
+  - component: {fileID: 1141}
+  m_Layer: 0
+  m_Name: AlchemyTable
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4000
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4001}
+  - {fileID: 4002}
+  - {fileID: 4004}
+  m_Father: {fileID: 0}
+--- !u!114 &1140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1000}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 4cdccd4191fd4e13b3b6705258683776, type: 3}
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingView
+  collisionCollider: {fileID: 6502}
+  initialVisual: {fileID: 1002}
+  upgradeVisualContainer: {fileID: 4004}
+--- !u!114 &1141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1000}
+  m_Enabled: 1
+  m_Script: {fileID: 11500000, guid: 96051174d3180404b8b36b233fa932cd, type: 3}
+  m_EditorClassIdentifier: BaseModule::BaseModule.Workbench
+  displayName: Alchemy Table
+  uiPrefab: {fileID: 6687326268205152755, guid: f2ac4464bc3ac92418408404e29a5910, type: 3}
+  recipes:
+  - {fileID: 11400000, guid: 56061caf7ffb2b4479828f7968a480a0, type: 2}
+  - {fileID: 11400000, guid: 2027b15d78636f949825dcee3ef2eea0, type: 2}
+  - {fileID: 11400000, guid: 7971b6b2d864bf344984f1ae78f398c9, type: 2}
+  _instanceId:
+  nameKey: world_alchemy_table
+--- !u!1 &1001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4001}
+  - component: {fileID: 6501}
+  - component: {fileID: 6502}
+  m_Layer: 0
+  m_Name: InteractionCollider
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4001
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
+--- !u!65 &6501
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1001}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.2, y: 1.2, z: 1.4}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &6502
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1001}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Size: {x: 2.1, y: 1.1, z: 1.3}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1002
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4002}
+  - component: {fileID: 3302}
+  - component: {fileID: 2302}
+  m_Layer: 0
+  m_Name: InitialVisual
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4002
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1002}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4003}
+  m_Father: {fileID: 4000}
+--- !u!33 &3302
+MeshFilter:
+  m_GameObject: {fileID: 1002}
+  m_Mesh: {fileID: -2462114457430353783, guid: a98078f2fd9a09b47adbff5711682518, type: 3}
+--- !u!23 &2302
+MeshRenderer:
+  m_GameObject: {fileID: 1002}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1003
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4003}
+  - component: {fileID: 3303}
+  - component: {fileID: 2303}
+  m_Layer: 0
+  m_Name: Flask
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4003
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1003}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.25, y: 0.55, z: 0.1}
+  m_LocalScale: {x: 0.45, y: 0.45, z: 0.45}
+  m_Father: {fileID: 4002}
+--- !u!33 &3303
+MeshFilter:
+  m_GameObject: {fileID: 1003}
+  m_Mesh: {fileID: -1388986636967069719, guid: 0c70a1c8c591d1f4caf785297bccc393, type: 3}
+--- !u!23 &2303
+MeshRenderer:
+  m_GameObject: {fileID: 1003}
+  m_Enabled: 1
+  m_Materials:
+  - {fileID: 2100000, guid: e47e8f0bb92aaff4c93eedb0398a1c96, type: 2}
+--- !u!1 &1004
+GameObject:
+  m_ObjectHideFlags: 0
+  m_Component:
+  - component: {fileID: 4004}
+  m_Layer: 0
+  m_Name: UpgradeVisualContainer
+  m_TagString: Untagged
+  m_IsActive: 1
+--- !u!4 &4004
+Transform:
+  m_ObjectHideFlags: 0
+  m_GameObject: {fileID: 1004}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Father: {fileID: 4000}
