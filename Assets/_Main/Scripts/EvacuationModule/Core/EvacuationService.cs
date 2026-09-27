@@ -38,10 +38,16 @@ namespace EvacuationModule
             _gameSaveLoader = gameSaveLoader;
             _gate = gate;
             _pauseManager.Register(this);
+
+            if (_gate != null)
+                _gate.Blocked += CancelTimer;
         }
 
         public void Dispose()
         {
+            if (_gate != null)
+                _gate.Blocked -= CancelTimer;
+
             _pauseManager.Unregister(this);
             CancelTimer();
         }

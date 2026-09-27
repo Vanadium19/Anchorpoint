@@ -31,11 +31,11 @@ MonoBehaviour:
       type: {class: SpawnEventSiteActionAsset, ns: SpawnModule, asm: SpawnModule}
       data:
         sitePrefab: {fileID: 4232248308880187418, guid: d7dff7449ba680a4c9e32b1cbd8bdd3b, type: 3}
-        guardCount: 0
-        guardScatterRadius: 0
-        occupantPrefab: {fileID: 6464041767325968048, guid: 5ad8ed7dde5d8fd4189f8808eeec63e2, type: 3}
-        occupantCount: 2
-        occupantScatterRadius: 2
+        unitEntries:
+        - prefab: {fileID: 6464041767325968048, guid: 5ad8ed7dde5d8fd4189f8808eeec63e2, type: 3}
+          weight: 1
+        unitCount: 2
+        unitScatterRadius: 2
         lootEntries: []
         minimumLootDrops: 0
         maximumLootDrops: 0

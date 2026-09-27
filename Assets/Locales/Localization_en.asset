@@ -342,6 +342,14 @@ MonoBehaviour:
     m_Localized: The next wave is coming!
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000009
+    m_Localized: The wave is over.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000010
+    m_Localized: The raid is over.
+    m_Metadata:
+      m_Items: []
   - m_Id: 7134993112059904
     m_Localized: Crash site
     m_Metadata:
