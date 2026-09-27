@@ -7,7 +7,7 @@ using Zenject;
 namespace SpawnModule
 {
     /// <summary>Asset wrapper for <see cref="SpawnEventSiteAction"/>.</summary>
-    /// <remarks>Holds the design-facing knobs: which prefab to place, how many guards and how much loot, and the search range for a valid spot.</remarks>
+    /// <remarks>Holds the design-facing knobs: which prefab to place, how many guards, occupants and how much loot it carries, and the search range for a valid spot.</remarks>
     [Serializable]
     public class SpawnEventSiteActionAsset : ZenjectRandomEventActionAsset<SpawnEventSiteAction>
     {
@@ -17,6 +17,11 @@ namespace SpawnModule
         [Header("Guards")]
         [SerializeField] [Min(0)] private int guardCount = 3;
         [SerializeField] [Min(0f)] private float guardScatterRadius = 4f;
+
+        [Header("Occupants")]
+        [SerializeField] private GameObject occupantPrefab;
+        [SerializeField] [Min(0)] private int occupantCount;
+        [SerializeField] [Min(0f)] private float occupantScatterRadius = 2f;
 
         [Header("Loot")]
         [SerializeField] private List<LootEntry> lootEntries = new();
@@ -30,7 +35,8 @@ namespace SpawnModule
         /// <inheritdoc/>
         protected override object[] GetArguments(DiContainer container) => new object[]
         {
-            sitePrefab, guardCount, guardScatterRadius,
+            Optional(sitePrefab), guardCount, guardScatterRadius,
+            Optional(occupantPrefab), occupantCount, occupantScatterRadius,
             lootEntries, minimumLootDrops, maximumLootDrops,
             searchRadius, minimumPlayerDistance
         };

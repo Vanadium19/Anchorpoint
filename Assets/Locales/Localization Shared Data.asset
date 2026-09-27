@@ -291,6 +291,38 @@ MonoBehaviour:
     m_Key: randomEvents.outpost.discovered
     m_Metadata:
       m_Items: []
+  - m_Id: 7139738358861824
+    m_Key: randomEvents.traders.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164992
+    m_Key: randomEvents.traders.arrived
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164993
+    m_Key: trade.action
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164994
+    m_Key: trade.trader.wandering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164995
+    m_Key: trade.offer.ammoForScrap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164996
+    m_Key: trade.offer.medkitForBlackrock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164997
+    m_Key: trade.offer.stimulantForAmmo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164998
+    m_Key: trade.offer.crateForSupplies
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8b3d4b400c83224898e6fa36085ae1d, type: 3}
+  m_Name: TradeOffer_StimulantForAmmo
+  m_EditorClassIdentifier: TradeModule::TradeModule.TradeOfferConfig
+  titleKey: trade.offer.stimulantForAmmo
+  requested:
+  - item: {fileID: 11400000, guid: 0201489d340f0b54baa0b7ecf8a66490, type: 2}
+    count: 2
+  offered:
+  - item: {fileID: 11400000, guid: f8db5991171631e4395ce7f6b313bf4c, type: 2}
+    count: 1

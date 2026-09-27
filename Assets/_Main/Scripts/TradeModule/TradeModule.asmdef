@@ -1,0 +1,20 @@
+{
+    "name": "TradeModule",
+    "rootNamespace": "",
+    "references": [
+        "Zenject",
+        "InventoryModule",
+        "UtilsModule",
+        "Unity.TextMeshPro",
+        "Unity.ugui"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

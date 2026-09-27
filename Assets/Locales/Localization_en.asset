@@ -358,6 +358,38 @@ MonoBehaviour:
     m_Localized: A fortified outpost has been spotted nearby
     m_Metadata:
       m_Items: []
+  - m_Id: 7139738358861824
+    m_Localized: Traders
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164992
+    m_Localized: Traders have set up camp nearby
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164993
+    m_Localized: Trade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164994
+    m_Localized: Wandering trader
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164995
+    m_Localized: Ammunition for scrap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164996
+    m_Localized: First aid kit for blackrock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164997
+    m_Localized: Stimulant for ammunition
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164998
+    m_Localized: Supply crate for materials
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
