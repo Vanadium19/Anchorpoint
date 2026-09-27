@@ -29,6 +29,8 @@ MonoBehaviour:
         weight: 1
       - definition: {fileID: 11400000, guid: a0aa196508c74845b2aa0d609ed65b75, type: 2}
         weight: 1
+      - definition: {fileID: 11400000, guid: 19f8303b76ca21949998788ca8914596, type: 2}
+        weight: 1
   - source:
       rid: 3583316206657470744
     conditions:
@@ -56,4 +58,4 @@ MonoBehaviour:
         requiredCount: 3
     - rid: 3583316305166991444
       type: {class: WeightedRandomPickerAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
+      data: 

@@ -318,6 +318,14 @@ MonoBehaviour:
     m_Localized: A radiation surge is sweeping the base!
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000003
+    m_Localized: Enemy raid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000004
+    m_Localized: An enemy raid is approaching the base!
+    m_Metadata:
+      m_Items: []
   - m_Id: 4800000000000005
     m_Localized: You cannot leave the base during a raid!
     m_Metadata:

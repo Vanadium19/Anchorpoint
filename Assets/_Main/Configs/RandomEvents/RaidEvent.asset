@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0308362cb1e95d04587ca2ce315457e4, type: 3}
+  m_Name: RaidEvent
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventDefinition
+  isEnabled: 1
+  isExclusive: 1
+  cooldownSeconds: 0
+  sequence:
+    steps:
+    - runInParallel: 0
+      action:
+        rid: 3583316307831685125
+    - runInParallel: 0
+      action:
+        rid: 3583316307384991744
+    - runInParallel: 0
+      action:
+        rid: 3583316308396867588
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595968
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595969
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595970
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595971
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595972
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595973
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595974
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595975
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595976
+    - runInParallel: 0
+      action:
+        rid: 3583316309664595977
+  displayNameKey: randomEvents.raid.name
+  references:
+    version: 2
+    RefIds:
+    - rid: 3583316307831685125
+      type: {class: ChanceGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        chance:
+          rid: 3583316307831685126
+    - rid: 3583316307831685126
+      type: {class: StateScaledChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        counterKey: raid_missed_returns
+        basePercent: 30
+        stepPercent: 10
+        maxPercent: 100
+    - rid: 3583316307384991744
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.started
+        durationSeconds: 4
+    - rid: 3583316308396867588
+      type: {class: BlockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.raid.extractionBlocked
+        messageDurationSeconds: 3
+    - rid: 3583316309664595968
+      type: {class: SetStateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        key: raid_occurred
+        value: 1
+        isAdded: 0
+    - rid: 3583316309664595969
+      type: {class: SetStateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        key: raid_missed_returns
+        value: 0
+        isAdded: 0
+    - rid: 3583316309664595970
+      type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
+      data:
+        enemyCount: 3
+        spawnScatterRadius: 2
+    - rid: 3583316309664595971
+      type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        durationSeconds: 5
+    - rid: 3583316309664595972
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.nextWave
+        durationSeconds: 3
+    - rid: 3583316309664595973
+      type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
+      data:
+        enemyCount: 5
+        spawnScatterRadius: 2
+    - rid: 3583316309664595974
+      type: {class: DelayActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        durationSeconds: 5
+    - rid: 3583316309664595975
+      type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        localizationKey: randomEvents.raid.nextWave
+        durationSeconds: 3
+    - rid: 3583316309664595976
+      type: {class: SpawnEnemiesActionAsset, ns: SpawnModule, asm: SpawnModule}
+      data:
+        enemyCount: 7
+        spawnScatterRadius: 2
+    - rid: 3583316309664595977
+      type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.raid.extractionBlocked
