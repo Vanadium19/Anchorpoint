@@ -8,7 +8,7 @@
 
 - `IMenuNavigationService` и `MenuNavigationService` переключают экраны главного меню.
 - `MainMenuPresenter` связывает навигацию с `MainMenuView`.
-- `GamePauseService` хранит причины паузы и применяет состояние игры.
+- `IPauseManager` / `PauseManager` хранит причины паузы и применяет состояние игры.
 - `GameplayPauseController` реагирует на ввод паузы.
 - `PauseMenuPresenter` управляет `PauseMenuView`.
 - `VictoryPresenter` и `VictorySaveDeleteController` показывают победу и очищают сохранение после завершения сценария.
