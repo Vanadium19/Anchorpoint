@@ -17,6 +17,7 @@ namespace RandomEventsModule
     public class FireEventAction : RandomEventActionBase
     {
         private readonly IBuildingRegistry _registry;
+        private readonly IRandomEventClock _clock;
         private readonly IEffectsService _effects;
         private readonly IAudioSystem _audioSystem;
         private readonly PlayerProvider _player;
@@ -38,6 +39,7 @@ namespace RandomEventsModule
         /// <summary>Creates the action with its spread/extinguish tuning.</summary>
         public FireEventAction(
             IBuildingRegistry registry,
+            IRandomEventClock clock,
             IEffectsService effects,
             IAudioSystem audioSystem,
             PlayerProvider player,
@@ -54,6 +56,7 @@ namespace RandomEventsModule
             float extinguishSeconds)
         {
             _registry = registry;
+            _clock = clock;
             _effects = effects;
             _audioSystem = audioSystem;
             _player = player;
@@ -88,6 +91,9 @@ namespace RandomEventsModule
 
                 if (canceled)
                     break;
+
+                if (_clock.IsPaused)
+                    continue;
 
                 var deltaTime = Time.deltaTime;
                 spreadTimer += deltaTime;

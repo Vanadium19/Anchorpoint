@@ -11,6 +11,7 @@
 - `SettingsMenuPresenter` синхронизирует сервис с `SettingsMenuView`.
 - `MainMenuAudioPresenter` запускает `MenuBankAPI.AmbientEvent`.
 - `AudioSettingsInstaller`, `AudioSettingsMenuInstaller`, `AudioSystemInstaller` и `MainMenuAudioInstaller` подключают сервисы в нужных контекстах Zenject.
+- `AudioPauseBridge` ставит звучащие события на паузу вместе с игрой.
 
 ## Настройка
 
@@ -23,3 +24,7 @@
 ## Расширение
 
 Новый канал громкости нужно добавить в `AudioMixerChannel`, `AudioSettingsConfig`, снимок `AudioSettingsData`, сервис и UI. Сгенерированные файлы в `Codegen` вручную не редактируются.
+
+## Пауза
+
+`AudioPauseBridge` регистрируется в `IPauseManager` и на паузе вызывает `IAudioSystem.Pause()`, на возобновлении — `Resume()`. Останавливаются события, которые звучат в этот момент: зацикленный огонь, счётчик Гейгера. Звук, запущенный уже на паузе — например клик по меню, — играет как обычно. Биндится в `AudioSystemInstaller`, то есть на сценах со сценовой аудиосистемой.

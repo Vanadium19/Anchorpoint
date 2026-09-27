@@ -15,11 +15,14 @@ namespace RandomEventsModule
     /// </summary>
     /// <remarks>
     /// An event whose sequence was gated — a step returned <c>false</c> — counts as one that never
-    /// happened: it takes no cooldown and does not move the minimum interval.
+    /// happened: it takes no cooldown and does not move the minimum interval. Cooldowns and the
+    /// minimum interval are measured on <see cref="IRandomEventClock"/>, so a paused game does not
+    /// burn them.
     /// </remarks>
     public class RandomEventService : IRandomEventService, IDisposable
     {
         private readonly RandomEventScope _scope;
+        private readonly IRandomEventClock _clock;
         private readonly DiContainer _container;
         private readonly Dictionary<RandomEventDefinition, CancellationTokenSource> _activeTokenSources = new();
         private readonly Dictionary<RandomEventDefinition, RandomEventInfo> _activeEventInfos = new();
@@ -34,10 +37,11 @@ namespace RandomEventsModule
         /// <inheritdoc/>
         public event Action<RandomEventInfo> EventFinished;
 
-        /// <summary>Creates the service bound to one scene's scope and DI container.</summary>
-        public RandomEventService(RandomEventScope scope, DiContainer container)
+        /// <summary>Creates the service bound to one scene's scope, clock and DI container.</summary>
+        public RandomEventService(RandomEventScope scope, IRandomEventClock clock, DiContainer container)
         {
             _scope = scope;
+            _clock = clock;
             _container = container;
         }
 
@@ -145,10 +149,10 @@ namespace RandomEventsModule
         }
 
         private bool IsOnCooldown(RandomEventDefinition definition) =>
-            _cooldownEndTimes.TryGetValue(definition, out var cooldownEndTime) && Time.time < cooldownEndTime;
+            _cooldownEndTimes.TryGetValue(definition, out var cooldownEndTime) && _clock.ElapsedSeconds < cooldownEndTime;
 
         private bool IsGloballyBlocked() =>
-            IsExclusiveEventActive() || Time.time - _lastEventEndTime < _scope.MinIntervalBetweenEventsSeconds;
+            IsExclusiveEventActive() || _clock.ElapsedSeconds - _lastEventEndTime < _scope.MinIntervalBetweenEventsSeconds;
 
         private bool IsExclusiveEventActive() => _activeEventInfos.Values.Any(info => info.IsExclusive);
 
@@ -184,8 +188,8 @@ namespace RandomEventsModule
 
                 if (!isGated)
                 {
-                    _cooldownEndTimes[definition] = Time.time + definition.CooldownSeconds;
-                    _lastEventEndTime = Time.time;
+                    _cooldownEndTimes[definition] = _clock.ElapsedSeconds + definition.CooldownSeconds;
+                    _lastEventEndTime = _clock.ElapsedSeconds;
                 }
 
                 EventFinished?.Invoke(info);
