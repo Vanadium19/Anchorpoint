@@ -323,6 +323,14 @@ MonoBehaviour:
     m_Key: trade.offer.crateForSupplies
     m_Metadata:
       m_Items: []
+  - m_Id: 7141697379848192
+    m_Key: randomEvents.bandits.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7141697476317184
+    m_Key: randomEvents.bandits.spotted
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

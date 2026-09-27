@@ -390,6 +390,14 @@ MonoBehaviour:
     m_Localized: Supply crate for materials
     m_Metadata:
       m_Items: []
+  - m_Id: 7141697379848192
+    m_Localized: Bandits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7141697476317184
+    m_Localized: A bandit camp has been spotted nearby
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

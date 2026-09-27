@@ -15,6 +15,7 @@ namespace SpawnModule
         [SerializeField] private GameObject sitePrefab;
 
         [Header("Guards")]
+        [SerializeField] private GameObject guardPrefab;
         [SerializeField] [Min(0)] private int guardCount = 3;
         [SerializeField] [Min(0f)] private float guardScatterRadius = 4f;
 
@@ -35,7 +36,7 @@ namespace SpawnModule
         /// <inheritdoc/>
         protected override object[] GetArguments(DiContainer container) => new object[]
         {
-            Optional(sitePrefab), guardCount, guardScatterRadius,
+            Optional(sitePrefab), Optional(guardPrefab), guardCount, guardScatterRadius,
             Optional(occupantPrefab), occupantCount, occupantScatterRadius,
             lootEntries, minimumLootDrops, maximumLootDrops,
             searchRadius, minimumPlayerDistance
