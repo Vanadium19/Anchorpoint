@@ -15,7 +15,7 @@ namespace BuildingModule
 
         [Header("Lifecycle")]
         [SerializeField] private float constructionTime = 5f;
-        [SerializeField] private float maxHealth = 100f;
+        [SerializeField] [Min(1f)] private float maxHealth = 100f;
         [SerializeField, Range(0f, 1f)] private float brokenAlpha = 0.45f;
 
         [Header("Localization")]
@@ -26,9 +26,6 @@ namespace BuildingModule
 
         [Header("Base Level")]
         [SerializeField] private int basePoints;
-
-        [Header("Health")]
-        [SerializeField] [Min(1f)] private float maxHealth = 100f;
 
         public string Id => id;
         public string DisplayName =>
@@ -43,6 +40,5 @@ namespace BuildingModule
         public float BrokenAlpha => brokenAlpha;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
-        public float MaxHealth => maxHealth;
     }
 }

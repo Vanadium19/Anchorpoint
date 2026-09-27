@@ -37,10 +37,6 @@ namespace BuildingModule
                 .To<BuildingRegistry>()
                 .AsSingle();
 
-            Container.Bind<IBuildingDamageService>()
-                .To<BuildingDamageService>()
-                .AsSingle();
-
             Container.Bind<IStructureTargetSource>()
                 .To<BuildingStructureTargetSource>()
                 .AsSingle();
