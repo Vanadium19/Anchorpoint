@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc2dc4250049fb949acdb82e8b90be1c, type: 3}
+  m_Name: GameScope
+  m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventScope
+  minIntervalBetweenEventsSeconds: 60
+  triggers:
+  - source:
+      rid: 3584416206657470743
+    conditions:
+      conditionMatch: 0
+      conditions: []
+    chance:
+      rid: 3584416206657470744
+    pool:
+      picker:
+        rid: 3584416206657470745
+      entries: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3584416206657470743
+      type: {class: SessionCountTriggerSourceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        counterKey: sortie_count
+        requiredCount: 2
+        pollIntervalSeconds: 20
+    - rid: 3584416206657470744
+      type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        percent: 60
+    - rid: 3584416206657470745
+      type: {class: WeightedRandomPickerAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
