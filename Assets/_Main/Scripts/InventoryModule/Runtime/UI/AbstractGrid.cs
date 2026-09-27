@@ -8,6 +8,8 @@ namespace InventoryModule
     public abstract class AbstractGrid : MonoBehaviour
     {
         private const float MinRefreshInterval = 0.01f;
+        private const string GridBackgroundName = "GridBackground";
+        private const string GridLineName = "GridLine";
 
         [Header("Grid Configuration")]
         [SerializeField] protected int gridWidth = 10;
@@ -34,6 +36,7 @@ namespace InventoryModule
         public float TileSize => tileSize;
 
         private bool _gridDrawn;
+        private Vector2Int _drawnGridSize;
         private int _lastItemsHash;
         private float _lastRefreshTime;
 
@@ -68,6 +71,7 @@ namespace InventoryModule
 
             Grid.ItemInserted += HandleItemInserted;
             Grid.ItemRemoved += HandleItemRemoved;
+            Grid.Resized += HandleGridResized;
             RebuildGridUISmart();
         }
 
@@ -88,6 +92,7 @@ namespace InventoryModule
 
             Grid.ItemInserted -= HandleItemInserted;
             Grid.ItemRemoved -= HandleItemRemoved;
+            Grid.Resized -= HandleGridResized;
         }
 
         private void OnDestroy() => _gridService?.UnregisterGrid(this);
@@ -161,6 +166,7 @@ namespace InventoryModule
             {
                 Grid.ItemInserted -= HandleItemInserted;
                 Grid.ItemRemoved -= HandleItemRemoved;
+                Grid.Resized -= HandleGridResized;
             }
 
             Grid = newTable;
@@ -169,15 +175,12 @@ namespace InventoryModule
             {
                 Grid.ItemInserted += HandleItemInserted;
                 Grid.ItemRemoved += HandleItemRemoved;
+                Grid.Resized += HandleGridResized;
             }
 
             OverrideGridSize(newTable.Width, newTable.Height);
 
-            if (!_gridDrawn)
-            {
-                DrawGrid();
-                _gridDrawn = true;
-            }
+            EnsureGridDrawn();
 
             RebuildGridUISmart();
         }
@@ -203,6 +206,7 @@ namespace InventoryModule
             {
                 Grid.ItemInserted += HandleItemInserted;
                 Grid.ItemRemoved += HandleItemRemoved;
+                Grid.Resized += HandleGridResized;
             }
 
             _rectTransform.sizeDelta = new Vector2(gridWidth * tileSize, gridHeight * tileSize);
@@ -212,10 +216,10 @@ namespace InventoryModule
 
         private void DrawGrid()
         {
-            if (transform.Find("GridBackground") != null)
+            if (transform.Find(GridBackgroundName) != null)
                 return;
 
-            var bgObj = new GameObject("GridBackground", typeof(RectTransform), typeof(Image));
+            var bgObj = new GameObject(GridBackgroundName, typeof(RectTransform), typeof(Image));
             bgObj.transform.SetParent(transform, false);
             var bgImage = bgObj.GetComponent<Image>();
             bgImage.color = gridBackgroundColor;
@@ -237,11 +241,13 @@ namespace InventoryModule
             }
 
             bgObj.transform.SetAsFirstSibling();
+            _drawnGridSize = new Vector2Int(gridWidth, gridHeight);
+            _gridDrawn = true;
         }
 
         private void CreateGridLine(float x1, float y1, float x2, float y2)
         {
-            var lineObj = new GameObject("GridLine", typeof(RectTransform), typeof(Image));
+            var lineObj = new GameObject(GridLineName, typeof(RectTransform), typeof(Image));
             lineObj.transform.SetParent(transform, false);
             var lineImage = lineObj.GetComponent<Image>();
             lineImage.color = gridLineColor;
@@ -304,6 +310,36 @@ namespace InventoryModule
 
         private void HandleItemRemoved(ItemTable item) => RemoveItemUI(item);
 
+        private void HandleGridResized()
+        {
+            OverrideGridSize(Grid.Width, Grid.Height);
+            EnsureGridDrawn();
+        }
+
+        private void EnsureGridDrawn()
+        {
+            if (_gridDrawn && _drawnGridSize == new Vector2Int(gridWidth, gridHeight))
+                return;
+
+            RedrawGrid();
+        }
+
+        private void RedrawGrid()
+        {
+            for (var index = transform.childCount - 1; index >= 0; index--)
+            {
+                var child = transform.GetChild(index);
+
+                if (child.name != GridBackgroundName && child.name != GridLineName)
+                    continue;
+
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
+
+            DrawGrid();
+        }
+
         private void CreateItemUI(ItemTable item)
         {
             var itemUI = InstantiateItemPrefab();
@@ -341,6 +377,7 @@ namespace InventoryModule
             {
                 Grid.ItemInserted -= HandleItemInserted;
                 Grid.ItemRemoved -= HandleItemRemoved;
+                Grid.Resized -= HandleGridResized;
             }
 
             Grid = newTable;
@@ -349,15 +386,12 @@ namespace InventoryModule
             {
                 Grid.ItemInserted += HandleItemInserted;
                 Grid.ItemRemoved += HandleItemRemoved;
+                Grid.Resized += HandleGridResized;
             }
 
             OverrideGridSize(newTable.Width, newTable.Height);
 
-            if (!_gridDrawn)
-            {
-                DrawGrid();
-                _gridDrawn = true;
-            }
+            EnsureGridDrawn();
 
             if (fullRebuild)
             {

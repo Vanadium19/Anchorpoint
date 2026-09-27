@@ -55,7 +55,7 @@ namespace BaseModule
 
             if (timerText != null)
             {
-                var totalRemaining = (batch.RemainingToCraft - 1) * batch.Recipe.CraftTime + batch.Recipe.CraftTime;
+                var totalRemaining = batch.RemainingToCraft * batch.Recipe.CraftTime / craftService.CurrentCraftSpeed;
                 timerText.text = FormatTime(totalRemaining);
             }
 
@@ -120,8 +120,9 @@ namespace BaseModule
             {
                 if (timerText != null)
                 {
-                    var totalRemaining = (_batch.RemainingToCraft - 1) * _batch.Recipe.CraftTime
-                        + Mathf.Max(0f, _batch.Recipe.CraftTime - _batch.CurrentCraftTime);
+                    var totalRemaining = ((_batch.RemainingToCraft - 1) * _batch.Recipe.CraftTime
+                        + Mathf.Max(0f, _batch.Recipe.CraftTime - _batch.CurrentCraftTime))
+                        / _craftService.CurrentCraftSpeed;
 
                     timerText.text = FormatTime(totalRemaining);
                 }

@@ -36,6 +36,11 @@ namespace BuildingModule
         void ApplyDamage(BuildingView building, float amount);
 
         /// <summary>
+        /// Updates the maximum health of a building while preserving its current health proportion.
+        /// </summary>
+        void SetMaxHealth(BuildingView building, float maxHealth);
+
+        /// <summary>
         /// Restores a building to full health.
         /// </summary>
         void Restore(BuildingView building);

@@ -12,6 +12,11 @@ namespace BaseModule
         IReadOnlyList<CraftBatch> ActiveBatches { get; }
         IReadOnlyList<ReadyCraft> ReadyItems { get; }
 
+        /// <summary>
+        /// Crafting speed multiplier of the open workbench.
+        /// </summary>
+        float CurrentCraftSpeed { get; }
+
         event Action StateChanged;
 
         void OpenWorkbench(IExternalUI workbench);

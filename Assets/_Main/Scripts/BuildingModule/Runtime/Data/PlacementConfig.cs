@@ -11,6 +11,7 @@ namespace BuildingModule
         [Header("Distance")]
         [SerializeField] private float minPlacementDistance = 3f;
         [SerializeField] private float maxPlacementDistance = 20f;
+        [SerializeField] private float maxUpgradeDistance = 5f;
 
         [Header("Sensitivity")]
         [SerializeField] private float scrollSensitivity = 5f;
@@ -36,6 +37,7 @@ namespace BuildingModule
         public float InputTolerance => inputTolerance;
         public float MinPlacementDistance => minPlacementDistance;
         public float MaxPlacementDistance => maxPlacementDistance;
+        public float MaxUpgradeDistance => maxUpgradeDistance;
         public float ScrollSensitivity => scrollSensitivity;
         public float RotationSpeed => rotationSpeed;
         public float PreviewYOffset => previewYOffset;

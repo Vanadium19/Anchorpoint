@@ -10,6 +10,7 @@ namespace InventoryModule
     {
         public event Action<ItemTable> ItemInserted;
         public event Action<ItemTable> ItemRemoved;
+        public event Action Resized;
 
         public GridTable(int width, int height)
         {
@@ -18,9 +19,34 @@ namespace InventoryModule
             Slots = new ItemTable[Width, Height];
         }
 
-        public int Width { get; }
-        public int Height { get; }
-        public ItemTable[,] Slots { get; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public ItemTable[,] Slots { get; private set; }
+
+        /// <summary>
+        /// Grows the grid to the given size; placed items keep their positions.
+        /// </summary>
+        public void Resize(int width, int height)
+        {
+            if (width < Width || height < Height)
+                throw new ArgumentException($"Grid can only grow: {Width}x{Height} -> {width}x{height}");
+
+            if (width == Width && height == Height)
+                return;
+
+            var slots = new ItemTable[width, height];
+
+            for (var x = 0; x < Width; x++)
+            {
+                for (var y = 0; y < Height; y++)
+                    slots[x, y] = Slots[x, y];
+            }
+
+            Width = width;
+            Height = height;
+            Slots = slots;
+            Resized?.Invoke();
+        }
 
         public GridResponse PlaceItem(ItemTable item, int posX, int posY, ItemTable ignoreItem = null)
         {

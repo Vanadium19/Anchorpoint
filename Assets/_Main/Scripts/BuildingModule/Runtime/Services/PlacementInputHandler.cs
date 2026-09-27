@@ -50,7 +50,5 @@ namespace BuildingModule
         }
 
         public bool IsPlacePressed => _inputMap.IsBuildPlacePressed;
-
-        public bool IsCancelPressed => _inputMap.IsBuildCancelPressed;
     }
 }

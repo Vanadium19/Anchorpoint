@@ -10,15 +10,18 @@ namespace BuildingModule
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
         private readonly ItemCatalog _itemCatalog;
+        private readonly IBuildingUpgradeService _upgradeService;
 
         public BuildingSaveService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
-            ItemCatalog itemCatalog)
+            ItemCatalog itemCatalog,
+            IBuildingUpgradeService upgradeService)
         {
             _registry = registry;
             _catalog = catalog;
             _itemCatalog = itemCatalog;
+            _upgradeService = upgradeService;
         }
 
         private BuildingSnapshot CreateSnapshot(BuildingView building)
@@ -37,7 +40,8 @@ namespace BuildingModule
                 PositionX = building.transform.position.x,
                 PositionY = building.transform.position.y,
                 PositionZ = building.transform.position.z,
-                RotationY = building.transform.rotation.eulerAngles.y
+                RotationY = building.transform.rotation.eulerAngles.y,
+                UpgradeLevel = _upgradeService.GetLevel(building)
             };
 
             var hasId = building as IHasInstanceId;
@@ -90,6 +94,8 @@ namespace BuildingModule
 
             if (hasId != null && !string.IsNullOrEmpty(snapshot.InstanceId))
                 hasId.InstanceId = snapshot.InstanceId;
+
+            _upgradeService.RestoreLevel(building, snapshot.UpgradeLevel);
 
             var gridView = building.GetComponent<IInventoryGridView>();
 

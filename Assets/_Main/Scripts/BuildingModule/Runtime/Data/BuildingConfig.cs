@@ -10,6 +10,7 @@ namespace BuildingModule
         [SerializeField] private BuildingCategory category;
         [SerializeField] private BuildingView prefab;
         [SerializeField] private Price price;
+        [SerializeField] private BuildingUpgradeConfig upgradeConfig;
         [SerializeField] private Sprite icon;
         [SerializeField] private int order;
 
@@ -30,6 +31,7 @@ namespace BuildingModule
         public BuildingCategory Category => category;
         public BuildingView Prefab => prefab;
         public Price Price => price;
+        public BuildingUpgradeConfig UpgradeConfig => upgradeConfig;
         public Sprite Icon => icon;
         public int Order => order;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;

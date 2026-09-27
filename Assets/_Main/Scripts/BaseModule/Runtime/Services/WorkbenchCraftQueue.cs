@@ -8,5 +8,6 @@ namespace BaseModule
         public List<ReadyCraft> ReadyItems { get; } = new();
         public int NextBatchId;
         public int NextReadyId;
+        public ICraftSpeedSource SpeedSource;
     }
 }

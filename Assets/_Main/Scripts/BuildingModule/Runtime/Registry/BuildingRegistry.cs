@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace BuildingModule
@@ -8,10 +9,16 @@ namespace BuildingModule
 
         public IReadOnlyList<BuildingView> Buildings => _buildings;
 
+        public event Action<BuildingView> BuildingRegistered;
+        public event Action<BuildingView> BuildingUnregistered;
+
         public void RegisterBuilding(BuildingView building)
         {
-            if (building != null && !_buildings.Contains(building))
-                _buildings.Add(building);
+            if (building == null || _buildings.Contains(building))
+                return;
+
+            _buildings.Add(building);
+            BuildingRegistered?.Invoke(building);
         }
 
         public void UnregisterBuilding(BuildingView building)
@@ -19,12 +26,19 @@ namespace BuildingModule
             if (building == null)
                 return;
 
-            _buildings.Remove(building);
+            if (!_buildings.Remove(building))
+                return;
+
+            BuildingUnregistered?.Invoke(building);
         }
 
         public void Clear()
         {
+            var buildings = new List<BuildingView>(_buildings);
             _buildings.Clear();
+
+            foreach (var building in buildings)
+                BuildingUnregistered?.Invoke(building);
         }
     }
 }
