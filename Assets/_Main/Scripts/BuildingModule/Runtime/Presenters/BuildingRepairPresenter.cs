@@ -10,6 +10,7 @@ namespace BuildingModule
         private readonly BuildingPricePanelView _priceView;
         private readonly BuildingCatalog _buildingCatalog;
         private readonly IStorageService _storageService;
+        private readonly IRepairModifierService _repairModifierService;
         private readonly IConstructionModeService _constructionModeService;
 
         private BuildingView _currentBuilding;
@@ -20,12 +21,14 @@ namespace BuildingModule
             BuildingPricePanelView priceView,
             BuildingCatalog buildingCatalog,
             IStorageService storageService,
+            IRepairModifierService repairModifierService,
             IConstructionModeService constructionModeService)
         {
             _interactionFocusService = interactionFocusService;
             _priceView = priceView;
             _buildingCatalog = buildingCatalog;
             _storageService = storageService;
+            _repairModifierService = repairModifierService;
             _constructionModeService = constructionModeService;
         }
 
@@ -92,7 +95,10 @@ namespace BuildingModule
                 return;
             }
 
-            var info = _storageService.GetPriceInfo(config.DisplayName, config.RepairPrice);
+            var info = _storageService.GetPriceInfo(
+                config.DisplayName,
+                config.RepairPrice,
+                _repairModifierService.CostMultiplier);
 
             if (info == null || info.Items == null || info.Items.Count == 0)
             {

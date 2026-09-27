@@ -29,6 +29,7 @@ MonoBehaviour:
     - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
       Count: 3
   repairTime: 3
+  repairReductionPercent: 50
   nameKey: building_table
   allowedBuildLayers:
     serializedVersion: 2

@@ -18,8 +18,8 @@ namespace BuildingModule
         private BuildingModel _model;
         private Material[] _materials;
         private Func<bool> _canRepair;
+        private Func<float> _repairDuration;
         private Action _repair;
-        private float _repairDuration;
 
         public Collider CollisionCollider => collisionCollider;
         public IExternalUI ExternalUI => GetComponent<IExternalUI>();
@@ -38,7 +38,7 @@ namespace BuildingModule
 
         string IInteractable.DisplayName => _repairDisplayName;
         string IInteractable.HintKey => InteractionHintKeys.Repair;
-        float IHoldInteractable.HoldDuration => _repairDuration;
+        float IHoldInteractable.HoldDuration => Mathf.Max(_repairDuration?.Invoke() ?? 0f, 0f);
         bool IInteractionGate.CanInteract => _model == null || _model.State == BuildingState.Active;
         bool IInteractionGateBypass.CanBypassInteractionGate => _model != null && _model.State == BuildingState.Broken;
 
@@ -50,12 +50,12 @@ namespace BuildingModule
 
         public void ConfigureRepairInteraction(
             string displayName,
-            float repairDuration,
+            Func<float> repairDuration,
             Func<bool> canRepair,
             Action repair)
         {
             _repairDisplayName = displayName;
-            _repairDuration = Mathf.Max(repairDuration, 0f);
+            _repairDuration = repairDuration;
             _canRepair = canRepair;
             _repair = repair;
         }

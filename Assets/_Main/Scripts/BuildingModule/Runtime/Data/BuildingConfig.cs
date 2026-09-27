@@ -22,6 +22,9 @@ namespace BuildingModule
         [SerializeField] private Price repairPrice;
         [SerializeField] private float repairTime = 3f;
 
+        [Header("Repair Support")]
+        [SerializeField, Range(0f, 100f)] private float repairReductionPercent;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -44,6 +47,7 @@ namespace BuildingModule
         public float BrokenAlpha => brokenAlpha;
         public Price RepairPrice => repairPrice;
         public float RepairTime => repairTime;
+        public float RepairReductionPercent => repairReductionPercent;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }
