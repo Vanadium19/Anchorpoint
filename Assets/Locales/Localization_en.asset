@@ -318,6 +318,22 @@ MonoBehaviour:
     m_Localized: A radiation surge is sweeping the base!
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000005
+    m_Localized: You cannot leave the base during a raid!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000006
+    m_Localized: You cannot leave the base until the fire is out!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000007
+    m_Localized: You cannot leave the base during a radiation surge!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000008
+    m_Localized: The next wave is coming!
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

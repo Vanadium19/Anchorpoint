@@ -25,11 +25,38 @@ MonoBehaviour:
         rid: 4692874549521934568
     - runInParallel: 0
       action:
-        rid: 4692874549521934569
+        rid: 3583316308396867586
+    - runInParallel: 0
+      action:
+        rid: 3583316308396867587
+    - runInParallel: 0
+      action:
+        rid: 3583316308652195841
   displayNameKey: randomEvents.radiation.name
   references:
     version: 2
     RefIds:
+    - rid: 3583316308396867586
+      type: {class: BlockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.radiation.extractionBlocked
+        messageDurationSeconds: 3
+        body:
+          steps:
+          - runInParallel: 0
+            action:
+              rid: 3583316308396867587
+    - rid: 3583316308396867587
+      type: {class: RadiationSurgeActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        durationSeconds: 15
+        damagePerTick: 5
+        tickIntervalSeconds: 1
+        geigerAudioEventId: Radiation.GeigerCounter
+    - rid: 3583316308652195841
+      type: {class: UnblockEvacuationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data:
+        blockedMessageKey: randomEvents.radiation.extractionBlocked
     - rid: 4692874549521934567
       type: {class: ChanceGateActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
@@ -40,13 +67,6 @@ MonoBehaviour:
       data:
         localizationKey: randomEvents.radiation.started
         durationSeconds: 3
-    - rid: 4692874549521934569
-      type: {class: RadiationSurgeActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
-      data:
-        durationSeconds: 15
-        damagePerTick: 5
-        tickIntervalSeconds: 1
-        geigerAudioEventId: Radiation.GeigerCounter
     - rid: 4692874549521934570
       type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:

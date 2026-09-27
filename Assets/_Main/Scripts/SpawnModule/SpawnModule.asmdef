@@ -6,7 +6,9 @@
         "EnemyModule",
         "UniTask",
         "InventoryModule",
-        "BaseModule"
+        "BaseModule",
+        "ComponentsModule",
+        "RandomEventsModule"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
