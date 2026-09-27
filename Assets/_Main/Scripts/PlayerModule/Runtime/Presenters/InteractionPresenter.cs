@@ -19,6 +19,7 @@ namespace PlayerModule
         private readonly PlayerInteractionController _controller;
         private readonly InteractionHUDView _view;
 
+        private IInteractable _currentInteractable;
         private HintSource _activeSource;
 
         public InteractionPresenter(
@@ -31,27 +32,33 @@ namespace PlayerModule
 
         public void Initialize()
         {
-            _view.Show("");
+            _view.Show(string.Empty);
             _view.Hide();
             _controller.InteractableHoverChanged += OnInteractableHoverChanged;
             _controller.ExternalUIHoverChanged += OnExternalUIHoverChanged;
+            _controller.HoldProgressChanged += OnHoldProgressChanged;
         }
 
         public void Dispose()
         {
             _controller.InteractableHoverChanged -= OnInteractableHoverChanged;
             _controller.ExternalUIHoverChanged -= OnExternalUIHoverChanged;
+            _controller.HoldProgressChanged -= OnHoldProgressChanged;
         }
 
         private void OnInteractableHoverChanged(IInteractable interactable)
         {
+            _currentInteractable = interactable;
+
             if (interactable == null)
             {
                 Hide(HintSource.Interactable);
                 return;
             }
 
-            Show(HintSource.Interactable,
+            _view.SetHoldProgress(0f, interactable is IHoldInteractable);
+            Show(
+                HintSource.Interactable,
                 LocalizedText.GetFormatted(interactable.HintKey, interactable.DisplayName));
         }
 
@@ -63,8 +70,19 @@ namespace PlayerModule
                 return;
             }
 
-            Show(HintSource.ExternalUI,
+            _currentInteractable = null;
+            _view.SetHoldProgress(0f, false);
+            Show(
+                HintSource.ExternalUI,
                 LocalizedText.GetFormatted(InteractionHintKeys.Open, externalUI.DisplayName));
+        }
+
+        private void OnHoldProgressChanged(IHoldInteractable interactable, float progress)
+        {
+            if (_currentInteractable != interactable)
+                return;
+
+            _view.SetHoldProgress(progress, true);
         }
 
         private void Show(HintSource source, string message)

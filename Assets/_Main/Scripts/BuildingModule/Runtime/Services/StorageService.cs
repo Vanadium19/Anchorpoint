@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using BaseModule;
 using InventoryModule;
 
@@ -26,8 +25,28 @@ namespace BuildingModule
             if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return false;
 
+            return CanAfford(config.Price);
+        }
+
+        public bool Buy(string id)
+        {
+            if (!_buildingCatalog.TryGetConfig(id, out var config))
+                return false;
+
             var price = config.Price;
 
+            if (price?.Values == null)
+                return true;
+
+            if (!Spend(price))
+                return false;
+
+            _baseLevelService.AddPoints(config.BasePoints);
+            return true;
+        }
+
+        public bool CanAfford(Price price)
+        {
             if (price?.Values == null)
                 return true;
 
@@ -36,7 +55,7 @@ namespace BuildingModule
                 if (itemToCount.ItemData == null)
                     continue;
 
-                int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
+                var available = _inventoryManager.GetItemCount(itemToCount.ItemData);
 
                 if (available < itemToCount.Count)
                     return false;
@@ -45,31 +64,25 @@ namespace BuildingModule
             return true;
         }
 
-        public bool Buy(string id)
+        public bool Spend(Price price)
         {
-            if (!_buildingCatalog.TryGetConfig(id, out var config))
-                return false;
-
-            if (!CanBuy(id))
-                return false;
-
-            var price = config.Price;
-
             if (price?.Values == null)
                 return true;
+
+            if (!CanAfford(price))
+                return false;
 
             foreach (var itemToCount in price.Values)
             {
                 if (itemToCount.ItemData == null)
                     continue;
 
-                bool removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
+                var removed = _inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count);
 
                 if (!removed)
                     return false;
             }
 
-            _baseLevelService.AddPoints(config.BasePoints);
             return true;
         }
 
@@ -78,10 +91,14 @@ namespace BuildingModule
             if (!_buildingCatalog.TryGetConfig(id, out var config))
                 return null;
 
-            var price = config.Price;
+            return GetPriceInfo(config.DisplayName, config.Price);
+        }
+
+        public BuildPriceInfo GetPriceInfo(string displayName, Price price)
+        {
             var info = new BuildPriceInfo
             {
-                BuildingName = config.DisplayName
+                BuildingName = displayName
             };
 
             if (price?.Values == null)
@@ -91,15 +108,15 @@ namespace BuildingModule
                 return info;
             }
 
-            int minAvailable = int.MaxValue;
+            var minAvailable = int.MaxValue;
 
             foreach (var itemToCount in price.Values)
             {
                 if (itemToCount.ItemData == null)
                     continue;
 
-                int available = _inventoryManager.GetItemCount(itemToCount.ItemData);
-                int canAfford = itemToCount.Count > 0 ? available / itemToCount.Count : int.MaxValue;
+                var available = _inventoryManager.GetItemCount(itemToCount.ItemData);
+                var canAfford = itemToCount.Count > 0 ? available / itemToCount.Count : int.MaxValue;
 
                 if (canAfford < minAvailable)
                     minAvailable = canAfford;

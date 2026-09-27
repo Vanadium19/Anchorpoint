@@ -8,18 +8,21 @@ using UnityEngine.Rendering;
 
 namespace BuildingModule
 {
-    public class BuildingView : MonoBehaviour, IHasInstanceId, IEntity, IInteractionGate
+    public class BuildingView : MonoBehaviour, IHasInstanceId, IEntity, IInteractionGate, IHoldInteractable, IInteractionGateBypass
     {
         [SerializeField] private Collider collisionCollider;
 
         private string _buildingConfigId;
         private string _instanceId;
+        private string _repairDisplayName;
         private BuildingModel _model;
         private Material[] _materials;
+        private Func<bool> _canRepair;
+        private Action _repair;
+        private float _repairDuration;
 
         public Collider CollisionCollider => collisionCollider;
         public IExternalUI ExternalUI => GetComponent<IExternalUI>();
-        public bool CanInteract => _model == null || _model.State == BuildingState.Active;
 
         public string BuildingConfigId
         {
@@ -33,10 +36,28 @@ namespace BuildingModule
             set => _instanceId = value;
         }
 
+        string IInteractable.DisplayName => _repairDisplayName;
+        string IInteractable.HintKey => InteractionHintKeys.Repair;
+        float IHoldInteractable.HoldDuration => _repairDuration;
+        bool IInteractionGate.CanInteract => _model == null || _model.State == BuildingState.Active;
+        bool IInteractionGateBypass.CanBypassInteractionGate => _model != null && _model.State == BuildingState.Broken;
+
         public void Initialize(BuildingModel model)
         {
             _model = model;
             CollectMaterials();
+        }
+
+        public void ConfigureRepairInteraction(
+            string displayName,
+            float repairDuration,
+            Func<bool> canRepair,
+            Action repair)
+        {
+            _repairDisplayName = displayName;
+            _repairDuration = Mathf.Max(repairDuration, 0f);
+            _canRepair = canRepair;
+            _repair = repair;
         }
 
         public T Get<T>() where T : class
@@ -63,6 +84,10 @@ namespace BuildingModule
             SetTransparent(isBroken);
             SetAlpha(isBroken ? brokenAlpha : 1f);
         }
+
+        bool IInteractable.CanInteract(Transform interactor) => _canRepair?.Invoke() ?? false;
+
+        void IInteractable.Interact(Transform interactor) => _repair?.Invoke();
 
         private void CollectMaterials()
         {
