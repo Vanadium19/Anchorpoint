@@ -21,6 +21,9 @@ MonoBehaviour:
       Count: 1
   icon: {fileID: 1916296333, guid: b0db633ed4cfd2545829e44a34181ed6, type: 3}
   order: 0
+  constructionTime: 30
+  maxHealth: 100
+  brokenAlpha: 0.45
   nameKey: building_campfire
   allowedBuildLayers:
     serializedVersion: 2

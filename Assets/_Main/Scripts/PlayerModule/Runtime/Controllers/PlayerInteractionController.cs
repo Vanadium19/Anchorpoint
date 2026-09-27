@@ -67,6 +67,13 @@ namespace PlayerModule
 
             if (Physics.Raycast(ray, out var hit, _config.InteractionDistance, _config.InteractionLayer))
             {
+                if (!InteractionGateUtility.IsAllowed(hit.collider.transform))
+                {
+                    _lastHitCollider = null;
+                    UpdateHover(null, null);
+                    return;
+                }
+
                 if (hit.collider != _lastHitCollider)
                 {
                     _lastHitCollider = hit.collider;
