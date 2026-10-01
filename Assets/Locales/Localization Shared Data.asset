@@ -359,11 +359,11 @@ MonoBehaviour:
     m_Key: building_upgrade_maximum_level
     m_Metadata:
       m_Items: []
-  - m_Id: 4800000000000009
+  - m_Id: 4800000000000015
     m_Key: building_alchemy_table
     m_Metadata:
       m_Items: []
-  - m_Id: 4800000000000010
+  - m_Id: 4800000000000016
     m_Key: world_alchemy_table
     m_Metadata:
       m_Items: []

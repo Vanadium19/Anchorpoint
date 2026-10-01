@@ -426,11 +426,11 @@ MonoBehaviour:
     m_Localized: Maximum level
     m_Metadata:
       m_Items: []
-  - m_Id: 4800000000000009
+  - m_Id: 4800000000000015
     m_Localized: Alchemy Table
     m_Metadata:
       m_Items: []
-  - m_Id: 4800000000000010
+  - m_Id: 4800000000000016
     m_Localized: Alchemy Table
     m_Metadata:
       m_Items: []
