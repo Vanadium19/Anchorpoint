@@ -198,17 +198,11 @@ namespace BuildingModule
 
         private void HandlePlace()
         {
-            if (_inputHandler.IsPlacePressed)
-            {
-                if (!_hasGroundSupport)
-                    return;
+            if (!_inputHandler.IsPlacePressed || !_hasGroundSupport)
+                return;
 
-                var position = _placementService.LastValidPosition;
-                _placementService.Build(position, _useGrid);
-            }
-
-            if (_inputHandler.IsCancelPressed)
-                _constructionModeService.SetActive(false);
+            var position = _placementService.LastValidPosition;
+            _placementService.Build(position, _useGrid);
         }
 
         private bool CheckTargetLayer(RaycastHit hit)

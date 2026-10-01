@@ -343,6 +343,46 @@ MonoBehaviour:
     m_Key: hint_repair
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000011
+    m_Key: building_upgrade_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000012
+    m_Key: building_upgrade_free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000013
+    m_Key: building_upgrade_level_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000014
+    m_Key: building_upgrade_maximum_level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10978827919118336
+    m_Key: building_upgrade_insufficient
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12661996721385472
+    m_Key: building_upgrade_health_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12683809471967232
+    m_Key: building_upgrade_cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405518323712
+    m_Key: building_upgrade_storage_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405572849664
+    m_Key: building_upgrade_craft_speed_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405572849665
+    m_Key: building_upgrade_recipes_format
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

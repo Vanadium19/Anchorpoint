@@ -7,6 +7,5 @@ namespace BuildingModule
         float RotationDelta { get; }
         float ScrollDelta { get; }
         bool IsPlacePressed { get; }
-        bool IsCancelPressed { get; }
     }
 }

@@ -10,17 +10,20 @@ namespace BuildingModule
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
         private readonly ItemCatalog _itemCatalog;
+        private readonly IBuildingUpgradeService _upgradeService;
         private readonly BuildingFactory _buildingFactory;
 
         public BuildingSaveService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
             ItemCatalog itemCatalog,
+            IBuildingUpgradeService upgradeService,
             BuildingFactory buildingFactory)
         {
             _registry = registry;
             _catalog = catalog;
             _itemCatalog = itemCatalog;
+            _upgradeService = upgradeService;
             _buildingFactory = buildingFactory;
         }
 
@@ -41,6 +44,8 @@ namespace BuildingModule
 
             if (!string.IsNullOrEmpty(snapshot.InstanceId))
                 building.InstanceId = snapshot.InstanceId;
+
+            _upgradeService.RestoreLevel(building, snapshot.UpgradeLevel);
 
             if (building.TryGet<BuildingModel>(out var model))
             {
@@ -99,7 +104,8 @@ namespace BuildingModule
                 PositionX = building.transform.position.x,
                 PositionY = building.transform.position.y,
                 PositionZ = building.transform.position.z,
-                RotationY = building.transform.rotation.eulerAngles.y
+                RotationY = building.transform.rotation.eulerAngles.y,
+                UpgradeLevel = _upgradeService.GetLevel(building)
             };
 
             if (building.TryGet<BuildingModel>(out var model))

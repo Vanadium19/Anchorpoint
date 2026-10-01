@@ -79,16 +79,24 @@ namespace BuildingModule
                 UpdateSelectedBuilding();
             }
 
-            if (_inputMap.IsBuildCategoryDownPressed)
+            if (_inputMap.IsBuildCategoryDownPressed && _menuService.IsInCategory())
+                ExitCategory();
+
+            if (_inputMap.IsBuildCancelPressed)
             {
                 if (_menuService.IsInCategory())
-                {
-                    _menuService.ExitCategory();
-                    _placementService.Cancel();
-                    _view.SetItemsWithAnimationUp(_menuService.GetCurrentItems(), 0);
-                    UpdateSelectedBuilding();
-                }
+                    ExitCategory();
+                else
+                    _constructionModeService.SetActive(false);
             }
+        }
+
+        private void ExitCategory()
+        {
+            _menuService.ExitCategory();
+            _placementService.Cancel();
+            _view.SetItemsWithAnimationUp(_menuService.GetCurrentItems(), 0);
+            UpdateSelectedBuilding();
         }
 
         private void UpdateSelectedBuilding()

@@ -6,7 +6,7 @@ namespace BuildingModule
 {
     public class BuildingModel : IDamageable, IBuildingRepairable
     {
-        private readonly float _maxHealth;
+        private float _maxHealth;
 
         private float _currentHealth;
         private float _constructionRemainingTime;
@@ -53,6 +53,17 @@ namespace BuildingModule
             _constructionRemainingTime = 0f;
             HealthChanged?.Invoke(_currentHealth, _maxHealth);
             SetState(BuildingState.Active);
+        }
+
+        public void SetMaxHealth(float maxHealth)
+        {
+            if (maxHealth <= 0f)
+                return;
+
+            var healthRatio = _currentHealth / _maxHealth;
+            _maxHealth = Mathf.Max(maxHealth, 1f);
+            _currentHealth = healthRatio * _maxHealth;
+            HealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
 
         public void TickConstruction(float deltaTime)

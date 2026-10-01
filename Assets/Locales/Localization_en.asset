@@ -410,6 +410,46 @@ MonoBehaviour:
     m_Localized: Hold [F] to repair {0}
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000011
+    m_Localized: Hold to upgrade
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000012
+    m_Localized: Free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000013
+    m_Localized: "LVL {0} \xBB {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000014
+    m_Localized: Maximum level
+    m_Metadata:
+      m_Items: []
+  - m_Id: 10978827919118336
+    m_Localized: Not enough resources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12661996721385472
+    m_Localized: "Durability {0} \xBB {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12683809471967232
+    m_Localized: Cost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405518323712
+    m_Localized: "Storage {0}\xD7{1} \xBB {2}\xD7{3}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405572849664
+    m_Localized: "Crafting speed \xD7{0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 12690405572849665
+    m_Localized: 'New recipes: {0}'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

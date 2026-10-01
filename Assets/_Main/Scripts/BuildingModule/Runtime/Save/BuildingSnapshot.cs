@@ -13,6 +13,7 @@ namespace BuildingModule
         public float PositionY;
         public float PositionZ;
         public float RotationY;
+        public int UpgradeLevel;
         public bool HasRuntimeState;
         public BuildingState State;
         public float CurrentHealth;

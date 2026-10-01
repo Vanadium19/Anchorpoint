@@ -27,6 +27,7 @@ namespace BaseModule
         public RecipeConfig SelectedRecipe { get; private set; }
         public IReadOnlyList<CraftBatch> ActiveBatches => CurrentQueue?.Batches;
         public IReadOnlyList<ReadyCraft> ReadyItems => CurrentQueue?.ReadyItems;
+        public float CurrentCraftSpeed => CurrentQueue != null ? GetCraftSpeed(CurrentQueue) : 1f;
 
         public event Action StateChanged;
 
@@ -42,6 +43,9 @@ namespace BaseModule
 
         public void SelectRecipe(RecipeConfig recipe)
         {
+            if (!IsRecipeAvailable(recipe))
+                return;
+
             SelectedRecipe = recipe;
             StateChanged?.Invoke();
         }
@@ -51,7 +55,7 @@ namespace BaseModule
 
         public void StartBatch(RecipeConfig recipe, int count)
         {
-            if (recipe == null || count <= 0 || CurrentQueue == null)
+            if (!IsRecipeAvailable(recipe) || count <= 0 || CurrentQueue == null)
                 return;
 
             var maxCraftable = GetMaxCraftable(recipe);
@@ -327,7 +331,7 @@ namespace BaseModule
             var workbenchView = view.GetComponent<WorkbenchView>();
 
             if (workbenchView != null)
-                workbenchView.RefreshFromService();
+                workbenchView.RefreshFromService(GetRecipes(ui));
 
             StateChanged?.Invoke();
         }
@@ -349,7 +353,7 @@ namespace BaseModule
 
                 var activeBatch = queue.Batches[0];
 
-                activeBatch.CurrentCraftTime += Time.deltaTime;
+                activeBatch.CurrentCraftTime += Time.deltaTime * GetCraftSpeed(queue);
 
                 if (activeBatch.CurrentCraftTime >= activeBatch.Recipe.CraftTime)
                 {
@@ -406,7 +410,15 @@ namespace BaseModule
                 _queues[key] = queue;
             }
 
+            queue.SpeedSource = ui as ICraftSpeedSource;
             return queue;
+        }
+
+        private static float GetCraftSpeed(WorkbenchCraftQueue queue)
+        {
+            return queue.SpeedSource is UnityEngine.Object source && source != null
+                ? queue.SpeedSource.CraftSpeedMultiplier
+                : 1f;
         }
 
         private void ConsumeIngredients(RecipeConfig recipe, int count)
@@ -432,6 +444,13 @@ namespace BaseModule
                 return provider.Recipes;
 
             return Array.Empty<RecipeConfig>();
+        }
+
+        private bool IsRecipeAvailable(RecipeConfig recipe)
+        {
+            return recipe != null
+                && _currentWorkbench is IRecipeProvider provider
+                && provider.Recipes.Contains(recipe);
         }
     }
 }

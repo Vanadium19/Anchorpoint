@@ -112,7 +112,7 @@ namespace BaseModule
             if (arrowTimeText == null)
                 return;
 
-            var totalTime = _recipe.CraftTime * count;
+            var totalTime = _recipe.CraftTime * count / _craftService.CurrentCraftSpeed;
             arrowTimeText.text = FormatTime(totalTime);
         }
 
