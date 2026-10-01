@@ -13,7 +13,7 @@ namespace AudioModule
             get
             {
                 if (_instance == null)
-                    _instance = FindObjectOfType<AudioSystem>();
+                    _instance = FindFirstObjectByType<AudioSystem>();
                 return _instance;
             }
         }

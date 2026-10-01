@@ -2,7 +2,7 @@
 
 ## Назначение
 
-Этот слой связывает игровой проект с переиспользуемым аудио-ядром из `Assets/Plugins/AudioModule`. Он управляет громкостью музыки и SFX, экраном аудио-настроек, сохранением значений и запуском фонового события главного меню.
+Этот слой связывает игровой проект с переиспользуемым аудио-ядром из `Assets/Plugins/AudioModule`. Он собирается в собственную сборку `AudioModule.Game`, которая ссылается на ядро, `BaseModule`, `SaveModule`, `InputModule` и Zenject; само ядро об этих модулях не знает. Он управляет громкостью музыки и SFX, экраном аудио-настроек, сохранением значений и запуском фонового события главного меню.
 
 ## Основные части
 
@@ -10,7 +10,8 @@
 - `AudioSettingsSaveService` регистрируется в `SaveModule` и сохраняет настройки при изменении громкости.
 - `SettingsMenuPresenter` синхронизирует сервис с `SettingsMenuView`.
 - `MainMenuAudioPresenter` запускает `MenuBankAPI.AmbientEvent`.
-- `AudioSettingsInstaller`, `AudioSettingsMenuInstaller` и `MainMenuAudioInstaller` подключают сервисы в нужных контекстах Zenject.
+- `AudioSettingsInstaller`, `AudioSettingsMenuInstaller`, `AudioSystemInstaller` и `MainMenuAudioInstaller` подключают сервисы в нужных контекстах Zenject.
+- `AudioPauseBridge` ставит звучащие события на паузу вместе с игрой.
 
 ## Настройка
 
@@ -23,3 +24,7 @@
 ## Расширение
 
 Новый канал громкости нужно добавить в `AudioMixerChannel`, `AudioSettingsConfig`, снимок `AudioSettingsData`, сервис и UI. Сгенерированные файлы в `Codegen` вручную не редактируются.
+
+## Пауза
+
+`AudioPauseBridge` регистрируется в `IPauseManager` и на паузе вызывает `IAudioSystem.Pause()`, на возобновлении — `Resume()`. Останавливаются события, которые звучат в этот момент: зацикленный огонь, счётчик Гейгера. Звук, запущенный уже на паузе — например клик по меню, — играет как обычно. Биндится в `AudioSystemInstaller`, то есть на сценах со сценовой аудиосистемой.

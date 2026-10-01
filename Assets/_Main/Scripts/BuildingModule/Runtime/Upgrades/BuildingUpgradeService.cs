@@ -13,7 +13,6 @@ namespace BuildingModule
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
         private readonly IInventoryManager _inventoryManager;
-        private readonly IBuildingDamageService _damageService;
 
         private readonly Dictionary<BuildingView, BuildingUpgradeModel> _models = new();
 
@@ -22,13 +21,11 @@ namespace BuildingModule
         public BuildingUpgradeService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
-            IInventoryManager inventoryManager,
-            IBuildingDamageService damageService)
+            IInventoryManager inventoryManager)
         {
             _registry = registry;
             _catalog = catalog;
             _inventoryManager = inventoryManager;
-            _damageService = damageService;
         }
 
         public void Initialize()
@@ -193,8 +190,8 @@ namespace BuildingModule
         {
             building.RenderUpgradeVisual(model.CurrentLevel?.VisualPrefab);
 
-            if (TryGetBuildingConfig(building, out var config))
-                _damageService.SetMaxHealth(building, GetMaxHealth(model.CurrentLevel, config));
+            if (TryGetBuildingConfig(building, out var config) && building.TryGet<BuildingModel>(out var buildingModel))
+                buildingModel.SetMaxHealth(GetMaxHealth(model.CurrentLevel, config));
         }
 
         private void ApplyEffects(BuildingView building, int fromLevel, int toLevel)

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using BaseModule;
+using ComponentsModule;
 using DG.Tweening;
 using InventoryModule;
 using UnityEngine;
@@ -7,7 +9,7 @@ using UnityEngine.Rendering;
 
 namespace BuildingModule
 {
-    public class BuildingView : MonoBehaviour, IHasInstanceId
+    public class BuildingView : MonoBehaviour, IHasInstanceId, IEntity, IInteractionGate, IHoldInteractable, IInteractionGateBypass
     {
         private const float HighlightTintStrength = 0.35f;
         private const float UpgradePunchScale = 0.12f;
@@ -33,6 +35,14 @@ namespace BuildingModule
         private BuildingUpgradeHighlightState _highlightState;
         private MaterialPropertyBlock _propertyBlock;
         private Tween _upgradeTween;
+        private string _repairDisplayName;
+        private BuildingModel _model;
+        private Material[] _materials;
+        private Func<bool> _canRepair;
+        private Func<float> _repairDuration;
+        private Action _repair;
+        private BuildingState _visualState;
+        private float _brokenAlpha = 1f;
 
         private readonly List<MeshRenderer> _tintedRenderers = new();
         private readonly List<Material> _previewMaterials = new();
@@ -51,6 +61,12 @@ namespace BuildingModule
             get => _instanceId;
             set => _instanceId = value;
         }
+
+        string IInteractable.DisplayName => _repairDisplayName;
+        string IInteractable.HintKey => InteractionHintKeys.Repair;
+        float IHoldInteractable.HoldDuration => Mathf.Max(_repairDuration?.Invoke() ?? 0f, 0f);
+        bool IInteractionGate.CanInteract => _model == null || _model.State == BuildingState.Active;
+        bool IInteractionGateBypass.CanBypassInteractionGate => _model != null && _model.State == BuildingState.Broken;
 
         private void OnDestroy()
         {
@@ -82,6 +98,9 @@ namespace BuildingModule
                 _upgradeVisual.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
                 _upgradeVisual.transform.localScale = Vector3.one;
             }
+
+            CollectMaterials();
+            SetStateVisual(_visualState, _brokenAlpha);
         }
 
         public void RenderUpgradeHighlight(BuildingUpgradeHighlightState state)
@@ -130,14 +149,119 @@ namespace BuildingModule
                 .SetLink(currentVisual);
         }
 
-        public MeshRenderer[] GetAllMeshRenderers()
+        public void Initialize(BuildingModel model)
         {
-            return GetComponentsInChildren<MeshRenderer>();
+            _model = model;
+            CollectMaterials();
         }
 
-        public MeshRenderer GetMainMeshRenderer()
+        public void ConfigureRepairInteraction(
+            string displayName,
+            Func<float> repairDuration,
+            Func<bool> canRepair,
+            Action repair)
         {
-            return GetComponentInChildren<MeshRenderer>();
+            _repairDisplayName = displayName;
+            _repairDuration = repairDuration;
+            _canRepair = canRepair;
+            _repair = repair;
+        }
+
+        public T Get<T>() where T : class
+        {
+            if (TryGet<T>(out var value))
+                return value;
+
+            throw new InvalidOperationException($"{typeof(T).Name} is not available on {name}");
+        }
+
+        public bool TryGet<T>(out T value) where T : class
+        {
+            value = _model as T;
+            return value != null;
+        }
+
+        public MeshRenderer[] GetAllMeshRenderers() => GetComponentsInChildren<MeshRenderer>();
+
+        public MeshRenderer GetMainMeshRenderer() => GetComponentInChildren<MeshRenderer>();
+
+        public void SetStateVisual(BuildingState state, float brokenAlpha)
+        {
+            _visualState = state;
+            _brokenAlpha = brokenAlpha;
+            var isBroken = state == BuildingState.Broken;
+            SetTransparent(isBroken);
+            SetAlpha(isBroken ? brokenAlpha : 1f);
+        }
+
+        bool IInteractable.CanInteract(Transform interactor) => _canRepair?.Invoke() ?? false;
+
+        void IInteractable.Interact(Transform interactor) => _repair?.Invoke();
+
+        private void CollectMaterials()
+        {
+            var materials = new List<Material>();
+
+            foreach (var meshRenderer in GetComponentsInChildren<MeshRenderer>())
+            {
+                foreach (var material in meshRenderer.materials)
+                    materials.Add(material);
+            }
+
+            _materials = materials.ToArray();
+        }
+
+        private void SetTransparent(bool isTransparent)
+        {
+            if (_materials == null)
+                return;
+
+            foreach (var material in _materials)
+            {
+                if (material == null)
+                    continue;
+
+                if (material.HasProperty("_Surface"))
+                    material.SetFloat("_Surface", isTransparent ? 1f : 0f);
+
+                if (material.HasProperty("_SrcBlend"))
+                    material.SetFloat("_SrcBlend", isTransparent ? (float)BlendMode.SrcAlpha : (float)BlendMode.One);
+
+                if (material.HasProperty("_DstBlend"))
+                    material.SetFloat("_DstBlend", isTransparent ? (float)BlendMode.OneMinusSrcAlpha : (float)BlendMode.Zero);
+
+                if (material.HasProperty("_ZWrite"))
+                    material.SetFloat("_ZWrite", isTransparent ? 0f : 1f);
+
+                material.renderQueue = isTransparent ? 3000 : -1;
+            }
+        }
+
+        private void SetAlpha(float alpha)
+        {
+            if (_materials == null)
+                return;
+
+            foreach (var material in _materials)
+            {
+                if (material == null)
+                    continue;
+
+                if (material.HasProperty("_BaseColor"))
+                {
+                    var color = material.GetColor("_BaseColor");
+                    color.a = alpha;
+                    material.SetColor("_BaseColor", color);
+                    continue;
+                }
+
+                if (material.HasProperty("_Color"))
+                {
+                    var color = material.GetColor("_Color");
+                    color.a = alpha;
+                    material.SetColor("_Color", color);
+                }
+            }
         }
 
         private void ApplyHighlightTint()

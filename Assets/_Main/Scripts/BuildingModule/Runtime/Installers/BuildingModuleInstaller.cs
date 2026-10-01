@@ -33,13 +33,10 @@ namespace BuildingModule
             Container.Bind<BuildingMenuConfig>().FromInstance(menuConfig).AsSingle();
 
             Container.Bind<IGrid>().FromInstance(grid).AsSingle();
+            Container.Bind<IInteractionFocusService>().To<InteractionFocusService>().AsSingle();
 
             Container.Bind<IBuildingRegistry>()
                 .To<BuildingRegistry>()
-                .AsSingle();
-
-            Container.Bind<IBuildingDamageService>()
-                .To<BuildingDamageService>()
                 .AsSingle();
 
             Container.Bind<IStructureTargetSource>()
@@ -49,6 +46,9 @@ namespace BuildingModule
             Container.Bind<IPlacementService>().To<PlacementService>().AsSingle();
             Container.Bind<IPreviewService>().To<PreviewService>().AsSingle();
             Container.Bind<IStorageService>().To<StorageService>().AsSingle();
+            Container.Bind<IRepairModifierService>().To<RepairModifierService>().AsSingle();
+            Container.BindFactory<BuildingView, BuildingConfig, BuildingController, BuildingControllerFactory>();
+            Container.BindInterfacesAndSelfTo<BuildingLifecycleService>().AsSingle().NonLazy();
             Container.Bind<BuildingFactory>().AsSingle();
             Container.BindInterfacesAndSelfTo<BuildingUpgradeService>().AsSingle().NonLazy();
 
@@ -83,6 +83,7 @@ namespace BuildingModule
             Container.Bind<BuildingPriceUIConfig>().FromInstance(buildingPriceUIConfig).AsSingle();
             Container.Bind<BuildingPricePanelView>().FromInstance(buildingPricePanelView).AsSingle();
             Container.BindInterfacesTo<BuildingPricePresenter>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<BuildingRepairPresenter>().AsSingle().NonLazy();
 
             Container.BindInterfacesTo<WeaponBuildingModeHandler>().AsSingle().NonLazy();
 

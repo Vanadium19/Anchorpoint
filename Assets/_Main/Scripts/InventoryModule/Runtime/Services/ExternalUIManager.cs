@@ -1,16 +1,15 @@
 using System;
+using ComponentsModule;
 using UnityEngine;
 using Zenject;
 
 namespace InventoryModule
 {
-    public class ExternalUIManager : IInitializable, IDisposable
+    public class ExternalUIManager : IInitializable, ITickable, IDisposable
     {
         private readonly IInventoryManager _inventory;
         private readonly GameObject _externalPanel;
         private readonly GameObject _playerUI;
-
-        public IExternalUI Current { get; private set; }
 
         public event Action<IExternalUI> UIOpened;
         public event Action UIClosed;
@@ -22,10 +21,21 @@ namespace InventoryModule
             _playerUI = playerUI;
         }
 
+        public IExternalUI Current { get; private set; }
+
         public void Initialize()
         {
             _inventory.InventoryOpened += OnInventoryOpened;
             _inventory.InventoryClosed += OnInventoryClosed;
+        }
+
+        public void Tick()
+        {
+            if (Current is not Component component)
+                return;
+
+            if (!InteractionGateUtility.IsAllowed(component.transform))
+                _inventory.CloseInventory();
         }
 
         public void Dispose()
@@ -36,6 +46,9 @@ namespace InventoryModule
 
         public void Open(IExternalUI ui)
         {
+            if (ui is Component component && !InteractionGateUtility.IsAllowed(component.transform))
+                return;
+
             _inventory.OpenInventory();
             Current = ui;
             HideExternalPanel();

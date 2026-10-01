@@ -11,7 +11,7 @@
 - `PreviewService` создает визуальное превью и проверяет коллизии.
 - `StorageService` списывает ресурсы через инвентарь.
 - `BuildingRegistry` хранит построенные объекты.
-- `IBuildingDamageService` и `BuildingDamageService` хранят здоровье построек, принимают урон и сообщают о поломке.
+- `BuildingModel` хранит здоровье, стадию стройки и поломку. `BuildingController` владеет моделью и обновляет вид. `BuildingLifecycleService` тикает стройку.
 - `BuildingStructureTargetSource` и `BuildingStructureTarget` показывают целые постройки как цели для атакующих.
 - `BuildingSaveService` создает и восстанавливает снимки построек и контейнеров.
 - `BuildingMenuPresenter`, `BuildingPricePresenter` и `BaseLevelPreviewBridge` связывают логику с UI.
@@ -45,6 +45,6 @@ HUD улучшения (`BuildingUpgradeHudView`, объект `PlayerUI/Buildin
 
 ## Урон постройкам
 
-Постройки как цели атаки: `BuildingStructureTargetSource` реализует `IStructureTargetSource` из `ComponentsModule` и отдает ближайшую целую постройку, а `BuildingStructureTarget` наносит ей урон через `IBuildingDamageService`. Кто именно атакует, модуль не знает.
+Постройки как цели атаки: `BuildingStructureTargetSource` реализует `IStructureTargetSource` из `ComponentsModule` и отдает ближайшую целую постройку, а `BuildingStructureTarget` наносит ей урон через `BuildingModel.TakeDamage`. Кто именно атакует, модуль не знает.
 
-`IBuildingDamageService` — общий API состояния постройки: `ApplyDamage` снимает здоровье, `IsBroken` и `TryGetHealth` читают текущее состояние, `Restore` возвращает полное здоровье. Максимум здоровья берётся из `BuildingConfig.MaxHealth`, здоровье создаётся при первом обращении и живёт до конца сцены — в сохранение не попадает.
+Здоровье живёт в `BuildingModel`: максимум берётся из `BuildingConfig.MaxHealth`, уровень улучшения меняет его через `BuildingModel.SetMaxHealth` с сохранением доли текущего здоровья, ноль здоровья переводит постройку в `BuildingState.Broken` и меняет её вид. То же состояние пишется в `BuildingSnapshot`.

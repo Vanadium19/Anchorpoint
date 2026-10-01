@@ -67,6 +67,7 @@
 
 - `IntervalTriggerSource` — готов по истечении фиксированного интервала, сигналов не слушает. Пока скоуп активен только в своей сцене (см. «Подключение», п. 4), это и есть проверка «по времени нахождения на базе».
 - `SignalCountTriggerSource` — готов, когда счётчик под ключом сигнала достиг `requiredCount`; счётчик — тот же, что копит `ReportSignal`, отдельного ключа не заводит и сам сбрасывает его при срабатывании. Подходит для «после N использований X» — источник сигнала описывается отдельно (см. «Расширение → 3»).
+- `SessionCountTriggerSource` — считает вылазки: счётчик под `counterKey` растёт на единицу при каждом создании скоупа, то есть на каждом входе в сцену, источник готов на каждой X-й и сам обнуляет счётчик при срабатывании. `pollIntervalSeconds` — задержка до первой проверки внутри сессии. Счётчик сохраняемый и переживает вылазки, пока не наберётся `requiredCount`.
 
 **Шансы** (`Runtime/Chance`):
 
@@ -81,7 +82,10 @@
 - `ChanceGateAction` — доменно-нейтральный гейт: крутит `IRandomEventChance` и гасит остаток последовательности при неудаче. В отличие от `RandomEventTrigger.chance` (общий на все события пула), это шанс конкретного события — ставится первым шагом его `sequence`.
 - `ConditionGateAction` — доменно-нейтральный гейт по состоянию: держит свой `RandomEventConditionSet` (тот же блок AND/OR над `IRandomEventConditionAsset[]`, что и у триггера) и возвращает `false`, если условия не выполнены, гася остаток последовательности без назначения кулдауна. Пустой набор всегда проходит. Ставится шагом `sequence`, когда условие проверяется на момент запуска действия, а не триггера.
 - `FireEventAction` — поджигает случайное здание из `IBuildingRegistry`, раз в `spreadIntervalSeconds` перекидывает огонь на ближайшее незагоревшееся здание в радиусе `spreadRadius` (не больше `maxBurningBuildings` одновременно). Здание тушится, когда игрок держит кнопку взаимодействия в `extinguishRadius` от него суммарно `extinguishSeconds`; прогресс сбрасывается, стоит отпустить кнопку или отойти. Само здание не гаснет и урона не получает — горит, пока игрок не потушит. Пока игрок в `extinguishRadius` от горящего здания, `RandomEventProgressHudView` показывает шкалу прогресса тушения. VFX и звук горения — через `IEffectsService` и `IAudioSystem`, живут, пока горит здание.
-- `RadiationSurgeAction` — наносит игроку урон `damagePerTick` каждые `tickIntervalSeconds` в течение `durationSeconds`. VFX и зацикленный звук — через `IEffectsService` и `IAudioSystem` на всю длительность.
+- `RadiationSurgeAction` — наносит игроку урон `damagePerTick` каждые `tickIntervalSeconds` в течение `durationSeconds`. VFX (`IEffectsService`, привязан к камере игрока) и полноэкранный тинт (`IRadiationScreenEffect` из `VFXModule`) нарастают и спадают за секунду в начале и в конце, зацикленный звук — через `IAudioSystem` на всю длительность.
+- `BlockEvacuationAction`/`UnblockEvacuationAction` — пара шагов вокруг той части события, которую нельзя пропустить, уйдя в шутер: первый закрывает эвакуацию и задаёт сообщение `blockedMessageKey`, второй снимает запрет с тем же ключом (пустой ключ снимает все). Запреты различаются по ключу, поэтому два одновременных события не снимают блокировку друг друга.
+- `DelayAction` — пауза на `durationSeconds` по `IRandomEventClock`: время на паузе не считается.
+- `SetStateAction` — записывает число в `IRandomEventStateStore` под ключом: `isAdded` превращает запись в счётчик. Так событие отмечает факт о себе — что оно случилось, сколько раз, что оно идёт — для условий и шансов, которые прочитают ключ позже.
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток; не действие, а движок, на котором строятся все действия.
 
 **Выбор** (`Runtime/Picking`): `WeightedRandomPicker` — взвешенный бросок по весам пула, используется автоматически, если `picker` не назначен.
@@ -90,10 +94,12 @@
 
 - `IRandomEventService`/`RandomEventService` — запуск (`Start`, `StartFromPool`), остановка (`Stop`, `StopAll`), события `EventStarted`/`EventFinished`, контроль эксклюзивности, кулдаунов, минимального интервала между событиями.
 - `IRandomEventTriggerRunner`/`RandomEventTriggerRunner` — держит рантайм-триггеры скоупа, опрашивает периодические и принимает внешние сигналы.
-- `IRandomEventClock`/`RandomEventClock` — ожидание, не считающее время на паузе; им пользуются действия с задержкой или таймаутом.
+- `IRandomEventClock`/`RandomEventClock` — единственный ответ модуля на вопрос «сколько времени реально прошло»: `DelayAsync` не считает паузу, `ElapsedSeconds` копит только непаузное время, `IsPaused` отвечает на него прямо. На нём же считаются кулдауны событий и общий минимальный интервал, поэтому пауза их не сжигает, а длинные действия (`FireEventAction`, `RadiationSurgeAction`) на паузе не тикают.
 - `IRandomEventStateStore`/`RandomEventStateStore` — сохраняемое хранилище `int`/`float`/`bool` по строковым ключам.
-- `RandomEventSignalRelay` — база для адаптеров слоя оркестрации, превращающих факт игрового модуля в сигнал.
-- `WorkbenchUsageRelay` — репортит сигнал `"workbench_usage"` на каждое открытие верстака (`ICraftService.IsWorkbenchOpen`); зависимость от `ICraftService` необязательна ([InjectOptional]), поэтому сцена без верстака (шутер) релей просто не активирует. Заглушка под будущий алхимический стол (`RandomEventsInstaller` регистрирует его сам, отдельного модуля-владельца сигнала пока нет).
+- `IEvacuationBlocker`/`EvacuationBlocker` — набор запретов на эвакуацию по ключам; реализует `IEvacuationGate` из `EvacuationModule`, поэтому сценовая эвакуация спрашивает его сама, и показывает сообщение самого свежего запрета. Каждый `Block` поднимает событие `Blocked`, которым эвакуация прерывает уже идущий отсчет, если запрет наложен во время эвакуации. Брошенные запреты снимаются сами, когда завершилось последнее активное событие, — забытый или пропущенный гейтом `UnblockEvacuationAction` не запирает сцену насовсем.
+- `RandomEventSignalRelay` — база для адаптеров слоя оркестрации, превращающих факт игрового модуля в сигнал. Сами релеи биндит `RandomEventSignalsInstaller`, отдельный от `RandomEventsInstaller`: скоуп нужен каждой сцене с событиями, релеи — только сцене, которой принадлежит факт.
+- `RaidChanceRelay` — на уходе игрока с базы поднимает счётчик `raid_missed_returns`, если визит прошёл без рейда; сам рейд отмечает визит ключом `raid_occurred` и обнуляет счётчик шагами `SetStateAction`. Зависимость от `IEvacuationService` необязательна, поэтому на сцене без эвакуации релей молчит.
+- `WorkbenchUsageRelay` — репортит сигнал `"workbench_usage"` на каждое открытие верстака (`ICraftService.IsWorkbenchOpen`); зависимость от `ICraftService` необязательна ([InjectOptional]), поэтому сцена без верстака (шутер) релей просто не активирует. Заглушка под будущий алхимический стол (`RandomEventSignalsInstaller` регистрирует его сам, отдельного модуля-владельца сигнала пока нет).
 - `RandomEventTriggerInstance` — рантайм-форма триггера: разрешённые источник, условия, шанс и пикер живут всё время жизни раннера, поэтому могут помнить прошлые срабатывания.
 - `RandomEventActionPlan` — исполнитель последовательности, общий для события и всех вложенных веток.
 - Слой композиции: `IRandomEventCondition`, `IRandomEventAction`, `IRandomEventPicker`, `IRandomEventChance`, `IRandomEventTriggerSource`, `RandomEventActionBase`, их ассет-интерфейсы и Zenject-базы `ZenjectRandomEvent*Asset<T>`, `RandomEventConditionSet`/`RandomEventConditionGroup`.
@@ -107,7 +113,7 @@
 - Порядок внутри триггера: источник → условия → шанс → выбор из пула.
 - Кандидатом на выбор событие становится по `isEnabled`, весу больше нуля и отсутствию кулдауна.
 - Глобальные блокировки (активно эксклюзивное событие, не выдержан `minIntervalBetweenEventsSeconds`) проверяются до перебора кандидатов.
-- Пауза: раннер и часы зарегистрированы в `IPauseManager`, на паузе опрос не идёт и ожидания не тикают.
+- Пауза: раннер и часы зарегистрированы в `IPauseManager`, на паузе опрос не идёт, ожидания и кулдауны не тикают, длинные действия не двигают свои таймеры. VFX и звук останавливает не модуль: партиклы гасит `EffectView`, звук — `AudioPauseBridge`.
 - `ReportSignal` опрашивает синхронно — не вызывайте его на высокочастотных фактах, копите их в релее и репортите агрегатом.
 - Игровые модули `IRandomEventTriggerRunner` напрямую не инжектят — связку делает релей в слое оркестрации (см. «Расширение → 3»).
 
@@ -125,8 +131,8 @@
 2. В каждом `RandomEventDefinition` собрать `sequence`, отметить `runInParallel` там, где нужно.
 3. В `RandomEventScope` завести по триггеру на каждый способ запуска: выбрать источник, при необходимости условия и шанс, заполнить пул событиями и весами.
 4. Добавить в сцены `Camp.unity` и `Game.unity` объект с `RandomEventsInstaller`, прописать в `SceneContext → Installers`: `scope`, `notificationView` и `progressHudView` — свои на сцену.
-5. Создать на HUD-канвасе объект уведомления: `CanvasGroup` + `TMP_Text`, повесить `RandomEventNotificationView`, проставить ссылки.
-6. Создать на HUD-канвасе объект прогресс-подсказки: `CanvasGroup` + `TMP_Text` (подсказка) + `Image` (заполняемая шкала), повесить `RandomEventProgressHudView`, проставить ссылки.
+5. Добавить `RandomEventSignalsInstaller` в ту сцену, которой принадлежат факты релеев — базу `Camp.unity`. В шутере его нет: релей, поднятый в двух сценах сразу, засчитает один и тот же факт дважды.
+6. Повесить на HUD-канвас префабы `Assets/_Main/Prefabs/UI/RandomEvents/`: `RandomEventNotification` (`CanvasGroup` + `TMP_Text`, `RandomEventNotificationView`) и `RandomEventProgressHud` (`CanvasGroup` + `TMP_Text` подсказки + заполняемый `Image`, `RandomEventProgressHudView`).
 7. Завести в `Assets/Locales` ключи локализации для текстов, которые покажет `NotifyAction` или прогресс-подсказка.
 
 ## Расширение
@@ -168,6 +174,8 @@ public class PlayerHealthBelowConditionAsset : ZenjectRandomEventConditionAsset<
 Всё, что не передано через `GetArguments()`, Zenject подставит сам — включая публичные сервисы других модулей. Для действия — то же самое, но наследоваться от `RandomEventActionBase` и `ZenjectRandomEventActionAsset<T>`; долгое действие принимает `CancellationToken` из `ExecuteAsync` и переопределяет `RequestStop`.
 
 `GetArguments()` не типизирован: Zenject сопоставляет аргументы с параметрами конструктора по типу, одинаковые типы — по порядку. Контейнер передаётся аргументом, поэтому ассет может собрать вложенные `RandomEventActionSequence.Create(container)` и `RandomEventConditionSet.Create(container)` и отдать их конструктору — так устроен composite-action с вложенной последовательностью (ветка, тело цикла и т.п.).
+
+Тип — единственное, по чему Zenject узнаёт аргумент, а голый `null` его не несёт, поэтому необязательное поле (незаполненная ссылка на префаб или ассет в инспекторе) передаётся через `Optional(field)`: обёртка сохраняет тип поля, и пустое значение доходит до конструктора как `null` вместо того, чтобы сломать сопоставление остальных аргументов.
 
 ### 3. Свой источник сигнала
 

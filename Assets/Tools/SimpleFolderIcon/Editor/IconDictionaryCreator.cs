@@ -26,12 +26,27 @@ namespace SimpleFolderIcon.Editor
         {
             foreach (string str in assets)
             {
+                if (string.IsNullOrEmpty(str))
+                    continue;
 
-                if (ReplaceSeparatorChar(Path.GetDirectoryName(str)) == "Assets/" + AssetsPath)
+                string directoryName;
+
+                try
                 {
-                    return true;
+                    directoryName = Path.GetDirectoryName(str);
                 }
+                catch (System.ArgumentException)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(directoryName))
+                    continue;
+
+                if (ReplaceSeparatorChar(directoryName) == "Assets/" + AssetsPath)
+                    return true;
             }
+
             return false;
         }
 

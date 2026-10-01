@@ -8,14 +8,14 @@ namespace BuildingModule
     public class BuildingStructureTarget : IStructureTarget
     {
         private readonly BuildingView _building;
-        private readonly IBuildingDamageService _damageService;
+        private readonly BuildingModel _model;
         private readonly Bounds _bounds;
 
         /// <summary>Creates the target for the given building.</summary>
-        public BuildingStructureTarget(BuildingView building, IBuildingDamageService damageService)
+        public BuildingStructureTarget(BuildingView building, BuildingModel model)
         {
             _building = building;
-            _damageService = damageService;
+            _model = model;
             _bounds = CreateBounds(building);
         }
 
@@ -23,10 +23,10 @@ namespace BuildingModule
         public Bounds Bounds => _bounds;
 
         /// <inheritdoc/>
-        public bool IsValid => _building != null && !_damageService.IsBroken(_building);
+        public bool IsValid => _building != null && _model.IsAlive;
 
         /// <inheritdoc/>
-        public void TakeDamage(float amount) => _damageService.ApplyDamage(_building, amount);
+        public void TakeDamage(float amount) => _model.TakeDamage(amount);
 
         private static Bounds CreateBounds(BuildingView building)
         {

@@ -251,19 +251,111 @@ MonoBehaviour:
     m_Key: randomEvents.radiation.started
     m_Metadata:
       m_Items: []
+  - m_Id: 4800000000000003
+    m_Key: randomEvents.raid.name
+    m_Metadata:
+      m_Items: []
   - m_Id: 4800000000000004
-    m_Key: building_upgrade_button
+    m_Key: randomEvents.raid.started
     m_Metadata:
       m_Items: []
   - m_Id: 4800000000000005
-    m_Key: building_upgrade_free
+    m_Key: randomEvents.raid.extractionBlocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000006
+    m_Key: randomEvents.fire.extractionBlocked
     m_Metadata:
       m_Items: []
   - m_Id: 4800000000000007
-    m_Key: building_upgrade_level_format
+    m_Key: randomEvents.radiation.extractionBlocked
     m_Metadata:
       m_Items: []
   - m_Id: 4800000000000008
+    m_Key: randomEvents.raid.nextWave
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000009
+    m_Key: randomEvents.raid.waveEnded
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000010
+    m_Key: randomEvents.raid.ended
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7134993112059904
+    m_Key: randomEvents.crash.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7134993195945984
+    m_Key: randomEvents.crash.discovered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7136123170803712
+    m_Key: randomEvents.outpost.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7136123183386624
+    m_Key: randomEvents.outpost.discovered
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738358861824
+    m_Key: randomEvents.traders.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164992
+    m_Key: randomEvents.traders.arrived
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164993
+    m_Key: trade.action
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164994
+    m_Key: trade.trader.wandering
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164995
+    m_Key: trade.offer.ammoForScrap
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164996
+    m_Key: trade.offer.medkitForBlackrock
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164997
+    m_Key: trade.offer.stimulantForAmmo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7139738430164998
+    m_Key: trade.offer.crateForSupplies
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7141697379848192
+    m_Key: randomEvents.bandits.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 7141697476317184
+    m_Key: randomEvents.bandits.spotted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8813199217102848
+    m_Key: hint_repair
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000011
+    m_Key: building_upgrade_button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000012
+    m_Key: building_upgrade_free
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000013
+    m_Key: building_upgrade_level_format
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4800000000000014
     m_Key: building_upgrade_maximum_level
     m_Metadata:
       m_Items: []

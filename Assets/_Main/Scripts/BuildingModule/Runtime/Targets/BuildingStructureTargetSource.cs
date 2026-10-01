@@ -7,13 +7,11 @@ namespace BuildingModule
     public class BuildingStructureTargetSource : IStructureTargetSource
     {
         private readonly IBuildingRegistry _registry;
-        private readonly IBuildingDamageService _damageService;
 
-        /// <summary>Creates the source with the building registry and damage service.</summary>
-        public BuildingStructureTargetSource(IBuildingRegistry registry, IBuildingDamageService damageService)
+        /// <summary>Creates the source with the building registry.</summary>
+        public BuildingStructureTargetSource(IBuildingRegistry registry)
         {
             _registry = registry;
-            _damageService = damageService;
         }
 
         /// <inheritdoc/>
@@ -25,7 +23,7 @@ namespace BuildingModule
 
             foreach (var building in _registry.Buildings)
             {
-                if (building == null || _damageService.IsBroken(building))
+                if (building == null || !building.TryGet<BuildingModel>(out var model) || !model.IsAlive)
                     continue;
 
                 var squaredDistance = (building.transform.position - origin).sqrMagnitude;
@@ -34,7 +32,7 @@ namespace BuildingModule
                     continue;
 
                 nearestSquaredDistance = squaredDistance;
-                target = new BuildingStructureTarget(building, _damageService);
+                target = new BuildingStructureTarget(building, model);
             }
 
             return target != null;
