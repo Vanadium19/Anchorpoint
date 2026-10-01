@@ -75,7 +75,7 @@ namespace BuildingModule
 
             UpdateHoveredBuilding();
 
-            if (_hoveredInfo == null)
+            if (_hoveredBuilding == null)
                 return;
 
             _refreshSeconds += Time.deltaTime;
