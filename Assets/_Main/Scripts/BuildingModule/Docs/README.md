@@ -15,7 +15,7 @@
 - `BuildingStructureTargetSource` и `BuildingStructureTarget` показывают целые постройки как цели для атакующих.
 - `BuildingSaveService` создает и восстанавливает снимки построек и контейнеров.
 - `BuildingMenuPresenter`, `BuildingPricePresenter` и `BaseLevelPreviewBridge` связывают логику с UI.
-- `BuildingUpgradeService` хранит уровни построек, проверяет цену следующего уровня и меняет визуал через `BuildingView`.
+- `BuildingUpgradeService` хранит уровни построек, проверяет и списывает цену следующего уровня через `IStorageService` и меняет визуал через `BuildingView`. Улучшить можно только постройку в `BuildingState.Active`: сломанная или строящаяся не подсвечивается, HUD улучшения скрыт.
 - `BuildingUpgradeController` работает в режиме строительства, когда в руках нет постройки: находит постройку под прицелом и запускает улучшение через Build input. `BuildingUpgradeHoldModel` считает прогресс удержания, а `BuildingUpgradePresenter` обновляет компактный HUD.
 
 ## Подключение

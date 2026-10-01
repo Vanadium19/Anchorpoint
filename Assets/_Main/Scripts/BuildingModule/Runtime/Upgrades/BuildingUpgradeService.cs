@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BaseModule;
-using InventoryModule;
 using UnityEngine;
 using Zenject;
 
@@ -12,7 +11,7 @@ namespace BuildingModule
     {
         private readonly IBuildingRegistry _registry;
         private readonly BuildingCatalog _catalog;
-        private readonly IInventoryManager _inventoryManager;
+        private readonly IStorageService _storageService;
 
         private readonly Dictionary<BuildingView, BuildingUpgradeModel> _models = new();
 
@@ -21,11 +20,11 @@ namespace BuildingModule
         public BuildingUpgradeService(
             IBuildingRegistry registry,
             BuildingCatalog catalog,
-            IInventoryManager inventoryManager)
+            IStorageService storageService)
         {
             _registry = registry;
             _catalog = catalog;
-            _inventoryManager = inventoryManager;
+            _storageService = storageService;
         }
 
         public void Initialize()
@@ -52,23 +51,24 @@ namespace BuildingModule
         {
             info = null;
 
-            if (!TryGetModel(building, out var model) || !TryGetBuildingConfig(building, out var config))
+            if (!IsActive(building)
+                || !TryGetModel(building, out var model)
+                || !TryGetBuildingConfig(building, out var config))
                 return false;
 
             var nextLevel = model.NextLevel;
-            var priceItems = CreatePriceItems(nextLevel?.Price);
             info = new BuildingUpgradeInfo
             {
                 BuildingName = config.DisplayName,
                 CurrentLevel = model.Level,
                 NextLevel = model.Level + 1,
                 CanUpgrade = model.CanUpgrade,
-                CanAfford = model.CanUpgrade && CanAfford(nextLevel?.Price),
+                CanAfford = model.CanUpgrade && _storageService.CanAfford(nextLevel?.Price),
                 CurrentMaxHealth = GetMaxHealth(model.CurrentLevel, config),
                 NextMaxHealth = nextLevel != null ? GetMaxHealth(nextLevel, config) : 0f,
                 NextEffectDescriptions = GetEffectDescriptions(nextLevel, building.gameObject),
                 NextVisualPrefab = nextLevel?.VisualPrefab,
-                PriceItems = priceItems
+                PriceItems = _storageService.GetPriceInfo(config.DisplayName, nextLevel?.Price).Items
             };
 
             return true;
@@ -76,12 +76,10 @@ namespace BuildingModule
 
         public bool TryUpgrade(BuildingView building)
         {
-            if (!TryGetModel(building, out var model) || !model.CanUpgrade)
+            if (!IsActive(building) || !TryGetModel(building, out var model) || !model.CanUpgrade)
                 return false;
 
-            var nextLevel = model.NextLevel;
-
-            if (!CanAfford(nextLevel?.Price) || !TrySpend(nextLevel?.Price))
+            if (!_storageService.Spend(model.NextLevel?.Price))
                 return false;
 
             model.Upgrade();
@@ -125,65 +123,17 @@ namespace BuildingModule
             return building != null && _models.TryGetValue(building, out model);
         }
 
+        private static bool IsActive(BuildingView building) =>
+            building != null
+            && building.TryGet<BuildingModel>(out var buildingModel)
+            && buildingModel.State == BuildingState.Active;
+
         private bool TryGetBuildingConfig(BuildingView building, out BuildingConfig config)
         {
             config = null;
             return building != null
                 && !string.IsNullOrEmpty(building.BuildingConfigId)
                 && _catalog.TryGetConfig(building.BuildingConfigId, out config);
-        }
-
-        private bool CanAfford(Price price)
-        {
-            if (price?.Values == null)
-                return true;
-
-            foreach (var itemToCount in price.Values)
-            {
-                if (itemToCount.ItemData != null
-                    && _inventoryManager.GetItemCount(itemToCount.ItemData) < itemToCount.Count)
-                    return false;
-            }
-
-            return true;
-        }
-
-        private bool TrySpend(Price price)
-        {
-            if (price?.Values == null)
-                return true;
-
-            foreach (var itemToCount in price.Values)
-            {
-                if (itemToCount.ItemData != null
-                    && !_inventoryManager.TryRemoveItems(itemToCount.ItemData, itemToCount.Count))
-                    return false;
-            }
-
-            return true;
-        }
-
-        private List<PriceItemInfo> CreatePriceItems(Price price)
-        {
-            var items = new List<PriceItemInfo>();
-
-            if (price?.Values == null)
-                return items;
-
-            foreach (var itemToCount in price.Values)
-            {
-                if (itemToCount.ItemData == null)
-                    continue;
-
-                items.Add(new PriceItemInfo
-                {
-                    ItemData = itemToCount.ItemData,
-                    Available = _inventoryManager.GetItemCount(itemToCount.ItemData),
-                    Cost = itemToCount.Count
-                });
-            }
-
-            return items;
         }
 
         private void ApplyLevel(BuildingView building, BuildingUpgradeModel model)
