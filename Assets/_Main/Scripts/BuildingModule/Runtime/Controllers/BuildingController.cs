@@ -9,6 +9,7 @@ namespace BuildingModule
         private readonly BuildingModel _model;
         private readonly IStorageService _storageService;
         private readonly IRepairModifierService _repairModifierService;
+        private readonly WoodenStakesController _woodenStakesController;
 
         public BuildingController(
             BuildingView view,
@@ -28,6 +29,15 @@ namespace BuildingModule
                 GetRepairDuration,
                 CanRepair,
                 Repair);
+
+            if (config.IsWoodenStakes && view.WoodenStakesView != null)
+            {
+                _woodenStakesController = new WoodenStakesController(
+                    _model,
+                    view.WoodenStakesView,
+                    config.WoodenStakesSpeedMultiplier);
+            }
+
             _model.StateChanged += OnStateChanged;
             ApplyState(_model.State);
         }
@@ -37,7 +47,11 @@ namespace BuildingModule
 
         public void Tick(float deltaTime) => _model.TickConstruction(deltaTime);
 
-        public void Dispose() => _model.StateChanged -= OnStateChanged;
+        public void Dispose()
+        {
+            _model.StateChanged -= OnStateChanged;
+            _woodenStakesController?.Dispose();
+        }
 
         private float GetRepairDuration() => _repairModifierService.GetRepairDuration(_config.RepairTime);
 

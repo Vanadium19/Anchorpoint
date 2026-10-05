@@ -7250,6 +7250,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: UIModule::UIModule.InteractionHUDView
   canvasGroup: {fileID: 1689216093}
   hintText: {fileID: 1060903356}
+  holdProgressFillImage: {fileID: 0}
+  holdProgressText: {fileID: 0}
 --- !u!1 &1710079990 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8387966510592880406, guid: 25f4847c85809a248911af542e0048c5, type: 3}

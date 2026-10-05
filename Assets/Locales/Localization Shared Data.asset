@@ -343,6 +343,10 @@ MonoBehaviour:
     m_Key: hint_repair
     m_Metadata:
       m_Items: []
+  - m_Id: 15604224031952896
+    m_Key: building_wooden_stakes
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
