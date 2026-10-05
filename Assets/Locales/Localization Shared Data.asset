@@ -343,6 +343,10 @@ MonoBehaviour:
     m_Key: hint_repair
     m_Metadata:
       m_Items: []
+  - m_Id: 15610424672882688
+    m_Key: raid_scout_warning
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -38,6 +38,10 @@ namespace BuildingModule
                 .To<BuildingRegistry>()
                 .AsSingle();
 
+            Container.Bind<IRaidPreparationProvider>()
+                .To<ScoutTowerRaidPreparationProvider>()
+                .AsSingle();
+
             Container.Bind<IStructureTargetSource>()
                 .To<BuildingStructureTargetSource>()
                 .AsSingle();
@@ -54,21 +58,27 @@ namespace BuildingModule
             Container.Bind<IConstructionModeService>().To<ConstructionModeService>().AsSingle();
 
             Container.Bind<IPlacementInputHandler>()
-            .To<PlacementInputHandler>()
-            .AsSingle();
+                .To<PlacementInputHandler>()
+                .AsSingle();
 
             Container.Bind<Camera>().FromInstance(Camera.main).AsSingle();
 
             Container.BindInterfacesTo<PlacementController>()
-            .AsSingle()
-            .WithArguments(placementConfig, buildingCatalog, raycastLayers, useGrid)
-            .NonLazy();
+                .AsSingle()
+                .WithArguments(placementConfig, buildingCatalog, raycastLayers, useGrid)
+                .NonLazy();
             Container.BindInterfacesTo<ModeControllers>().AsSingle().NonLazy();
 
-            Container.BindInterfacesTo<ConstructionModePresenter>().AsSingle().WithArguments(buildPanel, gridView, useGrid).NonLazy();
+            Container.BindInterfacesTo<ConstructionModePresenter>()
+                .AsSingle()
+                .WithArguments(buildPanel, gridView, useGrid)
+                .NonLazy();
 
             Container.Bind<BuildingMenuView>().FromInstance(buildingMenuView).AsSingle();
-            Container.BindInterfacesTo<BuildingMenuPresenter>().AsSingle().WithArguments(buildingMenuView).NonLazy();
+            Container.BindInterfacesTo<BuildingMenuPresenter>()
+                .AsSingle()
+                .WithArguments(buildingMenuView)
+                .NonLazy();
 
             Container.Bind<BaseLevelUIConfig>().FromInstance(baseLevelUIConfig).AsSingle();
             Container.Bind<BaseLevelView>().FromInstance(baseLevelView).AsSingle();

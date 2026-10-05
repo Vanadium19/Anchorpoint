@@ -25,6 +25,12 @@ namespace BuildingModule
         [Header("Repair Support")]
         [SerializeField, Range(0f, 100f)] private float repairReductionPercent;
 
+        [Header("Scout Tower")]
+        [SerializeField] private bool isScoutTower;
+        [SerializeField] [Min(0f)] private float raidPreparationSeconds = 60f;
+        [SerializeField] private string raidWarningLocalizationKey = "raid_scout_warning";
+        [SerializeField] [Min(0f)] private float raidWarningDisplaySeconds = 6f;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -48,6 +54,10 @@ namespace BuildingModule
         public Price RepairPrice => repairPrice;
         public float RepairTime => repairTime;
         public float RepairReductionPercent => repairReductionPercent;
+        public bool IsScoutTower => isScoutTower;
+        public float RaidPreparationSeconds => raidPreparationSeconds;
+        public string RaidWarningLocalizationKey => raidWarningLocalizationKey;
+        public float RaidWarningDisplaySeconds => raidWarningDisplaySeconds;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }
