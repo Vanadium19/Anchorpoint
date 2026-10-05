@@ -25,6 +25,12 @@ namespace BuildingModule
         [Header("Repair Support")]
         [SerializeField, Range(0f, 100f)] private float repairReductionPercent;
 
+        [Header("Minefield")]
+        [SerializeField] private bool isMinefield;
+        [SerializeField] [Min(1)] private int mineCount = 5;
+        [SerializeField] [Min(0f)] private float mineDamage = 50f;
+        [SerializeField] private LayerMask mineTargetLayers;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -48,6 +54,10 @@ namespace BuildingModule
         public Price RepairPrice => repairPrice;
         public float RepairTime => repairTime;
         public float RepairReductionPercent => repairReductionPercent;
+        public bool IsMinefield => isMinefield;
+        public int MineCount => mineCount;
+        public float MineDamage => mineDamage;
+        public LayerMask MineTargetLayers => mineTargetLayers;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }

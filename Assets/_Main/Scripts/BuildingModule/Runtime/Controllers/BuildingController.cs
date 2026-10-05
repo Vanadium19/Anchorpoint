@@ -9,12 +9,14 @@ namespace BuildingModule
         private readonly BuildingModel _model;
         private readonly IStorageService _storageService;
         private readonly IRepairModifierService _repairModifierService;
+        private readonly MinefieldController _minefieldController;
 
         public BuildingController(
             BuildingView view,
             BuildingConfig config,
             IStorageService storageService,
-            IRepairModifierService repairModifierService)
+            IRepairModifierService repairModifierService,
+            IBuildingRegistry buildingRegistry)
         {
             _view = view;
             _config = config;
@@ -28,6 +30,20 @@ namespace BuildingModule
                 GetRepairDuration,
                 CanRepair,
                 Repair);
+
+            if (config.IsMinefield && view.MinefieldView != null)
+            {
+                var minefieldModel = new MinefieldModel(config.MineCount);
+
+                _minefieldController = new MinefieldController(
+                    view,
+                    _model,
+                    minefieldModel,
+                    view.MinefieldView,
+                    config,
+                    buildingRegistry);
+            }
+
             _model.StateChanged += OnStateChanged;
             ApplyState(_model.State);
         }
@@ -37,7 +53,11 @@ namespace BuildingModule
 
         public void Tick(float deltaTime) => _model.TickConstruction(deltaTime);
 
-        public void Dispose() => _model.StateChanged -= OnStateChanged;
+        public void Dispose()
+        {
+            _model.StateChanged -= OnStateChanged;
+            _minefieldController?.Dispose();
+        }
 
         private float GetRepairDuration() => _repairModifierService.GetRepairDuration(_config.RepairTime);
 

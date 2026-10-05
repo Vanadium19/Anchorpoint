@@ -11,6 +11,7 @@ namespace BuildingModule
     public class BuildingView : MonoBehaviour, IHasInstanceId, IEntity, IInteractionGate, IHoldInteractable, IInteractionGateBypass
     {
         [SerializeField] private Collider collisionCollider;
+        [SerializeField] private MinefieldView minefieldView;
 
         private string _buildingConfigId;
         private string _instanceId;
@@ -22,6 +23,7 @@ namespace BuildingModule
         private Action _repair;
 
         public Collider CollisionCollider => collisionCollider;
+        public MinefieldView MinefieldView => minefieldView;
         public IExternalUI ExternalUI => GetComponent<IExternalUI>();
 
         public string BuildingConfigId
