@@ -6,3 +6,10 @@ NativeFormatImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 302056
+  packageName: Free Machine Turret
+  packageVersion: 
+  assetPath: Assets/Settings/SampleSceneProfile.asset
+  uploadId: 0

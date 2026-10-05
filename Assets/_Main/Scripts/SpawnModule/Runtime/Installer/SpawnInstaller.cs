@@ -39,6 +39,9 @@ namespace SpawnModule
 
             Container.BindInstance(spawnConfig).AsSingle();
 
+            Container.BindInterfacesAndSelfTo<EnemyTargetRegistry>()
+                .AsSingle();
+
             Container.Bind<IEnemyFactory>()
                 .To<EnemyFactory>()
                 .AsSingle()
