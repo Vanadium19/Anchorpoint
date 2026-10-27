@@ -6549,6 +6549,7 @@ MonoBehaviour:
   initialBanks:
   - {fileID: 11400000, guid: c54fc3c17c94af848a4d61965308e679, type: 2}
   - {fileID: 11400000, guid: b2d8f5a0c3e4597fb1f26d9e8c5f3a21, type: 2}
+  - {fileID: 11400000, guid: 8662b9556e0267345a01ac29351d69f9, type: 2}
 --- !u!4 &1376416657
 Transform:
   m_ObjectHideFlags: 0
@@ -7250,6 +7251,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: UIModule::UIModule.InteractionHUDView
   canvasGroup: {fileID: 1689216093}
   hintText: {fileID: 1060903356}
+  holdProgressFillImage: {fileID: 0}
+  holdProgressText: {fileID: 0}
 --- !u!1 &1710079990 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8387966510592880406, guid: 25f4847c85809a248911af542e0048c5, type: 3}
