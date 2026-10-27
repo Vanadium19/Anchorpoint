@@ -18,6 +18,8 @@ MonoBehaviour:
       value:
       - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
         Count: 10
+      - ItemData: {fileID: 11400000, guid: 3b6a8551cc8b7ed498bc190c57c6899b, type: 2}
+        Count: 5
     maxHealth: 150
     effects:
     - rid: 1306019226077102172

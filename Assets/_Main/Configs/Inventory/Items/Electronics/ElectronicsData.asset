@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: ElectronicsData
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: Electronics
+  description: Electronic components for crafting and upgrades
+  icon: {fileID: 21300000, guid: 7179d526c6f8f0b4ea34601d5c6ff0e7, type: 3}
+  nameKey: item_electronics
+  descriptionKey: item_electronics_description
+  dimensionsSo: {fileID: 11400000, guid: f6383ee5efcb3684b9dc19d3347c6ba9, type: 2}
+  equipmentSlotType: 0
+  isEquippable: 0
+  isStackable: 1
+  maxStackSize: 10
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 1
+  effectData: {fileID: 0}
+  isDropable: 1
+  worldPrefab: {fileID: 5447724562284511229, guid: e79f49d5161d37446b2aafab3dc8acb5, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}
