@@ -466,6 +466,10 @@ MonoBehaviour:
     m_Localized: Wooden Stakes
     m_Metadata:
       m_Items: []
+  - m_Id: 15610424672882688
+    m_Localized: 'Scouts report: raid starts in {0} sec.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

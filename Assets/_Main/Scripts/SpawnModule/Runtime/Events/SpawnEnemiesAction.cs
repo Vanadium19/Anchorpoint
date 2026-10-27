@@ -9,18 +9,16 @@ namespace SpawnModule
 {
     /// <summary>Spawns a group of enemies across the scene spawn points and holds the sequence until the last one is dead.</summary>
     /// <remarks>
-    /// The group starts from a random spawn point and walks the list from there, so a group of several
-    /// enemies arrives from several sides and two groups rarely start in the same place. Each action
-    /// waits for its own enemies, so groups marked to run in parallel are independent.
+    /// Spawn positions are captured when the event plan is created, so delayed event steps do not
+    /// keep Unity object references that may be destroyed before the wave actually starts.
     /// </remarks>
     public class SpawnEnemiesAction : RandomEventActionBase
     {
         private readonly IEnemyFactory _enemyFactory;
-        private readonly LevelSpawnPointsView _spawnPoints;
+        private readonly List<Vector3> _spawnPositions;
         private readonly int _enemyCount;
         private readonly float _spawnScatterRadius;
 
-        /// <summary>Creates the action with the size and spread of its group.</summary>
         public SpawnEnemiesAction(
             IEnemyFactory enemyFactory,
             LevelSpawnPointsView spawnPoints,
@@ -28,12 +26,11 @@ namespace SpawnModule
             float spawnScatterRadius)
         {
             _enemyFactory = enemyFactory;
-            _spawnPoints = spawnPoints;
+            _spawnPositions = CaptureSpawnPositions(spawnPoints);
             _enemyCount = enemyCount;
             _spawnScatterRadius = spawnScatterRadius;
         }
 
-        /// <inheritdoc/>
         public override async UniTask<bool> ExecuteAsync(CancellationToken token)
         {
             var enemies = Spawn();
@@ -52,23 +49,38 @@ namespace SpawnModule
         private List<SpawnedEnemy> Spawn()
         {
             var enemies = new List<SpawnedEnemy>();
-            var points = _spawnPoints.SpawnPoints;
 
-            if (points.Count == 0)
+            if (_spawnPositions.Count == 0)
                 return enemies;
 
-            var firstPointIndex = Random.Range(0, points.Count);
+            var firstPointIndex = Random.Range(0, _spawnPositions.Count);
 
             for (var index = 0; index < _enemyCount; index++)
             {
-                var point = points[(firstPointIndex + index) % points.Count];
-                var enemyObject = _enemyFactory.Create(point.Position + GetScatterOffset());
+                var position = _spawnPositions[(firstPointIndex + index) % _spawnPositions.Count];
+                var enemyObject = _enemyFactory.Create(position + GetScatterOffset());
 
                 if (enemyObject != null)
                     enemies.Add(new SpawnedEnemy(enemyObject));
             }
 
             return enemies;
+        }
+
+        private static List<Vector3> CaptureSpawnPositions(LevelSpawnPointsView spawnPoints)
+        {
+            var positions = new List<Vector3>();
+
+            if (spawnPoints == null || spawnPoints.SpawnPoints == null)
+                return positions;
+
+            foreach (var spawnPoint in spawnPoints.SpawnPoints)
+            {
+                if (spawnPoint != null)
+                    positions.Add(spawnPoint.Position);
+            }
+
+            return positions;
         }
 
         private static bool HasAliveEnemies(List<SpawnedEnemy> enemies)

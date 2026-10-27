@@ -32,6 +32,9 @@ MonoBehaviour:
     - runInParallel: 0
       action:
         rid: 3583316307384991744
+    - runInParallel: 0
+      action:
+        rid: 1588243574894362624
     - runInParallel: 1
       action:
         rid: 3583316309664595970
@@ -63,6 +66,9 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: 1588243574894362624
+      type: {class: RaidPreparationActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
+      data: 
     - rid: 3583316307384991744
       type: {class: NotifyActionAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
