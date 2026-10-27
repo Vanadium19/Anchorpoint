@@ -7,11 +7,16 @@ namespace SpawnModule
     {
         private readonly DiContainer _container;
         private readonly GameObject _prefab;
+        private readonly EnemyTargetRegistry _targetRegistry;
 
-        public EnemyFactory(DiContainer container, GameObject prefab)
+        public EnemyFactory(
+            DiContainer container,
+            GameObject prefab,
+            EnemyTargetRegistry targetRegistry)
         {
             _container = container;
             _prefab = prefab;
+            _targetRegistry = targetRegistry;
         }
 
         public GameObject Create(Vector3 position) => Create(_prefab, position);
@@ -21,7 +26,15 @@ namespace SpawnModule
             if (prefab == null)
                 return null;
 
-            return _container.InstantiatePrefab(prefab, position, Quaternion.identity, null);
+            var enemyObject = _container.InstantiatePrefab(
+                prefab,
+                position,
+                Quaternion.identity,
+                null);
+
+            _targetRegistry.Register(enemyObject);
+
+            return enemyObject;
         }
     }
 }

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c2433dd1526443441b7d7dbf2f02d8f3
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 302056
+  packageName: Free Machine Turret
+  packageVersion: 1.0
+  assetPath: Assets/Mythmatic_Free_Machine_Turret/Scripts/HomingProjectile.cs
+  uploadId: 708124

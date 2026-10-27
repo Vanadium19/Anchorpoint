@@ -391,6 +391,10 @@ MonoBehaviour:
     m_Key: building_upgrade_recipes_format
     m_Metadata:
       m_Items: []
+  - m_Id: 15380947715985408
+    m_Key: building_turret
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

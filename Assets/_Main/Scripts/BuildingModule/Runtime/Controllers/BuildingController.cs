@@ -1,4 +1,6 @@
 using System;
+using ComponentsModule;
+using Zenject;
 
 namespace BuildingModule
 {
@@ -9,12 +11,14 @@ namespace BuildingModule
         private readonly BuildingModel _model;
         private readonly IStorageService _storageService;
         private readonly IRepairModifierService _repairModifierService;
+        private readonly DefenseBuildingController _defenseController;
 
         public BuildingController(
             BuildingView view,
             BuildingConfig config,
             IStorageService storageService,
-            IRepairModifierService repairModifierService)
+            IRepairModifierService repairModifierService,
+            [InjectOptional] ICombatTargetSource combatTargetSource)
         {
             _view = view;
             _config = config;
@@ -28,6 +32,16 @@ namespace BuildingModule
                 GetRepairDuration,
                 CanRepair,
                 Repair);
+
+            if (config.IsDefensive)
+            {
+                _defenseController = new DefenseBuildingController(
+                    view,
+                    _model,
+                    config,
+                    combatTargetSource);
+            }
+
             _model.StateChanged += OnStateChanged;
             ApplyState(_model.State);
         }
@@ -35,7 +49,11 @@ namespace BuildingModule
         public BuildingModel Model => _model;
         public bool IsDestroyed => _view == null;
 
-        public void Tick(float deltaTime) => _model.TickConstruction(deltaTime);
+        public void Tick(float deltaTime)
+        {
+            _model.TickConstruction(deltaTime);
+            _defenseController?.Tick(deltaTime);
+        }
 
         public void Dispose() => _model.StateChanged -= OnStateChanged;
 

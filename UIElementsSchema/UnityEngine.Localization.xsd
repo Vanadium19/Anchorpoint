@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:editor="UnityEditor.UIElements" xmlns:engine="UnityEngine.UIElements" xmlns:AddressablesGUI="UnityEditor.AddressableAssets.GUIElements" xmlns="UnityEditor.Accessibility" elementFormDefault="qualified" targetNamespace="UnityEngine.Localization" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="UnityEngine.UIElements.xsd" namespace="UnityEngine.UIElements" />
+  <xs:simpleType name="LocalizedSprite_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedSprite_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedSpriteType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q1="UnityEngine.Localization" type="q1:LocalizedSprite_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q2="UnityEngine.Localization" type="q2:LocalizedSprite_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedSprite" substitutionGroup="engine:VisualElement" xmlns:q3="UnityEngine.Localization" type="q3:LocalizedSpriteType" />
+  <xs:simpleType name="LocalizedMaterial_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedMaterial_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedMaterialType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q4="UnityEngine.Localization" type="q4:LocalizedMaterial_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q5="UnityEngine.Localization" type="q5:LocalizedMaterial_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedMaterial" substitutionGroup="engine:VisualElement" xmlns:q6="UnityEngine.Localization" type="q6:LocalizedMaterialType" />
+  <xs:simpleType name="LocalizedMesh_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedMesh_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedMeshType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q7="UnityEngine.Localization" type="q7:LocalizedMesh_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q8="UnityEngine.Localization" type="q8:LocalizedMesh_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedMesh" substitutionGroup="engine:VisualElement" xmlns:q9="UnityEngine.Localization" type="q9:LocalizedMeshType" />
+  <xs:simpleType name="LocalizedAudioClip_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedAudioClip_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedAudioClipType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q10="UnityEngine.Localization" type="q10:LocalizedAudioClip_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q11="UnityEngine.Localization" type="q11:LocalizedAudioClip_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedAudioClip" substitutionGroup="engine:VisualElement" xmlns:q12="UnityEngine.Localization" type="q12:LocalizedAudioClipType" />
+  <xs:simpleType name="LocalizedStringList_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedStringList_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedStringListType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q13="UnityEngine.Localization" type="q13:LocalizedStringList_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q14="UnityEngine.Localization" type="q14:LocalizedStringList_fallback_Type" use="optional" />
+        <xs:attribute default="," name="separator" type="xs:string" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedStringList" substitutionGroup="engine:VisualElement" xmlns:q15="UnityEngine.Localization" type="q15:LocalizedStringListType" />
+  <xs:simpleType name="LocalizedStringGroup_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedStringGroupType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q16="UnityEngine.Localization" type="q16:LocalizedStringGroup_update-trigger_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedStringGroup" substitutionGroup="engine:VisualElement" xmlns:q17="UnityEngine.Localization" type="q17:LocalizedStringGroupType" />
+  <xs:simpleType name="LocalizedTexture_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedTexture_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedTextureType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q18="UnityEngine.Localization" type="q18:LocalizedTexture_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q19="UnityEngine.Localization" type="q19:LocalizedTexture_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedTexture" substitutionGroup="engine:VisualElement" xmlns:q20="UnityEngine.Localization" type="q20:LocalizedTextureType" />
+  <xs:simpleType name="LocalizedTmpFont_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedTmpFont_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedTmpFontType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q21="UnityEngine.Localization" type="q21:LocalizedTmpFont_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q22="UnityEngine.Localization" type="q22:LocalizedTmpFont_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedTmpFont" substitutionGroup="engine:VisualElement" xmlns:q23="UnityEngine.Localization" type="q23:LocalizedTmpFontType" />
+  <xs:simpleType name="LocalizedFont_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedFont_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedFontType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q24="UnityEngine.Localization" type="q24:LocalizedFont_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q25="UnityEngine.Localization" type="q25:LocalizedFont_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedFont" substitutionGroup="engine:VisualElement" xmlns:q26="UnityEngine.Localization" type="q26:LocalizedFontType" />
+  <xs:simpleType name="LocalizedTextCoreFontAsset_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedTextCoreFontAsset_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedTextCoreFontAssetType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q27="UnityEngine.Localization" type="q27:LocalizedTextCoreFontAsset_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q28="UnityEngine.Localization" type="q28:LocalizedTextCoreFontAsset_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedTextCoreFontAsset" substitutionGroup="engine:VisualElement" xmlns:q29="UnityEngine.Localization" type="q29:LocalizedTextCoreFontAssetType" />
+  <xs:simpleType name="LocalizedGameObject_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedGameObject_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedGameObjectType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q30="UnityEngine.Localization" type="q30:LocalizedGameObject_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q31="UnityEngine.Localization" type="q31:LocalizedGameObject_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedGameObject" substitutionGroup="engine:VisualElement" xmlns:q32="UnityEngine.Localization" type="q32:LocalizedGameObjectType" />
+  <xs:simpleType name="LocalizedString_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedString_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedStringType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q33="UnityEngine.Localization" type="q33:LocalizedString_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q34="UnityEngine.Localization" type="q34:LocalizedString_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedString" substitutionGroup="engine:VisualElement" xmlns:q35="UnityEngine.Localization" type="q35:LocalizedStringType" />
+  <xs:complexType name="LocalVariableType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="name" type="xs:string" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalVariable" substitutionGroup="engine:VisualElement" xmlns:q36="UnityEngine.Localization" type="q36:LocalVariableType" />
+  <xs:simpleType name="LocalizedObject_update-trigger_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WhenDirty" />
+      <xs:enumeration value="OnSourceChanged" />
+      <xs:enumeration value="EveryUpdate" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="LocalizedObject_fallback_Type">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UseProjectSettings" />
+      <xs:enumeration value="DontUseFallback" />
+      <xs:enumeration value="UseFallback" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="LocalizedObjectType">
+    <xs:complexContent mixed="false">
+      <xs:restriction base="engine:VisualElementType">
+        <xs:attribute default="" name="property" type="xs:string" use="optional" />
+        <xs:attribute default="WhenDirty" name="update-trigger" xmlns:q37="UnityEngine.Localization" type="q37:LocalizedObject_update-trigger_Type" use="optional" />
+        <xs:attribute default="TableReference(Empty)" name="table" type="xs:string" use="optional" />
+        <xs:attribute default="TableEntryReference(Empty)" name="entry" type="xs:string" use="optional" />
+        <xs:attribute default="UseProjectSettings" name="fallback" xmlns:q38="UnityEngine.Localization" type="q38:LocalizedObject_fallback_Type" use="optional" />
+        <xs:attribute default="" name="content-container" type="xs:string" use="optional" />
+        <xs:attribute default="" name="class" type="xs:string" use="optional" />
+        <xs:attribute default="" name="style" type="xs:string" use="optional" />
+        <xs:anyAttribute processContents="lax" />
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="LocalizedObject" substitutionGroup="engine:VisualElement" xmlns:q39="UnityEngine.Localization" type="q39:LocalizedObjectType" />
+</xs:schema>

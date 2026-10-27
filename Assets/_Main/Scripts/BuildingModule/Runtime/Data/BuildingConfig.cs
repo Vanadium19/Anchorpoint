@@ -26,6 +26,12 @@ namespace BuildingModule
         [Header("Repair Support")]
         [SerializeField, Range(0f, 100f)] private float repairReductionPercent;
 
+        [Header("Defense")]
+        [SerializeField] private bool isDefensive;
+        [SerializeField] [Min(0.1f)] private float defenseSearchRadius = 10f;
+        [SerializeField] [Min(0f)] private float defenseDamage = 10f;
+        [SerializeField] [Min(0.01f)] private float defenseAttackRate = 1f;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -50,6 +56,10 @@ namespace BuildingModule
         public Price RepairPrice => repairPrice;
         public float RepairTime => repairTime;
         public float RepairReductionPercent => repairReductionPercent;
+        public bool IsDefensive => isDefensive;
+        public float DefenseSearchRadius => defenseSearchRadius;
+        public float DefenseDamage => defenseDamage;
+        public float DefenseAttackRate => defenseAttackRate;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }

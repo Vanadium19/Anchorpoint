@@ -40,7 +40,7 @@ MonoBehaviour:
       type: {class: SessionCountTriggerSourceAsset, ns: RandomEventsModule, asm: RandomEventsModule}
       data:
         counterKey: sortie_count
-        requiredCount: 2
+        requiredCount: 15
         pollIntervalSeconds: 20
     - rid: 3584416206657470744
       type: {class: FixedChanceAsset, ns: RandomEventsModule, asm: RandomEventsModule}

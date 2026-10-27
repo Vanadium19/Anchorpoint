@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5c79017d95f45824e8134909395a5c8e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 302056
+  packageName: Free Machine Turret
+  packageVersion: 1.0
+  assetPath: Assets/Mythmatic_Free_Machine_Turret/Animation/turret_attack_anim.anim
+  uploadId: 708124

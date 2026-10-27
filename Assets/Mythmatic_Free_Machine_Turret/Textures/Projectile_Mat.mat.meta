@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8166bae0ab3110b4f8dff7ef77b849e0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 302056
+  packageName: Free Machine Turret
+  packageVersion: 1.0
+  assetPath: Assets/Mythmatic_Free_Machine_Turret/Textures/Projectile_Mat.mat
+  uploadId: 708124

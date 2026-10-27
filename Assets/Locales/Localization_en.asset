@@ -458,6 +458,10 @@ MonoBehaviour:
     m_Localized: 'New recipes: {0}'
     m_Metadata:
       m_Items: []
+  - m_Id: 15380947715985408
+    m_Localized: Turret
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

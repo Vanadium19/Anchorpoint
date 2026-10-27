@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 39f44e40a9ee709498aa0aea8f0e264b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 302056
+  packageName: Free Machine Turret
+  packageVersion: 1.0
+  assetPath: Assets/Mythmatic_Free_Machine_Turret/Animation/Turret_Controller.controller
+  uploadId: 708124

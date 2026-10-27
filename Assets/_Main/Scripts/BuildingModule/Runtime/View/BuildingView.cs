@@ -25,6 +25,7 @@ namespace BuildingModule
         [SerializeField] private Collider collisionCollider;
         [SerializeField] private GameObject initialVisual;
         [SerializeField] private Transform upgradeVisualContainer;
+        [SerializeField] private DefenseBuildingView defenseView;
 
         private string _buildingConfigId;
         private string _instanceId;
@@ -48,6 +49,7 @@ namespace BuildingModule
         private readonly List<Material> _previewMaterials = new();
 
         public Collider CollisionCollider => collisionCollider;
+        public DefenseBuildingView DefenseView => defenseView;
         public IExternalUI ExternalUI => GetComponent<IExternalUI>();
 
         public string BuildingConfigId
