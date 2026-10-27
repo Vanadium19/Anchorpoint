@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: 12x70 16pcs
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: 12x70 16pcs
+  description: 
+  icon: {fileID: 21300000, guid: 8afc9b746bec8cd4297002e629e5ac7a, type: 3}
+  nameKey: item_ammo_12_16
+  descriptionKey: 
+  dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
+  equipmentSlotType: 0
+  isEquippable: 0
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 1
+  maxDurability: 16
+  showDurability: 1
+  effectData: {fileID: 11400000, guid: 63321c8207a2e284eb39276cdda79a8d, type: 2}
+  isDropable: 1
+  worldPrefab: {fileID: 3445325597789474244, guid: 3a9b93b8671b88247843908ef702b3de, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}
