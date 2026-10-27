@@ -9,6 +9,7 @@ namespace InventoryModule
         private readonly DiContainer _container;
 
         private IInventoryManager _inventoryManager;
+        private EquipmentSlot _activeSlot;
 
         public EquipmentSlotService(DiContainer container)
         {
@@ -26,6 +27,10 @@ namespace InventoryModule
             }
         }
 
+        public EquipmentSlot ActiveSlot => _activeSlot;
+
+        public void SetActiveSlot(EquipmentSlot slot) => _activeSlot = slot;
+
         public void RegisterSlot(EquipmentSlot slot)
         {
             if (slot != null && !_slots.Contains(slot))
@@ -34,8 +39,13 @@ namespace InventoryModule
 
         public void UnregisterSlot(EquipmentSlot slot)
         {
-            if (slot != null)
-                _slots.Remove(slot);
+            if (slot == null)
+                return;
+
+            _slots.Remove(slot);
+
+            if (_activeSlot == slot)
+                _activeSlot = null;
         }
 
         public IReadOnlyList<EquipmentSlot> GetAllSlots() => _slots;
