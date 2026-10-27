@@ -12,12 +12,14 @@ namespace BuildingModule
         private readonly IStorageService _storageService;
         private readonly IRepairModifierService _repairModifierService;
         private readonly DefenseBuildingController _defenseController;
+        private readonly MinefieldController _minefieldController;
 
         public BuildingController(
             BuildingView view,
             BuildingConfig config,
             IStorageService storageService,
             IRepairModifierService repairModifierService,
+            IBuildingRegistry buildingRegistry,
             [InjectOptional] ICombatTargetSource combatTargetSource)
         {
             _view = view;
@@ -42,6 +44,19 @@ namespace BuildingModule
                     combatTargetSource);
             }
 
+            if (config.IsMinefield && view.MinefieldView != null)
+            {
+                var minefieldModel = new MinefieldModel(config.MineCount);
+
+                _minefieldController = new MinefieldController(
+                    view,
+                    _model,
+                    minefieldModel,
+                    view.MinefieldView,
+                    config,
+                    buildingRegistry);
+            }
+
             _model.StateChanged += OnStateChanged;
             ApplyState(_model.State);
         }
@@ -55,7 +70,11 @@ namespace BuildingModule
             _defenseController?.Tick(deltaTime);
         }
 
-        public void Dispose() => _model.StateChanged -= OnStateChanged;
+        public void Dispose()
+        {
+            _model.StateChanged -= OnStateChanged;
+            _minefieldController?.Dispose();
+        }
 
         private float GetRepairDuration() => _repairModifierService.GetRepairDuration(_config.RepairTime);
 
