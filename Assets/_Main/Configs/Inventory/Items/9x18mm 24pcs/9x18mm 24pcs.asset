@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e06d90400c70fad459eab823880ebef1, type: 3}
+  m_Name: 9x18mm 24pcs
+  m_EditorClassIdentifier: InventoryModule::InventoryModule.ItemDataSo
+  displayName: 9x18mm 24pcs
+  description: 
+  icon: {fileID: 21300000, guid: b0a0d0c504b95e441a2ac2026400c657, type: 3}
+  nameKey: item_ammo_918_24
+  descriptionKey: 
+  dimensionsSo: {fileID: 11400000, guid: 9c877479120632743b96582ea4056157, type: 2}
+  equipmentSlotType: 0
+  isEquippable: 0
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 1
+  maxDurability: 24
+  showDurability: 1
+  effectData: {fileID: 11400000, guid: 57f8727277f2fea469a6811e417ed7dd, type: 2}
+  isDropable: 1
+  worldPrefab: {fileID: 3445325597789474244, guid: b71c24058a01c3748ba45f796179d4c1, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}

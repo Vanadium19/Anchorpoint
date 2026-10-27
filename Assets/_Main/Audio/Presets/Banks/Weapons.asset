@@ -21,6 +21,18 @@ MonoBehaviour:
     value: {fileID: 11400000, guid: 449261687185d544386a68fbd124667c, type: 2}
   - identifier: RifleEmptyReload
     value: {fileID: 11400000, guid: 659ec69b2b08e924fb538197fc3d71a9, type: 2}
+  - identifier: RevolverFire
+    value: {fileID: 11400000, guid: e7e8b814a7b809e4b96f57d23cf3b01e, type: 2}
+  - identifier: RevolverCylinderOpen
+    value: {fileID: 11400000, guid: da47517e98d92f74da3cbddae27c446e, type: 2}
+  - identifier: RevolverCylinderSpin
+    value: {fileID: 11400000, guid: 26570f9207ac2164b8bcd6cd6feae747, type: 2}
+  - identifier: RevolverCylinderClose
+    value: {fileID: 11400000, guid: 3132123850c981e49b66d3f2cdd60cbd, type: 2}
+  - identifier: RevolverSpeedloader
+    value: {fileID: 11400000, guid: 8e6c8f3780d082546b54482044de11cb, type: 2}
+  - identifier: CasingsDrop
+    value: {fileID: 11400000, guid: 9411039fac52646449376627a8fe48ae, type: 2}
   - identifier: BulletImpact
     value: {fileID: 11400000, guid: d42af519108088b42894bc72ea224dc7, type: 2}
   boolParameters: []

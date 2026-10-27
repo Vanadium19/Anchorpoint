@@ -343,6 +343,14 @@ MonoBehaviour:
     m_Key: hint_repair
     m_Metadata:
       m_Items: []
+  - m_Id: 22862718376599552
+    m_Key: item_revolver_kobalt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22862718414348289
+    m_Key: item_ammo_918_24
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

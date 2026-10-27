@@ -410,6 +410,14 @@ MonoBehaviour:
     m_Localized: Hold [F] to repair {0}
     m_Metadata:
       m_Items: []
+  - m_Id: 22862718376599552
+    m_Localized: OTs-01 Kobalt revolver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22862718414348289
+    m_Localized: 9x18mm (24 pcs)
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
