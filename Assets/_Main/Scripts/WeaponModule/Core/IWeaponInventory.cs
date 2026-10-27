@@ -10,5 +10,7 @@ namespace WeaponModule
         void Initialize();
         void EquipWeapon(ItemTable item);
         void UnequipCurrentWeapon();
+        bool CanAcceptAmmo(AmmoType ammoType);
+        bool TryAddReserveAmmo(AmmoType ammoType, int amount);
     }
 }
