@@ -80,7 +80,7 @@ namespace WeaponModule
             _currentWeapon = target;
             RestoreAmmoFromItem(_currentWeapon);
             _currentWeapon.Equip();
-            CurrentWeaponChanged?.Invoke(_currentWeapon);
+            RaiseCurrentWeaponChanged();
         }
 
         public void UnequipCurrentWeapon()
@@ -91,7 +91,38 @@ namespace WeaponModule
             SaveAmmoToItem(_currentWeapon);
             _currentWeapon.Unequip().Forget();
             _currentWeapon = null;
-            CurrentWeaponChanged?.Invoke(null);
+            RaiseCurrentWeaponChanged();
+        }
+
+        public bool CanAcceptAmmo(AmmoType ammoType) => FindAmmoTarget(ammoType) != null;
+
+        public bool TryAddReserveAmmo(AmmoType ammoType, int amount)
+        {
+            if (amount <= 0)
+                return false;
+
+            var target = FindAmmoTarget(ammoType);
+
+            if (target == null)
+                return false;
+
+            target.Model.AddReserveAmmo(amount);
+            SaveAmmoToItem(target);
+            return true;
+        }
+
+        private WeaponController FindAmmoTarget(AmmoType ammoType)
+        {
+            if (_currentWeapon != null && _currentWeapon.AmmoType == ammoType)
+                return _currentWeapon;
+
+            foreach (var controller in _weaponMap.Values)
+            {
+                if (controller.AmmoType == ammoType)
+                    return controller;
+            }
+
+            return null;
         }
 
         private void SubscribeToSlots()
@@ -141,7 +172,7 @@ namespace WeaponModule
                 _currentWeapon = cached;
                 RestoreAmmoFromItem(cached);
                 cached.Equip();
-                CurrentWeaponChanged?.Invoke(cached);
+                RaiseCurrentWeaponChanged();
                 return;
             }
 
@@ -187,7 +218,7 @@ namespace WeaponModule
 
             _currentWeapon = controller;
             controller.Equip();
-            CurrentWeaponChanged?.Invoke(controller);
+            RaiseCurrentWeaponChanged();
         }
 
         private void OnItemUnequipped(ItemTable item)
@@ -200,12 +231,22 @@ namespace WeaponModule
             if (_currentWeapon == controller)
             {
                 _currentWeapon = null;
-                CurrentWeaponChanged?.Invoke(null);
+                RaiseCurrentWeaponChanged();
             }
 
             _weaponMap.Remove(item);
             controller.Hide();
             _weaponCache[item] = controller;
+        }
+
+        private void RaiseCurrentWeaponChanged()
+        {
+            var activeSlot = _currentWeapon != null
+                ? _slotService.GetSlotForItem(_currentWeapon.GetItemTable())
+                : null;
+
+            _slotService.SetActiveSlot(activeSlot);
+            CurrentWeaponChanged?.Invoke(_currentWeapon);
         }
 
         private void SaveAmmoToItem(WeaponController controller)

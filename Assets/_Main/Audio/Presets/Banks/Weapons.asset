@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71c59311ed514f81aa536eb0ff91b011, type: 3}
+  m_Name: Weapons
+  m_EditorClassIdentifier: AudioModule::AudioModule.AudioBank
+  identifier: Weapons
+  codeGenPath: Assets/_Main/Scripts/AudioModule/Codegen
+  eventParameters:
+  - identifier: RifleFire
+    value: {fileID: 11400000, guid: 0f40b64b4d60b8e4386305f081790425, type: 2}
+  - identifier: RifleReload
+    value: {fileID: 11400000, guid: 449261687185d544386a68fbd124667c, type: 2}
+  - identifier: RifleEmptyReload
+    value: {fileID: 11400000, guid: 659ec69b2b08e924fb538197fc3d71a9, type: 2}
+  - identifier: BulletImpact
+    value: {fileID: 11400000, guid: d42af519108088b42894bc72ea224dc7, type: 2}
+  boolParameters: []
+  intParameters: []
+  floatParameters: []
+  callbacks: []
