@@ -20,7 +20,8 @@ namespace AudioModule
 
         public bool IsValid
         {
-            get { return this.audioEvent != null && 
+            get { return this.audioEvent != null &&
+                         this.audioSystem != null &&
                          this.audioEvent.IsValid &&
                          this.audioSystem.IsCreatedEvent(this.audioEvent); }
         }
