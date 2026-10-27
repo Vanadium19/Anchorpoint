@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34394df186187cc4ca953a634c42fb01, type: 3}
+  m_Name: Shotgun_M590A_Config
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.Configs.WeaponConfig
+  damage: 11
+  fireRate: 0.7
+  magazineCapacity: 8
+  initialReserveAmmo: 8
+  bulletSpeed: 250
+  inheritVelocity: 1
+  reloadTime: 0.6
+  drawTime: 1
+  emptyReloadDelay: 0.35
+  useEmptyReloadAnimation: 0
+  aimPosition: {x: -0.041, y: 0.01, z: -0.01}
+  aimRotation: {x: 0, y: 0, z: 0}
+  aimSpeed: 10
+  aimIsToggle: 1
+  aimStability: 0.801
+  ammoType: 2
+  isAutomatic: 0
+  fireInputBuffer: 0.4
+  projectilesPerShot: 9
+  spreadAngle: 5.5
+  reloadMode: 1
+  roundReloadTime: 0.5
+  HipRecoil:
+    RecoilRotation: {x: -9, y: 2.5, z: 3.5}
+    KickBackZ: 0.04
+    Snappiness: 12
+    ReturnSpeed: 3
+  AimRecoil:
+    RecoilRotation: {x: -7, y: 1.8, z: 2.5}
+    KickBackZ: 0.03
+    Snappiness: 10
+    ReturnSpeed: 4
+  CamHipRecoil:
+    RecoilAmount: {x: -10, y: 4.5, z: 1.5}
+    Snappiness: 6
+    ReturnSpeed: 2
+  CamAimRecoil:
+    RecoilAmount: {x: -4, y: 1.4, z: 0.5}
+    Snappiness: 10
+    ReturnSpeed: 5
+  Sway:
+    Step: 0.005
+    MaxStep: 0.02
+    Smooth: 3
+    RotationStep: 1
+    MaxRotation: 2
+    SmoothRot: 0.5
+    Tilt: 2
+    MaxTilt: 2
