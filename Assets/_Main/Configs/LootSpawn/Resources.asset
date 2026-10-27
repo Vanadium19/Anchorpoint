@@ -18,11 +18,11 @@ MonoBehaviour:
     minCount: 1
     maxCount: 10
     isStacked: 1
-  - item: {fileID: 0}
-    weight: 30
+  - item: {fileID: 11400000, guid: 3b6a8551cc8b7ed498bc190c57c6899b, type: 2}
+    weight: 20
     minCount: 1
-    maxCount: 1
-    isStacked: 0
+    maxCount: 2
+    isStacked: 1
   minItemsToSpawn: 1
   maxItemsToSpawn: 1
   spawnRadius: 0

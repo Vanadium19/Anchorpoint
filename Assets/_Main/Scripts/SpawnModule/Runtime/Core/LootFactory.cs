@@ -15,35 +15,29 @@ namespace SpawnModule
 
         public void Create(Vector3 position, ItemDataSo itemData, int count, bool isStacked = false)
         {
-            if (itemData == null || itemData.WorldPrefab == null)
+            if (itemData == null || itemData.WorldPrefab == null || count <= 0)
                 return;
 
-            if (isStacked)
+            var prefabCount = isStacked ? 1 : count;
+
+            for (var itemIndex = 0; itemIndex < prefabCount; itemIndex++)
             {
-                var lootItem = _container.InstantiatePrefab(itemData.WorldPrefab);
+                var lootObject = _container.InstantiatePrefab(itemData.WorldPrefab);
 
-                if (lootItem != null)
-                {
-                    lootItem.transform.position = position;
-                    var lootView = lootItem.GetComponent<LootItemView>();
+                if (lootObject == null)
+                    continue;
 
-                    if (lootView != null)
-                    {
-                        var itemTable = new ItemTable(itemData);
-                        itemTable.AddAmount(count - 1);
-                        lootView.SetItemTable(itemTable);
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    var lootItem = _container.InstantiatePrefab(itemData.WorldPrefab);
+                lootObject.transform.position = position;
 
-                    if (lootItem != null)
-                        lootItem.transform.position = position;
-                }
+                if (!lootObject.TryGetComponent<LootItemView>(out var lootView))
+                    continue;
+
+                var itemTable = new ItemTable(itemData);
+
+                if (isStacked)
+                    itemTable.AddAmount(count - 1);
+
+                lootView.SetItemTable(itemTable);
             }
         }
     }
