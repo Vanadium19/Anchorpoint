@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2194487db8f04d1ab717986e756f9d5a, type: 3}
+  m_Name: WoodenStakesConfig
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingConfig
+  id: wooden_stakes
+  category: 3
+  prefab: {fileID: 2634820156850035322, guid: b7390057cace60c458efc65fb410f717, type: 3}
+  price:
+    value: []
+  icon: {fileID: 0}
+  order: 0
+  constructionTime: 5
+  maxHealth: 100
+  brokenAlpha: 0.45
+  repairPrice:
+    value: []
+  repairTime: 3
+  repairReductionPercent: 0
+  isWoodenStakes: 1
+  woodenStakesSlowPercent: 50
+  nameKey: 
+  allowedBuildLayers:
+    serializedVersion: 2
+    m_Bits: 4087
+  basePoints: 0

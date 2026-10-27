@@ -13,6 +13,7 @@ namespace BuildingModule
         private readonly IRepairModifierService _repairModifierService;
         private readonly DefenseBuildingController _defenseController;
         private readonly MinefieldController _minefieldController;
+        private readonly WoodenStakesController _woodenStakesController;
 
         public BuildingController(
             BuildingView view,
@@ -57,6 +58,14 @@ namespace BuildingModule
                     buildingRegistry);
             }
 
+            if (config.IsWoodenStakes && view.WoodenStakesView != null)
+            {
+                _woodenStakesController = new WoodenStakesController(
+                    _model,
+                    view.WoodenStakesView,
+                    config.WoodenStakesSpeedMultiplier);
+            }
+
             _model.StateChanged += OnStateChanged;
             ApplyState(_model.State);
         }
@@ -74,6 +83,7 @@ namespace BuildingModule
         {
             _model.StateChanged -= OnStateChanged;
             _minefieldController?.Dispose();
+            _woodenStakesController?.Dispose();
         }
 
         private float GetRepairDuration() => _repairModifierService.GetRepairDuration(_config.RepairTime);

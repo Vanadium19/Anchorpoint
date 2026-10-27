@@ -38,6 +38,10 @@ namespace BuildingModule
         [SerializeField] [Min(0f)] private float mineDamage = 50f;
         [SerializeField] private LayerMask mineTargetLayers;
 
+        [Header("Wooden Stakes")]
+        [SerializeField] private bool isWoodenStakes;
+        [SerializeField, Range(0f, 95f)] private float woodenStakesSlowPercent = 50f;
+
         [Header("Localization")]
         [SerializeField] private string nameKey = "";
 
@@ -70,6 +74,8 @@ namespace BuildingModule
         public int MineCount => mineCount;
         public float MineDamage => mineDamage;
         public LayerMask MineTargetLayers => mineTargetLayers;
+        public bool IsWoodenStakes => isWoodenStakes;
+        public float WoodenStakesSpeedMultiplier => 1f - woodenStakesSlowPercent / 100f;
         public LayerMask AllowedBuildLayers => allowedBuildLayers;
         public int BasePoints => basePoints;
     }

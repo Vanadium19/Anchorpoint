@@ -462,6 +462,10 @@ MonoBehaviour:
     m_Localized: Turret
     m_Metadata:
       m_Items: []
+  - m_Id: 15604224031952896
+    m_Localized: Wooden Stakes
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
