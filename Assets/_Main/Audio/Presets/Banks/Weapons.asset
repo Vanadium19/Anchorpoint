@@ -21,6 +21,12 @@ MonoBehaviour:
     value: {fileID: 11400000, guid: 449261687185d544386a68fbd124667c, type: 2}
   - identifier: RifleEmptyReload
     value: {fileID: 11400000, guid: 659ec69b2b08e924fb538197fc3d71a9, type: 2}
+  - identifier: ShotgunFire
+    value: {fileID: 11400000, guid: d650dcc8427195a428513c69dd3a88d7, type: 2}
+  - identifier: ShotgunPump
+    value: {fileID: 11400000, guid: 1a6fea4e2f2286144a2cc6cf70b7630d, type: 2}
+  - identifier: ShotgunShellInsert
+    value: {fileID: 11400000, guid: 147f54c001a33e548bfbdf045bd6c3b9, type: 2}
   - identifier: RevolverFire
     value: {fileID: 11400000, guid: e7e8b814a7b809e4b96f57d23cf3b01e, type: 2}
   - identifier: RevolverCylinderOpen

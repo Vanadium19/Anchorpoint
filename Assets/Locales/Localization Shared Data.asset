@@ -347,8 +347,16 @@ MonoBehaviour:
     m_Key: item_revolver_kobalt
     m_Metadata:
       m_Items: []
+  - m_Id: 22862718414348288
+    m_Key: item_shotgun_m590a1
+    m_Metadata:
+      m_Items: []
   - m_Id: 22862718414348289
     m_Key: item_ammo_918_24
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22862718414348290
+    m_Key: item_ammo_12_16
     m_Metadata:
       m_Items: []
   m_Metadata:

@@ -414,8 +414,16 @@ MonoBehaviour:
     m_Localized: OTs-01 Kobalt revolver
     m_Metadata:
       m_Items: []
+  - m_Id: 22862718414348288
+    m_Localized: M590A1 shotgun
+    m_Metadata:
+      m_Items: []
   - m_Id: 22862718414348289
     m_Localized: 9x18mm (24 pcs)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22862718414348290
+    m_Localized: 12x70 buckshot (16 pcs)
     m_Metadata:
       m_Items: []
   references:
