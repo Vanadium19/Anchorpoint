@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
@@ -33,6 +34,7 @@ namespace WeaponModule
         private WeaponViewPart[] _parts;
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
+        private Vector3 _aimPositionOffset;
         private WeaponConfig _config;
         private float _currentAimBlend;
         private Transform _cameraTransform;
@@ -72,6 +74,17 @@ namespace WeaponModule
             _cameraTransform = mainCamera != null ? mainCamera.transform.parent : null;
 
             ForEachPart(static (part, weaponConfig) => part.Initialize(weaponConfig), config);
+        }
+
+        public void SetModifications(IReadOnlyList<WeaponModificationConfig> modifications)
+        {
+            _aimPositionOffset = Vector3.zero;
+
+            foreach (var part in Parts)
+            {
+                part.OnModificationsChanged(modifications);
+                _aimPositionOffset += part.AimPositionOffset;
+            }
         }
 
         public void SetPaused(bool isPaused)
@@ -162,7 +175,7 @@ namespace WeaponModule
             if (aimPivot == null)
                 return;
 
-            var targetPosition = isAiming ? _config.AimPosition : _hipPosition;
+            var targetPosition = isAiming ? _config.AimPosition + _aimPositionOffset : _hipPosition;
             var targetRotation = isAiming ? Quaternion.Euler(_config.AimRotation) : _hipRotation;
             var speed = _config.AimSpeed * Time.deltaTime;
 

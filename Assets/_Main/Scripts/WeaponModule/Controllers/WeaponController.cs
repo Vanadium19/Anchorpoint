@@ -42,6 +42,7 @@ namespace WeaponModule
 
         private CancellationTokenSource _tokenSource;
 
+        private WeaponStats _stats;
         private WeaponItemSo _weaponItem;
         private ItemTable _itemTable;
 
@@ -66,6 +67,7 @@ namespace WeaponModule
             _pauseManager = pauseManager;
             _ownerRoot = ownerRoot;
 
+            _stats = new WeaponStats(config, Array.Empty<WeaponModificationConfig>());
             _tokenSource = new();
             _pauseManager.Register(this);
         }
@@ -76,17 +78,29 @@ namespace WeaponModule
 
         public void Initialize()
         {
-            _model.Initialize(_config.MagazineCapacity, _config.MagazineCapacity, _config.InitialReserveAmmo);
+            _model.Initialize(_stats.MagazineCapacity, _stats.MagazineCapacity, _config.InitialReserveAmmo);
             _view.Initialize(_config);
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
-        public void InitializeFromItem(WeaponItemSo weaponItem, int currentMagazineAmmo, int reserveAmmo)
+        public void InitializeFromItem(WeaponItemSo weaponItem, WeaponStats stats,
+            IReadOnlyList<WeaponModificationConfig> modifications, int currentMagazineAmmo, int reserveAmmo)
         {
             _weaponItem = weaponItem;
+            _stats = stats;
 
-            _model.Initialize(_config.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
+            _model.Initialize(_stats.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
             _view.Initialize(_config);
+            _view.SetModifications(modifications);
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
+        }
+
+        public void ApplyModifications(WeaponStats stats, IReadOnlyList<WeaponModificationConfig> modifications)
+        {
+            _stats = stats;
+
+            _model.SetMagazineCapacity(_stats.MagazineCapacity);
+            _view.SetModifications(modifications);
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
@@ -264,9 +278,12 @@ namespace WeaponModule
 
             _shotProjectiles.Clear();
 
+            var deviation = UnityEngine.Random.insideUnitCircle * _stats.GetInaccuracy(_isAiming);
+            var shotRotation = _view.FirePoint.rotation * Quaternion.Euler(deviation.x, deviation.y, 0f);
+
             for (var i = 0; i < _config.ProjectilesPerShot; i++)
             {
-                var projectile = SpawnProjectile(i == 0);
+                var projectile = SpawnProjectile(shotRotation, i == 0);
 
                 if (projectile != null)
                     _shotProjectiles.Add(projectile);
@@ -278,13 +295,13 @@ namespace WeaponModule
                 StartReload(true, _config.EmptyReloadDelay);
         }
 
-        private Bullet SpawnProjectile(bool shouldPlayHitSound)
+        private Bullet SpawnProjectile(Quaternion shotRotation, bool shouldPlayHitSound)
         {
             var spread = UnityEngine.Random.insideUnitCircle * _config.SpreadAngle;
-            var rotation = _view.FirePoint.rotation * Quaternion.Euler(spread.x, spread.y, 0f);
+            var rotation = shotRotation * Quaternion.Euler(spread.x, spread.y, 0f);
 
             return _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, rotation,
-                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
+                _stats.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
                 shouldPlayHitSound);
         }
 

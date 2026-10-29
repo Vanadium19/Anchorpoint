@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace WeaponModule
@@ -9,6 +10,11 @@ namespace WeaponModule
     /// </summary>
     public abstract class WeaponViewPart : MonoBehaviour
     {
+        /// <summary>
+        /// Offset added to the aim position of the weapon config, e.g. to look through an installed sight.
+        /// </summary>
+        public virtual Vector3 AimPositionOffset => Vector3.zero;
+
         public virtual void Initialize(WeaponConfig config)
         {
         }
@@ -57,6 +63,13 @@ namespace WeaponModule
         }
 
         public virtual void ResetVisuals()
+        {
+        }
+
+        /// <summary>
+        /// Called when the set of installed modifications of the weapon changes.
+        /// </summary>
+        public virtual void OnModificationsChanged(IReadOnlyList<WeaponModificationConfig> modifications)
         {
         }
     }

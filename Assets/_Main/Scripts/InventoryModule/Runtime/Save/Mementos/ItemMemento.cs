@@ -14,6 +14,7 @@ namespace InventoryModule
         public int DurabilityCurrent;
         public int MagazineAmmo;
         public int ReserveAmmo;
+        public List<string> WeaponModificationIDs = new();
         public List<ContainerMemento> NestedContainers = new();
     }
 }

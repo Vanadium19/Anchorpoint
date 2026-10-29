@@ -12,6 +12,7 @@ namespace WeaponModule
         private readonly IWeaponViewFactory _viewFactory;
         private readonly IWeaponStatsProvider _statsProvider;
         private readonly IEquipmentSlotService _slotService;
+        private readonly IWeaponModificationService _modificationService;
         private readonly DiContainer _container;
 
         private readonly Dictionary<ItemTable, WeaponController> _weaponMap = new();
@@ -26,11 +27,13 @@ namespace WeaponModule
             IWeaponViewFactory viewFactory,
             IWeaponStatsProvider statsProvider,
             IEquipmentSlotService slotService,
+            IWeaponModificationService modificationService,
             DiContainer container)
         {
             _viewFactory = viewFactory;
             _statsProvider = statsProvider;
             _slotService = slotService;
+            _modificationService = modificationService;
             _container = container;
         }
 
@@ -40,12 +43,15 @@ namespace WeaponModule
 
         public void Initialize()
         {
+            _modificationService.ModificationsChanged += OnModificationsChanged;
             SubscribeToSlots();
             ScanEquippedWeapons();
         }
 
         public void Dispose()
         {
+            _modificationService.ModificationsChanged -= OnModificationsChanged;
+
             foreach (var slot in _subscribedSlots)
             {
                 slot.ItemEquipped -= OnItemEquipped;
@@ -193,7 +199,8 @@ namespace WeaponModule
             controller.SetWeaponItem(weaponItem);
             controller.SetItemTable(item);
 
-            int magAmmo = config.MagazineCapacity;
+            var stats = _modificationService.GetStats(item);
+            int magAmmo = stats.MagazineCapacity;
             int reserveAmmo = config.InitialReserveAmmo;
 
             if (item.WeaponAmmoMetadata != null)
@@ -203,10 +210,11 @@ namespace WeaponModule
             }
             else
             {
-                item.InitializeWeaponAmmo(config.MagazineCapacity, config.InitialReserveAmmo);
+                item.InitializeWeaponAmmo(stats.MagazineCapacity, config.InitialReserveAmmo);
             }
 
-            controller.InitializeFromItem(weaponItem, magAmmo, reserveAmmo);
+            controller.InitializeFromItem(weaponItem, stats, _modificationService.GetInstalled(item), magAmmo,
+                reserveAmmo);
 
             _weaponMap[item] = controller;
 
@@ -237,6 +245,15 @@ namespace WeaponModule
             _weaponMap.Remove(item);
             controller.Hide();
             _weaponCache[item] = controller;
+        }
+
+        private void OnModificationsChanged(ItemTable item)
+        {
+            if (!_weaponMap.TryGetValue(item, out var controller) && !_weaponCache.TryGetValue(item, out controller))
+                return;
+
+            controller.ApplyModifications(_modificationService.GetStats(item), _modificationService.GetInstalled(item));
+            SaveAmmoToItem(controller);
         }
 
         private void RaiseCurrentWeaponChanged()

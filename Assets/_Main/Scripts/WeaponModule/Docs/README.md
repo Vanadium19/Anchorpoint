@@ -79,7 +79,25 @@
 
 Банк `Weapons` должен быть в `initialBanks` `AudioSystem` на сцене, где есть оружие (сейчас `Camp` и `Game`).
 
+## Точность
+
+`HipInaccuracy` и `AimInaccuracy` в `WeaponConfig` — случайное отклонение всего выстрела в градусах от бедра и при прицеливании. Отклонение выбирается один раз на выстрел, затем к каждому снаряду добавляется `SpreadAngle` (у дробовика дробины разлетаются вокруг отклоненного направления).
+
+## Модификации
+
+Модификации ставятся на конкретный экземпляр оружия (`ItemTable`), а не на тип: id установленных модификаций хранятся в `WeaponModificationMetadata` предмета и сохраняются вместе с ним (`ItemMemento.WeaponModificationIDs`). Потеря оружия означает потерю его модификаций.
+
+- `WeaponModificationConfig` (`Assets/_Main/Configs/Weapons/Modifications`) — модификация и ее эффект: `DamageMultiplier`, `MagazineCapacityBonus`, `AimInaccuracyMultiplier` (влияет только на прицеливание). `ID` — ключ сохранения, после релиза не менять. `Slot` (`Sight`, `Magazine`, `Barrel`) — на оружии не больше одной модификации на слот.
+- `WeaponItemSo.AvailableModifications` — какие модификации принимает оружие.
+- `WeaponStats` — итоговые характеристики: значения `WeaponConfig` с примененными модификациями. `WeaponController` берет урон, емкость магазина и отклонение из них, остальное — из `WeaponConfig`.
+- `IWeaponModificationService` — чтение, проверка и установка модификаций, расчет `WeaponStats`, событие `ModificationsChanged`. Привязывается `WeaponModificationInstaller` в `SceneContext` (Camp и Game), чтобы сервис был общим для оружия игрока (`GameObjectContext`) и станций на сцене. `WeaponInventory` по событию пересчитывает характеристики уже созданного оружия: при уменьшении магазина лишние патроны уходят в резерв.
+- `WeaponAttachmentsView` — часть представления на prefab оружия: для каждой модификации задает показываемые объекты, скрываемые штатные детали и `aimPositionOffset`, на который сдвигается `AimPosition` при прицеливании (взгляд через коллиматор). Модели модификаций лежат под костями `gun_root_bone`/`mag_bone`, поэтому следуют клипам.
+
+Покупка модификаций за ресурсы — в `ArsenalModule`.
+
 ## Расширение
+
+Новая модификация: `WeaponModificationConfig`, добавить ее в `AvailableModifications` нужных `WeaponItemSo`, модель и запись в `WeaponAttachmentsView` prefab оружия, цену в `ArsenalConfig`.
 
 Новое оружие обычно добавляется новым `WeaponConfig` и prefab `WeaponView`. Общий ввод остается в `PlayerModule`, а контракт снаряда задается в `ComponentsModule`.
 

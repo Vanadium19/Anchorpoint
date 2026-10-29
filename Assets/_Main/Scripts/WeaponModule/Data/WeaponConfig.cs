@@ -44,6 +44,14 @@ namespace WeaponModule
         [Min(0f)]
         [SerializeField] private float spreadAngle = 0f;
 
+        [Header("Accuracy")]
+        [Tooltip("Random deviation of the whole shot in degrees when firing from the hip.")]
+        [Min(0f)]
+        [SerializeField] private float hipInaccuracy = 0f;
+        [Tooltip("Random deviation of the whole shot in degrees when aiming.")]
+        [Min(0f)]
+        [SerializeField] private float aimInaccuracy = 0f;
+
         [Header("Reload Mode")]
         [SerializeField] private ReloadMode reloadMode = ReloadMode.Magazine;
         [SerializeField] private float roundReloadTime = 0.5f;
@@ -77,6 +85,8 @@ namespace WeaponModule
         public float FireInputBuffer => fireInputBuffer;
         public int ProjectilesPerShot => projectilesPerShot;
         public float SpreadAngle => spreadAngle;
+        public float HipInaccuracy => hipInaccuracy;
+        public float AimInaccuracy => aimInaccuracy;
         public ReloadMode ReloadMode => reloadMode;
         public float RoundReloadTime => roundReloadTime;
     }

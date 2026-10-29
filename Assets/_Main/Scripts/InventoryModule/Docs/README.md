@@ -7,6 +7,7 @@
 ## Основные части
 
 - `ItemTable`, `GridTable`, `InventoryMetadata` и `ContainerMetadata` представляют модель инвентаря.
+- `WeaponAmmoMetadata` и `WeaponModificationMetadata` хранят состояние экземпляра оружия: патроны и id установленных модификаций; оба сохраняются в `ItemMemento`.
 - `CharacterInventory` хранит инвентарь персонажа.
 - `GridService`, `EquipmentSlotService`, `DropService` и `ContainerWindowService` выполняют операции над предметами.
 - `ContextActionService` формирует доступные действия: использование, экипировку, открытие и выбрасывание.
