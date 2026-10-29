@@ -359,6 +359,58 @@ MonoBehaviour:
     m_Key: item_ammo_12_16
     m_Metadata:
       m_Items: []
+  - m_Id: 24426784672964608
+    m_Key: building_arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182336
+    m_Key: arsenal.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182337
+    m_Key: arsenal.install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182338
+    m_Key: arsenal.installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182339
+    m_Key: arsenal.slotOccupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182340
+    m_Key: arsenal.noWeapons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182341
+    m_Key: arsenal.mod.redDot
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182342
+    m_Key: arsenal.mod.redDot.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182343
+    m_Key: arsenal.mod.extendedMagazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182344
+    m_Key: arsenal.mod.extendedMagazine.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182345
+    m_Key: arsenal.mod.reinforcedBarrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182346
+    m_Key: arsenal.mod.reinforcedBarrel.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182347
+    m_Key: item_electronics
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

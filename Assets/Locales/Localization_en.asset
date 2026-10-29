@@ -426,6 +426,58 @@ MonoBehaviour:
     m_Localized: 12x70 buckshot (16 pcs)
     m_Metadata:
       m_Items: []
+  - m_Id: 24426784672964608
+    m_Localized: Arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182336
+    m_Localized: Arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182337
+    m_Localized: Install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182338
+    m_Localized: Installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182339
+    m_Localized: Slot occupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182340
+    m_Localized: No weapons to modify
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182341
+    m_Localized: Red dot sight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182342
+    m_Localized: Improves accuracy while aiming
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182343
+    m_Localized: Extended magazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182344
+    m_Localized: +15 rounds per magazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182345
+    m_Localized: Reinforced barrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182346
+    m_Localized: +25% damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24426784807182347
+    m_Localized: Electronics
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

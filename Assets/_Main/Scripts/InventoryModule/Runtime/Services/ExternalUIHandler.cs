@@ -19,13 +19,13 @@ namespace InventoryModule
             _canvas = canvas;
         }
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             _manager.UIOpened += OnUIOpened;
             _manager.UIClosed += CloseAll;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _manager.UIOpened -= OnUIOpened;
             _manager.UIClosed -= CloseAll;

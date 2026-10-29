@@ -1333,6 +1333,7 @@ GameObject:
   - component: {fileID: 489959979}
   - component: {fileID: 489959980}
   - component: {fileID: 489959981}
+  - component: {fileID: 489959982}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -1366,6 +1367,7 @@ MonoBehaviour:
   - {fileID: 489959980}
   - {fileID: 489959981}
   - {fileID: 2029948859}
+  - {fileID: 489959982}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1537,6 +1539,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e382d1cffdec2041ba8ad46a087cfdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: TradeModule::TradeModule.TradeInstaller
+--- !u!114 &489959982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489959967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f79e4467d1760a24682da28a514b4ebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.Installers.WeaponModificationInstaller
 --- !u!1001 &501595931
 PrefabInstance:
   m_ObjectHideFlags: 0

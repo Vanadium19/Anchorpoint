@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2194487db8f04d1ab717986e756f9d5a, type: 3}
+  m_Name: ArsenalConfig
+  m_EditorClassIdentifier: BuildingModule::BuildingModule.BuildingConfig
+  id: Arsenal
+  category: 2
+  prefab: {fileID: 497741910130865708, guid: 5b41cc89355478245982c7b1c93c9413, type: 3}
+  price:
+    value:
+    - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+      Count: 6
+  icon: {fileID: 21300000, guid: c19400f91f5d8ea4e92dafcdb8958aa3, type: 3}
+  order: 3
+  constructionTime: 5
+  maxHealth: 100
+  brokenAlpha: 0.45
+  repairPrice:
+    value:
+    - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+      Count: 3
+  repairTime: 3
+  repairReductionPercent: 50
+  nameKey: building_arsenal
+  allowedBuildLayers:
+    serializedVersion: 2
+    m_Bits: 513
+  basePoints: 25

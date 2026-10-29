@@ -6126,6 +6126,8 @@ GameObject:
   - component: {fileID: 1121154651}
   - component: {fileID: 1121154652}
   - component: {fileID: 1121154653}
+  - component: {fileID: 1121154655}
+  - component: {fileID: 1121154654}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -6177,6 +6179,8 @@ MonoBehaviour:
   - {fileID: 1121154652}
   - {fileID: 1019779664}
   - {fileID: 1121154653}
+  - {fileID: 1121154655}
+  - {fileID: 1121154654}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -6366,6 +6370,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c723d15384ebbee4995ab6ad870a605f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: RandomEventsModule::RandomEventsModule.RandomEventSignalsInstaller
+--- !u!114 &1121154654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121154637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a166540bdc7bd8f43a3bda70091eb0bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArsenalModule::ArsenalModule.ArsenalInstaller
+--- !u!114 &1121154655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1121154637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f79e4467d1760a24682da28a514b4ebb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.Installers.WeaponModificationInstaller
 --- !u!1 &1173029659
 GameObject:
   m_ObjectHideFlags: 0

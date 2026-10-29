@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32818366378d0a14a96948b8c31456ac, type: 3}
+  m_Name: ArsenalModificationsConfig
+  m_EditorClassIdentifier: ArsenalModule::ArsenalModule.ArsenalConfig
+  titleKey: arsenal.title
+  prices:
+  - modification: {fileID: 11400000, guid: acf76413282571f49b6010621bcbf5c9, type: 2}
+    cost:
+    - item: {fileID: 11400000, guid: 319451b02ff22e84f9012b3cbe81e5e1, type: 2}
+      count: 3
+  - modification: {fileID: 11400000, guid: 4e46dbdd81afec94c9a802218f2802c8, type: 2}
+    cost:
+    - item: {fileID: 11400000, guid: 319451b02ff22e84f9012b3cbe81e5e1, type: 2}
+      count: 2
+  - modification: {fileID: 11400000, guid: bca84aa44f4694e4da717da0b7bd6688, type: 2}
+    cost:
+    - item: {fileID: 11400000, guid: 319451b02ff22e84f9012b3cbe81e5e1, type: 2}
+      count: 4
