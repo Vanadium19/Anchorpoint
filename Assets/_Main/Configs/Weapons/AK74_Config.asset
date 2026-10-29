@@ -27,6 +27,15 @@ MonoBehaviour:
   aimSpeed: 10
   aimIsToggle: 1
   aimStability: 0.801
+  ammoType: 0
+  isAutomatic: 1
+  fireInputBuffer: 0.25
+  projectilesPerShot: 1
+  spreadAngle: 0
+  hipInaccuracy: 2
+  aimInaccuracy: 0.8
+  reloadMode: 0
+  roundReloadTime: 0.5
   HipRecoil:
     RecoilRotation: {x: -1.5, y: 1, z: 1}
     KickBackZ: 0.003

@@ -32,6 +32,8 @@ MonoBehaviour:
   fireInputBuffer: 0.4
   projectilesPerShot: 9
   spreadAngle: 5.5
+  hipInaccuracy: 1.5
+  aimInaccuracy: 0.8
   reloadMode: 1
   roundReloadTime: 0.5
   HipRecoil:

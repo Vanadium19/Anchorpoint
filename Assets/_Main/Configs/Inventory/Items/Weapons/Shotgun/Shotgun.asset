@@ -34,3 +34,6 @@ MonoBehaviour:
   contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}
   weaponConfig: {fileID: 11400000, guid: 6c9fa48e6f2cdcc41922f8e02419c218, type: 2}
   weaponViewPrefab: {fileID: 7674212183257812187, guid: 75fb28f0199d4794a8b44cd5c3a1f908, type: 3}
+  availableModifications:
+  - {fileID: 11400000, guid: acf76413282571f49b6010621bcbf5c9, type: 2}
+  - {fileID: 11400000, guid: bca84aa44f4694e4da717da0b7bd6688, type: 2}
