@@ -19,7 +19,9 @@ namespace WeaponModule.Installers
             Container.Bind<IWeaponViewFactory>().To<WeaponViewFactory>().AsSingle();
             Container.Bind<IWeaponStatsProvider>().To<WeaponStatsProvider>().AsSingle();
             Container.Bind<ICameraRecoilService>().To<CameraRecoilService>().AsSingle();
+            Container.Bind<ICameraZoomService>().To<CameraZoomService>().AsSingle();
             Container.Bind<IBulletFactory>().To<BulletFactory>().AsSingle();
+
             Container.Bind<WeaponModel>().AsTransient();
 
             Container.BindInterfacesAndSelfTo<WeaponInventory>().AsSingle();

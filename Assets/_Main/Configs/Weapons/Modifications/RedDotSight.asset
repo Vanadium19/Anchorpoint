@@ -20,3 +20,4 @@ MonoBehaviour:
   damageMultiplier: 1
   magazineCapacityBonus: 0
   aimInaccuracyMultiplier: 0.3
+  aimZoom: 1.25

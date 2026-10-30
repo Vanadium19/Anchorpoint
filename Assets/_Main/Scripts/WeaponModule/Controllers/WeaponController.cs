@@ -239,7 +239,7 @@ namespace WeaponModule
                 }
             }
 
-            _view.UpdateAiming(_isAiming, _config.AimStability);
+            _view.UpdateAiming(_isAiming, _config.AimStability, _stats.AimZoom);
         }
 
         private void CheckFireInput()
@@ -279,7 +279,7 @@ namespace WeaponModule
             _shotProjectiles.Clear();
 
             var deviation = UnityEngine.Random.insideUnitCircle * _stats.GetInaccuracy(_isAiming);
-            var shotRotation = _view.FirePoint.rotation * Quaternion.Euler(deviation.x, deviation.y, 0f);
+            var shotRotation = _view.GetShotRotation(_isAiming) * Quaternion.Euler(deviation.x, deviation.y, 0f);
 
             for (var i = 0; i < _config.ProjectilesPerShot; i++)
             {

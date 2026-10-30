@@ -87,13 +87,16 @@
 
 Модификации ставятся на конкретный экземпляр оружия (`ItemTable`), а не на тип: id установленных модификаций хранятся в `WeaponModificationMetadata` предмета и сохраняются вместе с ним (`ItemMemento.WeaponModificationIDs`). Потеря оружия означает потерю его модификаций.
 
-- `WeaponModificationConfig` (`Assets/_Main/Configs/Weapons/Modifications`) — модификация и ее эффект: `DamageMultiplier`, `MagazineCapacityBonus`, `AimInaccuracyMultiplier` (влияет только на прицеливание). `ID` — ключ сохранения, после релиза не менять. `Slot` (`Sight`, `Magazine`, `Barrel`) — на оружии не больше одной модификации на слот.
+- `WeaponModificationConfig` (`Assets/_Main/Configs/Weapons/Modifications`) — модификация и ее эффект: `DamageMultiplier`, `MagazineCapacityBonus`, `AimInaccuracyMultiplier` и `AimZoom` (влияют только на прицеливание). `ID` — ключ сохранения, после релиза не менять. `Slot` (`Sight`, `Magazine`, `Barrel`) — на оружии не больше одной модификации на слот.
 - `WeaponItemSo.AvailableModifications` — какие модификации принимает оружие.
 - `WeaponStats` — итоговые характеристики: значения `WeaponConfig` с примененными модификациями. `WeaponController` берет урон, емкость магазина и отклонение из них, остальное — из `WeaponConfig`.
 - `IWeaponModificationService` — чтение, проверка и установка модификаций, расчет `WeaponStats`, событие `ModificationsChanged`. Привязывается `WeaponModificationInstaller` в `SceneContext` (Camp и Game), чтобы сервис был общим для оружия игрока (`GameObjectContext`) и станций на сцене. `WeaponInventory` по событию пересчитывает характеристики уже созданного оружия: при уменьшении магазина лишние патроны уходят в резерв.
 - `WeaponAttachmentsView` — часть представления на prefab оружия: для каждой модификации задает показываемые объекты, скрываемые штатные детали и `aimPositionOffset`, на который сдвигается `AimPosition` при прицеливании (взгляд через коллиматор). Модели модификаций лежат под костями `gun_root_bone`/`mag_bone`, поэтому следуют клипам.
 
 - `CollimatorReticleView` — часть на объекте коллиматора: перекрестие (`Reticle`, отдельный меш `Models/Weapons/Attachments/RedDotSight_Reticle`) перед рендером камеры ставится в окне на линию от глаза к далекой точке по оси прицела (`SightAxis`, направлена вдоль ствола). Поэтому точка, как у настоящего коллиматора, показывает направление ствола и не уезжает с мушки при отдаче и раскачивании; при выходе глаза за `maxOffset` точку скрывает корпус. `aimPositionOffset` коллиматора подбирается так, чтобы глаз при прицеливании лежал на оси прицела.
+
+- `ICameraZoomService` — приближение камеры при прицеливании: `WeaponView.UpdateAiming` плавно меняет FOV до базового / `WeaponStats.AimZoom` (произведение `AimZoom` модификаций, без модификаций 1). Базовый FOV запоминается один раз на камеру, при сбросе и выключении представления FOV возвращается.
+- На АК коллиматор стоит на райзере (`Mount`, меш `RedDotSight_Riser`), чтобы окно было на высоте мушки: глаз, точка и мушка на одной линии. У револьвера и дробовика мушка ниже крышки, поэтому она видна под точкой, а точка показывает направление ствола.
 
 Покупка модификаций за ресурсы — в `ArsenalModule`.
 

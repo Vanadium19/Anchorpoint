@@ -26,6 +26,9 @@ namespace WeaponModule
         [Tooltip("Multiplies the shot deviation while aiming. Lower is more accurate.")]
         [Min(0f)]
         [SerializeField] private float aimInaccuracyMultiplier = 1f;
+        [Tooltip("Camera magnification while aiming. 1 keeps the field of view unchanged.")]
+        [Min(1f)]
+        [SerializeField] private float aimZoom = 1f;
 
         public string ID => id;
         public WeaponModificationSlot Slot => slot;
@@ -35,5 +38,6 @@ namespace WeaponModule
         public float DamageMultiplier => damageMultiplier;
         public int MagazineCapacityBonus => magazineCapacityBonus;
         public float AimInaccuracyMultiplier => aimInaccuracyMultiplier;
+        public float AimZoom => aimZoom;
     }
 }

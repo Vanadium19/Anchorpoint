@@ -15,6 +15,15 @@ namespace WeaponModule
         /// </summary>
         public virtual Vector3 AimPositionOffset => Vector3.zero;
 
+        /// <summary>
+        /// Point the shot converges to while aiming through this part, e.g. the zero of a sight.
+        /// </summary>
+        public virtual bool TryGetSightZeroPoint(out Vector3 zeroPoint)
+        {
+            zeroPoint = default;
+            return false;
+        }
+
         public virtual void Initialize(WeaponConfig config)
         {
         }

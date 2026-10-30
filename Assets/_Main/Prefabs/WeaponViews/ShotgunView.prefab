@@ -332,7 +332,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1375063757096244481}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.00000017881389, y: 0.70710677, z: -0.00000014901158, w: 0.7071067}
+  m_LocalRotation: {x: -0.007395997, y: 0.70809877, z: -0.0074179973, w: 0.70603573}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -639,7 +639,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7160172719816225193}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.00000017881389, y: -0.70710677, z: 0.00000014901158, w: 0.7071067}
+  m_LocalRotation: {x: 0.007395997, y: -0.70809877, z: 0.0074179973, w: 0.70603573}
   m_LocalPosition: {x: 0.0066, y: 0.0183, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -754,6 +754,7 @@ MonoBehaviour:
   sightAxis: {fileID: 3350459405849133351}
   reticle: {fileID: 8564843375857778798}
   maxOffset: 0.006999321
+  zeroDistance: 50
 --- !u!1 &8048687070753652917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,7 +1042,7 @@ MonoBehaviour:
     shownObjects:
     - {fileID: 7609199948222768926}
     hiddenObjects: []
-    aimPositionOffset: {x: 0.0008000061, y: 0.005813809, z: 0}
+    aimPositionOffset: {x: 0.0003700061, y: 0.002283809, z: 0}
   - modification: {fileID: 11400000, guid: bca84aa44f4694e4da717da0b7bd6688, type: 2}
     shownObjects:
     - {fileID: 1342771262793506250}

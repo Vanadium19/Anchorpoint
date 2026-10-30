@@ -31,6 +31,7 @@ namespace WeaponModule
         private readonly SwayProcessor _sway = new();
 
         private ICameraRecoilService _cameraRecoil;
+        private ICameraZoomService _cameraZoom;
         private WeaponViewPart[] _parts;
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
@@ -55,10 +56,16 @@ namespace WeaponModule
         {
             if (animationEvents != null)
                 animationEvents.EventRaised -= OnAnimationEventRaised;
+
+            _cameraZoom?.ResetZoom();
         }
 
         [Inject]
-        private void Construct(ICameraRecoilService cameraRecoil) => _cameraRecoil = cameraRecoil;
+        private void Construct(ICameraRecoilService cameraRecoil, ICameraZoomService cameraZoom)
+        {
+            _cameraRecoil = cameraRecoil;
+            _cameraZoom = cameraZoom;
+        }
 
         public void Initialize(WeaponConfig config)
         {
@@ -74,6 +81,20 @@ namespace WeaponModule
             _cameraTransform = mainCamera != null ? mainCamera.transform.parent : null;
 
             ForEachPart(static (part, weaponConfig) => part.Initialize(weaponConfig), config);
+        }
+
+        public Quaternion GetShotRotation(bool isAiming)
+        {
+            if (!isAiming)
+                return firePoint.rotation;
+
+            foreach (var part in Parts)
+            {
+                if (part.TryGetSightZeroPoint(out var zeroPoint))
+                    return Quaternion.LookRotation(zeroPoint - firePoint.position, firePoint.up);
+            }
+
+            return firePoint.rotation;
         }
 
         public void SetModifications(IReadOnlyList<WeaponModificationConfig> modifications)
@@ -170,7 +191,7 @@ namespace WeaponModule
             SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f);
         }
 
-        public void UpdateAiming(bool isAiming, float stabilityTarget)
+        public void UpdateAiming(bool isAiming, float stabilityTarget, float zoom)
         {
             if (aimPivot == null)
                 return;
@@ -181,6 +202,7 @@ namespace WeaponModule
 
             aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPosition, speed);
             aimPivot.localRotation = Quaternion.Slerp(aimPivot.localRotation, targetRotation, speed);
+            _cameraZoom.BlendZoom(isAiming ? zoom : 1f, speed);
 
             var targetBlend = isAiming ? stabilityTarget : 0f;
             _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
@@ -212,6 +234,7 @@ namespace WeaponModule
             _weaponRecoil.Reset();
             _sway.Reset();
             _currentAimBlend = 0f;
+            _cameraZoom.ResetZoom();
 
             if (aimPivot != null)
             {
