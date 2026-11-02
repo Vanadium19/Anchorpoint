@@ -14,10 +14,38 @@
 - `WeaponView` управляет аниматорами рук и оружия, процедурной отдачей и рассылает состояние оружия частям представления (звук, хват, патроны).
 - `RecoilProcessor` и `SwayProcessor` рассчитывают процедурную отдачу и раскачивание.
 - `AmmoPresenter` обновляет `AmmoView`.
+- `WeaponStatComposer`, `WeaponStats`, `WeaponBuild` и `WeaponStatsProvider` собирают итоговые характеристики оружия с учетом модификаций (см. «Модификации»).
 
 ## Конфигурация
 
-`WeaponConfig` содержит характеристики выстрела, магазина, перезарядки, прицеливания и процедурных эффектов.
+`WeaponConfig` содержит характеристики выстрела, магазина, перезарядки, прицеливания и процедурных эффектов. Значения урона, магазина и разброса — это базовые характеристики (`BaseStats`), на них накладываются модификации. `WeaponItemSo.AvailableModifications` перечисляет модификации, доступные оружию.
+
+## Модификации
+
+Итоговые характеристики оружия считает один конвейер: `WeaponConfig.BaseStats` → плоский список `WeaponStatModifier` всех установленных модификаций → `WeaponStatComposer` → `WeaponStats`. Результат хранит `WeaponBuild` (установленные `WeaponModificationConfig` и `Stats`). `WeaponController` читает урон, вместимость магазина и разброс только из `WeaponBuild.Stats`, а не из `WeaponConfig`.
+
+Характеристики (`WeaponStat`): `Damage`, `MagazineCapacity`, `HipSpreadAngle`, `AimSpreadAngle`. Операции (`WeaponStatOperation`): `Add` и `Multiply`; значение `Multiply` — доля (`0.25` = +25%, `-0.6` = -60%).
+
+Формула для каждой характеристики:
+
+`value = (base + sum(Add)) * product(1 + Multiply)`, результат не меньше 0.
+
+Порядок модификаторов на результат не влияет (композер сортирует их перед суммированием). `MagazineCapacity` в `WeaponStats` округляется и не меньше 1. Композиция чистая: `WeaponStatComposer`, `WeaponStats` и `WeaponBuild` не зависят от сцены и DI, их можно вызывать из EditMode-тестов и офлайн-инструментов.
+
+- Совместимость. Правило одно: `WeaponItemSo.AvailableModifications`. Глобального каталога нет. Экземпляр оружия хранит id установленных модификаций в `ItemTable.WeaponModificationMetadata` (`InventoryModule`); `IWeaponStatsProvider.GetBuild(weaponItem, ids)` сопоставляет id со списком оружия, неизвестные id (например, удаленный ассет) пропускает и не возвращает `null` для оружия с конфигом.
+- Слоты. `WeaponModificationSlot` (`Sight`, `Magazine`, `Barrel`): на слот одного экземпляра оружия приходится не больше одной модификации, установка постоянна (снять нельзя). Правило слотов проверяет установщик (`ArsenalModule`), а не композер и не провайдер.
+- Применение. `IWeaponInventory.RefreshBuild(item)` пересобирает `WeaponBuild` и вызывает `WeaponController.ApplyBuild`, если контроллер для предмета уже создан; иначе сборка применяется при создании контроллера. `ApplyBuild` меняет вместимость магазина (`WeaponModel.SetMagazineCapacity` ограничивает текущие патроны, но не пополняет их) и обновляет представление.
+- Цена и тексты хранятся в `WeaponModificationConfig` (`Costs`, `NameKey`, `DescriptionKey`, `Icon`); установкой за ресурсы занимается `ArsenalModule`.
+
+### Представление модификаций
+
+`WeaponView.ApplyBuild` рассылает сборку частям prefab (`WeaponViewPart.OnBuildChanged`). Внешний вид отвечает часть `WeaponModificationView` на prefab оружия: массив `visuals` из `WeaponModificationVisual`. Запись связывается с модификацией ссылкой на ассет `WeaponModificationConfig` (не по id) и содержит объекты, которые включаются при установке; объекты всех остальных записей выключаются. Запись может переопределить позу прицеливания (`overridesAimPose`, `aimPosition`, `aimRotation`, например для коллиматора): `WeaponView` берет позу последней установленной записи с переопределением, иначе позу из `WeaponConfig`.
+
+Штатный магазин АК запечен в skinned mesh оружия и отдельно не скрывается, поэтому визуал `AK74ExtendedMagazine` делается больше штатного и охватывает его.
+
+### Тесты
+
+`Assets/_Main/Scripts/WeaponModule/Tests` — EditMode-сборка `WeaponModule.Tests` (`WeaponStatComposerTests`): формула, независимость от порядка, пол в 0, минимум магазина. Запуск: Window → General → Test Runner → EditMode, либо `Unity.exe -projectPath . -batchmode -runTests -testPlatform EditMode -assemblyNames WeaponModule.Tests -logFile -`.
 
 ## Типы патронов
 
@@ -27,7 +55,7 @@
 
 - `IsAutomatic` — автоматический огонь при удержании или одиночный по нажатию.
 - `ProjectilesPerShot` — число снарядов за выстрел (дробовик). Дробовик стреляет prefab `Pellet` — уменьшенная пуля с коротким сужающимся трассером и уменьшенным эффектом попадания (`hitEffectScale`).
-- `SpreadAngle` — угол разброса в градусах для каждого снаряда.
+- `SpreadAngle` — угол разброса в градусах для каждого снаряда при стрельбе от бедра; `AimSpreadAngle` — то же при прицеливании. Контроллер берет значение по состоянию прицеливания из итоговых характеристик (`HipSpreadAngle`/`AimSpreadAngle`), поэтому модификации влияют на оба.
 - `FireInputBuffer` — сколько секунд помнится нажатие спуска, сделанное во время перезарядки затвора (`FireRate`); выстрел происходит, как только оружие готово. Быстрые клики короче кадра учитываются через `IsFirePressed`.
 
 ## Режимы перезарядки
@@ -88,3 +116,14 @@
 - Новый механизм (затвор, магазин, лазер, счетчик) — новый наследник `WeaponViewPart` на prefab оружия; `WeaponView` подхватит его сам (массив `parts` обновляется при сохранении prefab).
 - Новый момент в клипе — Animation Event с функцией `RaiseEvent` и строковым id; часть сравнивает id в `OnAnimationEvent`. Id лучше выносить в сериализуемое поле части, как в `ChamberRoundsView`.
 - Новые клипы — через `AnimatorOverrideController` поверх `acarms`/`acgun`, хват рук — через новый `WeaponGripConfig`.
+
+## Как расширить
+
+Модификации и характеристики расширяются данными и точечными правками, конвейер остается общим.
+
+- Новая модификация (без кода): создать ассет `WeaponModificationConfig` (Configs → Weapon Modification) в `Assets/_Main/Configs/Weapons/Modifications`, задать стабильный `id` (после релиза не менять, он хранится в сохранениях), слот, модификаторы и цену, добавить ассет в `AvailableModifications` нужных `WeaponItemSo`, при необходимости добавить запись в `WeaponModificationView` на prefab оружия, создать ключи локализации `nameKey`/`descriptionKey`.
+- Новая характеристика: добавить значение в `WeaponStat`, базовое значение — в `WeaponStats` (конструктор, `Get`) и в `WeaponConfig.BaseStats`, учесть ее в `WeaponStatComposer.Compose`, читать в потребителе из `WeaponBuild.Stats`. Чтобы характеристика попала на экран Арсенала, добавить ее в `StatDefinitions` презентера.
+- Новый слот: добавить значение в `WeaponModificationSlot`; правило «одна модификация на слот» проверяется по этому значению в `ArsenalService`.
+- Новый источник модификаторов (перки, износ): дополнительные `WeaponStatModifier` в тот же плоский список, который получает композер (точка сбора — `WeaponBuild.Create`). Отдельного конвейера для них не нужно.
+- Правило стакования одинаковых модулей меняется в одном месте — `WeaponStatComposer`.
+- Анализ пространства сборок: оружие (`WeaponItemSo`) → `AvailableModifications` → `Slot`, `Modifiers`, `Costs`. Все данные доступны без запуска игры, итоговые характеристики сборки считает `WeaponBuild.Create(config, modifications)`.

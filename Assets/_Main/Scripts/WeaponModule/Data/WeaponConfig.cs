@@ -43,6 +43,8 @@ namespace WeaponModule
         [SerializeField] private int projectilesPerShot = 1;
         [Min(0f)]
         [SerializeField] private float spreadAngle = 0f;
+        [Min(0f)]
+        [SerializeField] private float aimSpreadAngle = 0f;
 
         [Header("Reload Mode")]
         [SerializeField] private ReloadMode reloadMode = ReloadMode.Magazine;
@@ -77,7 +79,13 @@ namespace WeaponModule
         public float FireInputBuffer => fireInputBuffer;
         public int ProjectilesPerShot => projectilesPerShot;
         public float SpreadAngle => spreadAngle;
+        public float AimSpreadAngle => aimSpreadAngle;
         public ReloadMode ReloadMode => reloadMode;
         public float RoundReloadTime => roundReloadTime;
+
+        /// <summary>
+        /// Unmodified stats of this weapon. Hip spread is <see cref="SpreadAngle"/>.
+        /// </summary>
+        public WeaponStats BaseStats => new(damage, magazineCapacity, spreadAngle, aimSpreadAngle);
     }
 }

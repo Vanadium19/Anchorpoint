@@ -44,6 +44,7 @@ namespace WeaponModule
 
         private WeaponItemSo _weaponItem;
         private ItemTable _itemTable;
+        private WeaponBuild _build;
 
         public WeaponView GetView() => _view;
 
@@ -65,6 +66,7 @@ namespace WeaponModule
             _bulletFactory = bulletFactory;
             _pauseManager = pauseManager;
             _ownerRoot = ownerRoot;
+            _build = WeaponBuild.Create(_config, Array.Empty<WeaponModificationConfig>());
 
             _tokenSource = new();
             _pauseManager.Register(this);
@@ -76,17 +78,38 @@ namespace WeaponModule
 
         public void Initialize()
         {
-            _model.Initialize(_config.MagazineCapacity, _config.MagazineCapacity, _config.InitialReserveAmmo);
+            var magazineCapacity = _build.Stats.MagazineCapacity;
+
+            _model.Initialize(magazineCapacity, magazineCapacity, _config.InitialReserveAmmo);
             _view.Initialize(_config);
+            _view.ApplyBuild(_build);
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
-        public void InitializeFromItem(WeaponItemSo weaponItem, int currentMagazineAmmo, int reserveAmmo)
+        public void InitializeFromItem(
+            WeaponItemSo weaponItem,
+            WeaponBuild build,
+            int currentMagazineAmmo,
+            int reserveAmmo)
         {
             _weaponItem = weaponItem;
+            _build = build;
 
-            _model.Initialize(_config.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
+            _model.Initialize(_build.Stats.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
             _view.Initialize(_config);
+            _view.ApplyBuild(_build);
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
+        }
+
+        /// <summary>
+        /// Replaces the build, e.g. after a modification is installed, and updates the model and the view.
+        /// </summary>
+        public void ApplyBuild(WeaponBuild build)
+        {
+            _build = build;
+
+            _model.SetMagazineCapacity(_build.Stats.MagazineCapacity);
+            _view.ApplyBuild(_build);
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
@@ -280,11 +303,12 @@ namespace WeaponModule
 
         private Bullet SpawnProjectile(bool shouldPlayHitSound)
         {
-            var spread = UnityEngine.Random.insideUnitCircle * _config.SpreadAngle;
+            var spreadAngle = _isAiming ? _build.Stats.AimSpreadAngle : _build.Stats.HipSpreadAngle;
+            var spread = UnityEngine.Random.insideUnitCircle * spreadAngle;
             var rotation = _view.FirePoint.rotation * Quaternion.Euler(spread.x, spread.y, 0f);
 
             return _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, rotation,
-                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
+                _build.Stats.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
                 shouldPlayHitSound);
         }
 

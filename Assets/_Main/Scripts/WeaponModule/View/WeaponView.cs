@@ -25,6 +25,7 @@ namespace WeaponModule
 
         [Header("Mechanism")]
         [SerializeField] private WeaponAnimationEvents animationEvents;
+        [SerializeField] private WeaponModificationView modificationView;
 
         private readonly RecoilProcessor _weaponRecoil = new();
         private readonly SwayProcessor _sway = new();
@@ -34,6 +35,8 @@ namespace WeaponModule
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
         private WeaponConfig _config;
+        private Vector3 _aimPosition;
+        private Vector3 _aimRotation;
         private float _currentAimBlend;
         private Transform _cameraTransform;
         private bool _isPaused;
@@ -61,6 +64,8 @@ namespace WeaponModule
         public void Initialize(WeaponConfig config)
         {
             _config = config;
+            _aimPosition = config.AimPosition;
+            _aimRotation = config.AimRotation;
 
             if (aimPivot != null)
             {
@@ -72,6 +77,28 @@ namespace WeaponModule
             _cameraTransform = mainCamera != null ? mainCamera.transform.parent : null;
 
             ForEachPart(static (part, weaponConfig) => part.Initialize(weaponConfig), config);
+        }
+
+        /// <summary>
+        /// Shows the installed modifications on the parts and resolves the aim pose:
+        /// a modification pose if one overrides it, otherwise the pose of the config.
+        /// </summary>
+        public void ApplyBuild(WeaponBuild build)
+        {
+            ForEachPart(static (part, weaponBuild) => part.OnBuildChanged(weaponBuild), build);
+
+            if (_config == null)
+                return;
+
+            if (modificationView != null && modificationView.TryGetAimPose(out var position, out var rotation))
+            {
+                _aimPosition = position;
+                _aimRotation = rotation;
+                return;
+            }
+
+            _aimPosition = _config.AimPosition;
+            _aimRotation = _config.AimRotation;
         }
 
         public void SetPaused(bool isPaused)
@@ -162,8 +189,8 @@ namespace WeaponModule
             if (aimPivot == null)
                 return;
 
-            var targetPosition = isAiming ? _config.AimPosition : _hipPosition;
-            var targetRotation = isAiming ? Quaternion.Euler(_config.AimRotation) : _hipRotation;
+            var targetPosition = isAiming ? _aimPosition : _hipPosition;
+            var targetRotation = isAiming ? Quaternion.Euler(_aimRotation) : _hipRotation;
             var speed = _config.AimSpeed * Time.deltaTime;
 
             aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPosition, speed);

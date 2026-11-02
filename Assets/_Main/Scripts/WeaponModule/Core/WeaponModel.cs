@@ -81,6 +81,13 @@ namespace WeaponModule
             return int.MaxValue - _reserveAmmo;
         }
 
+        public void SetMagazineCapacity(int capacity)
+        {
+            _magazineCapacity = Mathf.Max(1, capacity);
+            _currentMagazineAmmo = Mathf.Clamp(_currentMagazineAmmo, 0, _magazineCapacity);
+            NotifyAmmoChanged();
+        }
+
         public void SetAmmo(int magazineAmmo, int reserveAmmo)
         {
             _currentMagazineAmmo = Mathf.Clamp(magazineAmmo, 0, _magazineCapacity);

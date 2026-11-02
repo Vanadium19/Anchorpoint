@@ -28,6 +28,9 @@ namespace InventoryModule
                 memento.ReserveAmmo = item.WeaponAmmoMetadata.ReserveAmmo;
             }
 
+            if (item.WeaponModificationMetadata != null)
+                memento.ModificationIds.AddRange(item.WeaponModificationMetadata.ModificationIds);
+
             if (item.IsContainer)
             {
                 var metadata = item.GetMetadata<ContainerMetadata>();
@@ -73,6 +76,14 @@ namespace InventoryModule
                 item.InitializeWeaponAmmo(memento.MagazineAmmo, memento.ReserveAmmo);
                 item.WeaponAmmoMetadata.CurrentMagazineAmmo = memento.MagazineAmmo;
                 item.WeaponAmmoMetadata.ReserveAmmo = memento.ReserveAmmo;
+            }
+
+            if (memento.ModificationIds != null && memento.ModificationIds.Count > 0)
+            {
+                item.InitializeWeaponModifications();
+
+                foreach (var modificationId in memento.ModificationIds)
+                    item.WeaponModificationMetadata.AddModification(modificationId);
             }
 
             return item;

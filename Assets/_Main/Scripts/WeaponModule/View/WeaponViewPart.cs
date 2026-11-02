@@ -13,6 +13,13 @@ namespace WeaponModule
         {
         }
 
+        /// <summary>
+        /// Called when the installed modifications or the composed stats of the weapon change.
+        /// </summary>
+        public virtual void OnBuildChanged(WeaponBuild build)
+        {
+        }
+
         public virtual void OnTriggerHeld(bool isHeld)
         {
         }

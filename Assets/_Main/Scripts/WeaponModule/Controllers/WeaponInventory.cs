@@ -111,6 +111,24 @@ namespace WeaponModule
             return true;
         }
 
+        public void RefreshBuild(ItemTable item)
+        {
+            if (item == null)
+                return;
+
+            if (!_weaponMap.TryGetValue(item, out var controller) && !_weaponCache.TryGetValue(item, out controller))
+                return;
+
+            var weaponItem = controller.GetWeaponItem();
+            var build = _statsProvider.GetBuild(weaponItem, GetModificationIds(item));
+
+            if (build != null)
+                controller.ApplyBuild(build);
+        }
+
+        private static IReadOnlyList<string> GetModificationIds(ItemTable item) =>
+            item.WeaponModificationMetadata?.ModificationIds ?? Array.Empty<string>();
+
         private WeaponController FindAmmoTarget(AmmoType ammoType)
         {
             if (_currentWeapon != null && _currentWeapon.AmmoType == ammoType)
@@ -193,7 +211,9 @@ namespace WeaponModule
             controller.SetWeaponItem(weaponItem);
             controller.SetItemTable(item);
 
-            int magAmmo = config.MagazineCapacity;
+            var build = _statsProvider.GetBuild(weaponItem, GetModificationIds(item));
+            int magazineCapacity = build.Stats.MagazineCapacity;
+            int magAmmo = magazineCapacity;
             int reserveAmmo = config.InitialReserveAmmo;
 
             if (item.WeaponAmmoMetadata != null)
@@ -203,10 +223,10 @@ namespace WeaponModule
             }
             else
             {
-                item.InitializeWeaponAmmo(config.MagazineCapacity, config.InitialReserveAmmo);
+                item.InitializeWeaponAmmo(magazineCapacity, config.InitialReserveAmmo);
             }
 
-            controller.InitializeFromItem(weaponItem, magAmmo, reserveAmmo);
+            controller.InitializeFromItem(weaponItem, build, magAmmo, reserveAmmo);
 
             _weaponMap[item] = controller;
 
