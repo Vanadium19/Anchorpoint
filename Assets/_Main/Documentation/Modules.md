@@ -4,6 +4,7 @@
 
 ## Игровые модули
 
+- [ArsenalModule](../Scripts/ArsenalModule/Docs/README.md)
 - [BaseModule](../Scripts/BaseModule/Docs/README.md)
 - [BuildingModule](../Scripts/BuildingModule/Docs/README.md)
 - [CampSaveModule](../Scripts/CampSaveModule/Docs/README.md)

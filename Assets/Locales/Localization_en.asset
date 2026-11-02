@@ -426,6 +426,118 @@ MonoBehaviour:
     m_Localized: 12x70 buckshot (16 pcs)
     m_Metadata:
       m_Items: []
+  - m_Id: 25687723405729792
+    m_Localized: Electronics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450048
+    m_Localized: Arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450049
+    m_Localized: Arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450050
+    m_Localized: Weapons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450051
+    m_Localized: Modifications
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450052
+    m_Localized: Characteristics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450053
+    m_Localized: Install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450054
+    m_Localized: No weapons to modify. Bring a weapon to the arsenal.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450055
+    m_Localized: Select a weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450056
+    m_Localized: No modifications are available for this weapon
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450057
+    m_Localized: Available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450058
+    m_Localized: Installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450059
+    m_Localized: Slot occupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450060
+    m_Localized: Not enough resources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450061
+    m_Localized: Not compatible
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450062
+    m_Localized: Sight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450063
+    m_Localized: Magazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450064
+    m_Localized: Barrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450065
+    m_Localized: Damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450066
+    m_Localized: Magazine capacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450067
+    m_Localized: Hip spread
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450068
+    m_Localized: Aim spread
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450069
+    m_Localized: Red dot sight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450070
+    m_Localized: Improves accuracy, especially when aiming.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450071
+    m_Localized: Extended magazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450072
+    m_Localized: Holds more rounds in one magazine.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450073
+    m_Localized: Reinforced barrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450074
+    m_Localized: Increases weapon damage.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

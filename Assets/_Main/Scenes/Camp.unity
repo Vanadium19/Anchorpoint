@@ -5716,6 +5716,7 @@ GameObject:
   - component: {fileID: 1085248794}
   - component: {fileID: 1085248796}
   - component: {fileID: 1085248795}
+  - component: {fileID: 1085248797}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -5786,6 +5787,7 @@ MonoBehaviour:
   _monoInstallers:
   - {fileID: 1085248786}
   - {fileID: 1085248785}
+  - {fileID: 1085248797}
   _installerPrefabs: []
   _autoRun: 1
   _kernel: {fileID: 0}
@@ -6003,6 +6005,18 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1085248797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1085248782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a166540bdc7bd8f43a3bda70091eb0bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ArsenalModule::ArsenalModule.ArsenalInstaller
 --- !u!1 &1105112406 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7603824121156082067, guid: 2a6743016d9e77345b36a791130b8e20, type: 3}

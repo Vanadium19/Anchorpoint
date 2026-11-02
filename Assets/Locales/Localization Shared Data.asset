@@ -359,6 +359,118 @@ MonoBehaviour:
     m_Key: item_ammo_12_16
     m_Metadata:
       m_Items: []
+  - m_Id: 25687723405729792
+    m_Key: item_electronics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450048
+    m_Key: building_arsenal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450049
+    m_Key: arsenal.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450050
+    m_Key: arsenal.header.weapons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450051
+    m_Key: arsenal.header.modifications
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450052
+    m_Key: arsenal.header.stats
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450053
+    m_Key: arsenal.install
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450054
+    m_Key: arsenal.empty.weapons
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450055
+    m_Key: arsenal.empty.selection
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450056
+    m_Key: arsenal.empty.modifications
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450057
+    m_Key: arsenal.status.available
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450058
+    m_Key: arsenal.status.installed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450059
+    m_Key: arsenal.status.slotOccupied
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450060
+    m_Key: arsenal.status.notEnoughResources
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450061
+    m_Key: arsenal.status.notCompatible
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450062
+    m_Key: arsenal.slot.sight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450063
+    m_Key: arsenal.slot.magazine
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450064
+    m_Key: arsenal.slot.barrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450065
+    m_Key: arsenal.stat.damage
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450066
+    m_Key: arsenal.stat.magazineCapacity
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450067
+    m_Key: arsenal.stat.hipSpread
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450068
+    m_Key: arsenal.stat.aimSpread
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450069
+    m_Key: arsenal.mod.redDotSight.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450070
+    m_Key: arsenal.mod.redDotSight.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450071
+    m_Key: arsenal.mod.extendedMagazine.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450072
+    m_Key: arsenal.mod.extendedMagazine.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450073
+    m_Key: arsenal.mod.reinforcedBarrel.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 25687723464450074
+    m_Key: arsenal.mod.reinforcedBarrel.description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
