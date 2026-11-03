@@ -31,6 +31,9 @@ namespace WeaponModule
         [SerializeField] private bool aimIsToggle = false;
         [Range(0f, 1f)]
         [SerializeField] private float aimStability = 0.8f;
+        [Tooltip("Distance in metres from the camera at which aimed shots cross the view axis.")]
+        [Min(1f)]
+        [SerializeField] private float aimZeroDistance = 100f;
 
         [Header("Ammo")]
         [SerializeField] private AmmoType ammoType = AmmoType.Rifle;
@@ -73,6 +76,7 @@ namespace WeaponModule
         public float AimSpeed => aimSpeed;
         public bool AimIsToggle => aimIsToggle;
         public float AimStability => aimStability;
+        public float AimZeroDistance => aimZeroDistance;
 
         public AmmoType AmmoType => ammoType;
         public bool IsAutomatic => isAutomatic;

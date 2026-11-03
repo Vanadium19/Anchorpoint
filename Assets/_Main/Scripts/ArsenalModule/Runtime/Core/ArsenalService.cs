@@ -72,6 +72,15 @@ namespace ArsenalModule
         public int GetOwnedCount(ItemDataSo item) => _inventoryManager.GetItemCount(item);
 
         /// <inheritdoc/>
+        public IReadOnlyList<WeaponModificationConfig> GetAvailableModifications(ItemTable weapon)
+        {
+            if (weapon == null || weapon.ItemDataSo is not WeaponItemSo weaponItem)
+                return Array.Empty<WeaponModificationConfig>();
+
+            return _statsProvider.GetAvailableModifications(weaponItem);
+        }
+
+        /// <inheritdoc/>
         public WeaponBuild GetBuild(ItemTable weapon)
         {
             if (weapon == null || weapon.ItemDataSo is not WeaponItemSo weaponItem)
@@ -166,16 +175,8 @@ namespace ArsenalModule
             return false;
         }
 
-        private static bool IsAvailable(WeaponItemSo weaponItem, WeaponModificationConfig modification)
-        {
-            foreach (var available in weaponItem.AvailableModifications)
-            {
-                if (available == modification)
-                    return true;
-            }
-
-            return false;
-        }
+        private static bool IsAvailable(WeaponItemSo weaponItem, WeaponModificationConfig modification) =>
+            weaponItem.HasSocket(modification.SocketType);
 
         private static void CollectGrid(GridTable grid, HashSet<ItemTable> visited, List<ItemTable> weapons)
         {
@@ -212,7 +213,7 @@ namespace ArsenalModule
 
             foreach (var installed in build.Modifications)
             {
-                if (installed.Slot == modification.Slot)
+                if (installed.SocketType == modification.SocketType)
                     return true;
             }
 

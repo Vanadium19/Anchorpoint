@@ -102,13 +102,8 @@ namespace ArsenalModule
         private static string Resolve(string key, string fallback) =>
             string.IsNullOrEmpty(key) ? fallback : LocalizedText.Get(key);
 
-        private static string GetSlotText(WeaponModificationSlot slot) => slot switch
-        {
-            WeaponModificationSlot.Sight => LocalizedText.Get("arsenal.slot.sight"),
-            WeaponModificationSlot.Magazine => LocalizedText.Get("arsenal.slot.magazine"),
-            WeaponModificationSlot.Barrel => LocalizedText.Get("arsenal.slot.barrel"),
-            _ => string.Empty
-        };
+        private static string GetSlotText(WeaponSocketType socketType) =>
+            socketType != null ? Resolve(socketType.NameKey, string.Empty) : string.Empty;
 
         private static string GetStatusText(ArsenalInstallStatus status) => status switch
         {
@@ -176,12 +171,12 @@ namespace ArsenalModule
             if (_selectedModification != null && GetSelectedStatus() != ArsenalInstallStatus.NotCompatible)
                 return;
 
-            _selectedModification = FindDefaultModification(weaponItem);
+            _selectedModification = FindDefaultModification();
         }
 
-        private WeaponModificationConfig FindDefaultModification(WeaponItemSo weaponItem)
+        private WeaponModificationConfig FindDefaultModification()
         {
-            foreach (var modification in weaponItem.AvailableModifications)
+            foreach (var modification in _service.GetAvailableModifications(_selectedWeapon))
             {
                 if (modification != null && IsPreviewable(_service.GetInstallStatus(_selectedWeapon, modification)))
                     return modification;
@@ -213,7 +208,7 @@ namespace ArsenalModule
             if (weaponItem == null)
                 return LocalizedText.Get(EmptySelectionKey);
 
-            if (weaponItem.AvailableModifications.Count == 0)
+            if (_service.GetAvailableModifications(_selectedWeapon).Count == 0)
                 return LocalizedText.Get(EmptyModificationsKey);
 
             return string.Empty;
@@ -243,7 +238,7 @@ namespace ArsenalModule
             if (weaponItem == null)
                 return rows;
 
-            foreach (var modification in weaponItem.AvailableModifications)
+            foreach (var modification in _service.GetAvailableModifications(_selectedWeapon))
             {
                 if (modification != null)
                     rows.Add(BuildModificationRow(modification));
@@ -262,7 +257,7 @@ namespace ArsenalModule
                 NameText = Resolve(modification.NameKey, modification.Id),
                 DescriptionText = Resolve(modification.DescriptionKey, string.Empty),
                 Icon = modification.Icon,
-                SlotText = GetSlotText(modification.Slot),
+                SlotText = GetSlotText(modification.SocketType),
                 Status = status,
                 StatusText = GetStatusText(status),
                 IsInstalled = status == ArsenalInstallStatus.AlreadyInstalled,

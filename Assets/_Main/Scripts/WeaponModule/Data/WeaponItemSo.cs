@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using InventoryModule;
 using UnityEngine;
 
@@ -9,15 +8,35 @@ namespace WeaponModule
     {
         [SerializeField] private WeaponConfig weaponConfig;
         [SerializeField] private WeaponView weaponViewPrefab;
-        [SerializeField] private WeaponModificationConfig[] availableModifications;
 
         public WeaponConfig WeaponConfig => weaponConfig;
         public WeaponView WeaponViewPrefab => weaponViewPrefab;
 
         /// <summary>
-        /// Modifications that can be installed on this weapon. This list is the compatibility rule.
+        /// Checks whether the view of this weapon has a socket of the given type. This is the compatibility rule
+        /// for modifications: the view prefab is the only place that defines it.
         /// </summary>
-        public IReadOnlyList<WeaponModificationConfig> AvailableModifications =>
-            availableModifications ?? System.Array.Empty<WeaponModificationConfig>();
+        /// <param name="socketType">The socket type a modification needs.</param>
+        /// <returns>True if the view has such a socket.</returns>
+        public bool HasSocket(WeaponSocketType socketType)
+        {
+            if (socketType == null || weaponViewPrefab == null)
+                return false;
+
+            var modificationView = weaponViewPrefab.ModificationView;
+
+            if (modificationView == null)
+                return false;
+
+            var sockets = modificationView.Sockets;
+
+            for (var i = 0; i < sockets.Count; i++)
+            {
+                if (sockets[i] != null && sockets[i].Type == socketType)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

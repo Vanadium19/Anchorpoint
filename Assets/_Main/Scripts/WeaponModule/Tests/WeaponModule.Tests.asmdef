@@ -3,6 +3,10 @@
     "rootNamespace": "WeaponModule.Tests",
     "references": [
         "WeaponModule",
+        "WeaponModule.Editor",
+        "InventoryModule",
+        "Unity.Localization",
+        "Unity.Localization.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

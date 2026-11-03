@@ -27,6 +27,12 @@ namespace WeaponModule
         [SerializeField] private WeaponAnimationEvents animationEvents;
         [SerializeField] private WeaponModificationView modificationView;
 
+        private const float AimProgressTolerance = 0.001f;
+        private const float AimedProgress = 0.9f;
+        private const float MaxAimDeltaTime = 1f / 30f;
+        private const float MinShotDistanceSquared = 1e-6f;
+        private const float MinShotSine = 1e-7f;
+
         private readonly RecoilProcessor _weaponRecoil = new();
         private readonly SwayProcessor _sway = new();
 
@@ -35,14 +41,22 @@ namespace WeaponModule
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
         private WeaponConfig _config;
-        private Vector3 _aimPosition;
-        private Vector3 _aimRotation;
         private float _currentAimBlend;
         private Transform _cameraTransform;
+        private Transform _camera;
+        private Transform _aimReference;
+        private Vector3 _aimReferenceRestPosition;
+        private Quaternion _aimReferenceRestRotation = Quaternion.identity;
+        private Transform _sightPoint;
+        private float _eyeRelief;
+        private float _aimProgress;
+        private bool _hasSight;
+        private bool _isAiming;
         private bool _isPaused;
 
         public GameObject BulletPrefab => bulletPrefab;
         public Transform FirePoint => firePoint;
+        public WeaponModificationView ModificationView => modificationView;
 
         private WeaponViewPart[] Parts => _parts ??= GetComponentsInChildren<WeaponViewPart>(true);
 
@@ -64,8 +78,6 @@ namespace WeaponModule
         public void Initialize(WeaponConfig config)
         {
             _config = config;
-            _aimPosition = config.AimPosition;
-            _aimRotation = config.AimRotation;
 
             if (aimPivot != null)
             {
@@ -73,32 +85,63 @@ namespace WeaponModule
                 _hipRotation = aimPivot.localRotation;
             }
 
+            _aimReference = recoilPivot != null ? recoilPivot : aimPivot;
+
+            if (recoilPivot != null)
+            {
+                _aimReferenceRestPosition = recoilPivot.localPosition;
+                _aimReferenceRestRotation = recoilPivot.localRotation;
+            }
+
+            SetAlwaysAnimate(handsAnimator);
+            SetAlwaysAnimate(gunAnimator);
+
             var mainCamera = Camera.main;
+            _camera = mainCamera != null ? mainCamera.transform : null;
             _cameraTransform = mainCamera != null ? mainCamera.transform.parent : null;
 
             ForEachPart(static (part, weaponConfig) => part.Initialize(weaponConfig), config);
         }
 
         /// <summary>
-        /// Shows the installed modifications on the parts and resolves the aim pose:
-        /// a modification pose if one overrides it, otherwise the pose of the config.
+        /// Shows the installed modifications on the parts and finds the installed sight. While a sight is installed
+        /// the aim pose is solved from the sight line instead of being read from the config.
         /// </summary>
         public void ApplyBuild(WeaponBuild build)
         {
             ForEachPart(static (part, weaponBuild) => part.OnBuildChanged(weaponBuild), build);
 
-            if (_config == null)
-                return;
+            _hasSight = modificationView != null && modificationView.TryGetSight(out _sightPoint, out _eyeRelief);
+        }
 
-            if (modificationView != null && modificationView.TryGetAimPose(out var position, out var rotation))
-            {
-                _aimPosition = position;
-                _aimRotation = rotation;
-                return;
-            }
+        /// <summary>
+        /// Rotation of a shot before spread. While aiming it points from the fire point at the zero point on the
+        /// view axis, blended in as far as the weapon has reached the aim pose; otherwise it is the fire point rotation.
+        /// </summary>
+        public Quaternion GetShotRotation()
+        {
+            var shotRotation = firePoint.rotation;
 
-            _aimPosition = _config.AimPosition;
-            _aimRotation = _config.AimRotation;
+            if (!_isAiming || _aimProgress <= 0f || _camera == null || _config == null)
+                return shotRotation;
+
+            var zeroPoint = _camera.position + _camera.forward * _config.AimZeroDistance;
+            var toZeroPoint = zeroPoint - firePoint.position;
+
+            if (toZeroPoint.sqrMagnitude < MinShotDistanceSquared)
+                return shotRotation;
+
+            var zeroDirection = toZeroPoint.normalized;
+            var axis = Vector3.Cross(firePoint.forward, zeroDirection);
+            var sine = axis.magnitude;
+
+            if (sine < MinShotSine)
+                return shotRotation;
+
+            var angle = Mathf.Atan2(sine, Vector3.Dot(firePoint.forward, zeroDirection)) * Mathf.Rad2Deg;
+            var zeroedRotation = Quaternion.AngleAxis(angle, axis / sine) * shotRotation;
+
+            return Quaternion.Slerp(shotRotation, zeroedRotation, _aimProgress);
         }
 
         public void SetPaused(bool isPaused)
@@ -189,12 +232,24 @@ namespace WeaponModule
             if (aimPivot == null)
                 return;
 
-            var targetPosition = isAiming ? _aimPosition : _hipPosition;
-            var targetRotation = isAiming ? Quaternion.Euler(_aimRotation) : _hipRotation;
-            var speed = _config.AimSpeed * Time.deltaTime;
+            var speed = _config.AimSpeed * Mathf.Min(Time.deltaTime, MaxAimDeltaTime);
 
-            aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPosition, speed);
-            aimPivot.localRotation = Quaternion.Slerp(aimPivot.localRotation, targetRotation, speed);
+            _isAiming = isAiming;
+            UpdateAimProgress(isAiming, speed);
+
+            if (_hasSight && _aimProgress > 0f && TrySolveAimPose(out var solvedPosition, out var solvedRotation))
+            {
+                aimPivot.localPosition = Vector3.Lerp(_hipPosition, solvedPosition, _aimProgress);
+                aimPivot.localRotation = Quaternion.Slerp(_hipRotation, solvedRotation, _aimProgress);
+            }
+            else
+            {
+                var targetPosition = isAiming ? _config.AimPosition : _hipPosition;
+                var targetRotation = isAiming ? Quaternion.Euler(_config.AimRotation) : _hipRotation;
+
+                aimPivot.localPosition = Vector3.Lerp(aimPivot.localPosition, targetPosition, speed);
+                aimPivot.localRotation = Quaternion.Slerp(aimPivot.localRotation, targetRotation, speed);
+            }
 
             var targetBlend = isAiming ? stabilityTarget : 0f;
             _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
@@ -219,6 +274,9 @@ namespace WeaponModule
 
             if (_cameraTransform != null)
                 _cameraTransform.localRotation = Quaternion.Euler(_cameraRecoil.CurrentRotation);
+
+            if (modificationView != null && _camera != null)
+                modificationView.UpdateReticle(_camera.position, _isAiming && _aimProgress >= AimedProgress);
         }
 
         public void ResetVisuals()
@@ -226,6 +284,8 @@ namespace WeaponModule
             _weaponRecoil.Reset();
             _sway.Reset();
             _currentAimBlend = 0f;
+            _aimProgress = 0f;
+            _isAiming = false;
 
             if (aimPivot != null)
             {
@@ -242,8 +302,62 @@ namespace WeaponModule
                 gunAnimator.Rebind();
         }
 
+        private static void SetAlwaysAnimate(Animator animator)
+        {
+            if (animator != null)
+                animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+        }
+
         private static float GetReloadSpeed(AnimationClip clip, float duration) =>
             clip != null && duration > 0f ? clip.length / duration : 1f;
+
+        private void UpdateAimProgress(bool isAiming, float speed)
+        {
+            _aimProgress = Mathf.Lerp(_aimProgress, isAiming ? 1f : 0f, speed);
+
+            if (isAiming && _aimProgress > 1f - AimProgressTolerance)
+                _aimProgress = 1f;
+            else if (!isAiming && _aimProgress < AimProgressTolerance)
+                _aimProgress = 0f;
+        }
+
+        private bool TrySolveAimPose(out Vector3 position, out Quaternion rotation)
+        {
+            position = default;
+            rotation = Quaternion.identity;
+
+            var parent = aimPivot.parent;
+
+            if (_sightPoint == null || _camera == null || parent == null)
+                return false;
+
+            var aimPoint = ToAimReferencePoint(_sightPoint.position);
+            var frontSight = modificationView.FrontSightPoint;
+            var hasFrontSight = frontSight != null;
+            var frontSightPosition = hasFrontSight ? ToAimReferencePoint(frontSight.position) : aimPoint;
+            var fallbackForward = firePoint != null ? ToAimReferenceDirection(firePoint.forward) : Vector3.forward;
+
+            WeaponAimPoseSolver.Solve(
+                aimPoint,
+                frontSightPosition,
+                fallbackForward,
+                hasFrontSight,
+                parent.InverseTransformPoint(_camera.position),
+                parent.InverseTransformDirection(_camera.forward),
+                parent.InverseTransformDirection(_camera.up),
+                Quaternion.Euler(_config.AimRotation),
+                _eyeRelief,
+                out position,
+                out rotation);
+
+            return true;
+        }
+
+        private Vector3 ToAimReferencePoint(Vector3 worldPoint) =>
+            _aimReferenceRestPosition + _aimReferenceRestRotation * _aimReference.InverseTransformPoint(worldPoint);
+
+        private Vector3 ToAimReferenceDirection(Vector3 worldDirection) =>
+            _aimReferenceRestRotation * _aimReference.InverseTransformDirection(worldDirection);
 
         private void PlayFireAnimation()
         {

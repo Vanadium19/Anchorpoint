@@ -26,10 +26,12 @@
 
 Модуль не вводит собственных конфигов. Источником данных служат типы `WeaponModule`:
 
-- `WeaponItemSo.AvailableModifications` — список модификаций, доступных оружию; это и есть правило
-  совместимости.
-- `WeaponModificationConfig` — слот, модификаторы характеристик, цена (`WeaponModificationCost`),
-  ключи названия и описания.
+- Каталог `WeaponModificationCatalog` и гнезда на prefab оружия: модификации, доступные оружию, выводятся
+  из них (`IWeaponStatsProvider.GetAvailableModifications`: записи каталога, тип гнезда которых
+  есть у оружия). Списков модификаций в данных оружия нет, совместимость — тип гнезда.
+- `WeaponModificationConfig` — тип гнезда (`WeaponSocketType`), модификаторы характеристик, цена
+  (`WeaponModificationCost`), ключи названия и описания, внешний вид (prefab модуля и/или операция над деталью).
+- `WeaponSocketType.NameKey` — ключ названия слота на экране; статус `NotCompatible`, если у оружия нет гнезда такого типа.
 
 Для отображения используются классы `Arsenal*DisplayData` и `ArsenalScreenTexts`: презентер
 подготавливает их, а экран только рисует.
@@ -72,8 +74,11 @@
 - Данные здания Арсенала (`BuildingConfig`: цена и время постройки, prefab, прочность, ремонт) — `Assets/_Main/Configs/Constructing/Items/ArsenalConfig.asset`; запись в `BuildingCatalog` обязательна.
 - Ресурс Electronics — `Assets/_Main/Configs/Inventory/Items/Electronics/Electronics.asset`; его вес в
   добыче задается в `Assets/_Main/Configs/LootSpawn/Resources.asset`.
-- Какие модификации доступны какому оружию — список `availableModifications` в ассете оружия
-  (`WeaponItemSo`).
+- Какие модификации доступны какому оружию, задавать не нужно: это следует из гнезд на prefab оружия
+  (`WeaponModificationView.sockets`) и типа гнезда модификации (`socketType`). Каталог
+  `Assets/_Main/Configs/Weapons/WeaponModificationCatalog.asset` пополняется автоматически (Editor-постпроцессор
+  `WeaponModule`) и вручную не правится; новый `WeaponModificationConfig` в списке Арсенала появляется сам.
+- Типы гнезд (названия слотов на экране) — `Assets/_Main/Configs/Weapons/SocketTypes`.
 
 ## Локализация
 
@@ -83,8 +88,11 @@
 
 ## Расширение
 
-Новая модификация добавляется ассетом `WeaponModificationConfig`, записью в
-`WeaponItemSo.AvailableModifications`, при необходимости записью в `WeaponModificationView` на prefab
-оружия и ключами локализации, без изменения кода. Новая характеристика требует значения
+Новая модификация — ассет `WeaponModificationConfig` (`id`, `socketType`, модификаторы, цена, ключи локализации) и,
+при необходимости, prefab модуля (`WeaponAttachment`, поле `attachmentPrefab`) или ассет операции над деталью
+(`partOperation`). Она сразу появляется в Арсенале для всего оружия с гнездом такого типа, без записей на оружии и
+без изменения кода. Новое оружие делается один раз (штатные детали, гнезда, при необходимости переходник под прицел)
+и получает все совместимые модификации; подробности и инструменты — `WeaponModule/Docs/README.md`. Новый слот —
+новый ассет `WeaponSocketType` и гнездо этого типа на prefab оружия. Новая характеристика требует значения
 в `WeaponStat` и строки в `StatDefinitions` презентера плюс ключа локализации. Игровой код должен
 зависеть от `IArsenalService`, а не от конкретной реализации.

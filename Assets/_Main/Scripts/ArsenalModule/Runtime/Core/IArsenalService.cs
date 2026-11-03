@@ -30,6 +30,13 @@ namespace ArsenalModule
         int GetOwnedCount(ItemDataSo item);
 
         /// <summary>
+        /// Returns the catalog modifications that fit the weapon: the ones whose socket type the weapon view has.
+        /// </summary>
+        /// <param name="weapon">The weapon item.</param>
+        /// <returns>The modifications, or an empty list if the item is not a weapon.</returns>
+        IReadOnlyList<WeaponModificationConfig> GetAvailableModifications(ItemTable weapon);
+
+        /// <summary>
         /// Returns the weapon build composed from the modifications installed on the weapon.
         /// </summary>
         /// <param name="weapon">The weapon item.</param>

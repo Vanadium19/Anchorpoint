@@ -305,7 +305,7 @@ namespace WeaponModule
         {
             var spreadAngle = _isAiming ? _build.Stats.AimSpreadAngle : _build.Stats.HipSpreadAngle;
             var spread = UnityEngine.Random.insideUnitCircle * spreadAngle;
-            var rotation = _view.FirePoint.rotation * Quaternion.Euler(spread.x, spread.y, 0f);
+            var rotation = _view.GetShotRotation() * Quaternion.Euler(spread.x, spread.y, 0f);
 
             return _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, rotation,
                 _build.Stats.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
