@@ -5972,6 +5972,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: WeaponModule::WeaponModule.Installers.WeaponInstaller
   weaponContainer: {fileID: 931268613}
   ammoView: {fileID: 548259972}
+  modificationCatalog: {fileID: 11400000, guid: 041e505d8e904a54685d86cf7754e984, type: 2}
 --- !u!114 &1085248787
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -16,7 +16,9 @@ MonoBehaviour:
   nameKey: arsenal.mod.reinforcedBarrel.name
   descriptionKey: arsenal.mod.reinforcedBarrel.description
   icon: {fileID: 21300000, guid: ac01d86d119a44b4b83d036b67821175, type: 3}
-  slot: 2
+  socketType: {fileID: 11400000, guid: b6b49c6fcb441614fb9613abd0e9fb16, type: 2}
+  attachmentPrefab: {fileID: 0}
+  partOperation: {fileID: 11400000, guid: 719d01bc33319df43b5ac61894c223d4, type: 2}
   modifiers:
   - stat: 0
     operation: 1

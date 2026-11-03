@@ -27,6 +27,7 @@ MonoBehaviour:
   aimSpeed: 10
   aimIsToggle: 1
   aimStability: 0.801
+  aimZeroDistance: 100
   ammoType: 2
   isAutomatic: 0
   fireInputBuffer: 0.4
@@ -41,8 +42,8 @@ MonoBehaviour:
     Snappiness: 12
     ReturnSpeed: 3
   AimRecoil:
-    RecoilRotation: {x: -7, y: 1.8, z: 2.5}
-    KickBackZ: 0.03
+    RecoilRotation: {x: -2.5, y: 1.2, z: 1.5}
+    KickBackZ: 0.006
     Snappiness: 10
     ReturnSpeed: 4
   CamHipRecoil:
@@ -50,7 +51,7 @@ MonoBehaviour:
     Snappiness: 6
     ReturnSpeed: 2
   CamAimRecoil:
-    RecoilAmount: {x: -4, y: 1.4, z: 0.5}
+    RecoilAmount: {x: -6, y: 2.2, z: 0.8}
     Snappiness: 10
     ReturnSpeed: 5
   Sway:

@@ -16,7 +16,9 @@ MonoBehaviour:
   nameKey: arsenal.mod.extendedMagazine.name
   descriptionKey: arsenal.mod.extendedMagazine.description
   icon: {fileID: 21300000, guid: 1175de29ed5ceae4aa4d2913f872b873, type: 3}
-  slot: 1
+  socketType: {fileID: 11400000, guid: edc01584a78f9eb41845783896c84607, type: 2}
+  attachmentPrefab: {fileID: 0}
+  partOperation: {fileID: 11400000, guid: c4e67bee12774894ab7fff8ffc7b28ca, type: 2}
   modifiers:
   - stat: 1
     operation: 0
