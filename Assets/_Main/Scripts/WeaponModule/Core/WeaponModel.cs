@@ -53,6 +53,18 @@ namespace WeaponModule
             return ammoToLoad;
         }
 
+        public bool LoadRound()
+        {
+            if (!CanReload)
+                return false;
+
+            _currentMagazineAmmo++;
+            _reserveAmmo--;
+
+            NotifyAmmoChanged();
+            return true;
+        }
+
         public int AddReserveAmmo(int amount)
         {
             if (amount <= 0)

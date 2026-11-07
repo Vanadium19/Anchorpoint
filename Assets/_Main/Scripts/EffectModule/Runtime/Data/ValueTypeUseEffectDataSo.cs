@@ -24,6 +24,9 @@ namespace EffectModule
 
             foreach (var effect in effects)
             {
+                if (!effect.CanApply(entity))
+                    return false;
+
                 if (effect is HealEffectDataSo)
                 {
                     if (entity.TryGet<IHealthComponent>(out var health))

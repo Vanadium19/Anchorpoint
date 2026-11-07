@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using BaseModule;
 using Cysharp.Threading.Tasks;
@@ -18,9 +19,11 @@ namespace WeaponModule
         private readonly IBulletFactory _bulletFactory;
         private readonly IPauseManager _pauseManager;
         private readonly Transform _ownerRoot;
+        private readonly List<Bullet> _shotProjectiles = new();
 
         private float _nextFireTime;
         private bool _isReloading;
+        private bool _isRoundReloading;
         private bool _isAiming;
         private bool _isAimToggleActive;
         private bool _shouldShootFrame;
@@ -30,6 +33,9 @@ namespace WeaponModule
         private Vector2 _lookInput;
         private Vector3 _playerVelocity;
         private bool _isFireHeld;
+        private bool _wasFireHeld;
+        private bool _isFirePressed;
+        private float _pendingTriggerPullTime = float.NegativeInfinity;
         private bool _isReloadPressed;
         private bool _isAimPressed;
         private bool _isAimTriggered;
@@ -66,10 +72,13 @@ namespace WeaponModule
 
         public WeaponModel Model => _model;
 
+        public AmmoType AmmoType => _config.AmmoType;
+
         public void Initialize()
         {
             _model.Initialize(_config.MagazineCapacity, _config.MagazineCapacity, _config.InitialReserveAmmo);
             _view.Initialize(_config);
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
         public void InitializeFromItem(WeaponItemSo weaponItem, int currentMagazineAmmo, int reserveAmmo)
@@ -78,6 +87,7 @@ namespace WeaponModule
 
             _model.Initialize(_config.MagazineCapacity, currentMagazineAmmo, reserveAmmo);
             _view.Initialize(_config);
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
         public void SetWeaponItem(WeaponItemSo weaponItem) => _weaponItem = weaponItem;
@@ -94,7 +104,11 @@ namespace WeaponModule
 
         public void SetLookInput(Vector2 input) => _lookInput = input;
 
-        public void SetFireInput(bool isHeld) => _isFireHeld = isHeld;
+        public void SetFireInput(bool isHeld, bool isPressed)
+        {
+            _isFireHeld = isHeld;
+            _isFirePressed = isPressed;
+        }
 
         public void SetReloadInput(bool isPressed) => _isReloadPressed = isPressed;
 
@@ -216,18 +230,30 @@ namespace WeaponModule
 
         private void CheckFireInput()
         {
-            if (_isReloading)
+            var isTriggerPulled = _isFirePressed || (_isFireHeld && !_wasFireHeld);
+
+            _wasFireHeld = _isFireHeld;
+
+            if (isTriggerPulled)
+                _pendingTriggerPullTime = Time.time;
+
+            if (_isRoundReloading && isTriggerPulled && _model.CurrentMagazineAmmo > 0)
+                CancelCurrentActions();
+
+            if (_isReloading || Time.time < _nextFireTime || _model.CurrentMagazineAmmo <= 0)
                 return;
 
-            if (_isFireHeld && Time.time >= _nextFireTime)
-            {
-                if (_model.CurrentMagazineAmmo > 0)
-                {
-                    _shouldShootFrame = true;
-                    _nextFireTime = Time.time + _config.FireRate;
-                }
-            }
+            var shouldFire = (_config.IsAutomatic && _isFireHeld) || HasPendingTriggerPull();
+
+            if (!shouldFire)
+                return;
+
+            _pendingTriggerPullTime = float.NegativeInfinity;
+            _shouldShootFrame = true;
+            _nextFireTime = Time.time + _config.FireRate;
         }
+
+        private bool HasPendingTriggerPull() => Time.time - _pendingTriggerPullTime <= _config.FireInputBuffer;
 
         private void Fire()
         {
@@ -235,11 +261,42 @@ namespace WeaponModule
                 return;
 
             _view.PlayFireEffects(_isAiming);
-            _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, _view.FirePoint.rotation,
-                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject);
+
+            _shotProjectiles.Clear();
+
+            for (var i = 0; i < _config.ProjectilesPerShot; i++)
+            {
+                var projectile = SpawnProjectile(i == 0);
+
+                if (projectile != null)
+                    _shotProjectiles.Add(projectile);
+            }
+
+            IgnoreCollisionsBetweenShotProjectiles();
 
             if (_model.IsMagazineEmpty && _model.CanReload)
-                ReloadRoutine(true, _config.EmptyReloadDelay).Forget();
+                StartReload(true, _config.EmptyReloadDelay);
+        }
+
+        private Bullet SpawnProjectile(bool shouldPlayHitSound)
+        {
+            var spread = UnityEngine.Random.insideUnitCircle * _config.SpreadAngle;
+            var rotation = _view.FirePoint.rotation * Quaternion.Euler(spread.x, spread.y, 0f);
+
+            return _bulletFactory.SpawnBullet(_view.BulletPrefab, _view.FirePoint.position, rotation,
+                _config.Damage, _config.BulletSpeed, _config.InheritVelocity, _playerVelocity, _ownerRoot.gameObject,
+                shouldPlayHitSound);
+        }
+
+        private void IgnoreCollisionsBetweenShotProjectiles()
+        {
+            for (var i = 0; i < _shotProjectiles.Count; i++)
+            {
+                for (var j = i + 1; j < _shotProjectiles.Count; j++)
+                    _shotProjectiles[i].IgnoreCollisionWith(_shotProjectiles[j]);
+            }
+
+            _shotProjectiles.Clear();
         }
 
         private void HandleReload()
@@ -248,7 +305,15 @@ namespace WeaponModule
                 return;
 
             if (_isReloadPressed && _model.CanReload)
-                ReloadRoutine(_model.IsMagazineEmpty, 0f).Forget();
+                StartReload(_model.IsMagazineEmpty, 0f);
+        }
+
+        private void StartReload(bool isEmptyReload, float delayBeforeReload)
+        {
+            if (_config.ReloadMode == ReloadMode.SingleRound)
+                SingleRoundReloadRoutine(isEmptyReload, delayBeforeReload).Forget();
+            else
+                ReloadRoutine(isEmptyReload, delayBeforeReload).Forget();
         }
 
         private void HandleMovementAnim()
@@ -290,7 +355,9 @@ namespace WeaponModule
                 }
             }
 
+            _view.SetReloadState(true);
             _view.PlayReload(isEmptyReload);
+            _view.SetLoadedRounds(Mathf.Min(_model.MagazineCapacity, _model.CurrentMagazineAmmo + _model.ReserveAmmo));
 
             bool reloadCanceled = await WaitWhilePlayableAsync(_config.ReloadTime, _tokenSource.Token);
 
@@ -298,6 +365,58 @@ namespace WeaponModule
                 _model.Reload();
 
             _isReloading = false;
+            _view.SetReloadState(false);
+        }
+
+        private async UniTaskVoid SingleRoundReloadRoutine(bool isEmptyReload, float delayBeforeReload)
+        {
+            if (_isReloading)
+                return;
+
+            if (!_model.CanReload)
+                return;
+
+            var token = _tokenSource.Token;
+
+            _isReloading = true;
+            _isRoundReloading = true;
+            _shouldShootFrame = false;
+
+            if (delayBeforeReload > 0f)
+            {
+                bool delayCanceled = await WaitWhilePlayableAsync(delayBeforeReload, token);
+
+                if (delayCanceled)
+                    return;
+
+                if (!_model.CanReload)
+                {
+                    _isReloading = false;
+                    _isRoundReloading = false;
+                    return;
+                }
+            }
+
+            _view.SetReloadState(true);
+            _view.PlayReload(isEmptyReload);
+
+            while (_model.CanReload)
+            {
+                bool roundCanceled = await WaitWhilePlayableAsync(_config.RoundReloadTime, token);
+
+                if (roundCanceled)
+                    return;
+
+                if (_model.LoadRound())
+                    _view.PlayRoundInserted();
+            }
+
+            if (isEmptyReload)
+                _view.PlayActionCycle();
+
+            _isReloading = false;
+            _isRoundReloading = false;
+            _view.SetReloadState(false);
         }
 
         private async UniTaskVoid DrawWeaponRoutine()
@@ -338,6 +457,9 @@ namespace WeaponModule
             _tokenSource.Dispose();
             _tokenSource = new();
             _isReloading = false;
+            _isRoundReloading = false;
+            _view.SetReloadState(false);
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
     }
 }

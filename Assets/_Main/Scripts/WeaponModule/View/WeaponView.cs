@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Zenject;
 
@@ -8,43 +9,54 @@ namespace WeaponModule
         [Header("References")]
         [SerializeField] private Animator handsAnimator;
         [SerializeField] private Animator gunAnimator;
-        [SerializeField] private ParticleSystem muzzleFlash;
         [SerializeField] private Transform firePoint;
         [SerializeField] private Transform aimPivot;
 
         [Header("Animation")]
         [SerializeField] private int fireAnimationLayer = 1;
-
-        [Header("Audio")]
-        [SerializeField] private AudioSource audioSource;
-        [SerializeField] private AudioClip fireSound;
-        [SerializeField] private AudioClip reloadSound;
-        [SerializeField] private AudioClip emptyReloadSound;
+        [Tooltip("Arms clips whose length is stretched to the reload time of the config. Optional.")]
+        [SerializeField] private AnimationClip reloadClip;
+        [SerializeField] private AnimationClip emptyReloadClip;
+        [SerializeField] private AnimationClip roundReloadClip;
 
         [Header("Recoil Targets")]
         [SerializeField] private Transform recoilPivot;
         [SerializeField] private GameObject bulletPrefab;
 
+        [Header("Mechanism")]
+        [SerializeField] private WeaponAnimationEvents animationEvents;
+
         private readonly RecoilProcessor _weaponRecoil = new();
         private readonly SwayProcessor _sway = new();
 
         private ICameraRecoilService _cameraRecoil;
+        private WeaponViewPart[] _parts;
         private Vector3 _hipPosition;
         private Quaternion _hipRotation;
         private WeaponConfig _config;
         private float _currentAimBlend;
         private Transform _cameraTransform;
         private bool _isPaused;
-        private bool _wasMuzzleFlashPlaying;
 
         public GameObject BulletPrefab => bulletPrefab;
         public Transform FirePoint => firePoint;
 
-        [Inject]
-        private void Construct(ICameraRecoilService cameraRecoil)
+        private WeaponViewPart[] Parts => _parts ??= GetComponentsInChildren<WeaponViewPart>(true);
+
+        private void OnEnable()
         {
-            _cameraRecoil = cameraRecoil;
+            if (animationEvents != null)
+                animationEvents.EventRaised += OnAnimationEventRaised;
         }
+
+        private void OnDisable()
+        {
+            if (animationEvents != null)
+                animationEvents.EventRaised -= OnAnimationEventRaised;
+        }
+
+        [Inject]
+        private void Construct(ICameraRecoilService cameraRecoil) => _cameraRecoil = cameraRecoil;
 
         public void Initialize(WeaponConfig config)
         {
@@ -58,45 +70,27 @@ namespace WeaponModule
 
             var mainCamera = Camera.main;
             _cameraTransform = mainCamera != null ? mainCamera.transform.parent : null;
+
+            ForEachPart(static (part, weaponConfig) => part.Initialize(weaponConfig), config);
         }
 
         public void SetPaused(bool isPaused)
         {
             _isPaused = isPaused;
 
-            if (handsAnimator != null)
-                handsAnimator.speed = isPaused ? 0f : 1f;
-
-            if (gunAnimator != null)
-                gunAnimator.speed = isPaused ? 0f : 1f;
-
-            if (muzzleFlash != null)
-            {
-                if (isPaused)
-                {
-                    _wasMuzzleFlashPlaying = muzzleFlash.isPlaying;
-                    muzzleFlash.Pause(true);
-                }
-                else if (_wasMuzzleFlashPlaying)
-                {
-                    muzzleFlash.Play(true);
-                }
-            }
+            SetAnimatorSpeed(isPaused ? 0f : 1f);
+            ForEachPart(static (part, paused) => part.OnPaused(paused), isPaused);
         }
 
         public void SetTriggerHold(bool isHeld)
         {
-            handsAnimator?.SetBool(WeaponAnimatorHashes.TriggerHold, isHeld);
+            SetBool(WeaponAnimatorHashes.TriggerHold, isHeld);
+            ForEachPart(static (part, held) => part.OnTriggerHeld(held), isHeld);
         }
 
         public void PlayFireEffects(bool isAiming)
         {
             PlayFireAnimation();
-
-            if (muzzleFlash != null)
-                muzzleFlash.Play(true);
-
-            PlaySound(fireSound);
 
             if (isAiming)
             {
@@ -108,47 +102,59 @@ namespace WeaponModule
                 _weaponRecoil.Fire(_config.HipRecoil);
                 _cameraRecoil.FireCamera(_config.CamHipRecoil);
             }
+
+            ForEachPart(static part => part.OnFired());
+            PlayActionCycle();
+        }
+
+        public void PlayRoundInserted() => ForEachPart(static part => part.OnRoundInserted());
+
+        public void SetLoadedRounds(int count) =>
+            ForEachPart(static (part, loadedCount) => part.OnLoadedRoundsChanged(loadedCount), count);
+
+        public void PlayActionCycle()
+        {
+            PlayState(WeaponAnimatorHashes.ActionCycleState);
+            ForEachPart(static part => part.OnActionCycleStarted());
+        }
+
+        public void SetReloadState(bool isReloading)
+        {
+            ForEachPart(static (part, reloading) => part.OnReloadStateChanged(reloading), isReloading);
+
+            if (!isReloading)
+                SetBool(WeaponAnimatorHashes.IsRoundReloading, false);
         }
 
         public void PlayReload(bool isEmptyReload)
         {
-            var trigger = isEmptyReload && _config.UseEmptyReloadAnimation
-                ? WeaponAnimatorHashes.EmptyReload
-                : WeaponAnimatorHashes.Reload;
+            ForEachPart(static (part, isEmpty) => part.OnReloadStarted(isEmpty), isEmptyReload);
 
-            handsAnimator?.SetTrigger(trigger);
-            gunAnimator?.SetTrigger(trigger);
+            if (_config.ReloadMode == ReloadMode.SingleRound)
+            {
+                SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(roundReloadClip, _config.RoundReloadTime));
+                SetBool(WeaponAnimatorHashes.IsRoundReloading, true);
+                return;
+            }
 
-            var sound = isEmptyReload && emptyReloadSound != null
-                ? emptyReloadSound
-                : reloadSound;
+            var isEmptyAnimation = isEmptyReload && _config.UseEmptyReloadAnimation;
+            var clip = isEmptyAnimation ? emptyReloadClip : reloadClip;
 
-            PlaySound(sound);
+            SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clip, _config.ReloadTime));
+            SetTrigger(isEmptyAnimation ? WeaponAnimatorHashes.EmptyReload : WeaponAnimatorHashes.Reload);
         }
 
         public void SetHolsterState(bool isHolstered)
         {
-            var trigger = isHolstered ? WeaponAnimatorHashes.Holster : WeaponAnimatorHashes.Draw;
-
-            handsAnimator?.SetTrigger(trigger);
-            gunAnimator?.SetTrigger(trigger);
+            SetTrigger(isHolstered ? WeaponAnimatorHashes.Holster : WeaponAnimatorHashes.Draw);
+            ForEachPart(static (part, holstered) => part.OnHolsterStateChanged(holstered), isHolstered);
         }
 
         public void SetMovementState(bool isMoving, Vector2 inputVector)
         {
-            if (handsAnimator != null)
-            {
-                handsAnimator.SetBool(WeaponAnimatorHashes.IsMoving, isMoving);
-                handsAnimator.SetFloat(WeaponAnimatorHashes.InputX, inputVector.x, 0.1f, Time.deltaTime);
-                handsAnimator.SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f, Time.deltaTime);
-            }
-
-            if (gunAnimator == null)
-                return;
-
-            gunAnimator.SetBool(WeaponAnimatorHashes.IsMoving, isMoving);
-            gunAnimator.SetFloat(WeaponAnimatorHashes.InputX, inputVector.x, 0.1f, Time.deltaTime);
-            gunAnimator.SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f, Time.deltaTime);
+            SetBool(WeaponAnimatorHashes.IsMoving, isMoving);
+            SetFloat(WeaponAnimatorHashes.InputX, inputVector.x, 0.1f);
+            SetFloat(WeaponAnimatorHashes.InputY, inputVector.y, 0.1f);
         }
 
         public void UpdateAiming(bool isAiming, float stabilityTarget)
@@ -166,11 +172,7 @@ namespace WeaponModule
             var targetBlend = isAiming ? stabilityTarget : 0f;
             _currentAimBlend = Mathf.Lerp(_currentAimBlend, targetBlend, Time.deltaTime * 10f);
 
-            if (handsAnimator != null)
-                handsAnimator.SetFloat(WeaponAnimatorHashes.AimBlend, _currentAimBlend);
-
-            if (gunAnimator != null)
-                gunAnimator.SetFloat(WeaponAnimatorHashes.AimBlend, _currentAimBlend);
+            SetFloat(WeaponAnimatorHashes.AimBlend, _currentAimBlend);
         }
 
         public void UpdateProcedural(float deltaTime, Vector2 lookInput, bool isAiming)
@@ -204,8 +206,7 @@ namespace WeaponModule
                 aimPivot.localRotation = _hipRotation;
             }
 
-            if (audioSource != null)
-                audioSource.Stop();
+            ForEachPart(static part => part.ResetVisuals());
 
             if (handsAnimator != null)
                 handsAnimator.Rebind();
@@ -213,6 +214,9 @@ namespace WeaponModule
             if (gunAnimator != null)
                 gunAnimator.Rebind();
         }
+
+        private static float GetReloadSpeed(AnimationClip clip, float duration) =>
+            clip != null && duration > 0f ? clip.length / duration : 1f;
 
         private void PlayFireAnimation()
         {
@@ -222,12 +226,73 @@ namespace WeaponModule
             gunAnimator.Play(WeaponAnimatorHashes.FireState, fireAnimationLayer, 0f);
         }
 
-        private void PlaySound(AudioClip clip)
+        private void PlayState(int stateHash)
         {
-            if (audioSource == null || clip == null)
-                return;
+            if (handsAnimator != null)
+                handsAnimator.Play(stateHash, -1, 0f);
 
-            audioSource.PlayOneShot(clip);
+            if (gunAnimator != null)
+                gunAnimator.Play(stateHash, -1, 0f);
+        }
+
+        private void SetAnimatorSpeed(float speed)
+        {
+            if (handsAnimator != null)
+                handsAnimator.speed = speed;
+
+            if (gunAnimator != null)
+                gunAnimator.speed = speed;
+        }
+
+        private void SetBool(int hash, bool value)
+        {
+            if (handsAnimator != null)
+                handsAnimator.SetBool(hash, value);
+
+            if (gunAnimator != null)
+                gunAnimator.SetBool(hash, value);
+        }
+
+        private void SetTrigger(int hash)
+        {
+            if (handsAnimator != null)
+                handsAnimator.SetTrigger(hash);
+
+            if (gunAnimator != null)
+                gunAnimator.SetTrigger(hash);
+        }
+
+        private void SetFloat(int hash, float value)
+        {
+            if (handsAnimator != null)
+                handsAnimator.SetFloat(hash, value);
+
+            if (gunAnimator != null)
+                gunAnimator.SetFloat(hash, value);
+        }
+
+        private void SetFloat(int hash, float value, float dampTime)
+        {
+            if (handsAnimator != null)
+                handsAnimator.SetFloat(hash, value, dampTime, Time.deltaTime);
+
+            if (gunAnimator != null)
+                gunAnimator.SetFloat(hash, value, dampTime, Time.deltaTime);
+        }
+
+        private void OnAnimationEventRaised(string eventId) =>
+            ForEachPart(static (part, id) => part.OnAnimationEvent(id), eventId);
+
+        private void ForEachPart(Action<WeaponViewPart> action)
+        {
+            foreach (var part in Parts)
+                action(part);
+        }
+
+        private void ForEachPart<T>(Action<WeaponViewPart, T> action, T argument)
+        {
+            foreach (var part in Parts)
+                action(part, argument);
         }
     }
 }

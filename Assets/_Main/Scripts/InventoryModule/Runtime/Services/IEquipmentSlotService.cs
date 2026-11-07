@@ -4,6 +4,9 @@ namespace InventoryModule
 {
     public interface IEquipmentSlotService
     {
+        EquipmentSlot ActiveSlot { get; }
+
+        void SetActiveSlot(EquipmentSlot slot);
         void RegisterSlot(EquipmentSlot slot);
         void UnregisterSlot(EquipmentSlot slot);
         IReadOnlyList<EquipmentSlot> GetAllSlots();

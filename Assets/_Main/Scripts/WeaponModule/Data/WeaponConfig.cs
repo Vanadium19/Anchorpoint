@@ -32,6 +32,22 @@ namespace WeaponModule
         [Range(0f, 1f)]
         [SerializeField] private float aimStability = 0.8f;
 
+        [Header("Ammo")]
+        [SerializeField] private AmmoType ammoType = AmmoType.Rifle;
+
+        [Header("Fire Mode")]
+        [SerializeField] private bool isAutomatic = true;
+        [Min(0f)]
+        [SerializeField] private float fireInputBuffer = 0.25f;
+        [Min(1)]
+        [SerializeField] private int projectilesPerShot = 1;
+        [Min(0f)]
+        [SerializeField] private float spreadAngle = 0f;
+
+        [Header("Reload Mode")]
+        [SerializeField] private ReloadMode reloadMode = ReloadMode.Magazine;
+        [SerializeField] private float roundReloadTime = 0.5f;
+
         [Header("--- Recoil & Sway ---")]
         public RecoilSettings HipRecoil;
         public RecoilSettings AimRecoil;
@@ -55,5 +71,13 @@ namespace WeaponModule
         public float AimSpeed => aimSpeed;
         public bool AimIsToggle => aimIsToggle;
         public float AimStability => aimStability;
+
+        public AmmoType AmmoType => ammoType;
+        public bool IsAutomatic => isAutomatic;
+        public float FireInputBuffer => fireInputBuffer;
+        public int ProjectilesPerShot => projectilesPerShot;
+        public float SpreadAngle => spreadAngle;
+        public ReloadMode ReloadMode => reloadMode;
+        public float RoundReloadTime => roundReloadTime;
     }
 }

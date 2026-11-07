@@ -1,3 +1,4 @@
+using AudioModule;
 using BaseModule;
 using ComponentsModule;
 using UnityEngine;
@@ -9,6 +10,7 @@ namespace WeaponModule
         [Header("References")]
         [SerializeField] private Rigidbody rigidbodyComponent;
         [SerializeField] private TrailRenderer trailRenderer;
+        [SerializeField] private Collider colliderComponent;
 
         [Header("Lifetime")]
         [SerializeField] private float lifeTime = 3f;
@@ -16,7 +18,9 @@ namespace WeaponModule
         [Header("Hit Feedback")]
         [SerializeField] private GameObject hitEffect;
         [SerializeField] private float hitEffectLifetime = 2f;
-        [SerializeField] private AudioSource hitAudioSource;
+        [SerializeField, Min(0.01f)] private float hitEffectScale = 1f;
+        [SerializeField] private string hitAudioEvent;
+        [SerializeField] private float hitAudioMinInterval = 0.05f;
 
         private float _damage;
         private GameObject _owner;
@@ -25,11 +29,14 @@ namespace WeaponModule
         private Vector3 _pausedAngularVelocity;
         private bool _isPaused;
         private bool _hasSetup;
+        private bool _isHitSoundEnabled = true;
+        private bool _hasHit;
 
         private void OnValidate()
         {
             rigidbodyComponent ??= GetComponent<Rigidbody>();
             trailRenderer ??= GetComponent<TrailRenderer>();
+            colliderComponent ??= GetComponent<Collider>();
         }
 
         private void OnEnable()
@@ -61,6 +68,8 @@ namespace WeaponModule
             _remainingLifeTime = lifeTime;
             _hasSetup = true;
 
+            IgnoreOwnerCollisions();
+
             if (rigidbodyComponent != null)
             {
                 rigidbodyComponent.linearVelocity = Vector3.zero;
@@ -78,6 +87,16 @@ namespace WeaponModule
             }
 
             SetPaused(PauseState.IsPaused);
+        }
+
+        public void SetHitSoundEnabled(bool isEnabled) => _isHitSoundEnabled = isEnabled;
+
+        public void IgnoreCollisionWith(Bullet other)
+        {
+            if (other == null || colliderComponent == null || other.colliderComponent == null)
+                return;
+
+            Physics.IgnoreCollision(colliderComponent, other.colliderComponent);
         }
 
         public void SetPaused(bool isPaused)
@@ -111,8 +130,10 @@ namespace WeaponModule
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (_isPaused)
+            if (_isPaused || _hasHit)
                 return;
+
+            _hasHit = true;
 
             if (_owner != null && collision.transform.IsChildOf(_owner.transform))
             {
@@ -136,8 +157,20 @@ namespace WeaponModule
             }
 
             PlayHitEffect(contact);
-            PlayHitSound(contact.point);
+
+            if (_isHitSoundEnabled)
+                PlayHitSound(contact.point);
+
             Destroy(gameObject);
+        }
+
+        private void IgnoreOwnerCollisions()
+        {
+            if (_owner == null || colliderComponent == null)
+                return;
+
+            foreach (var ownerCollider in _owner.GetComponentsInChildren<Collider>())
+                Physics.IgnoreCollision(colliderComponent, ownerCollider);
         }
 
         private void PlayHitEffect(ContactPoint contact)
@@ -148,35 +181,16 @@ namespace WeaponModule
             var position = contact.point + contact.normal * 0.05f;
             var rotation = Quaternion.LookRotation(contact.normal);
             var effect = Instantiate(hitEffect, position, rotation);
+            effect.transform.localScale *= hitEffectScale;
             Destroy(effect, hitEffectLifetime);
         }
 
         private void PlayHitSound(Vector3 position)
         {
-            if (hitAudioSource == null || hitAudioSource.clip == null)
+            if (string.IsNullOrEmpty(hitAudioEvent))
                 return;
 
-            var audioObject = new GameObject("HitSound");
-            audioObject.transform.position = position;
-
-            var audioSource = audioObject.AddComponent<AudioSource>();
-            CopyAudioSettings(hitAudioSource, audioSource);
-            audioSource.Play();
-
-            Destroy(audioObject, hitAudioSource.clip.length + 0.1f);
-        }
-
-        private static void CopyAudioSettings(AudioSource source, AudioSource target)
-        {
-            target.clip = source.clip;
-            target.outputAudioMixerGroup = source.outputAudioMixerGroup;
-            target.volume = source.volume;
-            target.pitch = source.pitch;
-            target.spatialBlend = source.spatialBlend;
-            target.rolloffMode = source.rolloffMode;
-            target.minDistance = source.minDistance;
-            target.maxDistance = source.maxDistance;
-            target.playOnAwake = false;
+            AudioSystem.Resolve(this).PlayEvent(hitAudioEvent, position, hitAudioMinInterval);
         }
     }
 }

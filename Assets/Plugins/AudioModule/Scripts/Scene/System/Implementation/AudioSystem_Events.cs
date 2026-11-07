@@ -234,12 +234,20 @@ namespace AudioModule
                 (AudioEventBase audioEvent, string fullId) = _createdEventsCache[i];
                 if (fullId == eventId)
                 {
-                    this.StartCoroutine(this.DisposeEventRoutine(audioEvent, curve, fadeoutTime));
+                    this.DisposeEventWithFadeout(audioEvent, curve, fadeoutTime);
                     return true;
                 }
             }
 
             return false;
+        }
+
+        private void DisposeEventWithFadeout(AudioEventBase audioEvent, AnimationCurve curve, float fadeoutTime)
+        {
+            if (this.isActiveAndEnabled)
+                this.StartCoroutine(this.DisposeEventRoutine(audioEvent, curve, fadeoutTime));
+            else
+                this.DisposeEvent(audioEvent);
         }
 
         private IEnumerator DisposeEventRoutine(AudioEventBase audioEvent, AnimationCurve curve, float fadeoutTime)
@@ -266,7 +274,7 @@ namespace AudioModule
             {
                 (AudioEventBase audioEvent, string fullId) = _createdEventsCache[i];
                 if (fullId == eventId)
-                    this.StartCoroutine(this.DisposeEventRoutine(audioEvent, curve, fadeoutTime));
+                    this.DisposeEventWithFadeout(audioEvent, curve, fadeoutTime);
             }
         }
 
@@ -325,8 +333,14 @@ namespace AudioModule
 
         internal void StopEvent(AudioEventBase audioEvent, float fadeoutTime, AnimationCurve curve)
         {
-            if (_fadeouts.Remove(audioEvent, out Coroutine coroutine)) 
+            if (_fadeouts.Remove(audioEvent, out Coroutine coroutine))
                 this.StopCoroutine(coroutine);
+
+            if (!this.isActiveAndEnabled)
+            {
+                this.StopEvent(audioEvent);
+                return;
+            }
 
             coroutine = this.StartCoroutine(this.StopEventRoutine(audioEvent, fadeoutTime, curve));
             _fadeouts.Add(audioEvent, coroutine);

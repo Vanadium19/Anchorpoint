@@ -4,16 +4,21 @@ namespace WeaponModule
 {
     public class BulletFactory : IBulletFactory
     {
-        public void SpawnBullet(GameObject bulletPrefab, Vector3 position, Quaternion rotation,
-            float damage, float speed, float inheritFactor, Vector3 shooterVelocity, GameObject owner)
+        public Bullet SpawnBullet(GameObject bulletPrefab, Vector3 position, Quaternion rotation,
+            float damage, float speed, float inheritFactor, Vector3 shooterVelocity, GameObject owner,
+            bool shouldPlayHitSound)
         {
             if (bulletPrefab == null)
-                return;
+                return null;
 
             var bulletObj = Object.Instantiate(bulletPrefab, position, rotation);
 
-            if (bulletObj.TryGetComponent(out Bullet bulletScript))
-                bulletScript.Setup(damage, speed, inheritFactor, shooterVelocity, owner);
+            if (!bulletObj.TryGetComponent(out Bullet bulletScript))
+                return null;
+
+            bulletScript.Setup(damage, speed, inheritFactor, shooterVelocity, owner);
+            bulletScript.SetHitSoundEnabled(shouldPlayHitSound);
+            return bulletScript;
         }
     }
 }

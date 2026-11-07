@@ -50,7 +50,7 @@ namespace PlayerModule
             {
                 controller.SetMovementInput(_input.MoveInput);
                 controller.SetAimInput(_input.IsAimPressed, _input.IsAimTriggered);
-                controller.SetFireInput(_input.IsFireHeld);
+                controller.SetFireInput(_input.IsFireHeld, _input.IsFirePressed);
                 controller.SetReloadInput(_input.IsReloadPressed);
 
                 controller.Tick();
