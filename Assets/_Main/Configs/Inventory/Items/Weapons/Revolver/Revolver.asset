@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e21c02e219010640a2793823d0f9d5e, type: 3}
+  m_Name: Revolver
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.WeaponItemSo
+  displayName: OTs-01 Kobalt
+  description: 
+  icon: {fileID: 21300000, guid: 002656d02a7d33a40860bc6a04c9c176, type: 3}
+  nameKey: item_revolver_kobalt
+  descriptionKey: 
+  dimensionsSo: {fileID: 11400000, guid: f6383ee5efcb3684b9dc19d3347c6ba9, type: 2}
+  equipmentSlotType: 32
+  isEquippable: 1
+  isStackable: 0
+  maxStackSize: 1
+  isContainer: 0
+  containerGrids: {fileID: 0}
+  canRotate: 1
+  hasDurability: 0
+  maxDurability: 1
+  showDurability: 0
+  effectData: {fileID: 0}
+  isDropable: 1
+  worldPrefab: {fileID: 3517526947254892658, guid: 24b6acdb5ab92af45bcdde086869d66e, type: 3}
+  contextActionPreset: {fileID: 11400000, guid: 81c20552f56e2b7458b35c76d5e1e9ec, type: 2}
+  weaponConfig: {fileID: 11400000, guid: 7b5b512d612d0f74da0d2c85b01fe333, type: 2}
+  weaponViewPrefab: {fileID: 7674212183257812187, guid: 1697c91eec950a2438d0da3c0f6d788d, type: 3}

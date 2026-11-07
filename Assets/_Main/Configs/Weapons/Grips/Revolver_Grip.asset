@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca98f3ecd6b0cad4c9ee77d96be3b450, type: 3}
+  m_Name: Revolver_Grip
+  m_EditorClassIdentifier: WeaponModule::WeaponModule.WeaponGripConfig
+  rightHand:
+    isEnabled: 1
+    isReleasedDuringReload: 0
+    gripPosition: {x: 0.0026458856, y: -0.0018646677, z: -0.0007352443}
+    gripRotation: {x: -0.38680437, y: 0.50373626, z: -0.5919442, w: -0.49622053}
+    fingerRotations:
+    - {x: 0.0040760497, y: -0.36127177, z: 0.6455868, w: -0.6728178}
+    - {x: -0.21116625, y: 0.31407237, z: -0.20160137, w: 0.90339595}
+    - {x: -0.2860801, y: 0.24968396, z: -0.10549807, w: 0.9190682}
+    - {x: -0.22680946, y: 0.051630747, z: -0.10773112, w: 0.9665846}
+    - {x: 0.14474097, y: -0.000000037252903, z: 0.00000003702007, w: 0.98946965}
+    - {x: -0.048539806, y: 0, z: 0, w: 0.9988213}
+    - {x: -0.5240193, y: -0.06975086, z: -0.051894102, w: 0.84725773}
+    - {x: 0.09253609, y: 0, z: 0, w: -0.99570936}
+    - {x: 0.37226844, y: 0, z: 0, w: -0.92812514}
+    - {x: 0.5753728, y: -0.008107989, z: 0.03765689, w: -0.81698364}
+    - {x: 0.016596448, y: 0, z: 0, w: -0.9998623}
+    - {x: 0.3406367, y: 0, z: 0, w: -0.940195}
+    - {x: 0.60827655, y: 0.123214796, z: -0.05598969, w: -0.7821016}
+    - {x: -0.04083052, y: 0, z: 0, w: -0.9991661}
+    - {x: 0.15655826, y: 0, z: 0, w: -0.98766875}
+    triggerPressRotations:
+    - {x: -0.29222772, y: -0.10972226, z: -0.089564525, w: 0.9458024}
+    - {x: 0.14904493, y: -0.00000003741363, z: 0.000000036857628, w: 0.9888305}
+    - {x: -0.11810743, y: 0, z: 0, w: 0.99300086}
+  leftHand:
+    isEnabled: 0
+    isReleasedDuringReload: 0
+    gripPosition: {x: 0, y: 0, z: 0}
+    gripRotation: {x: 0, y: 0, z: 0, w: 1}
+    fingerRotations: []
+    triggerPressRotations: []
