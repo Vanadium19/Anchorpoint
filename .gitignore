@@ -107,3 +107,6 @@ InitTestScene*.unity*
 
 # Rider
 .idea/
+
+# Local Cursor rules for this machine
+.cursor/rules/
