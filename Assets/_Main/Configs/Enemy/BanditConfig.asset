@@ -51,5 +51,7 @@ MonoBehaviour:
     item: {fileID: 11400000, guid: 1b74f7db953a0bd4db49c7f1bda01918, type: 2}
   - dropWeight: 1
     item: {fileID: 11400000, guid: 5e4a0a65cb97c5f48bdea1cc011a741a, type: 2}
+  - dropWeight: 1
+    item: {fileID: 11400000, guid: 3b6a8551cc8b7ed498bc190c57c6899b, type: 2}
   lootScatterRadius: 0.9
   lootSpawnOffsetY: 0.35

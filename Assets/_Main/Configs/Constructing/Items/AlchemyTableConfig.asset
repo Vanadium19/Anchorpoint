@@ -19,12 +19,36 @@ MonoBehaviour:
     value:
     - ItemData: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
       Count: 6
+    - ItemData: {fileID: 11400000, guid: 3b6a8551cc8b7ed498bc190c57c6899b, type: 2}
+      Count: 1
   upgradeConfig: {fileID: 11400000, guid: 6a8797e145f34288aa291860081144b5, type: 2}
   icon: {fileID: 371250376, guid: 45d89d1d68544f54bb0edd3d96989617, type: 3}
   order: 3
+  constructionTime: 5
+  maxHealth: 100
+  brokenAlpha: 0.45
+  repairPrice:
+    value: []
+  repairTime: 3
+  repairReductionPercent: 0
+  isDefensive: 0
+  defenseSearchRadius: 10
+  defenseDamage: 10
+  defenseAttackRate: 1
+  isMinefield: 0
+  mineCount: 5
+  mineDamage: 50
+  mineTargetLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  isWoodenStakes: 0
+  woodenStakesSlowPercent: 50
+  isScoutTower: 0
+  raidPreparationSeconds: 60
+  raidWarningLocalizationKey: raid_scout_warning
+  raidWarningDisplaySeconds: 6
   nameKey: building_alchemy_table
   allowedBuildLayers:
     serializedVersion: 2
     m_Bits: 513
   basePoints: 35
-  maxHealth: 100
