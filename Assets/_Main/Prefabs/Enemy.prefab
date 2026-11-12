@@ -324,15 +324,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 0.78
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 0.78
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 0.78
       objectReference: {fileID: 0}
     - target: {fileID: 400060, guid: fcb334eb247ae3e488abb081c847cf09, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1144,10 +1144,10 @@ MonoBehaviour:
       data: 
     - rid: 3583316307384991750
       type: {class: AttackStructureToChaseTransitionAsset, ns: EnemyModule, asm: EnemyModule}
-      data:
+      data: 
     - rid: 3583316307384991751
       type: {class: AttackStructureToPatrolTransitionAsset, ns: EnemyModule, asm: EnemyModule}
-      data:
+      data: 
     - rid: 8156811036537651343
       type: {class: AutoStateMachineAsset, ns: EnemyModule, asm: EnemyModule}
       data:

@@ -258,6 +258,9 @@ GameObject:
   - component: {fileID: 33202050441495188}
   - component: {fileID: 23323031373625554}
   - component: {fileID: 2423399356804618204}
+  - component: {fileID: 4869238895808651205}
+  - component: {fileID: 8835327025712966467}
+  - component: {fileID: 5420389416452946105}
   m_Layer: 0
   m_Name: SM_Prop_Portaloo_01_Door
   m_TagString: Untagged
@@ -358,3 +361,144 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.109178, y: 2.50887, z: 0.096348874}
   m_Center: {x: -0.5541031, y: 1.2544352, z: -0.021337625}
+--- !u!114 &4869238895808651205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969700223460132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1856d2af306f37e49b0309b81126d857, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: EnvironmentModule::EnvironmentModule.DoorView
+  hinge: {fileID: 0}
+  closedAngle: 0
+  openAngle: 90
+  oppositeOpenAngle: -90
+  openDuration: 0.5
+  openMode: 1
+  manualDirection: 0
+  invertPartialLogic: 1
+  leafLocalDirection: {x: -1, y: 0, z: 0}
+  openingRadius: 1
+  displayName: Door
+  nameKey: door_name
+  blocker: {fileID: 5420389416452946105}
+  audioSource: {fileID: 8835327025712966467}
+  openClip: {fileID: 8300000, guid: 32aba5002bef9a446858bb496fb5bae9, type: 3}
+  closeClip: {fileID: 8300000, guid: 9bffc51a66cd06345b8d28923ab9f5eb, type: 3}
+--- !u!82 &8835327025712966467
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969700223460132}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: -4408317940967448430, guid: 50118c7dbb4b44132a5d2e6cce8781a9, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.8
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 0
+  MinDistance: 1
+  MaxDistance: 10
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!208 &5420389416452946105
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969700223460132}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.555, y: 1.2540001, z: 0.048}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.554, y: 1.2540001, z: -0.021000002}
+  m_TimeToStationary: 0.5

@@ -17,16 +17,19 @@ MonoBehaviour:
   crouchSpeed: 1.5
   gravity: -15
   jumpHeight: 1.2
+  walkFootstepInterval: 0.45
+  crouchFootstepInterval: 0.65
+  minimumFootstepSpeed: 0.15
   mouseSensitivity: 0.1
   lookXLimit: 85
   leanAngle: 15
   leanOffset: 0.5
   leanSpeed: 10
   crouchData:
-    crouchHeight: 1.1
-    standHeight: 1.5
-    eyeHeightCrouching: 0.8
-    eyeHeightStanding: 1.2
+    crouchHeight: 1.2
+    standHeight: 1.8
+    eyeHeightCrouching: 1.1
+    eyeHeightStanding: 1.7
     crouchSpeed: 10
   interactionLayer:
     serializedVersion: 2

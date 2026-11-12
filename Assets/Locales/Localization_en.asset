@@ -494,6 +494,14 @@ MonoBehaviour:
     m_Localized: Electronic components used for crafting and upgrading buildings
     m_Metadata:
       m_Items: []
+  - m_Id: 23679153235267585
+    m_Localized: 'Press [F] to close {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 23679153235267586
+    m_Localized: Door
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

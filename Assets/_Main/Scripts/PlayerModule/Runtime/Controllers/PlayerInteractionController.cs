@@ -180,6 +180,7 @@ namespace PlayerModule
                 return;
 
             _currentHoveredInteractable.Interact(_playerTransform);
+            RefreshHoverHint();
         }
 
         private void HandleHoldInteraction(IHoldInteractable holdInteractable)
@@ -206,6 +207,7 @@ namespace PlayerModule
                 holdInteractable.Interact(_playerTransform);
                 _waitForHoldRelease = true;
                 HoldProgressChanged?.Invoke(holdInteractable, 1f);
+                RefreshHoverHint();
                 return;
             }
 
@@ -219,6 +221,7 @@ namespace PlayerModule
             holdInteractable.Interact(_playerTransform);
             _holdElapsedTime = 0f;
             _waitForHoldRelease = true;
+            RefreshHoverHint();
         }
 
         private void ResetHoldAfterRelease(IHoldInteractable holdInteractable)
@@ -261,6 +264,14 @@ namespace PlayerModule
             InteractableHoverChanged?.Invoke(newInteractable);
             _interactionFocusService?.SetInteractable(newInteractable);
             ExternalUIHoverChanged?.Invoke(newExternalUI);
+        }
+
+        private void RefreshHoverHint()
+        {
+            if (_currentHoveredInteractable == null)
+                return;
+
+            InteractableHoverChanged?.Invoke(_currentHoveredInteractable);
         }
 
         private void ClearInteraction()
