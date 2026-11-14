@@ -68,6 +68,9 @@ namespace AudioModule
 
         internal void Release(AudioSource source)
         {
+            if (source == null)
+                return;
+
             source.enabled = false;
             source.name = INACTIVE_NAME;
             source.transform.parent = parent;

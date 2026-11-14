@@ -130,8 +130,12 @@ namespace AudioModule
         internal protected override void OnStop()
         {
             this.StopBehaviours();
-            _audioSystem.ReleaseAudioSource(_audioSource);
+
+            if (_audioSource != null)
+                _audioSystem.ReleaseAudioSource(_audioSource);
+
             _audioSource = null;
+            _audioSourceTransform = null;
         }
 
         internal protected override void OnUpdate(float deltaTime)
@@ -176,11 +180,17 @@ namespace AudioModule
 
         internal protected override IEnumerator FadeOut(AnimationCurve curve, float duration)
         {
+            if (_audioSource == null)
+                yield break;
+
             float time = 0f;
             float startVolume = _audioSource.volume;
 
             while (time < duration)
             {
+                if (_audioSource == null)
+                    yield break;
+
                 float t = time / duration;
                 float fadeMultiplier = curve?.Evaluate(t) ?? 1f - t;
                 _audioSource.volume = startVolume * fadeMultiplier;
@@ -188,6 +198,9 @@ namespace AudioModule
                 time += Time.deltaTime;
                 yield return null;
             }
+
+            if (_audioSource == null)
+                yield break;
 
             _audioSource.volume = 0f;
         }
