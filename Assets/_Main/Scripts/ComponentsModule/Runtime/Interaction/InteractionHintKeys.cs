@@ -6,6 +6,8 @@ namespace ComponentsModule
 
         public const string Open = "hint_open";
 
+        public const string Close = "hint_close";
+
         public const string Talk = "hint_talk";
 
         public const string Repair = "hint_repair";
