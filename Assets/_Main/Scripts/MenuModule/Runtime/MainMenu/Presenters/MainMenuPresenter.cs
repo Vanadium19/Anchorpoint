@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UtilsModule;
 using Zenject;
@@ -13,6 +15,8 @@ namespace MenuModule
         private readonly MainMenuView _view;
         private readonly IMenuNavigationService _navigationService;
 
+        private CancellationTokenSource _localeTokenSource;
+
         public MainMenuPresenter(MainMenuView view,
             IMenuNavigationService navigationService)
         {
@@ -25,14 +29,8 @@ namespace MenuModule
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
-            LocaleSelector.RestoreSaved();
-
-            _view.Show();
-
-            _view.StartGameClicked += OnStartGameClicked;
-            _view.ExitClicked += OnExitClicked;
-            _view.EnglishClicked += OnEnglishClicked;
-            _view.RussianClicked += OnRussianClicked;
+            _localeTokenSource = new CancellationTokenSource();
+            InitializeAsync(_localeTokenSource.Token).Forget();
         }
 
         public void Dispose()
@@ -41,6 +39,24 @@ namespace MenuModule
             _view.ExitClicked -= OnExitClicked;
             _view.EnglishClicked -= OnEnglishClicked;
             _view.RussianClicked -= OnRussianClicked;
+
+            _localeTokenSource?.Cancel();
+            _localeTokenSource?.Dispose();
+            _localeTokenSource = null;
+        }
+
+        private async UniTaskVoid InitializeAsync(CancellationToken token)
+        {
+            await LocaleSelector.RestoreSavedAsync(token);
+
+            if (token.IsCancellationRequested)
+                return;
+
+            _view.StartGameClicked += OnStartGameClicked;
+            _view.ExitClicked += OnExitClicked;
+            _view.EnglishClicked += OnEnglishClicked;
+            _view.RussianClicked += OnRussianClicked;
+            _view.Show();
         }
 
         private void OnStartGameClicked()
@@ -50,8 +66,8 @@ namespace MenuModule
 
         private void OnExitClicked() => _navigationService.QuitGame();
 
-        private void OnEnglishClicked() => LocaleSelector.Apply(EnglishLocaleCode);
+        private void OnEnglishClicked() => LocaleSelector.ApplyAsync(EnglishLocaleCode, _localeTokenSource.Token).Forget();
 
-        private void OnRussianClicked() => LocaleSelector.Apply(RussianLocaleCode);
+        private void OnRussianClicked() => LocaleSelector.ApplyAsync(RussianLocaleCode, _localeTokenSource.Token).Forget();
     }
 }

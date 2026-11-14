@@ -1,3 +1,5 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 
@@ -7,8 +9,18 @@ namespace UtilsModule
     {
         private const string LanguagePrefsKey = "selected_language";
 
-        public static void Apply(string localeCode)
+        public static async UniTask ApplyAsync(string localeCode, CancellationToken token)
         {
+            if (string.IsNullOrEmpty(localeCode))
+                return;
+
+            var canceled = await UniTask
+                .WaitUntil(IsLocalizationReady, cancellationToken: token)
+                .SuppressCancellationThrow();
+
+            if (canceled || !IsLocalizationReady())
+                return;
+
             var availableLocales = LocalizationSettings.AvailableLocales;
 
             if (availableLocales == null)
@@ -24,12 +36,15 @@ namespace UtilsModule
             PlayerPrefs.Save();
         }
 
-        public static void RestoreSaved()
+        public static async UniTask RestoreSavedAsync(CancellationToken token)
         {
             var savedCode = PlayerPrefs.GetString(LanguagePrefsKey, string.Empty);
 
             if (!string.IsNullOrEmpty(savedCode))
-                Apply(savedCode);
+                await ApplyAsync(savedCode, token);
         }
+
+        private static bool IsLocalizationReady() =>
+            LocalizationSettings.InitializationOperation.IsDone;
     }
 }
