@@ -12,5 +12,9 @@ namespace WeaponModule
         public const string RoundInserted = "RoundInserted";
         public const string ActionCycleCompleted = "ActionCycleCompleted";
         public const string RoundsLoaded = "RoundsLoaded";
+        public const string Misfired = "Misfired";
+        public const string Jammed = "Jammed";
+        public const string MisfireClearStarted = "MisfireClearStarted";
+        public const string JamClearStarted = "JamClearStarted";
     }
 }

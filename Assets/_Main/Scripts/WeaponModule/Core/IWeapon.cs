@@ -5,6 +5,7 @@ namespace WeaponModule
     public interface IWeapon
     {
         public WeaponModel Model { get; }
+        WeaponWearModel Wear { get; }
         AmmoType AmmoType { get; }
 
         void Initialize();

@@ -41,7 +41,12 @@ namespace WeaponModule
             }
 
             _currentWeapon.Model.AmmoChanged += OnAmmoChanged;
+            _currentWeapon.Wear.WearChanged += OnWearChanged;
+            _currentWeapon.Wear.MalfunctionChanged += OnMalfunctionChanged;
+
             OnAmmoChanged(_currentWeapon.Model.CurrentMagazineAmmo, _currentWeapon.Model.ReserveAmmo);
+            OnWearChanged(_currentWeapon.Wear.Wear);
+            OnMalfunctionChanged(_currentWeapon.Wear.Malfunction);
         }
 
         private void OnAmmoChanged(int currentMagazineAmmo, int reserveAmmo)
@@ -49,12 +54,18 @@ namespace WeaponModule
             _ammoView.SetAmmo(currentMagazineAmmo, reserveAmmo);
         }
 
+        private void OnWearChanged(float wear) => _ammoView.SetWear(wear);
+
+        private void OnMalfunctionChanged(WeaponMalfunction malfunction) => _ammoView.SetMalfunction(malfunction);
+
         private void UnsubscribeFromCurrentWeapon()
         {
             if (_currentWeapon == null)
                 return;
 
             _currentWeapon.Model.AmmoChanged -= OnAmmoChanged;
+            _currentWeapon.Wear.WearChanged -= OnWearChanged;
+            _currentWeapon.Wear.MalfunctionChanged -= OnMalfunctionChanged;
             _currentWeapon = null;
         }
     }

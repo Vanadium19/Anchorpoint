@@ -495,11 +495,19 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 23679153235267585
-    m_Localized: 'Press [F] to close {0}'
+    m_Localized: Press [F] to close {0}
     m_Metadata:
       m_Items: []
   - m_Id: 23679153235267586
     m_Localized: Door
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30298927797362688
+    m_Localized: Misfire! Reload
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30298927868665856
+    m_Localized: Weapon jammed! Reload
     m_Metadata:
       m_Items: []
   references:

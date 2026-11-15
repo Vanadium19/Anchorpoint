@@ -18,6 +18,9 @@ namespace WeaponModule
         [SerializeField] private AnimationClip reloadClip;
         [SerializeField] private AnimationClip emptyReloadClip;
         [SerializeField] private AnimationClip roundReloadClip;
+        [Tooltip("Clips of clearing a malfunction, stretched to the clear time of the config. Optional.")]
+        [SerializeField] private AnimationClip clearMisfireClip;
+        [SerializeField] private AnimationClip clearJamClip;
 
         [Header("Recoil Targets")]
         [SerializeField] private Transform recoilPivot;
@@ -144,6 +147,20 @@ namespace WeaponModule
             SetTrigger(isEmptyAnimation ? WeaponAnimatorHashes.EmptyReload : WeaponAnimatorHashes.Reload);
         }
 
+        public void PlayMalfunction(WeaponMalfunction malfunction) =>
+            ForEachPart(static (part, kind) => part.OnMalfunctionOccurred(kind), malfunction);
+
+        public void PlayMalfunctionClear(WeaponMalfunction malfunction, float duration)
+        {
+            ForEachPart(static (part, kind) => part.OnMalfunctionClearStarted(kind), malfunction);
+
+            var isJam = malfunction == WeaponMalfunction.Jam;
+            var clip = isJam ? clearJamClip : clearMisfireClip;
+
+            SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clip, duration));
+            TrySetTrigger(isJam ? WeaponAnimatorHashes.ClearJam : WeaponAnimatorHashes.ClearMisfire);
+        }
+
         public void SetHolsterState(bool isHolstered)
         {
             SetTrigger(isHolstered ? WeaponAnimatorHashes.Holster : WeaponAnimatorHashes.Draw);
@@ -260,6 +277,29 @@ namespace WeaponModule
 
             if (gunAnimator != null)
                 gunAnimator.SetTrigger(hash);
+        }
+
+        private void TrySetTrigger(int hash)
+        {
+            if (HasParameter(handsAnimator, hash))
+                handsAnimator.SetTrigger(hash);
+
+            if (HasParameter(gunAnimator, hash))
+                gunAnimator.SetTrigger(hash);
+        }
+
+        private static bool HasParameter(Animator animator, int hash)
+        {
+            if (animator == null || animator.runtimeAnimatorController == null)
+                return false;
+
+            foreach (var parameter in animator.parameters)
+            {
+                if (parameter.nameHash == hash)
+                    return true;
+            }
+
+            return false;
         }
 
         private void SetFloat(int hash, float value)

@@ -20,6 +20,9 @@ namespace AudioModule
         public const string RevolverSpeedloaderEvent = "Weapons.RevolverSpeedloader";
         public const string CasingsDropEvent = "Weapons.CasingsDrop";
         public const string BulletImpactEvent = "Weapons.BulletImpact";
+        public const string MisfireClickEvent = "Weapons.MisfireClick";
+        public const string JamClangEvent = "Weapons.JamClang";
+        public const string RackEvent = "Weapons.Rack";
 
         ///Parameters
 

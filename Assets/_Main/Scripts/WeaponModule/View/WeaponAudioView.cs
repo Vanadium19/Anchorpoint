@@ -63,6 +63,23 @@ namespace WeaponModule
                 _audioSystem.PlayEvent(sound, transform);
         }
 
+        public override void OnMalfunctionOccurred(WeaponMalfunction malfunction)
+        {
+            var eventId = malfunction == WeaponMalfunction.Jam ? WeaponEventIds.Jammed : WeaponEventIds.Misfired;
+
+            if (_audioSystem != null && TryGetSound(eventId, out var sound))
+                _audioSystem.PlayEvent(sound, transform);
+        }
+
+        public override void OnMalfunctionClearStarted(WeaponMalfunction malfunction)
+        {
+            StopMechanismSound();
+
+            PlayMechanismSound(malfunction == WeaponMalfunction.Jam
+                ? WeaponEventIds.JamClearStarted
+                : WeaponEventIds.MisfireClearStarted);
+        }
+
         public override void OnAnimationEvent(string eventId) => PlayMechanismSound(eventId);
 
         public override void ResetVisuals()

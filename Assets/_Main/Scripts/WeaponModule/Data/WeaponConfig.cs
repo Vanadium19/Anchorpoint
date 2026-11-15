@@ -48,6 +48,9 @@ namespace WeaponModule
         [SerializeField] private ReloadMode reloadMode = ReloadMode.Magazine;
         [SerializeField] private float roundReloadTime = 0.5f;
 
+        [Header("Wear")]
+        [SerializeField] private WeaponWearSettings wear = new();
+
         [Header("--- Recoil & Sway ---")]
         public RecoilSettings HipRecoil;
         public RecoilSettings AimRecoil;
@@ -79,5 +82,24 @@ namespace WeaponModule
         public float SpreadAngle => spreadAngle;
         public ReloadMode ReloadMode => reloadMode;
         public float RoundReloadTime => roundReloadTime;
+        public WeaponWearSettings Wear => wear;
+
+        /// <summary>
+        /// Returns how long clearing the malfunction takes: a fixed time for a misfire, the regular reload time
+        /// plus a bonus for a jam. A single-round weapon uses the time of one round as its regular reload time.
+        /// </summary>
+        public float GetMalfunctionClearTime(WeaponMalfunction malfunction)
+        {
+            switch (malfunction)
+            {
+                case WeaponMalfunction.Misfire:
+                    return wear.MisfireClearTime;
+                case WeaponMalfunction.Jam:
+                    var regularReloadTime = reloadMode == ReloadMode.SingleRound ? roundReloadTime : reloadTime;
+                    return regularReloadTime + wear.JamClearTimeBonus;
+                default:
+                    return 0f;
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@ namespace WeaponModule
     {
         private readonly WeaponConfig _config;
         private readonly WeaponModel _model;
+        private readonly WeaponWearModel _wear;
         private readonly WeaponView _view;
         private readonly IWeaponStatsProvider _statsProvider;
         private readonly IWeaponViewFactory _viewFactory;
@@ -59,6 +60,7 @@ namespace WeaponModule
         {
             _config = config;
             _model = model;
+            _wear = new WeaponWearModel(config.Wear);
             _view = view;
             _statsProvider = statsProvider;
             _viewFactory = viewFactory;
@@ -71,6 +73,8 @@ namespace WeaponModule
         }
 
         public WeaponModel Model => _model;
+
+        public WeaponWearModel Wear => _wear;
 
         public AmmoType AmmoType => _config.AmmoType;
 
@@ -240,7 +244,7 @@ namespace WeaponModule
             if (_isRoundReloading && isTriggerPulled && _model.CurrentMagazineAmmo > 0)
                 CancelCurrentActions();
 
-            if (_isReloading || Time.time < _nextFireTime || _model.CurrentMagazineAmmo <= 0)
+            if (_isReloading || _wear.HasMalfunction || Time.time < _nextFireTime || _model.CurrentMagazineAmmo <= 0)
                 return;
 
             var shouldFire = (_config.IsAutomatic && _isFireHeld) || HasPendingTriggerPull();
@@ -249,6 +253,13 @@ namespace WeaponModule
                 return;
 
             _pendingTriggerPullTime = float.NegativeInfinity;
+
+            if (_wear.TryRollMalfunction(UnityEngine.Random.value, UnityEngine.Random.value))
+            {
+                _view.PlayMalfunction(_wear.Malfunction);
+                return;
+            }
+
             _shouldShootFrame = true;
             _nextFireTime = Time.time + _config.FireRate;
         }
@@ -260,6 +271,7 @@ namespace WeaponModule
             if (!_model.TryConsumeAmmo())
                 return;
 
+            _wear.RegisterShot();
             _view.PlayFireEffects(_isAiming);
 
             _shotProjectiles.Clear();
@@ -304,7 +316,12 @@ namespace WeaponModule
             if (_isReloading)
                 return;
 
-            if (_isReloadPressed && _model.CanReload)
+            if (!_isReloadPressed)
+                return;
+
+            if (_wear.HasMalfunction)
+                ClearMalfunctionRoutine().Forget();
+            else if (_model.CanReload)
                 StartReload(_model.IsMagazineEmpty, 0f);
         }
 
@@ -417,6 +434,31 @@ namespace WeaponModule
             _isReloading = false;
             _isRoundReloading = false;
             _view.SetReloadState(false);
+        }
+
+        private async UniTaskVoid ClearMalfunctionRoutine()
+        {
+            if (_isReloading || !_wear.HasMalfunction)
+                return;
+
+            var malfunction = _wear.Malfunction;
+            var duration = _config.GetMalfunctionClearTime(malfunction);
+
+            _isReloading = true;
+            _shouldShootFrame = false;
+            _view.PlayMalfunctionClear(malfunction, duration);
+
+            bool clearCanceled = await WaitWhilePlayableAsync(duration, _tokenSource.Token);
+
+            if (clearCanceled)
+                return;
+
+            if (malfunction == WeaponMalfunction.Jam)
+                _model.DiscardMagazineAmmo(_config.Wear.JamLostRounds);
+
+            _wear.ClearMalfunction();
+            _isReloading = false;
+            _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
         private async UniTaskVoid DrawWeaponRoutine()

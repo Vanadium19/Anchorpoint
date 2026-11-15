@@ -79,6 +79,16 @@
 
 Банк `Weapons` должен быть в `initialBanks` `AudioSystem` на сцене, где есть оружие (сейчас `Camp` и `Game`).
 
+## Износ и неисправности
+
+Износ (0–100%) хранит `WeaponWearModel`, по одной модели на `WeaponController`. Он не сохраняется: контроллеры живут только в сцене, поэтому в начале вылазки и при возврате на базу износ равен 0%. Оружие, убранное в слот, сохраняет износ до конца сцены.
+
+- `WeaponConfig.Wear` (`WeaponWearSettings`) настраивает ГД: `wearPerShot` (D, % за выстрел; АК 0.4, револьвер 1, дробовик 2), `wearMultiplier` (M, множитель для будущих модификаций), `malfunctionThreshold` (T, 30), `maxMalfunctionChance` (Pmax, 10), веса `misfireWeight`/`jamWeight` (70/30), `misfireClearTime` (Z1, 0.5), `jamClearTimeBonus` (добавка к обычной перезарядке для Z2, 1.5), `jamLostRounds` (1). Один выстрел дробовика — один выстрел износа независимо от числа дробин. Множитель во время игры меняет `WeaponWearModel.SetMultiplier`.
+- Шанс неисправности при нажатии спуска растёт линейно от 0% при износе T до Pmax при 100%. Бросок делает `WeaponController.CheckFireInput` перед выстрелом, `WeaponWearModel.TryRollMalfunction` принимает два случайных числа 0–1 (шанс и вид).
+- Осечка (`Misfire`) и заклин (`Jam`) блокируют стрельбу до перезарядки. Кнопка перезарядки при неисправности запускает `ClearMalfunctionRoutine`: Z1 для осечки, для заклина обычная перезарядка (`ReloadTime`, у поштучного оружия `RoundReloadTime`) плюс добавка. Патроны запаса не тратятся, при заклине из магазина теряются `jamLostRounds` патронов по окончании. Износ при устранении не сбрасывается; смена оружия прерывает устранение, неисправность остаётся на оружии.
+- Представление: `WeaponView.PlayMalfunction` и `PlayMalfunctionClear` рассылают частям `OnMalfunctionOccurred`/`OnMalfunctionClearStarted`. Звуки привязываются в `WeaponAudioView` по id `Misfired`, `Jammed`, `MisfireClearStarted`, `JamClearStarted` (события банка `Weapons`: `MisfireClick`, `JamClang`, `Rack` — синтезированные WAV в `Audio/Clips/Weapons`). Анимации устранения — триггеры `ClearMisfire` и `ClearJam` аниматора оружия (состояния в базовом слое `acgun`, скорость задает `ReloadSpeed`; длины клипов — поля `clearMisfireClip`/`clearJamClip` у `WeaponView`). У АК и револьвера это жест корпуса оружия (кость `gun_root_bone`: наклон, оттягивание затвора, встряска при заклине), у дробовика — одно и двойное передергивание цевья с событием `Pump`. Свои клипы револьвера и дробовика подключены через `AnimatorOverrideController`. Руки не отпускаются на время устранения и следуют за оружием через `WeaponGripView`. Если в аниматоре нет параметра, триггер пропускается, а устранение идет по таймеру.
+- HUD: `AmmoPresenter` передает в `AmmoView` износ (`wearFill`, цвета и границы `mediumWearThreshold`/`highWearThreshold`) и неисправность (`malfunctionText` с ключами локализации `misfireHintKey`/`jamHintKey` таблицы `Localization`).
+
 ## Расширение
 
 Новое оружие обычно добавляется новым `WeaponConfig` и prefab `WeaponView`. Общий ввод остается в `PlayerModule`, а контракт снаряда задается в `ComponentsModule`.
