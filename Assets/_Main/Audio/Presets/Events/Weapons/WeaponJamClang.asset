@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WeaponJamClang
   m_EditorClassIdentifier: AudioModule::AudioModule.AudioSourceEvent
   _poolable: 1
-  duration: 1
+  duration: 0.6546712
   loop: 0
   loopOne: 0
   spartialBlend: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     - rid: 3583316286703403089
       type: {class: ClipConst, ns: AudioModule, asm: AudioModule}
       data:
-        clip: {fileID: 8300000, guid: 65a9fce0d4a2d6d43983ce9931c4b343, type: 3}
+        clip: {fileID: 8300000, guid: 5f14828734f0458428f568bebf2f851b, type: 3}
     - rid: 3583316286703403091
       type: {class: FloatConst, ns: AudioModule, asm: AudioModule}
       data:
