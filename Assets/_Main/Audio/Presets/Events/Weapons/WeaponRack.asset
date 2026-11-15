@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: WeaponRack
   m_EditorClassIdentifier: AudioModule::AudioModule.AudioSourceEvent
   _poolable: 1
-  duration: 0.5
+  duration: 0.605737
   loop: 0
   loopOne: 0
   spartialBlend: 0
