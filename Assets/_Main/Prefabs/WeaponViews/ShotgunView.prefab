@@ -585,8 +585,11 @@ MonoBehaviour:
   reloadClip: {fileID: 0}
   emptyReloadClip: {fileID: 0}
   roundReloadClip: {fileID: 7400000, guid: 5c7bce5fe130f8749967e62e1c8444f4, type: 2}
-  clearMisfireClip: {fileID: 7400000, guid: 57c1cc9606725dd49a944b3e15d191b2, type: 2}
-  clearJamClip: {fileID: 7400000, guid: 8de1e885c498fe049b1e737496f2dc83, type: 2}
+  clearMisfireClip: {fileID: 0}
+  misfireClearStyle: 1
+  jamClearStyle: 1
+  misfireActionCycles: 1
+  jamActionCycles: 2
   recoilPivot: {fileID: 4830740603828176914}
   bulletPrefab: {fileID: 255396894567764038, guid: bfd77be15ff3ca3449d342cca075291b, type: 3}
   animationEvents: {fileID: 1988969292880116179}

@@ -20,7 +20,15 @@ namespace WeaponModule
         [SerializeField] private AnimationClip roundReloadClip;
         [Tooltip("Clips of clearing a malfunction, stretched to the clear time of the config. Optional.")]
         [SerializeField] private AnimationClip clearMisfireClip;
-        [SerializeField] private AnimationClip clearJamClip;
+
+        [Header("Malfunction Clearing")]
+        [Tooltip("Clip: the clear clip above. ActionCycle: the mechanism animation of a shot, repeated. ReloadAnimation: the reload animation.")]
+        [SerializeField] private MalfunctionClearStyle misfireClearStyle = MalfunctionClearStyle.Clip;
+        [SerializeField] private MalfunctionClearStyle jamClearStyle = MalfunctionClearStyle.Clip;
+        [Min(1)]
+        [SerializeField] private int misfireActionCycles = 1;
+        [Min(1)]
+        [SerializeField] private int jamActionCycles = 1;
 
         [Header("Recoil Targets")]
         [SerializeField] private Transform recoilPivot;
@@ -129,13 +137,13 @@ namespace WeaponModule
                 SetBool(WeaponAnimatorHashes.IsRoundReloading, false);
         }
 
-        public void PlayReload(bool isEmptyReload)
+        public void PlayReload(bool isEmptyReload, float durationOverride = 0f)
         {
             ForEachPart(static (part, isEmpty) => part.OnReloadStarted(isEmpty), isEmptyReload);
 
             if (_config.ReloadMode == ReloadMode.SingleRound)
             {
-                SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(roundReloadClip, _config.RoundReloadTime));
+                SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(roundReloadClip, durationOverride > 0f ? durationOverride : _config.RoundReloadTime));
                 SetBool(WeaponAnimatorHashes.IsRoundReloading, true);
                 return;
             }
@@ -143,22 +151,36 @@ namespace WeaponModule
             var isEmptyAnimation = isEmptyReload && _config.UseEmptyReloadAnimation;
             var clip = isEmptyAnimation ? emptyReloadClip : reloadClip;
 
-            SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clip, _config.ReloadTime));
+            SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clip, durationOverride > 0f ? durationOverride : _config.ReloadTime));
             SetTrigger(isEmptyAnimation ? WeaponAnimatorHashes.EmptyReload : WeaponAnimatorHashes.Reload);
         }
 
         public void PlayMalfunction(WeaponMalfunction malfunction) =>
             ForEachPart(static (part, kind) => part.OnMalfunctionOccurred(kind), malfunction);
 
+        public MalfunctionClearStyle GetClearStyle(WeaponMalfunction malfunction) =>
+            malfunction == WeaponMalfunction.Jam ? jamClearStyle : misfireClearStyle;
+
+        public int GetActionCycles(WeaponMalfunction malfunction) =>
+            Mathf.Max(1, malfunction == WeaponMalfunction.Jam ? jamActionCycles : misfireActionCycles);
+
         public void PlayMalfunctionClear(WeaponMalfunction malfunction, float duration)
         {
             ForEachPart(static (part, kind) => part.OnMalfunctionClearStarted(kind), malfunction);
 
-            var isJam = malfunction == WeaponMalfunction.Jam;
-            var clip = isJam ? clearJamClip : clearMisfireClip;
-
-            SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clip, duration));
-            TrySetTrigger(isJam ? WeaponAnimatorHashes.ClearJam : WeaponAnimatorHashes.ClearMisfire);
+            switch (GetClearStyle(malfunction))
+            {
+                case MalfunctionClearStyle.ReloadAnimation:
+                    PlayReload(true, duration);
+                    break;
+                case MalfunctionClearStyle.ActionCycle:
+                    PlayActionCycle();
+                    break;
+                default:
+                    SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clearMisfireClip, duration));
+                    TrySetTrigger(WeaponAnimatorHashes.ClearMisfire);
+                    break;
+            }
         }
 
         public void SetHolsterState(bool isHolstered)

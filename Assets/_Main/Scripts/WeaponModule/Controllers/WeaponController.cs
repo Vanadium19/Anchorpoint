@@ -443,21 +443,44 @@ namespace WeaponModule
 
             var malfunction = _wear.Malfunction;
             var duration = _config.GetMalfunctionClearTime(malfunction);
+            var style = _view.GetClearStyle(malfunction);
+            var lostRounds = malfunction == WeaponMalfunction.Jam ? _config.Wear.JamLostRounds : 0;
+            var token = _tokenSource.Token;
 
             _isReloading = true;
             _shouldShootFrame = false;
+
+            if (style != MalfunctionClearStyle.ActionCycle)
+                _view.SetReloadState(true);
+
+            if (style == MalfunctionClearStyle.ReloadAnimation)
+                _view.SetLoadedRounds(Mathf.Max(0, _model.CurrentMagazineAmmo - lostRounds));
+
             _view.PlayMalfunctionClear(malfunction, duration);
 
-            bool clearCanceled = await WaitWhilePlayableAsync(duration, _tokenSource.Token);
+            var cycles = style == MalfunctionClearStyle.ActionCycle ? _view.GetActionCycles(malfunction) : 1;
+            var step = duration / cycles;
 
-            if (clearCanceled)
-                return;
+            for (var i = 0; i < cycles; i++)
+            {
+                if (i > 0)
+                    _view.PlayActionCycle();
 
-            if (malfunction == WeaponMalfunction.Jam)
-                _model.DiscardMagazineAmmo(_config.Wear.JamLostRounds);
+                bool clearCanceled = await WaitWhilePlayableAsync(step, token);
+
+                if (clearCanceled)
+                    return;
+            }
+
+            if (lostRounds > 0)
+                _model.DiscardMagazineAmmo(lostRounds);
 
             _wear.ClearMalfunction();
             _isReloading = false;
+
+            if (style != MalfunctionClearStyle.ActionCycle)
+                _view.SetReloadState(false);
+
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);
         }
 
