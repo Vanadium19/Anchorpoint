@@ -450,11 +450,11 @@ namespace WeaponModule
             _isReloading = true;
             _shouldShootFrame = false;
 
-            if (style != MalfunctionClearStyle.ActionCycle)
-                _view.SetReloadState(true);
-
             if (style == MalfunctionClearStyle.ReloadAnimation)
+            {
+                _view.SetReloadState(true);
                 _view.SetLoadedRounds(Mathf.Max(0, _model.CurrentMagazineAmmo - lostRounds));
+            }
 
             _view.PlayMalfunctionClear(malfunction, duration);
 
@@ -478,7 +478,7 @@ namespace WeaponModule
             _wear.ClearMalfunction();
             _isReloading = false;
 
-            if (style != MalfunctionClearStyle.ActionCycle)
+            if (style == MalfunctionClearStyle.ReloadAnimation)
                 _view.SetReloadState(false);
 
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);

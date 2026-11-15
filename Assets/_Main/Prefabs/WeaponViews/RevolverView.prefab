@@ -2405,8 +2405,8 @@ MonoBehaviour:
   reloadClip: {fileID: 7400000, guid: c801e504bb6acb64893fd4bcabaa720f, type: 2}
   emptyReloadClip: {fileID: 7400000, guid: fba8aa4628d255243b21503911bf4ac0, type: 2}
   roundReloadClip: {fileID: 0}
-  clearMisfireClip: {fileID: 0}
-  misfireClearStyle: 1
+  clearMisfireClip: {fileID: 7400000, guid: 9b8021971f70877469e05de15d1b516b, type: 2}
+  misfireClearStyle: 0
   jamClearStyle: 2
   misfireActionCycles: 1
   jamActionCycles: 1
