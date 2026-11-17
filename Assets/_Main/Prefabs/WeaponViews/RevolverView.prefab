@@ -2407,9 +2407,19 @@ MonoBehaviour:
   roundReloadClip: {fileID: 0}
   clearMisfireClip: {fileID: 7400000, guid: 9b8021971f70877469e05de15d1b516b, type: 2}
   misfireClearStyle: 0
-  jamClearStyle: 2
+  jamClearStyle: 0
   misfireActionCycles: 1
   jamActionCycles: 1
+  releaseHandsDuringClear: 0
+  playArmsClearClip: 0
+  maxClearSpeed: 1
+  shakeDuration: 0.7
+  shakeAngle: 7
+  shakeDistance: 0.025
+  shakeAxis: {x: 1, y: 0.5, z: 0}
+  shakeVerticalFrequencyScale: 1.7
+  shakeFrequency: 6
+  triggerPullDuration: 0.09
   recoilPivot: {fileID: 4830740603828176914}
   bulletPrefab: {fileID: 255396894567764038, guid: 6daac0008bda35b4e8d5faa7a83117ad, type: 3}
   animationEvents: {fileID: 6219565948932006103}

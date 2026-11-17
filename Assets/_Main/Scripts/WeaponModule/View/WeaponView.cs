@@ -6,6 +6,12 @@ namespace WeaponModule
 {
     public class WeaponView : MonoBehaviour
     {
+        private const string GunClearLayerName = "Clear";
+        private const float ClearCrossFadeTime = 0.08f;
+
+        private static readonly int ArmsClearStateHash = Animator.StringToHash("ClearMalfunction");
+        private static readonly int GunClearStateHash = Animator.StringToHash("ClearMisfire");
+
         [Header("References")]
         [SerializeField] private Animator handsAnimator;
         [SerializeField] private Animator gunAnimator;
@@ -29,6 +35,31 @@ namespace WeaponModule
         [SerializeField] private int misfireActionCycles = 1;
         [Min(1)]
         [SerializeField] private int jamActionCycles = 1;
+        [Tooltip("Releases the grip of the hands so the arms clip of the clear animation drives them.")]
+        [SerializeField] private bool releaseHandsDuringClear = true;
+        [Tooltip("Plays the arms clip of the clear animation. Off when the hands only hold the weapon.")]
+        [SerializeField] private bool playArmsClearClip = true;
+        [Tooltip("The clear clip never plays faster than this, even when the configured clear time is shorter.")]
+        [Min(1f)]
+        [SerializeField] private float maxClearSpeed = 1.5f;
+
+        [Header("Shake")]
+        [Tooltip("Shake of the whole weapon, started by the ShakeStarted Animation Event of a clear clip.")]
+        [Min(0.01f)]
+        [SerializeField] private float shakeDuration = 0.7f;
+        [Tooltip("Rotation amplitude in degrees. Zero shakes the weapon without rotating it.")]
+        [SerializeField] private float shakeAngle = 7f;
+        [SerializeField] private float shakeDistance = 0.025f;
+        [Tooltip("Weight of the shake along each axis of the recoil pivot.")]
+        [SerializeField] private Vector3 shakeAxis = new(1f, 0.5f, 0f);
+        [Tooltip("Frequency of the vertical shake relative to the horizontal one. One shakes up and down in one rhythm.")]
+        [Min(0f)]
+        [SerializeField] private float shakeVerticalFrequencyScale = 1.7f;
+        [Min(0f)]
+        [SerializeField] private float shakeFrequency = 6f;
+        [Tooltip("Seconds the trigger stays pressed after a TriggerPulled Animation Event of a clear clip.")]
+        [Min(0.01f)]
+        [SerializeField] private float triggerPullDuration = 0.09f;
 
         [Header("Recoil Targets")]
         [SerializeField] private Transform recoilPivot;
@@ -48,6 +79,8 @@ namespace WeaponModule
         private float _currentAimBlend;
         private Transform _cameraTransform;
         private bool _isPaused;
+        private float _shakeElapsed = float.MaxValue;
+        private float _triggerPullRemaining;
 
         public GameObject BulletPrefab => bulletPrefab;
         public Transform FirePoint => firePoint;
@@ -95,6 +128,8 @@ namespace WeaponModule
 
         public void SetTriggerHold(bool isHeld)
         {
+            isHeld |= _triggerPullRemaining > 0f;
+
             SetBool(WeaponAnimatorHashes.TriggerHold, isHeld);
             ForEachPart(static (part, held) => part.OnTriggerHeld(held), isHeld);
         }
@@ -178,10 +213,17 @@ namespace WeaponModule
                     break;
                 default:
                     SetFloat(WeaponAnimatorHashes.ReloadSpeed, GetReloadSpeed(clearMisfireClip, duration));
-                    TrySetTrigger(WeaponAnimatorHashes.ClearMisfire);
+                    PlayClearClip();
                     break;
             }
         }
+
+        public float GetClearClipLength(WeaponMalfunction malfunction) =>
+            GetClearStyle(malfunction) == MalfunctionClearStyle.Clip && clearMisfireClip != null ? clearMisfireClip.length : 0f;
+
+        public float MaxClearSpeed => maxClearSpeed;
+
+        public bool ShouldReleaseHandsDuringClear => releaseHandsDuringClear;
 
         public void SetHolsterState(bool isHolstered)
         {
@@ -219,14 +261,16 @@ namespace WeaponModule
             if (_isPaused)
                 return;
 
+            _triggerPullRemaining = Mathf.Max(0f, _triggerPullRemaining - deltaTime);
             _weaponRecoil.Update(deltaTime);
             _cameraRecoil.Update(deltaTime);
             _sway.Update(lookInput, _config.Sway, deltaTime, isAiming);
 
             if (recoilPivot != null)
             {
-                recoilPivot.localPosition = _weaponRecoil.CurrentPosition + _sway.OutputPosition;
-                recoilPivot.localRotation = Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation;
+                UpdateShake(deltaTime, out var shakePosition, out var shakeRotation);
+                recoilPivot.localPosition = _weaponRecoil.CurrentPosition + _sway.OutputPosition + shakePosition;
+                recoilPivot.localRotation = Quaternion.Euler(_weaponRecoil.CurrentRotation) * _sway.OutputRotation * shakeRotation;
             }
 
             if (_cameraTransform != null)
@@ -238,6 +282,8 @@ namespace WeaponModule
             _weaponRecoil.Reset();
             _sway.Reset();
             _currentAimBlend = 0f;
+            _shakeElapsed = float.MaxValue;
+            _triggerPullRemaining = 0f;
 
             if (aimPivot != null)
             {
@@ -252,6 +298,47 @@ namespace WeaponModule
 
             if (gunAnimator != null)
                 gunAnimator.Rebind();
+        }
+
+        private void UpdateShake(float deltaTime, out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            if (_shakeElapsed >= shakeDuration)
+                return;
+
+            _shakeElapsed += deltaTime;
+
+            var progress = Mathf.Clamp01(_shakeElapsed / shakeDuration);
+            var envelope = Mathf.Sin(progress * Mathf.PI);
+            var phase = _shakeElapsed * shakeFrequency * Mathf.PI * 2f;
+
+            position = new Vector3(
+                shakeAxis.x * Mathf.Sin(phase),
+                shakeAxis.y * Mathf.Sin(phase * shakeVerticalFrequencyScale + 1f),
+                shakeAxis.z * Mathf.Sin(phase * 1.3f)) * (shakeDistance * envelope);
+            rotation = Quaternion.Euler(
+                Mathf.Sin(phase * 1.3f) * shakeAngle * 0.6f * envelope,
+                Mathf.Sin(phase) * shakeAngle * 0.4f * envelope,
+                Mathf.Sin(phase * 0.8f + 0.5f) * shakeAngle * envelope);
+        }
+
+        private void PlayClearClip()
+        {
+            if (playArmsClearClip)
+                PlayClearState(handsAnimator, 0, ArmsClearStateHash);
+
+            if (gunAnimator != null)
+                PlayClearState(gunAnimator, gunAnimator.GetLayerIndex(GunClearLayerName), GunClearStateHash);
+        }
+
+        private static void PlayClearState(Animator animator, int layer, int stateHash)
+        {
+            if (animator == null || layer < 0 || !animator.HasState(layer, stateHash))
+                return;
+
+            animator.CrossFadeInFixedTime(stateHash, ClearCrossFadeTime, layer);
         }
 
         private static float GetReloadSpeed(AnimationClip clip, float duration) =>
@@ -301,29 +388,6 @@ namespace WeaponModule
                 gunAnimator.SetTrigger(hash);
         }
 
-        private void TrySetTrigger(int hash)
-        {
-            if (HasParameter(handsAnimator, hash))
-                handsAnimator.SetTrigger(hash);
-
-            if (HasParameter(gunAnimator, hash))
-                gunAnimator.SetTrigger(hash);
-        }
-
-        private static bool HasParameter(Animator animator, int hash)
-        {
-            if (animator == null || animator.runtimeAnimatorController == null)
-                return false;
-
-            foreach (var parameter in animator.parameters)
-            {
-                if (parameter.nameHash == hash)
-                    return true;
-            }
-
-            return false;
-        }
-
         private void SetFloat(int hash, float value)
         {
             if (handsAnimator != null)
@@ -342,8 +406,15 @@ namespace WeaponModule
                 gunAnimator.SetFloat(hash, value, dampTime, Time.deltaTime);
         }
 
-        private void OnAnimationEventRaised(string eventId) =>
+        private void OnAnimationEventRaised(string eventId)
+        {
+            if (eventId == WeaponEventIds.ShakeStarted)
+                _shakeElapsed = 0f;
+            else if (eventId == WeaponEventIds.TriggerPulled)
+                _triggerPullRemaining = triggerPullDuration;
+
             ForEachPart(static (part, id) => part.OnAnimationEvent(id), eventId);
+        }
 
         private void ForEachPart(Action<WeaponViewPart> action)
         {

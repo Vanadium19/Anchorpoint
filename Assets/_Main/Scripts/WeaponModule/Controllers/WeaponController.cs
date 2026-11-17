@@ -442,28 +442,35 @@ namespace WeaponModule
                 return;
 
             var malfunction = _wear.Malfunction;
-            var duration = _config.GetMalfunctionClearTime(malfunction);
             var style = _view.GetClearStyle(malfunction);
+            var clipLength = _view.GetClearClipLength(malfunction);
+            var minimumTime = clipLength > 0f ? clipLength / _view.MaxClearSpeed : 0f;
+            var duration = Mathf.Max(_config.GetMalfunctionClearTime(malfunction), minimumTime);
             var lostRounds = malfunction == WeaponMalfunction.Jam ? _config.Wear.JamLostRounds : 0;
+            var releaseHands = style == MalfunctionClearStyle.ReloadAnimation
+                || (style == MalfunctionClearStyle.Clip && _view.ShouldReleaseHandsDuringClear);
+            var cycles = style == MalfunctionClearStyle.ActionCycle
+                ? _view.GetActionCycles(malfunction)
+                : Mathf.Max(1, clipLength > 0f ? Mathf.RoundToInt(duration / clipLength) : 1);
+            var step = duration / cycles;
             var token = _tokenSource.Token;
 
             _isReloading = true;
             _shouldShootFrame = false;
 
-            if (style == MalfunctionClearStyle.ReloadAnimation)
-            {
+            if (releaseHands)
                 _view.SetReloadState(true);
+
+            if (style == MalfunctionClearStyle.ReloadAnimation)
                 _view.SetLoadedRounds(Mathf.Max(0, _model.CurrentMagazineAmmo - lostRounds));
-            }
 
-            _view.PlayMalfunctionClear(malfunction, duration);
-
-            var cycles = style == MalfunctionClearStyle.ActionCycle ? _view.GetActionCycles(malfunction) : 1;
-            var step = duration / cycles;
+            _view.PlayMalfunctionClear(malfunction, step);
 
             for (var i = 0; i < cycles; i++)
             {
-                if (i > 0)
+                if (i > 0 && style == MalfunctionClearStyle.Clip)
+                    _view.PlayMalfunctionClear(malfunction, step);
+                else if (i > 0)
                     _view.PlayActionCycle();
 
                 bool clearCanceled = await WaitWhilePlayableAsync(step, token);
@@ -478,7 +485,7 @@ namespace WeaponModule
             _wear.ClearMalfunction();
             _isReloading = false;
 
-            if (style == MalfunctionClearStyle.ReloadAnimation)
+            if (releaseHands)
                 _view.SetReloadState(false);
 
             _view.SetLoadedRounds(_model.CurrentMagazineAmmo);

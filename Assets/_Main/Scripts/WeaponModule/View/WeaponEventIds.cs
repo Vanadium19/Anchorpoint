@@ -16,5 +16,7 @@ namespace WeaponModule
         public const string Jammed = "Jammed";
         public const string MisfireClearStarted = "MisfireClearStarted";
         public const string JamClearStarted = "JamClearStarted";
+        public const string ShakeStarted = "ShakeStarted";
+        public const string TriggerPulled = "TriggerPulled";
     }
 }
