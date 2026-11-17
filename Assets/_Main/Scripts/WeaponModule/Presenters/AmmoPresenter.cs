@@ -45,8 +45,8 @@ namespace WeaponModule
             _currentWeapon.Wear.MalfunctionChanged += OnMalfunctionChanged;
 
             OnAmmoChanged(_currentWeapon.Model.CurrentMagazineAmmo, _currentWeapon.Model.ReserveAmmo);
-            OnWearChanged(_currentWeapon.Wear.Wear);
-            OnMalfunctionChanged(_currentWeapon.Wear.Malfunction);
+            _ammoView.SetWear(_currentWeapon.Wear.Wear, true);
+            _ammoView.SetMalfunction(_currentWeapon.Wear.Malfunction, true);
         }
 
         private void OnAmmoChanged(int currentMagazineAmmo, int reserveAmmo)
