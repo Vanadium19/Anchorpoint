@@ -585,6 +585,21 @@ MonoBehaviour:
   reloadClip: {fileID: 0}
   emptyReloadClip: {fileID: 0}
   roundReloadClip: {fileID: 7400000, guid: 5c7bce5fe130f8749967e62e1c8444f4, type: 2}
+  clearMisfireClip: {fileID: 7400000, guid: 6dc96a6dcaed92443ace7e7726da649d, type: 2}
+  misfireClearStyle: 0
+  jamClearStyle: 0
+  misfireActionCycles: 1
+  jamActionCycles: 2
+  releaseHandsDuringClear: 0
+  playArmsClearClip: 1
+  maxClearSpeed: 1
+  shakeDuration: 0.55
+  shakeAngle: 0
+  shakeDistance: 0.03
+  shakeAxis: {x: 0, y: 1, z: 0}
+  shakeVerticalFrequencyScale: 1
+  shakeFrequency: 2.5
+  triggerPullDuration: 0.09
   recoilPivot: {fileID: 4830740603828176914}
   bulletPrefab: {fileID: 255396894567764038, guid: bfd77be15ff3ca3449d342cca075291b, type: 3}
   animationEvents: {fileID: 1988969292880116179}
@@ -684,6 +699,16 @@ MonoBehaviour:
       bank: {fileID: 11400000, guid: 8662b9556e0267345a01ac29351d69f9, type: 2}
       eventId: ShotgunPump
       identifier: Weapons.ShotgunPump
+  - eventId: Misfired
+    sound:
+      bank: {fileID: 11400000, guid: 8662b9556e0267345a01ac29351d69f9, type: 2}
+      eventId: MisfireClick
+      identifier: Weapons.MisfireClick
+  - eventId: Jammed
+    sound:
+      bank: {fileID: 11400000, guid: 8662b9556e0267345a01ac29351d69f9, type: 2}
+      eventId: JamClang
+      identifier: Weapons.JamClang
   fireAudioMinInterval: 0.05
   fireAudioMaxVoices: 2
   fireAudioStealFadeOut: 0.06
@@ -703,6 +728,7 @@ MonoBehaviour:
   flashPrefab: {fileID: 6871822282352079151, guid: c5d6689591194c84d9cb898880f39be6, type: 3}
   muzzle: {fileID: 1178943263538892931}
   flashSize: 1.2
+  flashIntensity: 1
 --- !u!1001 &5476293509651887450
 PrefabInstance:
   m_ObjectHideFlags: 0

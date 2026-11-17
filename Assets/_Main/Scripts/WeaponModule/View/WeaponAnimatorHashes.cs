@@ -17,5 +17,6 @@ namespace WeaponModule
         public static readonly int InputY = Animator.StringToHash("InputY");
         public static readonly int AimBlend = Animator.StringToHash("AimBlend");
         public static readonly int ReloadSpeed = Animator.StringToHash("ReloadSpeed");
+        public static readonly int ClearMisfire = Animator.StringToHash("ClearMisfire");
     }
 }

@@ -41,6 +41,12 @@ MonoBehaviour:
     value: {fileID: 11400000, guid: 9411039fac52646449376627a8fe48ae, type: 2}
   - identifier: BulletImpact
     value: {fileID: 11400000, guid: d42af519108088b42894bc72ea224dc7, type: 2}
+  - identifier: MisfireClick
+    value: {fileID: 11400000, guid: 43ba638a946776649b0c393300625a66, type: 2}
+  - identifier: JamClang
+    value: {fileID: 11400000, guid: 21a725b30cfb1684f83d305f6bb4b655, type: 2}
+  - identifier: Rack
+    value: {fileID: 11400000, guid: 374f3b5a124560f449e9cea07b4999c9, type: 2}
   boolParameters: []
   intParameters: []
   floatParameters: []

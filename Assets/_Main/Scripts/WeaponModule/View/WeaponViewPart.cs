@@ -37,6 +37,14 @@ namespace WeaponModule
         {
         }
 
+        public virtual void OnMalfunctionOccurred(WeaponMalfunction malfunction)
+        {
+        }
+
+        public virtual void OnMalfunctionClearStarted(WeaponMalfunction malfunction)
+        {
+        }
+
         public virtual void OnLoadedRoundsChanged(int count)
         {
         }

@@ -34,6 +34,8 @@ MonoBehaviour:
   spreadAngle: 0
   reloadMode: 0
   roundReloadTime: 0.5
+  wear:
+    wearPerShot: 1
   HipRecoil:
     RecoilRotation: {x: -1.5, y: 1, z: 1}
     KickBackZ: 0.003

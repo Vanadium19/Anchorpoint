@@ -65,6 +65,18 @@ namespace WeaponModule
             return true;
         }
 
+        public int DiscardMagazineAmmo(int amount)
+        {
+            var discarded = Mathf.Clamp(amount, 0, _currentMagazineAmmo);
+
+            if (discarded == 0)
+                return 0;
+
+            _currentMagazineAmmo -= discarded;
+            NotifyAmmoChanged();
+            return discarded;
+        }
+
         public int AddReserveAmmo(int amount)
         {
             if (amount <= 0)
