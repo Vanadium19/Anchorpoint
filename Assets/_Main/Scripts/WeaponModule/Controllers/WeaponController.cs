@@ -17,6 +17,7 @@ namespace WeaponModule
         private readonly IWeaponStatsProvider _statsProvider;
         private readonly IWeaponViewFactory _viewFactory;
         private readonly IBulletFactory _bulletFactory;
+        private readonly PlayerShotNotifier _shotNotifier;
         private readonly IPauseManager _pauseManager;
         private readonly Transform _ownerRoot;
         private readonly List<Bullet> _shotProjectiles = new();
@@ -54,6 +55,7 @@ namespace WeaponModule
             IWeaponStatsProvider statsProvider,
             IWeaponViewFactory viewFactory,
             IBulletFactory bulletFactory,
+            PlayerShotNotifier shotNotifier,
             IPauseManager pauseManager,
             Transform ownerRoot)
         {
@@ -63,6 +65,7 @@ namespace WeaponModule
             _statsProvider = statsProvider;
             _viewFactory = viewFactory;
             _bulletFactory = bulletFactory;
+            _shotNotifier = shotNotifier;
             _pauseManager = pauseManager;
             _ownerRoot = ownerRoot;
 
@@ -273,6 +276,7 @@ namespace WeaponModule
             }
 
             IgnoreCollisionsBetweenShotProjectiles();
+            _shotNotifier.Notify(_view.FirePoint.position, _view.FirePoint.forward);
 
             if (_model.IsMagazineEmpty && _model.CanReload)
                 StartReload(true, _config.EmptyReloadDelay);

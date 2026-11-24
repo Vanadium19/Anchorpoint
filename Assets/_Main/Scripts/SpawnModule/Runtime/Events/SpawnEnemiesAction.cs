@@ -18,17 +18,20 @@ namespace SpawnModule
         private readonly List<Vector3> _spawnPositions;
         private readonly int _enemyCount;
         private readonly float _spawnScatterRadius;
+        private readonly GameObject _enemyPrefab;
 
         public SpawnEnemiesAction(
             IEnemyFactory enemyFactory,
             LevelSpawnPointsView spawnPoints,
             int enemyCount,
-            float spawnScatterRadius)
+            float spawnScatterRadius,
+            GameObject enemyPrefab)
         {
             _enemyFactory = enemyFactory;
             _spawnPositions = CaptureSpawnPositions(spawnPoints);
             _enemyCount = enemyCount;
             _spawnScatterRadius = spawnScatterRadius;
+            _enemyPrefab = enemyPrefab;
         }
 
         public override async UniTask<bool> ExecuteAsync(CancellationToken token)
@@ -58,7 +61,10 @@ namespace SpawnModule
             for (var index = 0; index < _enemyCount; index++)
             {
                 var position = _spawnPositions[(firstPointIndex + index) % _spawnPositions.Count];
-                var enemyObject = _enemyFactory.Create(position + GetScatterOffset());
+                var spawnPosition = position + GetScatterOffset();
+                var enemyObject = _enemyPrefab != null
+                    ? _enemyFactory.Create(_enemyPrefab, spawnPosition)
+                    : _enemyFactory.Create(spawnPosition);
 
                 if (enemyObject != null)
                     enemies.Add(new SpawnedEnemy(enemyObject));

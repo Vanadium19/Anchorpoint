@@ -18,6 +18,7 @@ namespace EnemyModule
         private IHealthComponent _health;
         private IPathMoveComponent _movement;
         private IRangedAttackComponent _attack;
+        private IGrenadeThrowComponent _grenadeThrow;
         private IPauseManager _pauseManager;
 
         private Vector3? _lastHitPosition;
@@ -28,11 +29,13 @@ namespace EnemyModule
         public void Construct(IHealthComponent health,
             IPathMoveComponent movement,
             IRangedAttackComponent attack,
-            IPauseManager pauseManager)
+            IPauseManager pauseManager,
+            [InjectOptional] IGrenadeThrowComponent grenadeThrow)
         {
             _health = health;
             _movement = movement;
             _attack = attack;
+            _grenadeThrow = grenadeThrow;
             _pauseManager = pauseManager;
             _pauseManager.Register(this);
         }
@@ -43,6 +46,9 @@ namespace EnemyModule
             _health.Died += Die;
 
             _attack.Attacked += OnAttacked;
+
+            if (_grenadeThrow != null)
+                _grenadeThrow.ThrowStarted += OnAttacked;
         }
 
         private void Update()
@@ -59,6 +65,9 @@ namespace EnemyModule
             _health.Died -= Die;
 
             _attack.Attacked -= OnAttacked;
+
+            if (_grenadeThrow != null)
+                _grenadeThrow.ThrowStarted -= OnAttacked;
         }
 
         private void OnDestroy() => _pauseManager?.Unregister(this);

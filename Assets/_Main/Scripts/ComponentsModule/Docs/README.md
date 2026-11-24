@@ -11,6 +11,7 @@
 - `IMoveComponent`, `IRotationComponent`, `ICrouchComponent` и `ILeanComponent` покрывают перемещение игрока.
 - `IPathMoveComponent`, `ITargetRotationComponent`, `ILineOfSightComponent` и `ICoverFinderComponent` покрывают навигацию AI.
 - `IRangedAttackComponent`, `ProjectileAttackComponent` и `IProjectile` задают дальнюю атаку.
+- `IShotNotifier` сообщает о выстрелах игрока (начало и направление луча), чтобы враги могли реагировать на прицеливание. Реализует `WeaponModule`, получают через `PlayerProvider`.
 - `IStructureTarget` и `IStructureTargetSource` описывают неподвижную цель — постройку, забор, ворота — для тех, кто атакует не только сущности. Реализация принадлежит модулю-владельцу таких объектов.
 
 ## Использование
