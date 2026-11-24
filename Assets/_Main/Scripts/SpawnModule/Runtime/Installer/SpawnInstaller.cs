@@ -9,6 +9,8 @@ namespace SpawnModule
         [Header("References")]
         [SerializeField] private LevelSpawnPointsView spawnPointsView;
         [SerializeField] private GameObject enemyPrefab;
+        [Tooltip("Enemy types picked by weight for every spawn. When empty, only Enemy Prefab spawns.")]
+        [SerializeField] private UnitEntry[] enemyVariants;
 
         [Header("Initial Spawn")]
         [Min(0)]
@@ -30,6 +32,7 @@ namespace SpawnModule
         public override void InstallBindings()
         {
             Container.BindInstance(spawnPointsView).AsSingle();
+            Container.BindInstance(new EnemyVariants(enemyVariants)).AsSingle();
 
             var spawnConfig = new SpawnConfig(
                 initialEnemyCount,
