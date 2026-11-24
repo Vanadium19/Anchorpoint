@@ -1,0 +1,22 @@
+Real recordings, all released under CC0 1.0 (public domain); attribution is not required.
+Clips were trimmed, faded, normalized and converted to mono 16-bit.
+
+Explosions (grenade_explosion_*, drone_explosion_*)
+  Source: USC Sound Effect Archive, SSE Library EXPLOSIONS
+  https://archive.org/details/SSE_Library_EXPLOSIONS
+  Files: Grenade explodes; Explosion bomb or shell; Land explosion; Dull explosion; Explosion good; Heavy sharp explosion with reverb.
+
+Drone rotor loop (drone_rotor_loop)
+  Source: The Designer's Choice Collection, AIRCRAFT / Radio Controlled
+  https://archive.org/details/Designers-Choice-Collection-Aircraft
+  File: Samsung Galaxy Smartphone CU Drone Flying (the middle of the take, looped with a crossfade).
+
+Countdown beep (drone_beep)
+  Source: USC Sound Effect Archive, SSE Library BEEPS
+  https://archive.org/details/SSE_Library_BEEPS
+  File: Cardiac arrest alarm (1 kHz tone), one short beep.
+
+Whooshes (whoosh_*)
+  Source: USC Sound Effect Archive, SSE Library WEAPONS
+  https://archive.org/details/SSE_Library_WEAPONS
+  File: Whip whoosh, individual swishes.
