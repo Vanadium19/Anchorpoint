@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23e11bbd92c253249bf24be38360fdab, type: 3}
+  m_Name: GrenadierEnemyConfig
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyModule.Configs.EnemyConfig
+  MaxHealth: 60
+  StoppingDistance: 0.5
+  LostTargetReachDistance: 2
+  CoverSearchRadius: 15
+  CoverArrivalDistance: 1
+  SightDistance: 25
+  ViewAngle: 360
+  ViewMask:
+    serializedVersion: 2
+    m_Bits: 65
+  MemoryTime: 10
+  CloseRangeNoticeDistance: 3
+  LoseTargetDistance: 40
+  AttackRange: 20
+  AttackExitRangeMultiplier: 1.2
+  CombatTurnSpeed: 540
+  FireRate: 1
+  MaxAmmo: 10
+  ReloadTime: 3
+  BulletSpeed: 100
+  Damage: 10
+  StructureAttackRange: 4
+  StructureDamage: 10
+  StructureAttackRate: 1
+  PatrolWaitTime: 4
+  LookInterval: 2
+  LookTurnSpeed: 2
+  LookAngleRange: 90
+  maxDropItems: 3
+  loot:
+  - dropWeight: 1
+    item: {fileID: 11400000, guid: 2718b65ed07e67540857e8e96a919589, type: 2}
+  - dropWeight: 1
+    item: {fileID: 11400000, guid: 3b6a8551cc8b7ed498bc190c57c6899b, type: 2}
+  lootScatterRadius: 0.75
+  lootSpawnOffsetY: 0.35

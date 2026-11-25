@@ -119859,6 +119859,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: SpawnModule::_Main.Scripts.SpawnModule.SpawnInstaller
   spawnPointsView: {fileID: 1184727564}
   enemyPrefab: {fileID: 4278790717967130169, guid: 114a32f62fee04559abff222e97c533e, type: 3}
+  enemyVariants:
+  - prefab: {fileID: 4278790717967130169, guid: 114a32f62fee04559abff222e97c533e, type: 3}
+    weight: 6
+  - prefab: {fileID: 4034141012908760962, guid: d820675da0da4f14eb8b837311dada83, type: 3}
+    weight: 2
+  - prefab: {fileID: 1505722399435713928, guid: c950a839bcfce9a40a46fb73cbfce686, type: 3}
+    weight: 2
   initialEnemyCount: 2
   enemiesPerWave: 1
   firstWaveDelay: 5
