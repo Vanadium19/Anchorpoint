@@ -1,0 +1,39 @@
+name: Delete feature branch merged into develop
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  delete-head-branch:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete merged feature branch
+        env:
+          HEAD_BRANCH: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          case "$HEAD_BRANCH" in
+            main|develop)
+              exit 0
+              ;;
+          esac
+          set +e
+          delete_output=$(gh api --method DELETE "repos/${GITHUB_REPOSITORY}/git/refs/heads/${HEAD_BRANCH}" 2>&1)
+          delete_status=$?
+          set -e
+          if [ "$delete_status" -eq 0 ]; then
+            exit 0
+          fi
+          printf '%s\n' "$delete_output"
+          if printf '%s\n' "$delete_output" | grep -q 'Reference does not exist'; then
+            exit 0
+          fi
+          exit "$delete_status"
