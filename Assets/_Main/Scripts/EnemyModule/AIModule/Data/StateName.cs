@@ -7,7 +7,5 @@ namespace EnemyModule
         Attack,
         Reload,
         AttackStructure,
-        Throw,
-        Kamikaze,
     }
 }

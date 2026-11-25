@@ -88,7 +88,3 @@
 - Новый механизм (затвор, магазин, лазер, счетчик) — новый наследник `WeaponViewPart` на prefab оружия; `WeaponView` подхватит его сам (массив `parts` обновляется при сохранении prefab).
 - Новый момент в клипе — Animation Event с функцией `RaiseEvent` и строковым id; часть сравнивает id в `OnAnimationEvent`. Id лучше выносить в сериализуемое поле части, как в `ChamberRoundsView`.
 - Новые клипы — через `AnimatorOverrideController` поверх `acarms`/`acgun`, хват рук — через новый `WeaponGripConfig`.
-
-## Оповещение о выстрелах
-
-`PlayerShotNotifier` реализует `IShotNotifier` из `ComponentsModule`: `WeaponController` сообщает о каждом выстреле (один раз на выстрел, независимо от числа снарядов) с позицией и направлением ствола. Враги подписываются через `PlayerProvider`, чтобы, например, дрон мог уклониться от прицельного выстрела.

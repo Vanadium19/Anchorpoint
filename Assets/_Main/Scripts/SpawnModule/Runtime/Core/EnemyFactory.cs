@@ -8,27 +8,18 @@ namespace SpawnModule
         private readonly DiContainer _container;
         private readonly GameObject _prefab;
         private readonly EnemyTargetRegistry _targetRegistry;
-        private readonly EnemyVariants _variants;
 
         public EnemyFactory(
             DiContainer container,
             GameObject prefab,
-            EnemyTargetRegistry targetRegistry,
-            [InjectOptional] EnemyVariants variants)
+            EnemyTargetRegistry targetRegistry)
         {
             _container = container;
             _prefab = prefab;
             _targetRegistry = targetRegistry;
-            _variants = variants;
         }
 
-        public GameObject Create(Vector3 position)
-        {
-            if (_variants != null && _variants.TryPick(out var variantPrefab))
-                return Create(variantPrefab, position);
-
-            return Create(_prefab, position);
-        }
+        public GameObject Create(Vector3 position) => Create(_prefab, position);
 
         public GameObject Create(GameObject prefab, Vector3 position)
         {

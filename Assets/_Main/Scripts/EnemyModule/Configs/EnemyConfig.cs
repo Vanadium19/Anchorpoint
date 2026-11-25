@@ -24,8 +24,6 @@ namespace EnemyModule
         public LayerMask ViewMask;
         public float MemoryTime = 10f;
         public float CloseRangeNoticeDistance = 3f;
-        [Tooltip("Distance at which a chasing enemy gives up on the player and returns to patrol. 0 disables it.")]
-        public float LoseTargetDistance;
 
         [Header("Combat")]
         public float AttackRange = 10f;

@@ -73,7 +73,7 @@ namespace EnemyModule
             return Vector3.Distance(_transform.position, targetPosition) <= _config.AttackRange;
         }
 
-        public bool ShouldReturnToPatrol() => HasLostTarget() || (_chaseTimer <= 0f && HasReachedLastKnownPosition());
+        public bool ShouldReturnToPatrol() => _chaseTimer <= 0f && HasReachedLastKnownPosition();
 
         private bool TryUpdateVisibleTarget(out Vector3 targetPosition)
         {
@@ -91,19 +91,6 @@ namespace EnemyModule
             _blackboard.SetValue(BlackboardTag.TargetPosition, targetPosition);
             _chaseTimer = _config.MemoryTime;
             return true;
-        }
-
-        private bool HasLostTarget()
-        {
-            if (_config.LoseTargetDistance <= 0f)
-                return false;
-
-            _player ??= _playerProvider.Get<Transform>();
-
-            if (_player == null)
-                return false;
-
-            return Vector3.Distance(_transform.position, _player.position) > _config.LoseTargetDistance;
         }
 
         private bool HasReachedLastKnownPosition()

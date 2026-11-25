@@ -11,10 +11,8 @@ namespace SpawnModule
     {
         [SerializeField] [Min(1)] private int enemyCount = 3;
         [SerializeField] [Min(0f)] private float spawnScatterRadius = 2f;
-        [Tooltip("Enemy type of this group. When empty, the scene picks the type by its own weights.")]
-        [SerializeField] private GameObject enemyPrefab;
 
         /// <inheritdoc/>
-        protected override object[] GetArguments(DiContainer container) => new object[] { enemyCount, spawnScatterRadius, Optional(enemyPrefab) };
+        protected override object[] GetArguments(DiContainer container) => new object[] { enemyCount, spawnScatterRadius };
     }
 }

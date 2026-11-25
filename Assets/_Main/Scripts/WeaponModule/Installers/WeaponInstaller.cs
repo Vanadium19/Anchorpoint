@@ -20,7 +20,6 @@ namespace WeaponModule.Installers
             Container.Bind<IWeaponStatsProvider>().To<WeaponStatsProvider>().AsSingle();
             Container.Bind<ICameraRecoilService>().To<CameraRecoilService>().AsSingle();
             Container.Bind<IBulletFactory>().To<BulletFactory>().AsSingle();
-            Container.BindInterfacesAndSelfTo<PlayerShotNotifier>().AsSingle();
 
             Container.Bind<WeaponModel>().AsTransient();
 
